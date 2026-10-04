@@ -176,7 +176,8 @@ fn record_bytes_and_record_count_have_explicit_limits() {
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod subprocess {
     use std::{
-        io::Write as _,
+        io::{self, BufRead as _, BufReader, Read as _, Write as _},
+        net::{SocketAddr, TcpListener, TcpStream},
         process::{Command, Stdio},
         time::{Duration, Instant},
     };
@@ -194,6 +195,41 @@ mod subprocess {
             ])
             .env("LOGBREW_POLICY_TEST_MODE", mode);
         Ok(command)
+    }
+
+    fn connected_descendant() -> Result<()> {
+        let address: SocketAddr = std::env::var("LOGBREW_POLICY_TEST_ADDRESS")?.parse()?;
+        let mut stream = TcpStream::connect_timeout(&address, Duration::from_secs(2))?;
+        stream.set_read_timeout(Some(Duration::from_secs(10)))?;
+        std::io::stdout().write_all(b"descendant ready\n")?;
+        std::io::stdout().flush()?;
+        let mut byte = [0_u8; 1];
+        // Parent socket closure also retires this fixture if the regression fails.
+        let _read: io::Result<usize> = stream.read(&mut byte);
+        Ok(())
+    }
+
+    fn spawn_connected_descendant() -> Result<()> {
+        let mut descendant = fixture_command("connected-descendant")?
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::null())
+            .spawn()?;
+        let stdout = descendant.stdout.take().ok_or("missing fixture stdout")?;
+        let mut reader = BufReader::new(stdout.take(4096));
+        let mut line = Vec::new();
+        // Read past the native test harness prefix with bounded output.
+        for _ in 0..16 {
+            if reader.read_until(b'\n', &mut line)? == 0 {
+                return Err("descendant exited before readiness".into());
+            }
+            if line.ends_with(b"descendant ready\n") {
+                drop(descendant);
+                return Ok(());
+            }
+            line.clear();
+        }
+        Err("missing descendant readiness".into())
     }
 
     #[test]
@@ -219,11 +255,47 @@ mod subprocess {
                 let descendant = fixture_command("stall")?.stdin(Stdio::null()).spawn()?;
                 drop(descendant);
             }
+            "connected-descendant" => connected_descendant()?,
+            "closed-pipe-descendant" => spawn_connected_descendant()?,
+            "closed-pipe-descendant-failure" => {
+                spawn_connected_descendant()?;
+                return Err("synthetic child failure".into());
+            }
             "success" => {
                 std::io::stdout().write_all(b"synthetic stdout\n")?;
                 std::io::stderr().write_all(b"synthetic stderr\n")?;
             }
             _ => return Err("invalid synthetic mode".into()),
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn completed_commands_retire_descendants_with_closed_capture_pipes() -> Result<()> {
+        for (mode, expected_success) in [
+            ("closed-pipe-descendant", true),
+            ("closed-pipe-descendant-failure", false),
+        ] {
+            let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))?;
+            listener.set_nonblocking(true)?;
+            let mut command = fixture_command(mode)?;
+            command.env(
+                "LOGBREW_POLICY_TEST_ADDRESS",
+                listener.local_addr()?.to_string(),
+            );
+            let captured =
+                super::super::process::capture(&mut command, Duration::from_secs(2), 4096)?;
+            assert_eq!(captured.success, expected_success, "{mode}");
+            // The leader waits for descendant readiness before it exits.
+            let (mut stream, _address): (TcpStream, SocketAddr) = listener.accept()?;
+            stream.set_nonblocking(false)?;
+            stream.set_read_timeout(Some(Duration::from_millis(500)))?;
+            let mut byte = [0_u8; 1];
+            match stream.read(&mut byte) {
+                Ok(0) => {}
+                Err(err) if err.kind() == io::ErrorKind::ConnectionReset => {}
+                result => panic!("{mode}: descendant connection remains open: {result:?}"),
+            }
         }
         Ok(())
     }

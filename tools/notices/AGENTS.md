@@ -38,10 +38,12 @@ regular executable in an operator-managed directory. The command rejects a
 relative path or final-component symlink and verifies the exact tool version.
 Version checking has a five-second execution deadline and 4 KiB per output pipe.
 Policy checking has a 120-second execution deadline and 8 MiB per output pipe.
-Each JSON record is limited to 1 MiB, with at most 16,384 records. On a failure
-or timeout, cleanup requests termination of the owned process group and reaps
-the leader. This is not a sandbox for an untrusted executable or proof of a
-kernel-level termination deadline. Linux and macOS are the supported hosts.
+Each JSON record is limited to 1 MiB, with at most 16,384 records. On completion,
+failure or timeout, cleanup requests termination of the owned process group
+before reaping the leader. Group termination remains best effort. This is
+not a sandbox for an untrusted executable
+or proof of a kernel-level termination deadline. Linux and macOS are the
+supported hosts.
 
 Generate the input metadata
 from the MCP repository root:

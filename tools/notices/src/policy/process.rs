@@ -1,7 +1,7 @@
 use std::{
     io::{self, Read},
     os::unix::process::CommandExt as _,
-    process::{Child, Command, Stdio},
+    process::{Child, Command, ExitStatus, Stdio},
     time::{Duration, Instant},
 };
 
@@ -26,11 +26,22 @@ struct Process {
     reaped: bool,
 }
 
+impl Process {
+    fn finish(&mut self) -> Result<ExitStatus> {
+        // As in Drop, termination is best effort; an exited-only group can reject signals.
+        let _termination: rustix::io::Result<()> = kill_process_group(self.group, Signal::KILL);
+        let status: ExitStatus = self.child.wait()?;
+        self.reaped = true;
+        Ok(status)
+    }
+}
+
 impl Drop for Process {
     fn drop(&mut self) {
         if !self.reaped {
-            let _ = kill_process_group(self.group, Signal::KILL);
-            let _ = self.child.wait();
+            // Attempt reaping even when best-effort group termination fails.
+            let _termination: rustix::io::Result<()> = kill_process_group(self.group, Signal::KILL);
+            let _status: io::Result<ExitStatus> = self.child.wait();
         }
     }
 }
@@ -133,8 +144,7 @@ pub(super) fn capture(command: &mut Command, timeout: Duration, limit: usize) ->
             .map_err(|err| io::Error::other(format!("policy child observation: {err}")))?
             .is_some_and(|status| status.exited() || status.killed() || status.dumped())
         {
-            let status = process.child.wait()?;
-            process.reaped = true;
+            let status = process.finish()?;
             return Ok(Captured {
                 success: status.success(),
                 stdout: stdout.bytes,

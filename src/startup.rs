@@ -148,7 +148,7 @@ pub fn read_file(path: &Path, limit: u64, allowed: u32) -> Result<Zeroizing<Vec<
         return Err(Kind::Configuration.into());
     }
     let mut bytes = Zeroizing::new(Vec::new());
-    let _ = file
+    let _: usize = file
         .take(limit.saturating_add(1))
         .read_to_end(&mut bytes)
         .map_err(|_| Failure::from(Kind::Configuration))?;

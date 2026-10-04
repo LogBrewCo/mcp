@@ -22,7 +22,7 @@ async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
     let mut stream = running.tls(Some(b"http/1.1")).await?;
     stream.write_all(request).await?;
     let mut response = Vec::new();
-    let _ = timeout(
+    let _: usize = timeout(
         Duration::from_secs(2),
         stream.take(4096).read_to_end(&mut response),
     )

@@ -160,7 +160,7 @@ async fn uri_and_host_must_each_match_without_accepting_a_foreign_port() -> Test
         Some(b"resource.example"),
         None,
     )?;
-    let _ = duplicate
+    let _: bool = duplicate
         .headers_mut()
         .append(header::HOST, HeaderValue::from_static("resource.example"));
     check(&fixture, duplicate, StatusCode::FORBIDDEN).await?;
@@ -211,7 +211,7 @@ async fn origin_equivalence_preserves_strict_syntax_and_https_scope() -> TestRes
         Some(b"resource.example"),
         Some(b"https://resource.example"),
     )?;
-    let _ = duplicate.headers_mut().append(
+    let _: bool = duplicate.headers_mut().append(
         header::ORIGIN,
         HeaderValue::from_static("https://resource.example:443"),
     );

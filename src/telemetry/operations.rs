@@ -1,6 +1,6 @@
 //! Execution observations whose labels come only from the verified catalog.
 
-use std::{collections::BTreeMap, sync::Mutex, time::Instant};
+use std::{collections::BTreeMap, iter, sync::Mutex, time::Instant};
 
 use serde::Serialize;
 
@@ -29,7 +29,7 @@ impl Inventory {
         Self {
             digest: catalog.definition_digest().to_owned(),
             stats: Mutex::new(vec![Stats::EMPTY; slots.len()]),
-            losses: (0..slots.len()).map(|_| Loss::default()).collect(),
+            losses: iter::repeat_with(Loss::default).take(slots.len()).collect(),
             slots,
         }
     }

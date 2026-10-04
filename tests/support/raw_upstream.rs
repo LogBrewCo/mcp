@@ -262,30 +262,30 @@ async fn run_exchange(
             body,
         } => {
             let mut stream = acceptor.accept(stream).await?;
-            let _ = accepted.fetch_add(1, Ordering::SeqCst);
+            let _: usize = accepted.fetch_add(1, Ordering::SeqCst);
             if stream.get_ref().1.alpn_protocol() != Some(b"http/1.1") {
                 return Err(io::Error::other("HTTP/1 ALPN not negotiated").into());
             }
             request(&mut stream, path).await?;
-            let _ = observed.fetch_add(1, Ordering::SeqCst);
+            let _: usize = observed.fetch_add(1, Ordering::SeqCst);
             reply(&mut stream, &headers, body.as_deref()).await
         }
         Plan::StalledTls(started) => stalled_handshake(stream, started).await,
         Plan::Http2 { headers, body } => {
             let mut stream = acceptor.accept(stream).await?;
-            let _ = accepted.fetch_add(1, Ordering::SeqCst);
+            let _: usize = accepted.fetch_add(1, Ordering::SeqCst);
             if stream.get_ref().1.alpn_protocol() != Some(b"h2") {
                 return Err(io::Error::other("HTTP/2 ALPN not negotiated").into());
             }
             let mut preface = [0; 24];
-            let _ = stream.read_exact(&mut preface).await?;
+            let _: usize = stream.read_exact(&mut preface).await?;
             if &preface != b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n" {
                 return Err(io::Error::other("invalid HTTP/2 preface").into());
             }
             let mut peer = Peer::new(stream);
             peer.send(0, 4, 0, &[]).await?;
             let request = http2_request(&mut peer).await?;
-            let _ = observed.fetch_add(1, Ordering::SeqCst);
+            let _: usize = observed.fetch_add(1, Ordering::SeqCst);
             http2_reply(&mut peer, request, &headers, body.as_deref()).await
         }
     }
@@ -399,7 +399,7 @@ async fn stalled_handshake(
     started: oneshot::Sender<()>,
 ) -> TestResult<()> {
     let mut header = [0; 5];
-    let _ = stream.read_exact(&mut header).await?;
+    let _: usize = stream.read_exact(&mut header).await?;
     let [content_type, major, minor, high, low] = header;
     let length = usize::from(u16::from_be_bytes([high, low]));
     if content_type != 22
@@ -410,7 +410,7 @@ async fn stalled_handshake(
         return Err(io::Error::other("bounded TLS handshake record required").into());
     }
     let mut hello = vec![0; length];
-    let _ = stream.read_exact(&mut hello).await?;
+    let _: usize = stream.read_exact(&mut hello).await?;
     if hello.first() != Some(&1) {
         return Err(io::Error::other("TLS ClientHello required").into());
     }

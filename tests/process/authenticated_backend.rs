@@ -47,7 +47,7 @@ struct PendingGuard(Arc<AtomicUsize>);
 
 impl Drop for PendingGuard {
     fn drop(&mut self) {
-        let _ = self.0.fetch_sub(1, Ordering::SeqCst);
+        let _: usize = self.0.fetch_sub(1, Ordering::SeqCst);
     }
 }
 
@@ -69,7 +69,7 @@ impl Observations {
 
     async fn enter(&self, stage: PendingStage) -> PendingGuard {
         let (paused, pending) = self.stage(stage);
-        let _ = pending.fetch_add(1, Ordering::SeqCst);
+        let _: usize = pending.fetch_add(1, Ordering::SeqCst);
         let active = PendingGuard(Arc::clone(pending));
         if paused.load(Ordering::SeqCst) {
             std::future::pending::<()>().await;
@@ -137,7 +137,7 @@ impl Backend {
             .handle(handle.clone())
             .serve(router.into_make_service());
         let task = tokio::spawn(future);
-        let _ = timeout(Duration::from_secs(3), handle.listening())
+        let _: SocketAddr = timeout(Duration::from_secs(3), handle.listening())
             .await?
             .ok_or_else(|| std::io::Error::other("backend listener unavailable"))?;
         Ok(Self {

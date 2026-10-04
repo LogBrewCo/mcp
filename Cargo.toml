@@ -47,13 +47,22 @@ tower = { version = "=0.5.3", features = ["util"] }
 
 [lints.clippy]
 all = { level = "deny", priority = -3 }
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
 arithmetic_side_effects = "deny"
 as_conversions = "deny"
+clone_on_ref_ptr = "deny"
 dbg_macro = "deny"
+error_impl_error = "deny"
 exit = "deny"
 expect_used = "deny"
 indexing_slicing = "deny"
+let_underscore_must_use = "deny"
+let_underscore_untyped = "deny"
+map_with_unused_argument_over_ranges = "deny"
 mem_forget = "deny"
+mutex_atomic = "deny"
+mutex_integer = "deny"
 nursery = { level = "deny", priority = -1 }
 panic = "deny"
 pedantic = { level = "deny", priority = -2 }
@@ -65,6 +74,7 @@ undocumented_unsafe_blocks = "deny"
 unimplemented = "deny"
 unreachable = "deny"
 unwrap_used = "deny"
+wildcard_enum_match_arm = "deny"
 
 [lints.rust]
 let_underscore_drop = "deny"

@@ -1,7 +1,7 @@
 //! Shared synthetic HTTPS backend and authenticated protocol request fixtures.
 
 use std::{
-    net::TcpListener,
+    net::{SocketAddr, TcpListener},
     sync::{
         Arc, Mutex,
         atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -60,7 +60,7 @@ struct ExecutionGuard(Arc<AtomicUsize>);
 
 impl Drop for ExecutionGuard {
     fn drop(&mut self) {
-        let _ = self.0.fetch_sub(1, Ordering::SeqCst);
+        let _: usize = self.0.fetch_sub(1, Ordering::SeqCst);
     }
 }
 
@@ -243,7 +243,7 @@ impl Fixture {
             handle,
             task,
         };
-        let _ = tokio::time::timeout(
+        let _: SocketAddr = tokio::time::timeout(
             std::time::Duration::from_secs(3),
             fixture.handle.listening(),
         )
@@ -374,7 +374,7 @@ async fn introspect(
         .append_pair("token_type_hint", "access_token")
         .finish();
     assert_eq!(body.as_ref(), expected.as_bytes());
-    let _ = state.verifies.fetch_add(1, Ordering::SeqCst);
+    let _: usize = state.verifies.fetch_add(1, Ordering::SeqCst);
     let reply = state
         .introspection_reply
         .lock()
@@ -428,8 +428,8 @@ async fn execute(
         input.get("client_id").and_then(Value::as_str),
         Some("synthetic-client")
     );
-    let _ = state.calls.fetch_add(1, Ordering::SeqCst);
-    let _ = state.active_executions.fetch_add(1, Ordering::SeqCst);
+    let _: usize = state.calls.fetch_add(1, Ordering::SeqCst);
+    let _: usize = state.active_executions.fetch_add(1, Ordering::SeqCst);
     let _active = ExecutionGuard(Arc::clone(&state.active_executions));
     if state.pause.load(Ordering::SeqCst) {
         state.release.notified().await;

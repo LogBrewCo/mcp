@@ -115,7 +115,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
             return Err(io::Error::other("received frame exceeds test bound").into());
         }
         let mut payload = vec![0; length];
-        let _ = self.0.read_exact(&mut payload).await?;
+        let _: usize = self.0.read_exact(&mut payload).await?;
         Ok(Some(Frame {
             kind,
             flags,

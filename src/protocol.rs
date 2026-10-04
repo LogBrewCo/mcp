@@ -69,6 +69,11 @@ struct Shared {
 #[derive(Clone)]
 struct Tools(Arc<Shared>);
 
+enum ToolKind {
+    Search,
+    Execute,
+}
+
 impl ServerHandler for Tools {
     fn get_info(&self) -> ServerConfig {
         ServerConfig::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
@@ -124,10 +129,14 @@ impl ServerHandler for Tools {
         request: CallToolRequestParams,
         context: RequestContext<RoleServer>,
     ) -> Result<CallToolResponse, ErrorData> {
-        let stage = match request.name.as_ref() {
-            "search" => Stage::Search,
-            "execute" => Stage::Execute,
+        let tool = match request.name.as_ref() {
+            "search" => ToolKind::Search,
+            "execute" => ToolKind::Execute,
             _ => return Err(ErrorData::invalid_params("unknown tool", None)),
+        };
+        let stage = match tool {
+            ToolKind::Search => Stage::Search,
+            ToolKind::Execute => Stage::Execute,
         };
         let measurement = self.0.telemetry.begin(stage);
         let arguments = context
@@ -143,8 +152,8 @@ impl ServerHandler for Tools {
             .and_then(Value::as_str)
             .and_then(|id| measurement.operation(id));
         let mut cancelled = false;
-        let result = match stage {
-            Stage::Execute => {
+        let result = match tool {
+            ToolKind::Execute => {
                 tokio::select! {
                     result = self.execute(&arguments, &context) => result,
                     () = context.ct.cancelled() => {
@@ -153,7 +162,7 @@ impl ServerHandler for Tools {
                     },
                 }
             }
-            _ => self.0.catalog.search(&arguments),
+            ToolKind::Search => self.0.catalog.search(&arguments),
         };
         let outcome = if cancelled {
             Outcome::Cancelled
@@ -319,7 +328,7 @@ async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
     if request.uri().query().is_some() {
         return (StatusCode::BAD_REQUEST, "query parameters are not accepted").into_response();
     }
-    let Ok(permit) = shared.slots.clone().try_acquire_owned() else {
+    let Ok(permit) = Arc::clone(&shared.slots).try_acquire_owned() else {
         return (
             StatusCode::TOO_MANY_REQUESTS,
             [(header::RETRY_AFTER, "1")],

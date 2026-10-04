@@ -272,7 +272,7 @@ impl Default for Telemetry {
 
 impl Telemetry {
     pub(crate) fn register_catalog(&self, catalog: &Catalog) {
-        let _ = self
+        let _: &operations::Inventory = self
             .0
             .operations
             .get_or_init(|| operations::Inventory::new(catalog));

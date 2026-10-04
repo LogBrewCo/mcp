@@ -2,6 +2,11 @@
 
 use std::{future::Future, net::SocketAddr, time::Duration};
 
+use hyper_util::{
+    rt::TokioExecutor,
+    server::conn::auto::{Http1Builder, Http2Builder},
+};
+
 use crate::{Failure, connections::ConnectionLimit, error::Kind, startup::Service};
 
 struct Stop(axum_server::Handle<SocketAddr>);
@@ -28,14 +33,14 @@ pub async fn serve(
     let mut server = axum_server::bind(service.address)
         .acceptor(ConnectionLimit::new(acceptor, 64))
         .handle(handle.clone());
-    let _ = server
+    let _: &mut Http1Builder<'_, TokioExecutor> = server
         .http_builder()
         .http1()
         .timer(hyper_util::rt::TokioTimer::new())
         .header_read_timeout(Duration::from_secs(5))
         .max_buf_size(16 << 10)
         .max_headers(100);
-    let _ = server
+    let _: &mut Http2Builder<'_, TokioExecutor> = server
         .http_builder()
         .http2()
         .timer(hyper_util::rt::TokioTimer::new())

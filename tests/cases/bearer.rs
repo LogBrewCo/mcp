@@ -26,7 +26,7 @@ async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<St
     )?;
     drop(request.headers_mut().remove(header::AUTHORIZATION));
     for value in authorization {
-        let _ = request
+        let _: bool = request
             .headers_mut()
             .append(header::AUTHORIZATION, value.clone());
     }

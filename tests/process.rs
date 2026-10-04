@@ -173,7 +173,7 @@ struct Process(Child);
 impl Process {
     fn command() -> Command {
         let mut command = Command::new(env!("CARGO_BIN_EXE_logbrew-mcp"));
-        let _ = command
+        let _: &mut Command = command
             .env_clear()
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -187,9 +187,9 @@ impl Process {
 
     fn start_with_roots(config: &Path, roots: Option<&Path>) -> std::io::Result<Self> {
         let mut command = Self::command();
-        let _ = command.arg(config);
+        let _: &mut Command = command.arg(config);
         if let Some(roots) = roots {
-            let _ = command.env("SSL_CERT_FILE", roots);
+            let _: &mut Command = command.env("SSL_CERT_FILE", roots);
         }
         command.spawn().map(Self)
     }
@@ -216,10 +216,10 @@ impl Process {
         };
         let mut output = Vec::new();
         if let Some(stdout) = self.0.stdout.take() {
-            let _ = stdout.take(4096).read_to_end(&mut output)?;
+            let _: usize = stdout.take(4096).read_to_end(&mut output)?;
         }
         if let Some(stderr) = self.0.stderr.take() {
-            let _ = stderr.take(4096).read_to_end(&mut output)?;
+            let _: usize = stderr.take(4096).read_to_end(&mut output)?;
         }
         assert!(
             output.is_empty(),

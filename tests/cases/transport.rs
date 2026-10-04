@@ -98,7 +98,7 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
         if let Some(value) = value {
             let value = value.parse().expect("header value");
             if append {
-                let _ = request.headers_mut().append(name.clone(), value);
+                let _: bool = request.headers_mut().append(name.clone(), value);
             } else {
                 drop(request.headers_mut().insert(name.clone(), value));
             }
@@ -319,7 +319,7 @@ async fn absent_or_duplicate_content_type_and_absent_accept_are_rejected() {
     ] {
         let mut request = request(&body()).expect("request");
         if duplicate {
-            let _ = request
+            let _: bool = request
                 .headers_mut()
                 .append("content-type", "application/json".parse().expect("type"));
         } else {
@@ -453,7 +453,7 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
         );
         drop(request.headers_mut().remove("accept"));
         for accept in accepts {
-            let _ = request
+            let _: bool = request
                 .headers_mut()
                 .append("accept", accept.parse().expect("accept"));
         }

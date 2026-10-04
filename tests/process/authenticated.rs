@@ -12,6 +12,9 @@ mod deadline;
 #[path = "authenticated_headers.rs"]
 mod headers;
 
+#[path = "authenticated_sdk.rs"]
+mod sdk;
+
 use std::{fs, io, sync::atomic::Ordering, time::Duration};
 
 use rustix::process::Signal;

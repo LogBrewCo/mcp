@@ -309,7 +309,7 @@ reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
 crate = "reqwest@0.13.5"
-allow = ["__rustls", "__rustls-aws-lc-rs", "__tls", "form", "http2", "json", "rustls"]
+allow = ["__rustls", "__rustls-aws-lc-rs", "__tls", "form", "http2", "json", "rustls", "stream"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
@@ -319,7 +319,7 @@ reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
 crate = "rmcp@3.5.0"
-allow = ["base64", "schemars", "server", "server-side-http", "tower", "transport-async-rw", "transport-streamable-http-server", "transport-streamable-http-server-session", "transport-worker", "uuid"]
+allow = ["__reqwest", "base64", "client", "client-side-sse", "schemars", "server", "server-side-http", "tower", "transport-async-rw", "transport-streamable-http-client", "transport-streamable-http-client-reqwest", "transport-streamable-http-server", "transport-streamable-http-server-session", "transport-worker", "uuid"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
@@ -474,7 +474,7 @@ reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
 crate = "web-sys@0.3.106"
-allow = ["AbortController", "AbortSignal", "Blob", "BlobPropertyBag", "EventTarget", "File", "FormData", "Headers", "ReadableStream", "ReferrerPolicy", "Request", "RequestCache", "RequestCredentials", "RequestInit", "RequestMode", "Response", "ServiceWorkerGlobalScope", "Window", "WorkerGlobalScope", "default", "std"]
+allow = ["AbortController", "AbortSignal", "Blob", "BlobPropertyBag", "EventTarget", "File", "FormData", "Headers", "QueuingStrategy", "ReadableByteStreamController", "ReadableStream", "ReadableStreamByobReader", "ReadableStreamByobRequest", "ReadableStreamDefaultController", "ReadableStreamDefaultReader", "ReadableStreamGetReaderOptions", "ReadableStreamReadResult", "ReadableStreamReaderMode", "ReadableStreamType", "ReadableWritablePair", "ReferrerPolicy", "Request", "RequestCache", "RequestCredentials", "RequestInit", "RequestMode", "Response", "ServiceWorkerGlobalScope", "StreamPipeOptions", "TransformStream", "TransformStreamDefaultController", "Transformer", "UnderlyingSink", "UnderlyingSource", "Window", "WorkerGlobalScope", "WritableStream", "WritableStreamDefaultController", "WritableStreamDefaultWriter", "default", "std"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]

@@ -60,11 +60,12 @@ Startup file loading is under development for Linux and macOS. It requires
 operator-managed directories and absolute regular-file paths, checks byte and
 permission bounds, and rejects final-component symlinks. Files are opened
 without waiting for a FIFO writer and their identity is checked before reading.
-The draft configuration reader accepts a private file up to 16 KiB. Its version
-is the string `"1"`; every field must appear exactly once with a nonempty string
-value. It rejects unknown fields, case aliases, duplicate decoded keys, invalid
-UTF-8, trailing documents, and inline secret fields. It preserves secret-file
-references without opening them.
+The draft configuration reader accepts a private file up to 16 KiB. Version
+`"2"` requires `client_allowlist_file`. Version `"1"` also accepts that field;
+without it, no client is authorized. Each supplied field must appear exactly once
+with a nonempty string value. It rejects unknown fields, case aliases, duplicate
+decoded keys, invalid UTF-8, trailing documents, and inline secret fields. It
+preserves secret-file references without opening them.
 
 The separate service loader reads referenced material and constructs the
 authenticated handler without opening a listener or contacting upstream services.
@@ -89,6 +90,20 @@ SIGINT and SIGTERM request graceful shutdown. Startup and serving failures exit
 nonzero without printing paths, credentials, or upstream responses. Source builds
 identify themselves as `development`. This command is not a released package
 or verified hosted service.
+
+Check the configuration and its referenced files before starting or replacing
+a process:
+
+```sh
+cargo run --locked -- --check-config /absolute/path/to/config.json
+```
+
+The check uses the same loader as startup, then exits without binding a listener
+or contacting either upstream service. It can run while the server is listening
+on the configured address. Exit status 0 means local validation passed; status 1
+means it failed. The executable prints no configuration or credential values.
+This check does not prove upstream availability, authorization, certificate
+renewal or client connectivity. Startup checks the files again when serving.
 
 Native process tests cover offline startup, both shutdown signals, listener
 release, mismatched certificate/key rejection, and stalled connections. The

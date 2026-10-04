@@ -14,19 +14,26 @@ async fn main() -> ExitCode {
 }
 
 async fn run() -> Result<(), Failure> {
-    let path = {
+    let (path, check_only) = {
         let mut arguments = std::env::args_os().skip(1);
-        let path = arguments
-            .next()
-            .map(PathBuf::from)
-            .ok_or(Kind::Configuration)?;
+        let first = arguments.next().ok_or(Kind::Configuration)?;
+        let check_only = first == "--check-config";
+        let path = if check_only {
+            arguments.next().ok_or(Kind::Configuration)?
+        } else {
+            first
+        };
         if arguments.next().is_some() {
             return Err(Kind::Configuration.into());
         }
-        path
+        (PathBuf::from(path), check_only)
     };
     let service = Service::load(&path)?;
-    runtime::serve(service, shutdown()).await
+    if check_only {
+        Ok(())
+    } else {
+        runtime::serve(service, shutdown()).await
+    }
 }
 
 async fn shutdown() -> Result<(), Failure> {

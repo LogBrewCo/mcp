@@ -9,6 +9,8 @@ mod hpack;
 mod http2;
 #[path = "support/peer.rs"]
 mod peer;
+#[path = "process/preflight.rs"]
+mod preflight;
 
 use std::{
     fmt::Write as _,
@@ -167,22 +169,27 @@ impl Fixture {
 struct Process(Child);
 
 impl Process {
+    fn command() -> Command {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_logbrew-mcp"));
+        let _ = command
+            .env_clear()
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        command
+    }
+
     fn start(config: &Path) -> std::io::Result<Self> {
         Self::start_with_roots(config, None)
     }
 
     fn start_with_roots(config: &Path, roots: Option<&Path>) -> std::io::Result<Self> {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_logbrew-mcp"));
-        let _ = command.arg(config).env_clear();
+        let mut command = Self::command();
+        let _ = command.arg(config);
         if let Some(roots) = roots {
             let _ = command.env("SSL_CERT_FILE", roots);
         }
-        command
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn()
-            .map(Self)
+        command.spawn().map(Self)
     }
 
     fn signal(&self, signal: Signal) -> TestResult<()> {

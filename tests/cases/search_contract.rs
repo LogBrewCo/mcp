@@ -243,38 +243,50 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
             "4" | "4.000" => 4,
             _ => 10,
         };
-        let mut cursor = String::new();
-        let mut collected = Vec::new();
-        for _ in 0..=expected.len() {
-            let arguments = json!({"query":" \u{43}\u{41}\u{46}\u{c9}\tselected\n", "limit":limit, "after":cursor});
-            assert!(validator.is_valid(&arguments));
-            let data = search(&fixture, arguments, true).await?;
-            let page = data
-                .get("operations")
-                .and_then(Value::as_array)
-                .ok_or_else(|| io::Error::other("missing page"))?;
-            assert!(!page.is_empty() && page.len() <= maximum);
-            for operation in page {
-                assert!(operation.get("input_schema").is_none());
-                let id = operation
-                    .get("id")
-                    .and_then(Value::as_str)
-                    .ok_or_else(|| io::Error::other("missing operation ID"))?;
-                collected.push(id.to_owned());
-            }
-            cursor = data
-                .get("next_cursor")
-                .and_then(Value::as_str)
-                .ok_or_else(|| io::Error::other("missing cursor"))?
-                .to_owned();
-            if cursor.is_empty() {
-                break;
-            }
-            assert_eq!(collected.last().map(String::as_str), Some(cursor.as_str()));
-        }
-        assert_eq!(cursor, "");
+        let collected =
+            collected_pages(&fixture, &validator, &limit, maximum, expected.len()).await?;
         assert_eq!(collected, expected);
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     Ok(())
+}
+
+async fn collected_pages(
+    fixture: &Fixture,
+    validator: &jsonschema::Validator,
+    limit: &Value,
+    maximum: usize,
+    expected: usize,
+) -> TestResult<Vec<String>> {
+    let mut cursor = String::new();
+    let mut collected = Vec::new();
+    for _ in 0..=expected {
+        let arguments =
+            json!({"query":" \u{43}\u{41}\u{46}\u{c9}\tselected\n", "limit":limit, "after":cursor});
+        assert!(validator.is_valid(&arguments));
+        let data = search(fixture, arguments, true).await?;
+        let page = data
+            .get("operations")
+            .and_then(Value::as_array)
+            .ok_or_else(|| io::Error::other("missing page"))?;
+        assert!(!page.is_empty() && page.len() <= maximum);
+        for operation in page {
+            assert!(operation.get("input_schema").is_none());
+            let id = operation
+                .get("id")
+                .and_then(Value::as_str)
+                .ok_or_else(|| io::Error::other("missing operation ID"))?;
+            collected.push(id.to_owned());
+        }
+        data.get("next_cursor")
+            .and_then(Value::as_str)
+            .ok_or_else(|| io::Error::other("missing cursor"))?
+            .clone_into(&mut cursor);
+        if cursor.is_empty() {
+            break;
+        }
+        assert_eq!(collected.last().map(String::as_str), Some(cursor.as_str()));
+    }
+    assert_eq!(cursor, "");
+    Ok(collected)
 }

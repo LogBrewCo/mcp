@@ -78,13 +78,14 @@ impl Observations {
     }
 
     pub async fn wait_for_pending(&self, stage: PendingStage, count: usize) -> TestResult<()> {
-        timeout(Duration::from_secs(2), async {
-            while self.pending_count(stage) != count {
-                tokio::time::sleep(Duration::from_millis(5)).await;
-            }
-        })
-        .await?;
+        timeout(Duration::from_secs(2), pending_count(self, stage, count)).await?;
         Ok(())
+    }
+}
+
+async fn pending_count(observed: &Observations, stage: PendingStage, count: usize) {
+    while observed.pending_count(stage) != count {
+        tokio::time::sleep(Duration::from_millis(5)).await;
     }
 }
 

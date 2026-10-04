@@ -165,29 +165,8 @@ async fn introspection_payload_headers_and_media_type_are_bounded_before_authori
     let fixture = Fixture::new().await.expect("fixture");
     let authority = fixture.authority().expect("valid authority");
     for mode in 0_i32..3_i32 {
-        let mut body = authority.clone();
-        let mut headers = HeaderMap::new();
-        match mode {
-            0_i32 => {
-                drop(
-                    body.as_object_mut()
-                        .expect("claims")
-                        .insert("filler".to_owned(), json!("x".repeat(64 << 10))),
-                );
-            }
-            1_i32 => {
-                drop(headers.insert(
-                    "x-synthetic-large",
-                    "x".repeat(17 << 10).parse().expect("large header"),
-                ));
-            }
-            _ => {
-                drop(headers.insert(
-                    axum::http::header::CONTENT_TYPE,
-                    "text/plain".parse().expect("media type"),
-                ));
-            }
-        }
+        let (body, headers) =
+            invalid_authority_response(&authority, mode).expect("invalid authority fixture");
         fixture
             .introspection_reply(StatusCode::OK, body.to_string(), headers)
             .expect("oversized authority response");
@@ -204,4 +183,28 @@ async fn introspection_payload_headers_and_media_type_are_bounded_before_authori
     }
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 3);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+}
+
+fn invalid_authority_response(
+    authority: &serde_json::Value,
+    mode: i32,
+) -> Result<(serde_json::Value, HeaderMap), Box<dyn std::error::Error + Send + Sync>> {
+    let mut body = authority.clone();
+    let mut headers = HeaderMap::new();
+    match mode {
+        0_i32 => {
+            drop(
+                body.as_object_mut()
+                    .ok_or("claims")?
+                    .insert("filler".to_owned(), json!("x".repeat(64 << 10))),
+            );
+        }
+        1_i32 => {
+            drop(headers.insert("x-synthetic-large", "x".repeat(17 << 10).parse()?));
+        }
+        _ => {
+            drop(headers.insert(axum::http::header::CONTENT_TYPE, "text/plain".parse()?));
+        }
+    }
+    Ok((body, headers))
 }

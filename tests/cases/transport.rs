@@ -94,17 +94,7 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
         ("mcp-protocol-version", Some("2026-07-28"), true),
     ] {
         let mut request = request(&body()).expect("request");
-        let name = axum::http::HeaderName::from_static(name);
-        if let Some(value) = value {
-            let value = value.parse().expect("header value");
-            if append {
-                let _: bool = request.headers_mut().append(name.clone(), value);
-            } else {
-                drop(request.headers_mut().insert(name.clone(), value));
-            }
-        } else {
-            drop(request.headers_mut().remove(&name));
-        }
+        modify_header(&mut request, name, value, append).expect("header value");
         let (status, response, _, _) = response(&fixture, request)
             .await
             .expect("header validation");
@@ -125,23 +115,7 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
         json!("correlation"),
         serde_json::from_str("18446744073709551616")?,
     ] {
-        for name in ["mcp-method", "mcp-name"] {
-            let mut value = body();
-            *value.get_mut("id").ok_or("missing request ID")? = id.clone();
-            let mut request = request(&value)?;
-            drop(
-                request
-                    .headers_mut()
-                    .insert(axum::http::HeaderName::from_static(name), marker.parse()?),
-            );
-            let (status, error, bytes, _) = response(&fixture, request).await?;
-            assert_eq!(status, StatusCode::BAD_REQUEST);
-            assert_eq!(error.pointer("/error/code"), Some(&json!(-32_020_i32)));
-            assert_eq!(error.get("id"), Some(&id));
-            if String::from_utf8_lossy(&bytes).contains(marker) {
-                reflected.push(name);
-            }
-        }
+        reflected.extend(reflected_headers(&fixture, &id, marker).await?);
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     let (status, result, _, _) = response(&fixture, request(&body())?).await?;
@@ -156,6 +130,32 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
         "rejected fields reflected: {reflected:?}"
     );
     Ok(())
+}
+
+async fn reflected_headers(
+    fixture: &Fixture,
+    id: &Value,
+    marker: &str,
+) -> TestResult<Vec<&'static str>> {
+    let mut reflected = Vec::new();
+    for name in ["mcp-method", "mcp-name"] {
+        let mut value = body();
+        *value.get_mut("id").ok_or("missing request ID")? = id.clone();
+        let mut request = request(&value)?;
+        drop(
+            request
+                .headers_mut()
+                .insert(axum::http::HeaderName::from_static(name), marker.parse()?),
+        );
+        let (status, error, bytes, _) = response(fixture, request).await?;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert_eq!(error.pointer("/error/code"), Some(&json!(-32_020_i32)));
+        assert_eq!(error.get("id"), Some(id));
+        if String::from_utf8_lossy(&bytes).contains(marker) {
+            reflected.push(name);
+        }
+    }
+    Ok(reflected)
 }
 
 #[tokio::test]
@@ -318,13 +318,13 @@ async fn absent_or_duplicate_content_type_and_absent_accept_are_rejected() {
         ("accept", false, StatusCode::NOT_ACCEPTABLE),
     ] {
         let mut request = request(&body()).expect("request");
-        if duplicate {
-            let _: bool = request
-                .headers_mut()
-                .append("content-type", "application/json".parse().expect("type"));
-        } else {
-            drop(request.headers_mut().remove(name));
-        }
+        modify_header(
+            &mut request,
+            name,
+            duplicate.then_some("application/json"),
+            duplicate,
+        )
+        .expect("header value");
         let (status, _, _, _) = response(&fixture, request).await.expect("media validation");
         assert_eq!(status, expected);
     }
@@ -377,9 +377,7 @@ async fn encoded_tool_names_are_decoded_before_matching_the_body() {
         );
         let (status, value, _, _) = response(&fixture, request).await.expect("encoded header");
         assert_eq!(status, expected, "{name}");
-        if status.is_client_error() {
-            assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
-        }
+        assert_header_result(status, &value);
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
@@ -452,11 +450,7 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
                 .insert("content-type", content_type.parse().expect("content type")),
         );
         drop(request.headers_mut().remove("accept"));
-        for accept in accepts {
-            let _: bool = request
-                .headers_mut()
-                .append("accept", accept.parse().expect("accept"));
-        }
+        append_values(request.headers_mut(), "accept", accepts).expect("accept fields");
         let (status, result, _, _) = response(&fixture, request).await.expect("media request");
         assert_eq!(status, StatusCode::OK, "{content_type}");
         assert_eq!(
@@ -465,6 +459,39 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
         );
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 7);
+}
+
+fn modify_header(
+    request: &mut Request<Body>,
+    name: &'static str,
+    value: Option<&str>,
+    append: bool,
+) -> TestResult<()> {
+    let name = axum::http::HeaderName::from_static(name);
+    if let Some(value) = value {
+        let value = value.parse()?;
+        if append {
+            let _: bool = request.headers_mut().append(name, value);
+        } else {
+            drop(request.headers_mut().insert(name, value));
+        }
+    } else {
+        drop(request.headers_mut().remove(&name));
+    }
+    Ok(())
+}
+
+fn assert_header_result(status: StatusCode, value: &Value) {
+    if status.is_client_error() {
+        assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
+    }
+}
+
+fn append_values(headers: &mut HeaderMap, name: &'static str, values: Vec<&str>) -> TestResult<()> {
+    for value in values {
+        let _: bool = headers.append(name, value.parse()?);
+    }
+    Ok(())
 }
 
 #[tokio::test]

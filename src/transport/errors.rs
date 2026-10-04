@@ -83,8 +83,58 @@ mod tests {
 
     type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-    #[tokio::test]
-    async fn unrelated_replies_remain_byte_exact() -> TestResult<()> {
+    async fn assert_unchanged(
+        status: StatusCode,
+        media_type: &str,
+        bytes: &'static str,
+    ) -> TestResult<()> {
+        let response = Response::builder()
+            .status(status)
+            .header(header::CONTENT_TYPE, media_type)
+            .header(header::CONTENT_LENGTH, bytes.len())
+            .body(Body::from(bytes))?;
+        let response = fixed_header_error(response).await;
+        assert_eq!(response.status(), status);
+        assert_eq!(
+            response
+                .headers()
+                .get(header::CONTENT_TYPE)
+                .and_then(|value| value.to_str().ok()),
+            Some(media_type)
+        );
+        assert_eq!(
+            response
+                .headers()
+                .get(header::CONTENT_LENGTH)
+                .and_then(|value| value.to_str().ok()),
+            Some(bytes.len().to_string().as_str())
+        );
+        assert_eq!(to_bytes(response.into_body(), ERROR_BYTES).await?, bytes);
+        Ok(())
+    }
+
+    async fn assert_unavailable(body: Body) -> TestResult<()> {
+        let response = Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .header(header::CONTENT_TYPE, "application/json")
+            .body(body)?;
+        let response = fixed_header_error(response).await;
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(
+            response
+                .headers()
+                .get(header::CONTENT_TYPE)
+                .and_then(|value| value.to_str().ok()),
+            Some("application/json")
+        );
+        assert_eq!(
+            to_bytes(response.into_body(), 256).await?,
+            r#"{"error":{"code":-32603,"message":"response unavailable"},"jsonrpc":"2.0"}"#
+        );
+        Ok(())
+    }
+
+    async fn unchanged_replies() -> TestResult<()> {
         for (status, media_type, bytes) in [
             (
                 StatusCode::OK,
@@ -108,30 +158,14 @@ mod tests {
             ),
             (StatusCode::BAD_REQUEST, "application/json", "invalid JSON"),
         ] {
-            let response = Response::builder()
-                .status(status)
-                .header(header::CONTENT_TYPE, media_type)
-                .header(header::CONTENT_LENGTH, bytes.len())
-                .body(Body::from(bytes))?;
-            let response = fixed_header_error(response).await;
-            assert_eq!(response.status(), status);
-            assert_eq!(
-                response
-                    .headers()
-                    .get(header::CONTENT_TYPE)
-                    .and_then(|value| value.to_str().ok()),
-                Some(media_type)
-            );
-            assert_eq!(
-                response
-                    .headers()
-                    .get(header::CONTENT_LENGTH)
-                    .and_then(|value| value.to_str().ok()),
-                Some(bytes.len().to_string().as_str())
-            );
-            assert_eq!(to_bytes(response.into_body(), ERROR_BYTES).await?, bytes);
+            assert_unchanged(status, media_type, bytes).await?;
         }
         Ok(())
+    }
+
+    #[tokio::test]
+    async fn unrelated_replies_remain_byte_exact() -> TestResult<()> {
+        unchanged_replies().await
     }
 
     struct FailedBody;
@@ -153,25 +187,8 @@ mod tests {
     #[tokio::test]
     async fn oversized_and_failed_error_bodies_are_fixed() -> TestResult<()> {
         let failed = Body::new(FailedBody);
-        for body in [Body::from(vec![b'x'; ERROR_BYTES + 1]), failed] {
-            let response = Response::builder()
-                .status(StatusCode::BAD_REQUEST)
-                .header(header::CONTENT_TYPE, "application/json")
-                .body(body)?;
-            let response = fixed_header_error(response).await;
-            assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
-            assert_eq!(
-                response
-                    .headers()
-                    .get(header::CONTENT_TYPE)
-                    .and_then(|value| value.to_str().ok()),
-                Some("application/json")
-            );
-            assert_eq!(
-                to_bytes(response.into_body(), 256).await?,
-                r#"{"error":{"code":-32603,"message":"response unavailable"},"jsonrpc":"2.0"}"#
-            );
-        }
+        assert_unavailable(Body::from(vec![b'x'; ERROR_BYTES + 1])).await?;
+        assert_unavailable(failed).await?;
         Ok(())
     }
 }

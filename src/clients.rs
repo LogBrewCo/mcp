@@ -32,18 +32,22 @@ impl ClientAllowlist {
         if document.version != "1" || document.clients.len() > 64 {
             return Err(Kind::Configuration.into());
         }
-        let mut clients = BTreeSet::new();
-        for client in document.clients {
-            if client.len() > 2048 || !valid_token(&client) || !clients.insert(client) {
-                return Err(Kind::Configuration.into());
-            }
-        }
-        Ok(Self(clients))
+        decode_clients(document.clients).map(Self)
     }
 
     pub(crate) fn contains(&self, client: &str) -> bool {
         self.0.contains(client)
     }
+}
+
+fn decode_clients(ids: Vec<String>) -> Result<BTreeSet<String>, Failure> {
+    let mut clients = BTreeSet::new();
+    for client in ids {
+        if client.len() > 2048 || !valid_token(&client) || !clients.insert(client) {
+            return Err(Kind::Configuration.into());
+        }
+    }
+    Ok(clients)
 }
 
 impl fmt::Debug for ClientAllowlist {

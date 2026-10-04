@@ -150,31 +150,37 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
         }
         let filled = buf.filled().len();
         let result = Pin::new(inner).poll_read(cx, buf);
-        if matches!(result, Poll::Ready(Ok(())))
-            && let Some(pending) = prefix.as_mut()
-        {
-            for byte in buf.filled().get(filled..).unwrap_or_default() {
-                // A mismatch selects HTTP/1; the full preface selects HTTP/2.
-                // Neither path keeps this deadline during authenticated work.
-                if HTTP2_PREFACE.get(pending.matched) != Some(byte) {
-                    *prefix = None;
-                    break;
-                }
-                let Some(matched) = pending.matched.checked_add(1) else {
-                    return Poll::Ready(Err(io::Error::new(
-                        io::ErrorKind::InvalidData,
-                        "invalid protocol detection state",
-                    )));
-                };
-                pending.matched = matched;
-                if pending.matched == HTTP2_PREFACE.len() {
-                    *prefix = None;
-                    break;
-                }
-            }
+        if matches!(result, Poll::Ready(Ok(()))) {
+            detect_prefix(prefix, buf.filled().get(filled..).unwrap_or_default())?;
         }
         result
     }
+}
+
+fn detect_prefix(prefix: &mut Option<PrefixDeadline>, bytes: &[u8]) -> io::Result<()> {
+    let Some(pending) = prefix.as_mut() else {
+        return Ok(());
+    };
+    for byte in bytes {
+        // A mismatch selects HTTP/1; the full preface selects HTTP/2.
+        // Neither path keeps this deadline during authenticated work.
+        if HTTP2_PREFACE.get(pending.matched) != Some(byte) {
+            *prefix = None;
+            break;
+        }
+        let Some(matched) = pending.matched.checked_add(1) else {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "invalid protocol detection state",
+            ));
+        };
+        pending.matched = matched;
+        if pending.matched == HTTP2_PREFACE.len() {
+            *prefix = None;
+            break;
+        }
+    }
+    Ok(())
 }
 
 impl<S: AsyncWrite + Unpin> AsyncWrite for LimitedStream<S> {

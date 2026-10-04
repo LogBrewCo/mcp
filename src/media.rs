@@ -64,18 +64,18 @@ const fn ows(mut value: &[u8]) -> &[u8] {
 fn quoted_value(value: &[u8]) -> Option<&[u8]> {
     let mut escaped = false;
     for (index, byte) in value.iter().copied().enumerate() {
+        if escaped && !matches!(byte, b'\t' | b' '..=b'~' | 0x80..=0xff) {
+            return None;
+        }
         if escaped {
-            if !matches!(byte, b'\t' | b' '..=b'~' | 0x80..=0xff) {
-                return None;
-            }
             escaped = false;
-        } else {
-            match byte {
-                b'"' => return value.get(index.checked_add(1)?..),
-                b'\\' => escaped = true,
-                b'\t' | b' ' | b'!' | b'#'..=b'[' | b']'..=b'~' | 0x80..=0xff => {}
-                _ => return None,
-            }
+            continue;
+        }
+        match byte {
+            b'"' => return value.get(index.checked_add(1)?..),
+            b'\\' => escaped = true,
+            b'\t' | b' ' | b'!' | b'#'..=b'[' | b']'..=b'~' | 0x80..=0xff => {}
+            _ => return None,
         }
     }
     None

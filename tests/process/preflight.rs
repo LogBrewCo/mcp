@@ -64,33 +64,7 @@ async fn configuration_check_leaves_the_running_service_and_upstreams_untouched(
 async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
     for invalid in ["configuration", "catalog", "key", "policy", "secret"] {
         let fixture = Fixture::new().expect("fixture");
-        match invalid {
-            "configuration" => {
-                fs::write(&fixture.config, br#"{"secret":"SYNTHETIC_PRIVATE_VALUE"}"#)
-                    .expect("invalid configuration");
-            }
-            "catalog" => fs::write(fixture.directory.0.join("catalog.json"), b"{}")
-                .expect("changed catalog digest"),
-            "key" => {
-                let other = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])
-                    .expect("different key");
-                fs::write(
-                    fixture.directory.0.join("key.pem"),
-                    other.signing_key.serialize_pem(),
-                )
-                .expect("mismatched key");
-            }
-            "policy" => fs::write(
-                fixture.directory.0.join("clients.json"),
-                br#"{"version":"1","clients":["private-client","private-client"]}"#,
-            )
-            .expect("invalid policy"),
-            _ => fs::set_permissions(
-                fixture.directory.0.join("secret"),
-                fs::Permissions::from_mode(0o644),
-            )
-            .expect("unsafe secret permissions"),
-        }
+        invalid_material(&fixture, invalid).expect("invalid material");
         let mut process = check(&fixture.config).expect("native executable");
         assert_eq!(
             process.wait().await.expect("bounded private exit").code(),
@@ -99,6 +73,29 @@ async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
         );
         drop(TcpListener::bind(fixture.address).expect("invalid check did not bind"));
     }
+}
+
+fn invalid_material(fixture: &Fixture, invalid: &str) -> TestResult<()> {
+    match invalid {
+        "configuration" => fs::write(&fixture.config, br#"{"secret":"SYNTHETIC_PRIVATE_VALUE"}"#)?,
+        "catalog" => fs::write(fixture.directory.0.join("catalog.json"), b"{}")?,
+        "key" => {
+            let other = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])?;
+            fs::write(
+                fixture.directory.0.join("key.pem"),
+                other.signing_key.serialize_pem(),
+            )?;
+        }
+        "policy" => fs::write(
+            fixture.directory.0.join("clients.json"),
+            br#"{"version":"1","clients":["private-client","private-client"]}"#,
+        )?,
+        _ => fs::set_permissions(
+            fixture.directory.0.join("secret"),
+            fs::Permissions::from_mode(0o644),
+        )?,
+    }
+    Ok(())
 }
 
 #[tokio::test]

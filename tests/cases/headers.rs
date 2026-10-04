@@ -192,10 +192,11 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
         if frame.stream != 3 {
             continue;
         }
-        match frame.kind {
+        let complete = match frame.kind {
             1 => {
                 assert_eq!(frame.payload.first(), Some(&0x88), "static :status 200");
                 status = true;
+                false
             }
             0 => {
                 assert!(
@@ -204,17 +205,18 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
                         .is_some_and(|size| size <= 4096)
                 );
                 body.extend_from_slice(&frame.payload);
-                if frame.flags & 1 != 0 {
-                    assert!(status);
-                    let value: serde_json::Value = serde_json::from_slice(&body)?;
-                    assert_eq!(
-                        value.get("resource"),
-                        Some(&json!("https://resource.example/mcp"))
-                    );
-                    return Ok(());
-                }
+                frame.flags & 1 != 0
             }
             _ => return Err(io::Error::other("unexpected metadata frame").into()),
+        };
+        if complete {
+            assert!(status);
+            let value: serde_json::Value = serde_json::from_slice(&body)?;
+            assert_eq!(
+                value.get("resource"),
+                Some(&json!("https://resource.example/mcp"))
+            );
+            return Ok(());
         }
     }
     Err(io::Error::other("metadata frame count exceeds test bound").into())

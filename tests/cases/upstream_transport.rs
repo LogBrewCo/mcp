@@ -108,38 +108,7 @@ async fn exercise(execute: bool) -> TestResult<()> {
         .await?;
     timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
     timeout(Duration::from_secs(2), done).await???;
-    let snapshot = raw
-        .upstream
-        .telemetry()
-        .snapshot()
-        .ok_or("measurement unavailable")?;
-    let selected = if execute {
-        Stage::UpstreamExecute
-    } else {
-        Stage::Introspection
-    };
-    let stage = snapshot
-        .stages
-        .iter()
-        .find(|stage| stage.stage == selected)
-        .ok_or("missing upstream measurement")?;
-    assert_eq!(stage.started, 6);
-    assert_eq!(stage.finished, 6);
-    assert_eq!(stage.pending, Some(0));
-    for (outcome, expected) in [(Outcome::Completed, 2), (Outcome::Unavailable, 4)] {
-        assert_eq!(
-            stage
-                .outcomes
-                .iter()
-                .find(|entry| entry.outcome == outcome)
-                .map(|entry| entry.count),
-            Some(expected)
-        );
-    }
-    let measurements = serde_json::to_string(&snapshot)?;
-    for prohibited in [MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"] {
-        assert!(!measurements.contains(prohibited));
-    }
+    header_observations(&raw.upstream, execute, 6, 4, false)?;
     raw.finish().await
 }
 
@@ -240,11 +209,21 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
     timeout(Duration::from_secs(2), done).await???;
     assert_eq!(raw.handshakes.load(Ordering::SeqCst), 5);
     assert_eq!(raw.requests.load(Ordering::SeqCst), 5);
-    let snapshot = raw
-        .upstream
+    header_observations(&raw.upstream, execute, 5, 3, true)?;
+    raw.finish().await
+}
+
+fn header_observations(
+    upstream: &Upstream,
+    execute: bool,
+    total: u64,
+    unavailable: u64,
+    check_timing: bool,
+) -> TestResult<()> {
+    let snapshot = upstream
         .telemetry()
         .snapshot()
-        .ok_or("missing HTTP/2 observations")?;
+        .ok_or("missing upstream observations")?;
     let selected = if execute {
         Stage::UpstreamExecute
     } else {
@@ -254,15 +233,23 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
         .stages
         .iter()
         .find(|stage| stage.stage == selected)
-        .ok_or("missing HTTP/2 stage")?;
-    assert_eq!(stage.started, 5);
-    assert_eq!(stage.finished, 5);
-    assert_eq!(stage.timed, 5);
+        .ok_or("missing upstream stage")?;
+    assert_eq!(stage.started, total);
+    assert_eq!(stage.finished, total);
     assert_eq!(stage.pending, Some(0));
-    assert_eq!(stage.dropped_updates, 0);
-    assert!(!stage.saturated);
-    assert!(!stage.timing_unavailable);
-    for (outcome, expected) in [(Outcome::Completed, 2), (Outcome::Unavailable, 3)] {
+    if check_timing {
+        assert_eq!(stage.timed, total);
+        assert_eq!(stage.dropped_updates, 0);
+        assert!(!stage.saturated);
+        assert!(!stage.timing_unavailable);
+    }
+    let completed = total
+        .checked_sub(unavailable)
+        .ok_or("invalid fixture outcome counts")?;
+    for (outcome, expected) in [
+        (Outcome::Completed, completed),
+        (Outcome::Unavailable, unavailable),
+    ] {
         assert_eq!(
             stage
                 .outcomes
@@ -272,11 +259,26 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
             Some(expected)
         );
     }
-    let encoded = serde_json::to_string(&snapshot)?;
-    for prohibited in [MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"] {
-        assert!(!encoded.contains(prohibited));
+    assert_private(
+        &serde_json::to_string(&snapshot)?,
+        &[MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"],
+    );
+    Ok(())
+}
+
+fn assert_private(text: &str, prohibited: &[&str]) {
+    for word in prohibited {
+        assert!(!text.contains(word));
     }
-    raw.finish().await
+}
+
+fn assert_unavailable(failure: &Failure) {
+    assert_eq!(failure.kind, Kind::Unavailable);
+    assert_eq!(failure.retry_after_ms, None);
+    assert_private(
+        &format!("{failure:?} {failure}"),
+        &[MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"],
+    );
 }
 
 #[tokio::test]
@@ -299,91 +301,78 @@ async fn upstream_tls_rejects_untrusted_and_mismatched_peers_before_http_and_rec
         Raw::untrusted_certificate().expect("untrusted TLS peer"),
         Raw::mismatched_hostname().expect("mismatched TLS hostname"),
     ] {
-        for execute in [false, true] {
-            let path = if execute { "/execute" } else { "/introspect" };
-            let body = body(execute).expect("synthetic body");
-            let done = raw
-                .queue(
-                    path,
-                    headers(200, body.len(), 4, 0).expect("headers"),
-                    Some(body),
-                )
-                .await
-                .expect("TLS exchange queued");
-            let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
-                .await
-                .expect("TLS rejection bound")
-                .expect_err("unapproved TLS authority");
-            assert_eq!(failure.kind, Kind::Unavailable);
-            assert_eq!(failure.retry_after_ms, None);
-            let receipt = timeout(Duration::from_secs(2), done)
-                .await
-                .expect("peer receipt bound")
-                .expect("peer receipt");
-            assert!(receipt.is_err(), "TLS handshake unexpectedly completed");
-            for prohibited in [MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"] {
-                assert!(!format!("{failure:?} {failure}").contains(prohibited));
-            }
-        }
-        assert_eq!(raw.handshakes.load(Ordering::SeqCst), 0);
-        assert_eq!(raw.requests.load(Ordering::SeqCst), 0);
-        let snapshot = raw.upstream.telemetry().snapshot().expect("observations");
-        for selected in [Stage::Introspection, Stage::UpstreamExecute] {
-            let stage = snapshot
-                .stages
+        rejected_tls(&mut raw).await.expect("rejected peer stopped");
+    }
+    let mut raw = Raw::new().expect("trusted matching TLS peer");
+    for execute in [false, true] {
+        healthy_exchange(&raw, execute)
+            .await
+            .expect("trusted matching authority");
+    }
+    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 2);
+    assert_eq!(raw.requests.load(Ordering::SeqCst), 2);
+    raw.finish().await.expect("healthy peer stopped");
+}
+
+async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
+    for execute in [false, true] {
+        let path = if execute { "/execute" } else { "/introspect" };
+        let body = body(execute)?;
+        let done = raw
+            .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
+            .await?;
+        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+            .await?
+            .err()
+            .ok_or("unapproved TLS authority accepted")?;
+        assert_unavailable(&failure);
+        let receipt = timeout(Duration::from_secs(2), done).await??;
+        assert!(receipt.is_err(), "TLS handshake unexpectedly completed");
+    }
+    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 0);
+    assert_eq!(raw.requests.load(Ordering::SeqCst), 0);
+    let snapshot = raw.upstream.telemetry().snapshot().ok_or("observations")?;
+    for selected in [Stage::Introspection, Stage::UpstreamExecute] {
+        let stage = snapshot
+            .stages
+            .iter()
+            .find(|stage| stage.stage == selected)
+            .ok_or("outbound stage")?;
+        assert_eq!(stage.started, 1);
+        assert_eq!(stage.finished, 1);
+        assert_eq!(stage.pending, Some(0));
+        assert_eq!(
+            stage
+                .outcomes
                 .iter()
-                .find(|stage| stage.stage == selected)
-                .expect("outbound stage");
-            assert_eq!(stage.started, 1);
-            assert_eq!(stage.finished, 1);
-            assert_eq!(stage.pending, Some(0));
-            assert_eq!(
-                stage
-                    .outcomes
-                    .iter()
-                    .find(|entry| entry.outcome == Outcome::Unavailable)
-                    .expect("TLS failure")
-                    .count,
-                1
-            );
-        }
-        let observations = serde_json::to_string(&snapshot).expect("observation JSON");
-        for prohibited in [
+                .find(|entry| entry.outcome == Outcome::Unavailable)
+                .ok_or("TLS failure")?
+                .count,
+            1
+        );
+    }
+    assert_private(
+        &serde_json::to_string(&snapshot)?,
+        &[
             MARKER,
             TOKEN,
             "SYNTHETIC_MACHINE_SECRET",
             "localhost",
             "127.0.0.1",
-        ] {
-            assert!(!observations.contains(prohibited));
-        }
-        raw.finish().await.expect("rejected peer stopped");
-    }
-    let mut raw = Raw::new().expect("trusted matching TLS peer");
-    for execute in [false, true] {
-        let path = if execute { "/execute" } else { "/introspect" };
-        let body = body(execute).expect("healthy body");
-        let done = raw
-            .queue(
-                path,
-                headers(200, body.len(), 4, 0).expect("healthy headers"),
-                Some(body),
-            )
-            .await
-            .expect("healthy exchange");
-        timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
-            .await
-            .expect("healthy response bound")
-            .expect("trusted matching authority");
-        timeout(Duration::from_secs(2), done)
-            .await
-            .expect("healthy receipt bound")
-            .expect("healthy receipt")
-            .expect("healthy exchange complete");
-    }
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 2);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 2);
-    raw.finish().await.expect("healthy peer stopped");
+        ],
+    );
+    raw.finish().await
+}
+
+async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
+    let path = if execute { "/execute" } else { "/introspect" };
+    let body = body(execute)?;
+    let done = raw
+        .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
+        .await?;
+    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), done).await???;
+    Ok(())
 }
 
 async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
@@ -421,11 +410,7 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
                 .await?
                 .err()
                 .ok_or("pending TLS operation unexpectedly succeeded")?;
-            assert_eq!(failure.kind, Kind::Unavailable);
-            assert_eq!(failure.retry_after_ms, None);
-            for prohibited in [MARKER, TOKEN, "SYNTHETIC_MACHINE_SECRET", "localhost"] {
-                assert!(!format!("{failure:?} {failure}").contains(prohibited));
-            }
+            assert_unavailable(&failure);
         }
         drop(request);
         timeout(Duration::from_secs(2), waiting.closed).await???;
@@ -528,71 +513,63 @@ async fn outbound_tls_connect_deadline_closes_pending_socket_and_records_failure
 #[tokio::test]
 async fn upstream_json_types_accept_case_and_parameters_and_reject_ambiguous_fields() {
     for execute in [false, true] {
-        let mut raw = Raw::new().expect("TLS fixture");
-        let path = if execute { "/execute" } else { "/introspect" };
-        let body = body(execute).expect("valid JSON body");
-        for content_type in [
-            "Application/JSON",
-            "application/json; charset=utf-8",
-            "application/json ; charset=utf-8",
-            "Application/Json; Charset=\"UTF-8\"",
-            "application/json\t;\tcharset=utf-8",
-            "application/json; profile=\"a;\\\"b\"",
-            "application/json;; charset=\"\"",
-        ] {
-            let headers = format!(
-                "HTTP/1.1 200 Fixture\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
-                body.len()
-            );
-            let done = raw
-                .queue(path, headers.into_bytes(), Some(body.clone()))
-                .await
-                .expect("queued response");
-            timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
-                .await
-                .expect("bounded JSON response")
-                .expect("valid media type");
-            timeout(Duration::from_secs(2), done)
-                .await
-                .expect("receipt bound")
-                .expect("server receipt")
-                .expect("complete response");
-        }
-        for values in [
-            vec![],
-            vec!["text/plain"],
-            vec!["application/jsonjunk"],
-            vec!["application/json; charset"],
-            vec!["application/json; profile=\"unterminated"],
-            vec!["application/json; profile=\"good\"junk"],
-            vec!["application/json; profile=bad value"],
-            vec!["application/json; =missing"],
-            vec!["application/json", "text/plain"],
-            vec!["application/json", "application/json"],
-        ] {
-            let mut headers = format!(
-                "HTTP/1.1 200 Fixture\r\nContent-Length: {}\r\nConnection: close\r\n",
-                body.len()
-            );
-            for value in values {
-                write!(headers, "Content-Type: {value}\r\n").expect("content type field");
-            }
-            headers.push_str("\r\n");
-            let done = raw
-                .queue(path, headers.into_bytes(), None)
-                .await
-                .expect("queued malformed response");
-            let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
-                .await
-                .expect("rejected before withheld body")
-                .expect_err("invalid media type");
-            assert_eq!(failure.kind, Kind::Unavailable);
-            timeout(Duration::from_secs(2), done)
-                .await
-                .expect("closure receipt bound")
-                .expect("server receipt")
-                .expect("client closed rejected response");
-        }
-        raw.finish().await.expect("fixture stopped");
+        json_media_types(execute)
+            .await
+            .expect("JSON media cases and recovery");
     }
+}
+
+async fn json_media_types(execute: bool) -> TestResult<()> {
+    let mut raw = Raw::new()?;
+    let path = if execute { "/execute" } else { "/introspect" };
+    let body = body(execute)?;
+    for content_type in [
+        "Application/JSON",
+        "application/json; charset=utf-8",
+        "application/json ; charset=utf-8",
+        "Application/Json; Charset=\"UTF-8\"",
+        "application/json\t;\tcharset=utf-8",
+        "application/json; profile=\"a;\\\"b\"",
+        "application/json;; charset=\"\"",
+    ] {
+        let headers = format!(
+            "HTTP/1.1 200 Fixture\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+            body.len()
+        );
+        let done = raw
+            .queue(path, headers.into_bytes(), Some(body.clone()))
+            .await?;
+        timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+        timeout(Duration::from_secs(2), done).await???;
+    }
+    for values in [
+        vec![],
+        vec!["text/plain"],
+        vec!["application/jsonjunk"],
+        vec!["application/json; charset"],
+        vec!["application/json; profile=\"unterminated"],
+        vec!["application/json; profile=\"good\"junk"],
+        vec!["application/json; profile=bad value"],
+        vec!["application/json; =missing"],
+        vec!["application/json", "text/plain"],
+        vec!["application/json", "application/json"],
+    ] {
+        let mut headers = format!(
+            "HTTP/1.1 200 Fixture\r\nContent-Length: {}\r\nConnection: close\r\n",
+            body.len()
+        );
+        for value in values {
+            write!(headers, "Content-Type: {value}\r\n")?;
+        }
+        headers.push_str("\r\n");
+        let done = raw.queue(path, headers.into_bytes(), None).await?;
+        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+            .await?
+            .err()
+            .ok_or("invalid media type accepted")?;
+        assert_eq!(failure.kind, Kind::Unavailable);
+        timeout(Duration::from_secs(2), done).await???;
+    }
+    healthy_exchange(&raw, execute).await?;
+    raw.finish().await
 }

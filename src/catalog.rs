@@ -68,18 +68,7 @@ impl Catalog {
         }
         let value = strict_json::object(bytes, CATALOG_BYTES)
             .map_err(|_| Failure::from(Kind::Configuration))?;
-        let mut entries = BTreeMap::new();
-        for operation in decode_operations(&value)? {
-            validate_operation(&operation)?;
-            let entry = Entry {
-                input: compile(&operation.input_schema)?,
-                output: compile(&operation.output_schema)?,
-                operation,
-            };
-            if entries.insert(entry.operation.id.clone(), entry).is_some() {
-                return Err(Kind::Configuration.into());
-            }
-        }
+        let entries = compile_entries(decode_operations(&value)?)?;
         let definitions: Vec<&Operation> = entries.values().map(|entry| &entry.operation).collect();
         let encoded = serde_json::to_vec(&json!({"operations":definitions,"format_version":1_u32}))
             .map_err(|_| Failure::from(Kind::Configuration))?;
@@ -111,10 +100,10 @@ impl Catalog {
     /// Rejects invalid search arguments, cursors, or unknown selected operations.
     pub fn search(&self, arguments: &Value) -> Result<Value, Failure> {
         let fields = arguments.as_object().ok_or(Kind::InvalidInput)?;
+        if fields.contains_key("operation") && fields.len() != 1 {
+            return Err(Kind::InvalidInput.into());
+        }
         if fields.contains_key("operation") {
-            if fields.len() != 1 {
-                return Err(Kind::InvalidInput.into());
-            }
             let id = arguments
                 .get("operation")
                 .and_then(Value::as_str)
@@ -148,12 +137,11 @@ impl Catalog {
                 format!("{} {}", entry.operation.id, entry.operation.info.summary).to_lowercase();
             entry.operation.id.as_str() > after && words.iter().all(|word| text.contains(word))
         });
-        let mut operations = Vec::new();
-        for _ in 0..limit {
-            if let Some(entry) = matches.next() {
-                operations.push(json!({"id":entry.operation.id,"info":entry.operation.info}));
-            }
-        }
+        let operations: Vec<Value> = matches
+            .by_ref()
+            .take(usize::try_from(limit).map_err(|_| Failure::from(Kind::InvalidInput))?)
+            .map(|entry| json!({"id":entry.operation.id,"info":entry.operation.info}))
+            .collect();
         let cursor = if matches.next().is_some() {
             operations
                 .last()
@@ -183,6 +171,22 @@ impl Catalog {
         let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
         validate(&entry.output, value, OUTPUT_BYTES).map_err(|_| Kind::InvalidOutput.into())
     }
+}
+
+fn compile_entries(operations: Vec<Operation>) -> Result<BTreeMap<String, Entry>, Failure> {
+    let mut entries = BTreeMap::new();
+    for operation in operations {
+        validate_operation(&operation)?;
+        let entry = Entry {
+            input: compile(&operation.input_schema)?,
+            output: compile(&operation.output_schema)?,
+            operation,
+        };
+        if entries.insert(entry.operation.id.clone(), entry).is_some() {
+            return Err(Kind::Configuration.into());
+        }
+    }
+    Ok(entries)
 }
 
 fn decode_operations(value: &Value) -> Result<Vec<Operation>, Failure> {

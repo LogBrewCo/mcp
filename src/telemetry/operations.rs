@@ -4,9 +4,7 @@ use std::{collections::BTreeMap, iter, sync::Mutex, time::Instant};
 
 use serde::Serialize;
 
-use super::{
-    Loss, Ordering, Outcome, Stage, StageSnapshot, Stats, Telemetry, elapsed_since, increment,
-};
+use super::{Loss, Ordering, Outcome, Stage, StageSnapshot, Stats, Telemetry, elapsed_since};
 use crate::catalog::Catalog;
 
 #[cfg(test)]
@@ -42,12 +40,10 @@ impl Inventory {
     ) -> Option<Measurement> {
         // Unknown request strings never allocate storage or become labels.
         let index = *self.slots.get(id)?;
-        let recorded = self.stats.try_lock().is_ok_and(|mut stats| {
-            stats.get_mut(index).is_some_and(|stats| {
-                increment(&mut stats.started, &mut stats.saturated);
-                true
-            })
-        });
+        let recorded = self
+            .stats
+            .try_lock()
+            .is_ok_and(|mut stats| stats.get_mut(index).map(Stats::begin).is_some());
         if !recorded {
             self.loss(index);
         }

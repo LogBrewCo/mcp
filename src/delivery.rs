@@ -41,24 +41,9 @@ impl Delivery {
             let retained = Arc::clone(&state);
             let now = Instant::now();
             let deadline = now.checked_add(Duration::from_secs(10)).unwrap_or(now);
-            drop(tokio::spawn(async move {
-                tokio::select! {
-                    () = completion.cancelled() => {},
-                    () = tokio::time::sleep_until(deadline) => {
-                        // Close the owning connection so Hyper drops its retained
-                        // buffers before admission can be reused. PING activity
-                        // and stream window changes cannot refresh this deadline.
-                        if retained.compare_exchange(
-                            RETAINED, EXPIRED, Ordering::AcqRel, Ordering::Acquire
-                        ).is_ok() {
-                            connection.0.cancel();
-                        }
-                    }
-                }
-                // A timer retains admission until it exits. Completed bodies
-                // cannot create an unbounded queue of unpolled timer tasks.
-                drop(permit);
-            }));
+            drop(tokio::spawn(retain_until_finished(
+                connection, permit, completion, retained, deadline,
+            )));
         }
         Self {
             finished,
@@ -76,18 +61,42 @@ impl Drop for Delivery {
                 .compare_exchange(RETAINED, RELEASED, Ordering::AcqRel, Ordering::Acquire);
         self.finished.cancel();
         if let Some(measurement) = self.measurement.take() {
-            let outcome = if state == Err(EXPIRED) {
-                Outcome::Deadline
-            } else if self
-                .connection
-                .as_ref()
-                .is_some_and(|connection| connection.0.is_cancelled())
-            {
-                Outcome::Cancelled
-            } else {
-                Outcome::Released
-            };
-            measurement.finish(outcome);
+            measurement.finish(delivery_outcome(state, self.connection.as_ref()));
         }
+    }
+}
+
+async fn retain_until_finished(
+    connection: Connection,
+    permit: Arc<OwnedSemaphorePermit>,
+    completion: CancellationToken,
+    retained: Arc<AtomicU8>,
+    deadline: Instant,
+) {
+    tokio::select! {
+        () = completion.cancelled() => {},
+        () = tokio::time::sleep_until(deadline) => {
+            // Close the owning connection so Hyper drops its retained
+            // buffers before admission can be reused. PING activity
+            // and stream window changes cannot refresh this deadline.
+            if retained.compare_exchange(
+                RETAINED, EXPIRED, Ordering::AcqRel, Ordering::Acquire
+            ).is_ok() {
+                connection.0.cancel();
+            }
+        }
+    }
+    // A timer retains admission until it exits. Completed bodies
+    // cannot create an unbounded queue of unpolled timer tasks.
+    drop(permit);
+}
+
+fn delivery_outcome(state: Result<u8, u8>, connection: Option<&Connection>) -> Outcome {
+    if state == Err(EXPIRED) {
+        Outcome::Deadline
+    } else if connection.is_some_and(|connection| connection.0.is_cancelled()) {
+        Outcome::Cancelled
+    } else {
+        Outcome::Released
     }
 }

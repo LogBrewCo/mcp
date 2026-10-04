@@ -82,9 +82,10 @@ async fn direct_execution_cannot_bypass_missing_or_empty_client_policy() {
             execution_credential: credential(),
         })
         .expect("offline client");
-        if let Some(policy) = policy {
-            upstream = upstream.with_client_allowlist(policy);
-        }
+        upstream = match policy {
+            Some(policy) => upstream.with_client_allowlist(policy),
+            None => upstream,
+        };
         let failure = upstream
             .execute(&principal, "SYNTHETIC_TOKEN", "logs.read.v1", &json!({}))
             .await

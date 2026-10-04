@@ -73,18 +73,9 @@ impl HttpBody for AdmittedBody {
         cx: &mut Context<'_>,
     ) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
         let this = self.get_mut();
-        Pin::new(&mut this.inner).poll_frame(cx).map(|frame| {
-            frame.map(|frame| {
-                frame.map(|frame| {
-                    frame.map_data(|inner| {
-                        Bytes::from_owner(AdmittedBytes {
-                            inner,
-                            _admission: Arc::clone(&this.admission),
-                        })
-                    })
-                })
-            })
-        })
+        Pin::new(&mut this.inner)
+            .poll_frame(cx)
+            .map(|frame| frame.map(|frame| frame.map(|frame| hold_frame(frame, &this.admission))))
     }
 
     fn is_end_stream(&self) -> bool {
@@ -94,4 +85,13 @@ impl HttpBody for AdmittedBody {
     fn size_hint(&self) -> SizeHint {
         self.inner.size_hint()
     }
+}
+
+fn hold_frame(frame: Frame<Bytes>, admission: &Arc<Admission>) -> Frame<Bytes> {
+    frame.map_data(|inner| {
+        Bytes::from_owner(AdmittedBytes {
+            inner,
+            _admission: Arc::clone(admission),
+        })
+    })
 }

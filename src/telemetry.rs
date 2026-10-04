@@ -190,6 +190,10 @@ impl Stats {
         timing_unavailable: false,
     };
 
+    const fn begin(&mut self) {
+        increment(&mut self.started, &mut self.saturated);
+    }
+
     fn finish(&mut self, outcome: Outcome, elapsed: Option<u64>) {
         increment(&mut self.finished, &mut self.saturated);
         if let Some(count) = self.outcomes.get_mut(outcome.index()) {
@@ -280,12 +284,11 @@ impl Telemetry {
 
     pub(crate) fn begin(&self, stage: Stage) -> Measurement {
         let start = Instant::now();
-        let recorded = self.0.stats.try_lock().is_ok_and(|mut stats| {
-            stats.get_mut(stage.index()).is_some_and(|stats| {
-                increment(&mut stats.started, &mut stats.saturated);
-                true
-            })
-        });
+        let recorded = self
+            .0
+            .stats
+            .try_lock()
+            .is_ok_and(|mut stats| stats.get_mut(stage.index()).map(Stats::begin).is_some());
         if !recorded {
             self.loss(stage);
         }

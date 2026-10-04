@@ -119,23 +119,30 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
         assert_eq!(stats.started, 5);
         assert_eq!(stats.finished, 5);
         assert_eq!(stats.pending, Some(0));
-        for (outcome, expected) in [(Outcome::PermissionDenied, 4), (Outcome::Unauthorized, 1)] {
-            assert_eq!(
-                stats
-                    .outcomes
-                    .iter()
-                    .find(|count| count.outcome == outcome)
-                    .expect("denial outcome")
-                    .count,
-                expected
-            );
-        }
+        assert_denial_outcomes(stats).expect("denial outcomes");
     }
     assert!(no_operation_work(&snapshot));
     let text = serde_json::to_string(&snapshot).expect("private-safe observations");
     for prohibited in [TOKEN, "synthetic-client", "resource.example"] {
         assert!(!text.contains(prohibited));
     }
+}
+
+fn assert_denial_outcomes(
+    stats: &logbrew_mcp::telemetry::StageSnapshot,
+) -> Result<(), &'static str> {
+    for (outcome, expected) in [(Outcome::PermissionDenied, 4), (Outcome::Unauthorized, 1)] {
+        assert_eq!(
+            stats
+                .outcomes
+                .iter()
+                .find(|count| count.outcome == outcome)
+                .ok_or("denial outcome")?
+                .count,
+            expected
+        );
+    }
+    Ok(())
 }
 
 #[tokio::test]

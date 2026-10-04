@@ -7,7 +7,7 @@ use axum::{
     http::{HeaderValue, StatusCode, header},
 };
 use logbrew_mcp::{clients::ClientAllowlist, error::Kind, upstream::Principal};
-use serde_json::json;
+use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
 use super::http::{Fixture, TOKEN, request_message};
@@ -250,65 +250,76 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
         (reqwest::Version::HTTP_11, running.http1_client()),
         (reqwest::Version::HTTP_2, running.http2_client()?),
     ] {
-        for (authorization, expected, active) in [
-            (format!("bEaReR   {TOKEN}"), reqwest::StatusCode::OK, true),
-            (
-                format!("Bearer\t{TOKEN}"),
-                reqwest::StatusCode::BAD_REQUEST,
-                true,
-            ),
-            (
-                format!("Bearer {TOKEN},other"),
-                reqwest::StatusCode::BAD_REQUEST,
-                true,
-            ),
-            (
-                format!("Bearer {TOKEN}"),
-                reqwest::StatusCode::UNAUTHORIZED,
-                false,
-            ),
-            (format!("Bearer {TOKEN}"), reqwest::StatusCode::OK, true),
-        ] {
-            fixture.state.active.store(active, Ordering::SeqCst);
-            let response = client
-                .post(&resource)
-                .header("Authorization", authorization)
-                .header("Accept", "application/json, text/event-stream")
-                .header("MCP-Protocol-Version", "2026-07-28")
-                .header("Mcp-Method", "tools/call")
-                .header("Mcp-Name", "execute")
-                .json(&body)
-                .send()
-                .await?;
-            assert_eq!(response.version(), version);
-            assert_eq!(response.status(), expected);
-            if expected == reqwest::StatusCode::BAD_REQUEST {
-                assert!(
-                    response
-                        .headers()
-                        .get("WWW-Authenticate")
-                        .ok_or("missing wire challenge")?
-                        .to_str()?
-                        .contains("error=\"invalid_request\"")
-                );
-            }
-            if expected == reqwest::StatusCode::UNAUTHORIZED {
-                assert!(
-                    response
-                        .headers()
-                        .get("WWW-Authenticate")
-                        .ok_or("missing revocation challenge")?
-                        .to_str()?
-                        .contains("error=\"invalid_token\"")
-                );
-            }
-            let bytes = response.bytes().await?;
-            assert!(!String::from_utf8_lossy(&bytes).contains(TOKEN));
-        }
+        wire_authorization_cases(&fixture, &client, version, &resource, &body).await?;
     }
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 6);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 4);
     running.stop.cancel();
     running.wait().await?;
+    Ok(())
+}
+
+async fn wire_authorization_cases(
+    fixture: &Fixture,
+    client: &reqwest::Client,
+    version: reqwest::Version,
+    resource: &str,
+    body: &Value,
+) -> TestResult<()> {
+    for (authorization, expected, active) in [
+        (format!("bEaReR   {TOKEN}"), reqwest::StatusCode::OK, true),
+        (
+            format!("Bearer\t{TOKEN}"),
+            reqwest::StatusCode::BAD_REQUEST,
+            true,
+        ),
+        (
+            format!("Bearer {TOKEN},other"),
+            reqwest::StatusCode::BAD_REQUEST,
+            true,
+        ),
+        (
+            format!("Bearer {TOKEN}"),
+            reqwest::StatusCode::UNAUTHORIZED,
+            false,
+        ),
+        (format!("Bearer {TOKEN}"), reqwest::StatusCode::OK, true),
+    ] {
+        fixture.state.active.store(active, Ordering::SeqCst);
+        let response = client
+            .post(resource)
+            .header("Authorization", authorization)
+            .header("Accept", "application/json, text/event-stream")
+            .header("MCP-Protocol-Version", "2026-07-28")
+            .header("Mcp-Method", "tools/call")
+            .header("Mcp-Name", "execute")
+            .json(body)
+            .send()
+            .await?;
+        assert_eq!(response.version(), version);
+        assert_eq!(response.status(), expected);
+        if expected == reqwest::StatusCode::BAD_REQUEST {
+            assert!(
+                response
+                    .headers()
+                    .get("WWW-Authenticate")
+                    .ok_or("missing wire challenge")?
+                    .to_str()?
+                    .contains("error=\"invalid_request\"")
+            );
+        }
+        if expected == reqwest::StatusCode::UNAUTHORIZED {
+            assert!(
+                response
+                    .headers()
+                    .get("WWW-Authenticate")
+                    .ok_or("missing revocation challenge")?
+                    .to_str()?
+                    .contains("error=\"invalid_token\"")
+            );
+        }
+        let bytes = response.bytes().await?;
+        assert!(!String::from_utf8_lossy(&bytes).contains(TOKEN));
+    }
     Ok(())
 }

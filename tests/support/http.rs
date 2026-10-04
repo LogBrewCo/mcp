@@ -451,3 +451,21 @@ async fn execute(
         Reply::into_response,
     ))
 }
+
+pub fn assert_output_budget(content: &Value, size: usize) -> TestResult<()> {
+    if size == logbrew_mcp::OUTPUT_BYTES {
+        assert_eq!(
+            content
+                .get("data")
+                .ok_or("missing output data")?
+                .to_string()
+                .len(),
+            size
+        );
+        assert_eq!(content.get("error"), Some(&Value::Null));
+    } else {
+        assert_eq!(content.get("data"), Some(&Value::Null));
+        assert_eq!(content.pointer("/error/code"), Some(&json!("unavailable")));
+    }
+    Ok(())
+}

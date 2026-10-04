@@ -231,28 +231,7 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
             .await
             .expect("denial");
         assert_eq!(response.status(), expected);
-        if expected == StatusCode::UNAUTHORIZED {
-            assert!(
-                !response
-                    .headers()
-                    .get("WWW-Authenticate")
-                    .expect("challenge")
-                    .to_str()
-                    .expect("text")
-                    .contains("insufficient_scope")
-            );
-            assert!(
-                response
-                    .headers()
-                    .get("WWW-Authenticate")
-                    .expect("challenge")
-                    .to_str()
-                    .expect("text")
-                    .contains("error=\"invalid_token\"")
-            );
-        } else {
-            assert!(response.headers().get("WWW-Authenticate").is_none());
-        }
+        assert_token_or_client_challenge(response.headers(), expected).expect("denial challenge");
         assert_eq!(
             to_bytes(response.into_body(), 1024)
                 .await
@@ -290,15 +269,37 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
         let headers = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", bytes.len()).into_bytes();
         let done = raw.queue("/introspect", headers, Some(bytes)).await?;
         let result = timeout(Duration::from_secs(2), raw.upstream.verify(TOKEN)).await?;
-        if scope == "mcp:read" {
-            assert_eq!(result?.client_id, "synthetic-client");
-        } else {
-            let failure = result.err().ok_or("insufficient grant accepted")?;
-            assert_eq!(failure.kind, Kind::PermissionDenied);
-            assert_eq!(failure.retry_after_ms, None);
-        }
+        assert_verified_scope(scope, result)?;
         timeout(Duration::from_secs(2), done).await???;
     }
     raw.finish().await?;
+    Ok(())
+}
+
+fn assert_token_or_client_challenge(headers: &HeaderMap, status: StatusCode) -> TestResult<()> {
+    if status == StatusCode::UNAUTHORIZED {
+        let challenge = headers
+            .get("WWW-Authenticate")
+            .ok_or("challenge")?
+            .to_str()?;
+        assert!(!challenge.contains("insufficient_scope"));
+        assert!(challenge.contains("error=\"invalid_token\""));
+    } else {
+        assert!(headers.get("WWW-Authenticate").is_none());
+    }
+    Ok(())
+}
+
+fn assert_verified_scope(
+    scope: &str,
+    result: Result<logbrew_mcp::upstream::Principal, logbrew_mcp::Failure>,
+) -> TestResult<()> {
+    if scope == "mcp:read" {
+        assert_eq!(result?.client_id, "synthetic-client");
+    } else {
+        let failure = result.err().ok_or("insufficient grant accepted")?;
+        assert_eq!(failure.kind, Kind::PermissionDenied);
+        assert_eq!(failure.retry_after_ms, None);
+    }
     Ok(())
 }

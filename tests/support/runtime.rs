@@ -2,6 +2,7 @@
 
 use std::{
     net::{SocketAddr, TcpListener},
+    sync::atomic::Ordering,
     time::Duration,
 };
 
@@ -14,7 +15,7 @@ use tokio::{
 };
 use tokio_util::sync::CancellationToken;
 
-use super::http::TOKEN;
+use super::http::{Fixture, TOKEN};
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
@@ -72,28 +73,8 @@ impl Running {
             stop,
             task,
         };
-        let end = Instant::now()
-            .checked_add(Duration::from_secs(3))
-            .ok_or("fixture deadline overflow")?;
-        loop {
-            let metadata = running
-                .client
-                .get(format!(
-                    "https://localhost:{}/.well-known/oauth-protected-resource/mcp",
-                    address.port()
-                ))
-                .header("Host", authority)
-                .timeout(Duration::from_millis(200))
-                .send()
-                .await;
-            if metadata.is_ok_and(|response| response.status() == reqwest::StatusCode::OK) {
-                return Ok(running);
-            }
-            if running.task.is_finished() || Instant::now() >= end {
-                return Err(std::io::Error::other("runtime readiness failed").into());
-            }
-            sleep(Duration::from_millis(5)).await;
-        }
+        ready(&running, authority).await?;
+        Ok(running)
     }
 
     pub fn http1_client(&self) -> reqwest::Client {
@@ -148,5 +129,55 @@ impl Running {
 
     pub fn abort(&self) {
         self.task.abort();
+    }
+}
+
+async fn ready(running: &Running, authority: &str) -> TestResult<()> {
+    let end = Instant::now()
+        .checked_add(Duration::from_secs(3))
+        .ok_or("fixture deadline overflow")?;
+    loop {
+        let metadata = running
+            .client
+            .get(format!(
+                "https://localhost:{}/.well-known/oauth-protected-resource/mcp",
+                running.address.port()
+            ))
+            .header("Host", authority)
+            .timeout(Duration::from_millis(200))
+            .send()
+            .await;
+        if metadata.is_ok_and(|response| response.status() == reqwest::StatusCode::OK) {
+            return Ok(());
+        }
+        if running.task.is_finished() || Instant::now() >= end {
+            return Err(std::io::Error::other("runtime readiness failed").into());
+        }
+        sleep(Duration::from_millis(5)).await;
+    }
+}
+
+pub async fn wait_until(
+    limit: Duration,
+    interval: Duration,
+    ready: impl FnMut() -> bool,
+) -> Result<(), tokio::time::error::Elapsed> {
+    timeout(limit, poll_until(interval, ready)).await
+}
+
+pub async fn wait_executions(
+    fixture: &Fixture,
+    expected: usize,
+    limit: Duration,
+) -> Result<(), tokio::time::error::Elapsed> {
+    wait_until(limit, Duration::from_millis(5), || {
+        fixture.state.active_executions.load(Ordering::SeqCst) == expected
+    })
+    .await
+}
+
+async fn poll_until(interval: Duration, mut ready: impl FnMut() -> bool) {
+    while !ready() {
+        sleep(interval).await;
     }
 }

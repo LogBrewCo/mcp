@@ -7,34 +7,30 @@ use tokio::time::timeout;
 
 use super::{Fixture, Process, TestResult, hpack::literal, peer::Peer};
 
-impl Peer {
-    async fn ignored_ping_closes(&mut self) -> TestResult<bool> {
-        let mut ping = false;
-        for _ in 0_i32..16_i32 {
-            let Some(frame) = self.next().await? else {
-                return Ok(ping);
-            };
-            if frame.kind == 6 && frame.flags == 0 && frame.stream == 0 && frame.payload.len() == 8
-            {
-                ping = true;
-            }
+async fn ignored_ping_closes(peer: &mut Peer) -> TestResult<bool> {
+    let mut ping = false;
+    for _ in 0_i32..16_i32 {
+        let Some(frame) = peer.next().await? else {
+            return Ok(ping);
+        };
+        if frame.kind == 6 && frame.flags == 0 && frame.stream == 0 && frame.payload.len() == 8 {
+            ping = true;
         }
-        Err(io::Error::other("control frame count exceeds test bound").into())
     }
+    Err(io::Error::other("control frame count exceeds test bound").into())
+}
 
-    async fn acknowledge_server_ping(&mut self) -> TestResult<()> {
-        for _ in 0_i32..16_i32 {
-            let frame = self
-                .next()
-                .await?
-                .ok_or_else(|| io::Error::other("responsive peer closed"))?;
-            if frame.kind == 6 && frame.flags == 0 && frame.stream == 0 && frame.payload.len() == 8
-            {
-                return self.send(0, 6, 1, &frame.payload).await;
-            }
+async fn acknowledge_server_ping(peer: &mut Peer) -> TestResult<()> {
+    for _ in 0_i32..16_i32 {
+        let frame = peer
+            .next()
+            .await?
+            .ok_or_else(|| io::Error::other("responsive peer closed"))?;
+        if frame.kind == 6 && frame.flags == 0 && frame.stream == 0 && frame.payload.len() == 8 {
+            return peer.send(0, 6, 1, &frame.payload).await;
         }
-        Err(io::Error::other("control frame count exceeds test bound").into())
     }
+    Err(io::Error::other("control frame count exceeds test bound").into())
 }
 
 #[tokio::test]
@@ -51,26 +47,19 @@ async fn unresponsive_http2_peers_close_after_preface_and_settings_and_capacity_
             Peer::connect(fixture.tls_protocol(Some(b"h2")).await.expect("TLS"), true)
                 .await
                 .expect("idle peer");
-        timeout(Duration::from_secs(12), async {
-            tokio::join!(
-                incomplete.ignored_ping_closes(),
-                complete.ignored_ping_closes()
-            )
-        })
+        timeout(
+            Duration::from_secs(12),
+            idle_peers(&mut incomplete, &mut complete),
+        )
         .await
         .expect("dead HTTP/2 peers close within the connection bound")
     };
     assert!(incomplete.expect("preface peer closure and ping"));
     assert!(complete.expect("idle peer closure and ping"));
-    timeout(Duration::from_secs(3), async {
-        let mut slots = Vec::new();
-        for _ in 0_i32..64_i32 {
-            slots.push(fixture.tls().await.expect("recovered TLS slot"));
-        }
-        assert_eq!(slots.len(), 64);
-    })
-    .await
-    .expect("all 64 slots recovered before the prefix deadline");
+    timeout(Duration::from_secs(3), recovered_slots(&fixture))
+        .await
+        .expect("all 64 slots recovered before the prefix deadline")
+        .expect("recovered TLS slots");
     fixture
         .ready(&mut process)
         .await
@@ -89,7 +78,7 @@ async fn responsive_idle_http2_peer_survives_ping_cycles_and_remains_usable() {
         .await
         .expect("idle peer");
     for _ in 0_i32..2_i32 {
-        timeout(Duration::from_secs(7), peer.acknowledge_server_ping())
+        timeout(Duration::from_secs(7), acknowledge_server_ping(&mut peer))
             .await
             .expect("server ping bound")
             .expect("acknowledged ping");
@@ -135,34 +124,10 @@ async fn native_process_releases_response_admission_when_http2_window_is_withhel
     }
     let client = fixture.client().expect("certificate-verified client");
     let url = format!("https://localhost:{}/mcp", fixture.address.port());
-    let mut headers = BTreeSet::new();
-    let mut pings = 0_i32;
-    timeout(Duration::from_secs(12), async {
-        for _ in 0_i32..256_i32 {
-            let Some(frame) = peer.next().await? else {
-                return Ok::<(), Box<dyn std::error::Error + Send + Sync>>(());
-            };
-            match frame.kind {
-                1 => {
-                    assert!(frame.stream > 0 && frame.stream < 128 && frame.stream % 2 == 1);
-                    assert_eq!(frame.flags & 5, 4);
-                    assert!(headers.insert(frame.stream));
-                    if headers.len() == 64 {
-                        let excess = client.post(&url).send().await?;
-                        assert_eq!(excess.status(), reqwest::StatusCode::TOO_MANY_REQUESTS);
-                    }
-                }
-                6 if frame.stream == 0 && frame.flags == 0 => {
-                    assert_eq!(frame.payload.len(), 8);
-                    peer.send(0, 6, 1, &frame.payload).await?;
-                    pings += 1_i32;
-                }
-                4 | 8 => {}
-                _ => return Err(io::Error::other("unexpected process stall frame").into()),
-            }
-        }
-        Err(io::Error::other("process stall frame count exceeds bound").into())
-    })
+    let (headers, pings) = timeout(
+        Duration::from_secs(12),
+        withheld_window(&mut peer, &client, &url),
+    )
     .await
     .expect("native response delivery bound")
     .expect("stalled connection closed");
@@ -184,4 +149,60 @@ async fn native_process_releases_response_admission_when_http2_window_is_withhel
     process.signal(Signal::TERM).expect("shutdown signal");
     assert!(process.wait().await.expect("exit").success());
     drop(std::net::TcpListener::bind(fixture.address).expect("listener released"));
+}
+
+async fn idle_peers(
+    incomplete: &mut Peer,
+    complete: &mut Peer,
+) -> (TestResult<bool>, TestResult<bool>) {
+    tokio::join!(
+        ignored_ping_closes(incomplete),
+        ignored_ping_closes(complete)
+    )
+}
+
+async fn recovered_slots(fixture: &Fixture) -> TestResult<()> {
+    let mut slots = Vec::new();
+    for _ in 0_i32..64_i32 {
+        slots.push(fixture.tls().await?);
+    }
+    assert_eq!(slots.len(), 64);
+    Ok(())
+}
+
+async fn withheld_window(
+    peer: &mut Peer,
+    client: &reqwest::Client,
+    url: &str,
+) -> TestResult<(BTreeSet<u32>, i32)> {
+    let mut headers = BTreeSet::new();
+    let mut pings = 0_i32;
+    for _ in 0_i32..256_i32 {
+        let Some(frame) = peer.next().await? else {
+            return Ok((headers, pings));
+        };
+        let check_excess = match frame.kind {
+            1 => {
+                assert!(frame.stream > 0 && frame.stream < 128 && frame.stream % 2 == 1);
+                assert_eq!(frame.flags & 5, 4);
+                assert!(headers.insert(frame.stream));
+                headers.len() == 64
+            }
+            6 if frame.stream == 0 && frame.flags == 0 => {
+                assert_eq!(frame.payload.len(), 8);
+                peer.send(0, 6, 1, &frame.payload).await?;
+                pings = pings
+                    .checked_add(1_i32)
+                    .ok_or("fixture ping count overflow")?;
+                false
+            }
+            4 | 8 => false,
+            _ => return Err(io::Error::other("unexpected process stall frame").into()),
+        };
+        if check_excess {
+            let excess = client.post(url).send().await?;
+            assert_eq!(excess.status(), reqwest::StatusCode::TOO_MANY_REQUESTS);
+        }
+    }
+    Err(io::Error::other("process stall frame count exceeds bound").into())
 }

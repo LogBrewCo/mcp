@@ -99,12 +99,7 @@ async fn responses(
             assert_eq!(frame.payload.len(), 8);
             peer.send(0, 6, 1, &frame.payload).await?;
             pings = pings.checked_add(1).ok_or("fixture ping count overflow")?;
-            if drip && pings == 1 {
-                for stream in streams {
-                    // Mid-request progress must not refresh the request deadline.
-                    peer.send(*stream, 0, 0, b" ").await?;
-                }
-            }
+            drip_requests(peer, streams, drip, pings).await?;
             continue;
         }
         if frame.kind == 7 {
@@ -142,6 +137,21 @@ async fn responses(
         }
     }
     Err(io::Error::other("response frame count exceeds test bound").into())
+}
+
+async fn drip_requests(
+    peer: &mut Peer,
+    streams: &[u32],
+    drip: bool,
+    pings: usize,
+) -> TestResult<()> {
+    if drip && pings == 1 {
+        for stream in streams {
+            // Mid-request progress must not refresh the request deadline.
+            peer.send(*stream, 0, 0, b" ").await?;
+        }
+    }
+    Ok(())
 }
 
 async fn capacity(fixture: &Fixture, running: &Running) -> TestResult<()> {
@@ -274,52 +284,42 @@ async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
             assert_eq!(headers.len(), 64);
             return Ok(pings);
         };
-        match frame.kind {
+        let finished = match frame.kind {
             6 if frame.stream == 0 && frame.flags == 0 => {
                 assert_eq!(frame.payload.len(), 8);
                 peer.send(0, 6, 1, &frame.payload).await?;
                 pings = pings.checked_add(1).ok_or("fixture ping count overflow")?;
-                if pings == 3 {
-                    assert_eq!(headers.len(), 64);
-                    return Ok(pings);
-                }
+                pings == 3
             }
             1 => {
                 assert!(frame.stream > 0 && frame.stream < 128 && frame.stream % 2 == 1);
                 assert_eq!(frame.flags & 5, 4);
                 status(&frame.payload, 401)?;
                 assert!(headers.insert(frame.stream));
+                false
             }
             3 => {
                 assert!(headers.contains(&frame.stream));
                 assert_eq!(frame.payload.len(), 4);
                 assert!(resets.insert(frame.stream));
-                if resets.len() == 64 {
-                    return Ok(pings);
-                }
+                resets.len() == 64
             }
             0 => return Err(io::Error::other("DATA sent without stream capacity").into()),
             7 => return Ok(pings),
-            4 | 8 => {}
+            4 | 8 => false,
             _ => return Err(io::Error::other("unexpected withheld-window frame").into()),
+        };
+        if finished {
+            assert_eq!(headers.len(), 64);
+            return Ok(pings);
         }
     }
     Err(io::Error::other("control frame count exceeds test bound").into())
 }
 
 async fn prepared_challenges(fixture: &Fixture) -> TestResult<()> {
-    timeout(Duration::from_secs(2), async {
-        loop {
-            if fixture.telemetry.snapshot().is_some_and(|snapshot| {
-                snapshot
-                    .stages
-                    .iter()
-                    .any(|stage| stage.stage == Stage::RequestPrepared && stage.finished == 65)
-            }) {
-                return;
-            }
-            sleep(Duration::from_millis(5)).await;
-        }
+    super::runtime::wait_until(Duration::from_secs(2), Duration::from_millis(5), || {
+        stage_finished(fixture, Stage::RequestPrepared, 65)
     })
     .await
     .map_err(|error| {
@@ -352,42 +352,58 @@ async fn prepared_challenges(fixture: &Fixture) -> TestResult<()> {
 }
 
 async fn closed_retention(fixture: &Fixture) -> TestResult<()> {
-    timeout(Duration::from_secs(2), async {
-        loop {
-            if let Some(snapshot) = fixture.telemetry.snapshot()
-                && let Some(retained) = snapshot
-                    .stages
-                    .iter()
-                    .find(|stage| stage.stage == Stage::ResponseRetained)
-                && retained.finished == 64
-            {
-                assert_eq!(retained.started, 64);
-                assert_eq!(retained.pending, Some(0));
-                assert_eq!(retained.timed, 64);
-                assert_eq!(retained.dropped_updates, 0);
-                let count = |outcome| {
-                    retained
-                        .outcomes
-                        .iter()
-                        .find(|entry| entry.outcome == outcome)
-                        .map_or(0, |entry| entry.count)
-                };
-                assert!(count(Outcome::Deadline) > 0);
-                assert_eq!(
-                    count(Outcome::Deadline).checked_add(count(Outcome::Cancelled)),
-                    Some(64)
-                );
-                assert_eq!(count(Outcome::Completed), 0);
-                assert_eq!(count(Outcome::Released), 0);
-                let encoded = serde_json::to_string(&snapshot)?;
-                assert!(!encoded.contains(TOKEN));
-                assert!(!encoded.contains("resource.example"));
-                return Ok(());
-            }
-            sleep(Duration::from_millis(5)).await;
-        }
+    let snapshot = timeout(Duration::from_secs(2), retained_snapshot(fixture)).await??;
+    let retained = snapshot
+        .stages
+        .iter()
+        .find(|stage| stage.stage == Stage::ResponseRetained)
+        .ok_or("missing retained-response observations")?;
+    assert_eq!(retained.started, 64);
+    assert_eq!(retained.pending, Some(0));
+    assert_eq!(retained.timed, 64);
+    assert_eq!(retained.dropped_updates, 0);
+    let count = |outcome| {
+        retained
+            .outcomes
+            .iter()
+            .find(|entry| entry.outcome == outcome)
+            .map_or(0, |entry| entry.count)
+    };
+    assert!(count(Outcome::Deadline) > 0);
+    assert_eq!(
+        count(Outcome::Deadline).checked_add(count(Outcome::Cancelled)),
+        Some(64)
+    );
+    assert_eq!(count(Outcome::Completed), 0);
+    assert_eq!(count(Outcome::Released), 0);
+    let encoded = serde_json::to_string(&snapshot)?;
+    assert!(!encoded.contains(TOKEN));
+    assert!(!encoded.contains("resource.example"));
+    Ok(())
+}
+
+fn stage_finished(fixture: &Fixture, selected: Stage, finished: u64) -> bool {
+    fixture.telemetry.snapshot().is_some_and(|snapshot| {
+        snapshot
+            .stages
+            .iter()
+            .any(|stage| stage.stage == selected && stage.finished == finished)
     })
-    .await?
+}
+
+async fn retained_snapshot(fixture: &Fixture) -> TestResult<logbrew_mcp::telemetry::Snapshot> {
+    loop {
+        let snapshot = fixture.telemetry.snapshot().filter(|snapshot| {
+            snapshot
+                .stages
+                .iter()
+                .any(|stage| stage.stage == Stage::ResponseRetained && stage.finished == 64)
+        });
+        if let Some(snapshot) = snapshot {
+            return Ok(snapshot);
+        }
+        sleep(Duration::from_millis(5)).await;
+    }
 }
 
 #[tokio::test]
@@ -466,28 +482,10 @@ async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadli
         .expect("initial response bound")
         .expect("complete initial response");
     let completed = Instant::now();
-    timeout(Duration::from_secs(18), async {
-        let mut pings = 0_i32;
-        for _ in 0_i32..32_i32 {
-            let frame = peer.next().await?.ok_or("completed connection closed")?;
-            match frame.kind {
-                6 if frame.stream == 0 && frame.flags == 0 => {
-                    assert_eq!(frame.payload.len(), 8);
-                    peer.send(0, 6, 1, &frame.payload).await?;
-                    pings += 1_i32;
-                    if pings == 3_i32 {
-                        return Ok::<(), Box<dyn std::error::Error + Send + Sync>>(());
-                    }
-                }
-                3 | 4 | 8 => {}
-                _ => return Err(io::Error::other("unexpected reuse control frame").into()),
-            }
-        }
-        Err(io::Error::other("reuse control frame count exceeds bound").into())
-    })
-    .await
-    .expect("observation after the old delivery deadline")
-    .expect("three actual server PINGs on a reusable connection");
+    timeout(Duration::from_secs(18), three_pings(&mut peer))
+        .await
+        .expect("observation after the old delivery deadline")
+        .expect("three actual server PINGs on a reusable connection");
     assert!(completed.elapsed() >= Duration::from_secs(10));
     timeout(Duration::from_secs(2), recovery(&mut peer, &block, 3))
         .await
@@ -498,4 +496,26 @@ async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadli
     drop(peer);
     running.stop.cancel();
     running.wait().await.expect("runtime drain");
+}
+
+async fn three_pings(peer: &mut Peer) -> TestResult<()> {
+    let mut pings = 0_i32;
+    for _ in 0_i32..32_i32 {
+        let frame = peer.next().await?.ok_or("completed connection closed")?;
+        match frame.kind {
+            6 if frame.stream == 0 && frame.flags == 0 => {
+                assert_eq!(frame.payload.len(), 8);
+                peer.send(0, 6, 1, &frame.payload).await?;
+                pings = pings
+                    .checked_add(1_i32)
+                    .ok_or("fixture ping count overflow")?;
+            }
+            3 | 4 | 8 => {}
+            _ => return Err(io::Error::other("unexpected reuse control frame").into()),
+        }
+        if pings == 3_i32 {
+            return Ok(());
+        }
+    }
+    Err(io::Error::other("reuse control frame count exceeds bound").into())
 }

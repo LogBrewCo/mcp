@@ -7,7 +7,6 @@ use axum::{
     http::{HeaderMap, Request, StatusCode},
 };
 use serde_json::{Value, json};
-use tokio::time::{sleep, timeout};
 use tower::ServiceExt as _;
 
 use super::{
@@ -245,12 +244,7 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
     let http1 = running.http1_client();
     let http2 = running.http2_client()?;
     let release = async {
-        timeout(Duration::from_secs(2), async {
-            while fixture.state.active_executions.load(Ordering::SeqCst) != 4 {
-                sleep(Duration::from_millis(5)).await;
-            }
-        })
-        .await?;
+        super::runtime::wait_executions(&fixture, 4, Duration::from_secs(2)).await?;
         fixture.state.release.notify_waiters();
         Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
     };
@@ -296,9 +290,7 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
     for size in [logbrew_mcp::OUTPUT_BYTES, logbrew_mcp::OUTPUT_BYTES + 1] {
         let remaining = size - empty.len();
         let mut blob = "\"".repeat(remaining / 2);
-        if remaining % 2 == 1 {
-            blob.push('x');
-        }
+        blob.extend(std::iter::repeat_n('x', remaining % 2));
         let body = json!({"blob":blob,"count":3_i32}).to_string();
         assert_eq!(body.len(), size);
         fixture.reply(StatusCode::OK, body, HeaderMap::new())?;
@@ -317,20 +309,7 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
             &logbrew_mcp::json::object(text.as_bytes(), logbrew_mcp::ENVELOPE_BYTES)?,
             content
         );
-        if size == logbrew_mcp::OUTPUT_BYTES {
-            assert_eq!(
-                content
-                    .get("data")
-                    .ok_or_else(|| std::io::Error::other("missing data"))?
-                    .to_string()
-                    .len(),
-                size
-            );
-            assert_eq!(content.get("error"), Some(&Value::Null));
-        } else {
-            assert_eq!(content.get("data"), Some(&Value::Null));
-            assert_eq!(content.pointer("/error/code"), Some(&json!("unavailable")));
-        }
+        super::http::assert_output_budget(content, size)?;
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
     Ok(())

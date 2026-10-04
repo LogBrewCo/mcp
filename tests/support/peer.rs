@@ -127,19 +127,22 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
 
     pub async fn probe(&mut self) -> TestResult<()> {
         self.send(0, 6, 0, b"TESTPING").await?;
-        for _ in 0_i32..16_i32 {
-            let frame = self
-                .next()
-                .await?
-                .ok_or_else(|| io::Error::other("responsive peer closed"))?;
-            if frame.kind == 6
-                && frame.flags == 1
-                && frame.stream == 0
-                && frame.payload == b"TESTPING"
-            {
-                return Ok(());
-            }
-        }
-        Err(io::Error::other("control frame count exceeds test bound").into())
+        probe_frames(self).await
     }
+}
+
+async fn probe_frames<S: AsyncRead + AsyncWrite + Unpin + Send>(
+    peer: &mut Peer<S>,
+) -> TestResult<()> {
+    for _ in 0_i32..16_i32 {
+        let frame = peer
+            .next()
+            .await?
+            .ok_or_else(|| io::Error::other("responsive peer closed"))?;
+        if frame.kind == 6 && frame.flags == 1 && frame.stream == 0 && frame.payload == b"TESTPING"
+        {
+            return Ok(());
+        }
+    }
+    Err(io::Error::other("control frame count exceeds test bound").into())
 }

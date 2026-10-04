@@ -255,12 +255,33 @@ async fn contracts(http2: bool) -> TestResult<()> {
         envelope(&reply, None)?.pointer("/data/operations/0/id"),
         Some(&json!("logs.read.v1"))
     );
+    revocation(&upstream, &http, &resource, http2).await?;
+    let invalid = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
+        "input":{"token":"SYNTHETIC_PRIVATE_MARKER"}}});
+    let (status, reply) = request(&http, &resource, "tools/call", invalid, http2).await?;
+    assert_eq!(status, reqwest::StatusCode::OK);
+    drop(envelope(&reply, Some("invalid_input"))?);
+    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 7);
+    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 2);
+    process.signal(Signal::TERM)?;
+    assert!(process.wait().await?.success());
+    drop(std::net::TcpListener::bind(fixture.address)?);
+    upstream.finish().await?;
+    Ok(())
+}
+
+async fn revocation(
+    upstream: &backend::Backend,
+    http: &reqwest::Client,
+    resource: &str,
+    http2: bool,
+) -> TestResult<()> {
     let execution = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
     for attempt in 0_usize..3 {
         let active = attempt != 1;
         upstream.observations.active.store(active, Ordering::SeqCst);
         let (status, reply) =
-            request(&http, &resource, "tools/call", execution.clone(), http2).await?;
+            request(http, resource, "tools/call", execution.clone(), http2).await?;
         if active {
             assert_eq!(status, reqwest::StatusCode::OK);
             assert_eq!(
@@ -279,17 +300,6 @@ async fn contracts(http2: bool) -> TestResult<()> {
             if attempt == 2 { 2 } else { 1 }
         );
     }
-    let invalid = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
-        "input":{"token":"SYNTHETIC_PRIVATE_MARKER"}}});
-    let (status, reply) = request(&http, &resource, "tools/call", invalid, http2).await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
-    drop(envelope(&reply, Some("invalid_input"))?);
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 7);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 2);
-    process.signal(Signal::TERM)?;
-    assert!(process.wait().await?.success());
-    drop(std::net::TcpListener::bind(fixture.address)?);
-    upstream.finish().await?;
     Ok(())
 }
 

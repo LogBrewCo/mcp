@@ -374,58 +374,57 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next) -> Respon
                 .extensions_mut()
                 .insert(Authority { principal, token }),
         );
-        let mut original_id = None;
-        if request.method() == axum::http::Method::POST {
-            let (mut parts, body) = request.into_parts();
-            let Ok(bytes) = to_bytes(body, REQUEST_BYTES).await else {
-                return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();
-            };
-            let Ok(mut value) = strict_json::object(&bytes, REQUEST_BYTES) else {
-                return (StatusCode::BAD_REQUEST, "invalid JSON request").into_response();
-            };
-            if let Some(response) = transport::prepare(&mut parts.headers, &value) {
-                return response;
-            }
-            original_id = transport::prepare_id(&mut value);
-            // Keep cursor presence when the SDK drops a malformed optional value.
-            if value.get("method").and_then(Value::as_str) == Some("tools/list")
-                && value.pointer("/params/cursor").is_some()
-            {
-                let _previous_cursor = parts.extensions.insert(ToolCursorSupplied);
-            }
-            // The SDK deserializes tool data through serde's internal value
-            // representation. Bind the exact validated arguments separately so
-            // ordinary object keys cannot become private serializer records.
-            if value.get("method").and_then(Value::as_str) == Some("tools/call")
-                && matches!(
-                    value.pointer("/params/name").and_then(Value::as_str),
-                    Some("search" | "execute")
-                )
-                && value
-                    .pointer("/params/arguments")
-                    .is_some_and(Value::is_object)
-            {
-                if let Some(arguments) = value.pointer("/params/arguments") {
-                    drop(
-                        parts
-                            .extensions
-                            .insert(OriginalArguments(arguments.clone())),
-                    );
-                }
-                if let Some(arguments) = value.pointer_mut("/params/arguments") {
-                    *arguments = json!({});
-                }
-            }
-            request = Request::from_parts(parts, Body::from(value.to_string()));
-        }
-        let response = transport::restore_id(original_id, next.run(request).await).await;
-        transport::fixed_header_error(response).await
+        prepared_request(request, next).await
     };
     deadline::within(Duration::from_secs(10), work)
         .await
         .unwrap_or_else(|| {
             (StatusCode::GATEWAY_TIMEOUT, "request deadline exceeded").into_response()
         })
+}
+
+async fn prepared_request(mut request: Request, next: Next) -> Response {
+    let mut original_id = None;
+    if request.method() == axum::http::Method::POST {
+        let (mut parts, body) = request.into_parts();
+        let Ok(bytes) = to_bytes(body, REQUEST_BYTES).await else {
+            return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();
+        };
+        let Ok(mut value) = strict_json::object(&bytes, REQUEST_BYTES) else {
+            return (StatusCode::BAD_REQUEST, "invalid JSON request").into_response();
+        };
+        if let Some(response) = transport::prepare(&mut parts.headers, &value) {
+            return response;
+        }
+        original_id = transport::prepare_id(&mut value);
+        // Keep cursor presence when the SDK drops a malformed optional value.
+        if value.get("method").and_then(Value::as_str) == Some("tools/list")
+            && value.pointer("/params/cursor").is_some()
+        {
+            let _previous_cursor = parts.extensions.insert(ToolCursorSupplied);
+        }
+        // The SDK deserializes tool data through serde's internal value
+        // representation. Bind the exact validated arguments separately so
+        // ordinary object keys cannot become private serializer records.
+        if value.get("method").and_then(Value::as_str) == Some("tools/call")
+            && matches!(
+                value.pointer("/params/name").and_then(Value::as_str),
+                Some("search" | "execute")
+            )
+            && let Some(arguments) = value.pointer_mut("/params/arguments")
+            && arguments.is_object()
+        {
+            drop(
+                parts
+                    .extensions
+                    .insert(OriginalArguments(arguments.clone())),
+            );
+            *arguments = json!({});
+        }
+        request = Request::from_parts(parts, Body::from(value.to_string()));
+    }
+    let response = transport::restore_id(original_id, next.run(request).await).await;
+    transport::fixed_header_error(response).await
 }
 
 fn valid_host_origin(shared: &Shared, request: &Request) -> bool {

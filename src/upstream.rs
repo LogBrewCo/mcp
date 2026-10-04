@@ -458,12 +458,13 @@ async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8
     let mut bytes = Vec::new();
     while let Some(frame) = response.body_mut().frame().await {
         let frame = frame.map_err(|_| Failure::from(Kind::Unavailable))?;
-        if let Ok(chunk) = frame.into_data() {
-            if bytes.len().saturating_add(chunk.len()) > limit {
-                return Err(Kind::Unavailable.into());
-            }
-            bytes.extend_from_slice(&chunk);
+        let Ok(chunk) = frame.into_data() else {
+            continue;
+        };
+        if bytes.len().saturating_add(chunk.len()) > limit {
+            return Err(Kind::Unavailable.into());
         }
+        bytes.extend_from_slice(&chunk);
     }
     Ok(bytes)
 }

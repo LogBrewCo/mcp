@@ -3,7 +3,7 @@
 use std::{net::TcpListener, sync::atomic::Ordering, time::Duration};
 
 use serde_json::{Value, json};
-use tokio::time::{sleep, timeout};
+use tokio::time::sleep;
 
 use super::{
     http::{Fixture, TOKEN},
@@ -53,15 +53,11 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
     let mut calls = Vec::new();
     for (version, client) in clients {
         let request = request(&client, &resource).timeout(Duration::from_secs(8));
-        calls.push((version, tokio::spawn(async move { request.send().await })));
+        calls.push((version, tokio::spawn(request.send())));
     }
-    timeout(Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 2 {
-            sleep(Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("both authenticated requests reached the backend");
+    super::runtime::wait_executions(&fixture, 2, Duration::from_secs(2))
+        .await
+        .expect("both authenticated requests reached the backend");
     sleep(Duration::from_millis(5250)).await;
     for (_, call) in &calls {
         assert!(!call.is_finished());
@@ -144,26 +140,18 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     fixture.state.pause.store(true, Ordering::SeqCst);
     let active = request(&client, &resource);
     let call = tokio::spawn(async move { active.send().await });
-    timeout(Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 1 {
-            sleep(Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("active authenticated execution");
+    super::runtime::wait_executions(&fixture, 1, Duration::from_secs(2))
+        .await
+        .expect("active authenticated execution");
     call.abort();
     assert!(
         call.await
             .expect_err("aborted HTTP/2 request")
             .is_cancelled()
     );
-    timeout(Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 0 {
-            sleep(Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("upstream cancellation");
+    super::runtime::wait_executions(&fixture, 0, Duration::from_secs(2))
+        .await
+        .expect("upstream cancellation");
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 3);
     drop(client);

@@ -130,23 +130,28 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
         let result: Value = serde_json::from_slice(&bytes)?;
         assert_eq!(result.get("id"), Some(&json!(1_i32)));
         assert!(result.get("error").is_none());
-        if method == "tools/list" {
-            let tools = result
-                .pointer("/result/tools")
-                .and_then(Value::as_array)
-                .ok_or_else(|| io::Error::other("missing tool inventory"))?;
-            assert_eq!(tools.len(), 2);
-            assert_eq!(
-                tools.first().and_then(|tool| tool.get("name")),
-                Some(&json!("search"))
-            );
-            assert_eq!(
-                tools.get(1).and_then(|tool| tool.get("name")),
-                Some(&json!("execute"))
-            );
-        }
+        assert_inventory(method, &result)?;
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    Ok(())
+}
+
+fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
+    if method == "tools/list" {
+        let tools = result
+            .pointer("/result/tools")
+            .and_then(Value::as_array)
+            .ok_or_else(|| io::Error::other("missing tool inventory"))?;
+        assert_eq!(tools.len(), 2);
+        assert_eq!(
+            tools.first().and_then(|tool| tool.get("name")),
+            Some(&json!("search"))
+        );
+        assert_eq!(
+            tools.get(1).and_then(|tool| tool.get("name")),
+            Some(&json!("execute"))
+        );
+    }
     Ok(())
 }
 

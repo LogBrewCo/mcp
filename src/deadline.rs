@@ -12,17 +12,31 @@ pub async fn within<T>(budget: Duration, work: impl Future<Output = T>) -> Optio
 #[cfg(test)]
 mod tests {
     use std::{
-        future::{pending, ready},
+        future::{Future, pending, poll_fn, ready},
         sync::{
             Arc,
             atomic::{AtomicBool, Ordering},
         },
+        task::Poll,
         time::Duration,
     };
 
-    use tokio::sync::Semaphore;
+    use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
     use super::within;
+
+    fn delayed_ready() -> impl Future<Output = i32> {
+        poll_fn(|_| {
+            std::thread::sleep(Duration::from_millis(20));
+            Poll::Ready(7_i32)
+        })
+    }
+
+    async fn held_pending(permit: OwnedSemaphorePermit, polled: &AtomicBool) {
+        let _permit = permit;
+        polled.store(true, Ordering::SeqCst);
+        pending::<()>().await;
+    }
 
     #[tokio::test]
     async fn accepts_completion_before_deadline() {
@@ -34,24 +48,18 @@ mod tests {
 
     #[tokio::test]
     async fn rejects_ready_completion_after_deadline() {
-        let work = async {
-            std::thread::sleep(Duration::from_millis(20));
-            7_i32
-        };
-        assert_eq!(within(Duration::from_millis(5), work).await, None);
+        assert_eq!(
+            within(Duration::from_millis(5), delayed_ready()).await,
+            None
+        );
     }
 
     #[tokio::test]
     async fn expiry_drops_pending_work_and_allows_recovery()
     -> Result<(), Box<dyn std::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
-        let permit = Arc::clone(&slots).try_acquire_owned()?;
         let polled = AtomicBool::new(false);
-        let work = async {
-            let _permit = permit;
-            polled.store(true, Ordering::SeqCst);
-            pending::<()>().await;
-        };
+        let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);
         assert_eq!(within(Duration::from_millis(5), work).await, None);
         assert!(polled.load(Ordering::SeqCst));
         let _recovered = slots.try_acquire()?;
@@ -66,13 +74,8 @@ mod tests {
     async fn unrepresentable_deadline_drops_work_without_polling_and_recovers()
     -> Result<(), Box<dyn std::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
-        let permit = Arc::clone(&slots).try_acquire_owned()?;
         let polled = AtomicBool::new(false);
-        let work = async {
-            let _permit = permit;
-            polled.store(true, Ordering::SeqCst);
-            pending::<()>().await;
-        };
+        let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);
         assert_eq!(within(Duration::MAX, work).await, None);
         assert!(!polled.load(Ordering::SeqCst));
         let _recovered = slots.try_acquire()?;

@@ -64,42 +64,49 @@ fn acceptable(headers: &HeaderMap) -> bool {
         let Ok(field) = field.to_str() else {
             return false;
         };
-        let mut quoted = false;
-        let mut escaped = false;
-        for value in field.split(|character| {
-            if escaped {
-                escaped = false;
-                return false;
-            }
-            match character {
-                '\\' if quoted => escaped = true,
-                '"' => quoted = !quoted,
-                ',' if !quoted => return true,
-                _ => {}
-            }
-            false
-        }) {
-            if value.trim().is_empty() {
-                continue;
-            }
-            let Ok(media) = value.trim().parse::<mime::Mime>() else {
-                return false;
-            };
-            let mut quality = media.params().filter(|(name, _)| *name == "q");
-            let weight = quality.next().map(|(_, value)| value);
-            if quality.next().is_some() {
-                return false;
-            }
-            let Some(enabled) =
-                weight.map_or(Some(true), |weight| positive_quality(weight.as_str()))
-            else {
-                return false;
-            };
-            json |= enabled && media.essence_str() == "application/json";
-            events |= enabled && media.essence_str() == "text/event-stream";
-        }
+        let Some((field_json, field_events)) = acceptable_field(field) else {
+            return false;
+        };
+        json |= field_json;
+        events |= field_events;
     }
     json && events
+}
+
+fn acceptable_field(field: &str) -> Option<(bool, bool)> {
+    let mut json = false;
+    let mut events = false;
+    let mut quoted = false;
+    let mut escaped = false;
+    for value in field.split(|character| media_separator(character, &mut quoted, &mut escaped)) {
+        if value.trim().is_empty() {
+            continue;
+        }
+        let media = value.trim().parse::<mime::Mime>().ok()?;
+        let mut quality = media.params().filter(|(name, _)| *name == "q");
+        let weight = quality.next().map(|(_, value)| value);
+        if quality.next().is_some() {
+            return None;
+        }
+        let enabled = weight.map_or(Some(true), |weight| positive_quality(weight.as_str()))?;
+        json |= enabled && media.essence_str() == "application/json";
+        events |= enabled && media.essence_str() == "text/event-stream";
+    }
+    Some((json, events))
+}
+
+const fn media_separator(character: char, quoted: &mut bool, escaped: &mut bool) -> bool {
+    if *escaped {
+        *escaped = false;
+        return false;
+    }
+    match character {
+        '\\' if *quoted => *escaped = true,
+        '"' => *quoted = !*quoted,
+        ',' if !*quoted => return true,
+        _ => {}
+    }
+    false
 }
 
 fn positive_quality(value: &str) -> Option<bool> {

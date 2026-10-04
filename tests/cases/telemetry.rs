@@ -241,13 +241,9 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
     let baseline = fixture.telemetry.snapshot().expect("readiness snapshot");
     let server = Arc::clone(&running);
     let request = tokio::spawn(async move { server.execute().await });
-    tokio::time::timeout(Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 1 {
-            tokio::time::sleep(Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("execution reached backend");
+    super::runtime::wait_executions(&fixture, 1, Duration::from_secs(2))
+        .await
+        .expect("execution reached backend");
     let snapshot = fixture.telemetry.snapshot().expect("pending snapshot");
     let pending = operation(&snapshot).expect("pending operation");
     let before = operation(&baseline).expect("baseline operation");
@@ -275,17 +271,8 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
             .expect("request task")
             .unwrap_err(),
     );
-    tokio::time::timeout(Duration::from_secs(2), async {
-        loop {
-            if let Some(snapshot) = fixture.telemetry.snapshot()
-                && snapshot.stages.iter().all(|stage| stage.pending == Some(0))
-                && operation(&snapshot).is_some_and(|stage| stage.pending == Some(0))
-                && fixture.state.active_executions.load(Ordering::SeqCst) == 0
-            {
-                break;
-            }
-            tokio::time::sleep(Duration::from_millis(5)).await;
-        }
+    super::runtime::wait_until(Duration::from_secs(2), Duration::from_millis(5), || {
+        idle(&fixture)
     })
     .await
     .expect("cancelled stages finished");
@@ -316,4 +303,12 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
         count(&snapshot, Stage::Introspection, Outcome::Completed),
         Some(1)
     );
+}
+
+fn idle(fixture: &Fixture) -> bool {
+    fixture.telemetry.snapshot().is_some_and(|snapshot| {
+        snapshot.stages.iter().all(|stage| stage.pending == Some(0))
+            && operation(&snapshot).is_some_and(|stage| stage.pending == Some(0))
+            && fixture.state.active_executions.load(Ordering::SeqCst) == 0
+    })
 }

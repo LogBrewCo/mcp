@@ -21,23 +21,15 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
     );
     let request_server = Arc::clone(&running);
     let request = tokio::spawn(async move { request_server.execute().await });
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 1 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("authenticated request reached backend");
+    super::runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+        .await
+        .expect("authenticated request reached backend");
     running.stop.cancel();
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        loop {
-            if let Ok(listener) = std::net::TcpListener::bind(running.address) {
-                drop(listener);
-                break;
-            }
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
+    super::runtime::wait_until(
+        std::time::Duration::from_secs(2),
+        std::time::Duration::from_millis(5),
+        || std::net::TcpListener::bind(running.address).is_ok(),
+    )
     .await
     .expect("listener stops admitting new connections before drain");
     assert!(!request.is_finished());
@@ -70,13 +62,9 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
     );
     let request_server = Arc::clone(&running);
     let request = tokio::spawn(async move { request_server.execute().await });
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 1 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("execution reached backend");
+    super::runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+        .await
+        .expect("execution reached backend");
     running.abort();
     drop(
         tokio::time::timeout(std::time::Duration::from_secs(2), request)
@@ -85,13 +73,9 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
             .expect("request task")
             .unwrap_err(),
     );
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 0 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("backend work stopped");
+    super::runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(2))
+        .await
+        .expect("backend work stopped");
     drop(std::net::TcpListener::bind(running.address).expect("listener released"));
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
@@ -103,24 +87,11 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     let mut requests = Vec::new();
     for _ in 0_i32..64_i32 {
         let request_fixture = Arc::clone(&fixture);
-        requests.push(tokio::spawn(async move {
-            request_fixture
-                .request(
-                    "tools/call",
-                    json!({"name":"execute",
-                "arguments":{"operation":"logs.read.v1","input":{}}}),
-                    TOKEN,
-                )
-                .await
-        }));
+        requests.push(tokio::spawn(execute(request_fixture)));
     }
-    tokio::time::timeout(std::time::Duration::from_secs(3), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 64 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("capacity reached");
+    super::runtime::wait_executions(&fixture, 64, std::time::Duration::from_secs(3))
+        .await
+        .expect("capacity reached");
     let (status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
@@ -134,13 +105,9 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     for request in requests {
         assert!(request.await.expect_err("cancelled request").is_cancelled());
     }
-    tokio::time::timeout(std::time::Duration::from_secs(3), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 0 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("backend capacity released");
+    super::runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(3))
+        .await
+        .expect("backend capacity released");
     fixture.state.pause.store(false, Ordering::SeqCst);
     let (status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
@@ -149,6 +116,18 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     assert_eq!(status, axum::http::StatusCode::OK);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
+}
+
+async fn execute(
+    fixture: Arc<Fixture>,
+) -> Result<(axum::http::StatusCode, serde_json::Value), Box<dyn std::error::Error + Send + Sync>> {
+    fixture
+        .request(
+            "tools/call",
+            json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}}),
+            TOKEN,
+        )
+        .await
 }
 
 #[tokio::test]

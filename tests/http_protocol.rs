@@ -56,6 +56,8 @@ use tower::ServiceExt as _;
 
 use http::{Fixture, RESOURCE, TOKEN};
 
+type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+
 #[tokio::test]
 async fn discovery_and_tool_inventory_are_self_contained() {
     let fixture = Fixture::new().await.expect("fixture");
@@ -197,41 +199,14 @@ async fn host_origin_and_credential_boundaries_reject_before_introspection() {
             StatusCode::BAD_REQUEST,
         ),
     ] {
-        let mut request = Request::builder()
-            .method("POST")
-            .uri("/mcp")
-            .header("Host", host);
-        for origin in origins {
-            request = request.header("Origin", origin);
-        }
-        for value in authorization {
-            request = request.header("Authorization", value);
-        }
+        let request = boundary_request(host, &origins, &authorization).expect("request");
         let response = fixture
             .router
             .clone()
-            .oneshot(request.body(Body::from("{}")).expect("request"))
+            .oneshot(request)
             .await
             .expect("boundary response");
-        assert_eq!(response.status(), expected);
-        assert_eq!(
-            response
-                .headers()
-                .get("Cache-Control")
-                .expect("cache policy"),
-            "no-store"
-        );
-        if expected == StatusCode::UNAUTHORIZED {
-            assert!(
-                response
-                    .headers()
-                    .get("WWW-Authenticate")
-                    .expect("metadata challenge")
-                    .to_str()
-                    .expect("challenge text")
-                    .contains("/.well-known/oauth-protected-resource/mcp")
-            );
-        }
+        assert_auth_boundary(&response, expected).expect("boundary response");
     }
     let request = Request::builder()
         .method("POST")
@@ -284,18 +259,9 @@ async fn metadata_is_public_and_has_an_explicit_read_only_method() {
             .oneshot(request)
             .await
             .expect("metadata response");
-        assert_eq!(response.status(), expected);
-        if expected == StatusCode::OK {
-            let bytes = to_bytes(response.into_body(), 4096)
-                .await
-                .expect("bounded metadata");
-            let metadata: Value = serde_json::from_slice(&bytes).expect("metadata");
-            assert_eq!(metadata.get("resource"), Some(&json!(RESOURCE)));
-            assert_eq!(
-                metadata.get("bearer_methods_supported"),
-                Some(&json!(["header"]))
-            );
-        }
+        assert_resource_metadata(response, expected)
+            .await
+            .expect("metadata response");
     }
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
 }
@@ -346,13 +312,7 @@ async fn maximum_output_survives_both_content_forms_and_one_more_byte_is_rejecte
                 .expect("bounded text"),
             content
         );
-        if size == logbrew_mcp::OUTPUT_BYTES {
-            assert_eq!(content.get("data").expect("data").to_string().len(), size);
-            assert_eq!(content.get("error"), Some(&Value::Null));
-        } else {
-            assert_eq!(content.get("data"), Some(&Value::Null));
-            assert_eq!(content.pointer("/error/code"), Some(&json!("unavailable")));
-        }
+        http::assert_output_budget(content, size).expect("output budget");
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
 }
@@ -457,22 +417,88 @@ async fn advertised_output_contract_rejects_inconsistent_or_unbounded_metadata()
         .pointer("/result/tools")
         .and_then(Value::as_array)
         .expect("tools");
-    let provenance = json!({"definition_sha256":"a".repeat(64)});
     for tool in tools {
-        let schema = tool.get("outputSchema").expect("output contract");
-        let validator = jsonschema::validator_for(schema).expect("valid schema");
-        assert!(validator.is_valid(&json!({"data":{},"error":null,"provenance":provenance})));
-        let error = json!({"code":"invalid_input","next_action":"review_input_contract","retry_after_ms":null});
-        assert!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
-        for invalid in [
-            json!({"data":{},"error":error,"provenance":provenance}),
-            json!({"data":null,"error":null,"provenance":provenance}),
-            json!({"data":{},"error":null,"provenance":{"definition_sha256":"bad"}}),
-            json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1_i32},"provenance":null}),
-        ] {
-            assert!(!validator.is_valid(&invalid));
-        }
+        assert_output_contract(tool).expect("output contract");
     }
+}
+
+fn boundary_request(
+    host: &str,
+    origins: &[&str],
+    authorization: &[&str],
+) -> TestResult<Request<Body>> {
+    let mut request = Request::builder()
+        .method("POST")
+        .uri("/mcp")
+        .header("Host", host);
+    for origin in origins {
+        request = request.header("Origin", *origin);
+    }
+    for value in authorization {
+        request = request.header("Authorization", *value);
+    }
+    Ok(request.body(Body::from("{}"))?)
+}
+
+fn assert_auth_boundary(
+    response: &axum::response::Response,
+    expected: StatusCode,
+) -> TestResult<()> {
+    assert_eq!(response.status(), expected);
+    assert_eq!(
+        response
+            .headers()
+            .get("Cache-Control")
+            .ok_or("cache policy")?,
+        "no-store"
+    );
+    if expected == StatusCode::UNAUTHORIZED {
+        assert!(
+            response
+                .headers()
+                .get("WWW-Authenticate")
+                .ok_or("metadata challenge")?
+                .to_str()?
+                .contains("/.well-known/oauth-protected-resource/mcp")
+        );
+    }
+    Ok(())
+}
+
+async fn assert_resource_metadata(
+    response: axum::response::Response,
+    expected: StatusCode,
+) -> TestResult<()> {
+    assert_eq!(response.status(), expected);
+    if expected == StatusCode::OK {
+        let bytes = to_bytes(response.into_body(), 4096).await?;
+        let metadata: Value = serde_json::from_slice(&bytes)?;
+        assert_eq!(metadata.get("resource"), Some(&json!(RESOURCE)));
+        assert_eq!(
+            metadata.get("bearer_methods_supported"),
+            Some(&json!(["header"]))
+        );
+    }
+    Ok(())
+}
+
+fn assert_output_contract(tool: &Value) -> TestResult<()> {
+    let schema = tool.get("outputSchema").ok_or("output contract")?;
+    let validator = jsonschema::validator_for(schema)?;
+    let provenance = json!({"definition_sha256":"a".repeat(64)});
+    assert!(validator.is_valid(&json!({"data":{},"error":null,"provenance":provenance})));
+    let error =
+        json!({"code":"invalid_input","next_action":"review_input_contract","retry_after_ms":null});
+    assert!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
+    for invalid in [
+        json!({"data":{},"error":error,"provenance":provenance}),
+        json!({"data":null,"error":null,"provenance":provenance}),
+        json!({"data":{},"error":null,"provenance":{"definition_sha256":"bad"}}),
+        json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1_i32},"provenance":null}),
+    ] {
+        assert!(!validator.is_valid(&invalid));
+    }
+    Ok(())
 }
 
 #[tokio::test]
@@ -490,13 +516,9 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
             )
             .await
     });
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 1 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("execution reached backend");
+    runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+        .await
+        .expect("execution reached backend");
     request.abort();
     assert!(
         request
@@ -504,13 +526,9 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
             .expect_err("request disconnected")
             .is_cancelled()
     );
-    tokio::time::timeout(std::time::Duration::from_secs(2), async {
-        while fixture.state.active_executions.load(Ordering::SeqCst) != 0 {
-            tokio::time::sleep(std::time::Duration::from_millis(5)).await;
-        }
-    })
-    .await
-    .expect("upstream request cancelled");
+    runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(2))
+        .await
+        .expect("upstream request cancelled");
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
 

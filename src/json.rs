@@ -61,28 +61,34 @@ pub(crate) fn unsigned_integer(value: &Value) -> Option<u64> {
 
 struct UniqueObject(BTreeMap<String, Box<RawValue>>);
 
+struct ObjectVisitor;
+
+impl<'de> Visitor<'de> for ObjectVisitor {
+    type Value = UniqueObject;
+
+    fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("an object with unique decoded keys")
+    }
+
+    fn visit_map<M: MapAccess<'de>>(self, map: M) -> Result<Self::Value, M::Error> {
+        unique_fields(map).map(UniqueObject)
+    }
+}
+
+fn unique_fields<'de, M: MapAccess<'de>>(
+    mut map: M,
+) -> Result<BTreeMap<String, Box<RawValue>>, M::Error> {
+    let mut fields = BTreeMap::new();
+    while let Some((key, value)) = map.next_entry::<String, Box<RawValue>>()? {
+        if fields.insert(key, value).is_some() {
+            return Err(de::Error::custom("duplicate object key"));
+        }
+    }
+    Ok(fields)
+}
+
 impl<'de> Deserialize<'de> for UniqueObject {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        struct ObjectVisitor;
-
-        impl<'de> Visitor<'de> for ObjectVisitor {
-            type Value = UniqueObject;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-                formatter.write_str("an object with unique decoded keys")
-            }
-
-            fn visit_map<M: MapAccess<'de>>(self, mut map: M) -> Result<Self::Value, M::Error> {
-                let mut fields = BTreeMap::new();
-                while let Some((key, value)) = map.next_entry::<String, Box<RawValue>>()? {
-                    if fields.insert(key, value).is_some() {
-                        return Err(de::Error::custom("duplicate object key"));
-                    }
-                }
-                Ok(UniqueObject(fields))
-            }
-        }
-
         deserializer.deserialize_map(ObjectVisitor)
     }
 }

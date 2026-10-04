@@ -22,7 +22,7 @@ use tokio::{
 };
 use zeroize::Zeroizing;
 
-use super::peer::Peer;
+use super::peer::{Frame, Peer};
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 type Stream = tokio_rustls::server::TlsStream<tokio::net::TcpStream>;
@@ -138,43 +138,12 @@ impl Raw {
         .with_client_allowlist(ClientAllowlist::decode(
             br#"{"version":"1","clients":["synthetic-client"]}"#,
         )?);
-        let (sender, mut receiver) = mpsc::channel::<Exchange>(1);
+        let (sender, receiver) = mpsc::channel::<Exchange>(1);
         let handshakes = Arc::new(AtomicUsize::new(0));
         let accepted = Arc::clone(&handshakes);
         let requests = Arc::new(AtomicUsize::new(0));
         let observed = Arc::clone(&requests);
-        let task = tokio::spawn(async move {
-            while let Some(exchange) = receiver.recv().await {
-                let deadline = match &exchange.plan {
-                    Plan::Http {
-                        path: _,
-                        headers: _,
-                        body: _,
-                    }
-                    | Plan::Http2 {
-                        headers: _,
-                        body: _,
-                    } => Duration::from_secs(3),
-                    Plan::StalledTls(_) => Duration::from_secs(12),
-                };
-                let acceptor = acceptor.clone();
-                let accepted = Arc::clone(&accepted);
-                let observed = Arc::clone(&observed);
-                let receiving = &listener;
-                let result = timeout(deadline, async move {
-                    let (stream, _) = receiving.accept().await?;
-                    run_exchange(exchange.plan, stream, acceptor, accepted, observed).await
-                })
-                .await
-                .map_err(|error| -> Box<dyn std::error::Error + Send + Sync> { Box::new(error) })
-                .and_then(std::convert::identity);
-                exchange
-                    .done
-                    .send(result)
-                    .map_err(|_| io::Error::other("exchange observer dropped"))?;
-            }
-            Ok(())
-        });
+        let task = tokio::spawn(run_plans(listener, acceptor, receiver, accepted, observed));
         Ok(Self {
             upstream,
             handshakes,
@@ -258,6 +227,45 @@ impl Raw {
     }
 }
 
+async fn run_plans(
+    listener: tokio::net::TcpListener,
+    acceptor: tokio_rustls::TlsAcceptor,
+    mut receiver: mpsc::Receiver<Exchange>,
+    accepted: Arc<AtomicUsize>,
+    observed: Arc<AtomicUsize>,
+) -> TestResult<()> {
+    while let Some(exchange) = receiver.recv().await {
+        let deadline = match &exchange.plan {
+            Plan::Http {
+                path: _,
+                headers: _,
+                body: _,
+            }
+            | Plan::Http2 {
+                headers: _,
+                body: _,
+            } => Duration::from_secs(3),
+            Plan::StalledTls(_) => Duration::from_secs(12),
+        };
+        let acceptor = acceptor.clone();
+        let accepted = Arc::clone(&accepted);
+        let observed = Arc::clone(&observed);
+        let receiving = &listener;
+        let result = timeout(deadline, async move {
+            let (stream, _) = receiving.accept().await?;
+            run_exchange(exchange.plan, stream, acceptor, accepted, observed).await
+        })
+        .await
+        .map_err(|error| -> Box<dyn std::error::Error + Send + Sync> { Box::new(error) })
+        .and_then(std::convert::identity);
+        exchange
+            .done
+            .send(result)
+            .map_err(|_| io::Error::other("exchange observer dropped"))?;
+    }
+    Ok(())
+}
+
 async fn run_exchange(
     plan: Plan,
     stream: tokio::net::TcpStream,
@@ -307,40 +315,58 @@ async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
     let mut remaining: usize = 8192;
     for _ in 0_i32..64_i32 {
         let frame = peer.next().await?.ok_or("HTTP/2 request closed")?;
-        match frame.kind {
+        let completed = match frame.kind {
             4 if frame.stream == 0 && frame.flags == 0 => {
-                let (settings, remainder) = frame.payload.as_chunks::<6>();
-                if !remainder.is_empty() {
-                    return Err(io::Error::other("invalid HTTP/2 SETTINGS length").into());
-                }
-                bounded_headers |= settings.contains(&[0, 6, 0, 0, 0x40, 0]);
+                bounded_headers |= bounded_header_setting(&frame.payload)?;
                 peer.send(0, 4, 1, &[]).await?;
+                None
             }
             1 | 0 | 9 if frame.stream > 0 => {
-                if frame.kind == 1 {
-                    if stream.replace(frame.stream).is_some() || frame.stream % 2 == 0 {
-                        return Err(io::Error::other("unexpected HTTP/2 request stream").into());
-                    }
-                } else if stream != Some(frame.stream) {
-                    return Err(io::Error::other("HTTP/2 request stream mismatch").into());
-                } else {
-                    // Continuation and data frames belong to the selected stream.
-                }
-                remaining = remaining
-                    .checked_sub(frame.payload.len())
-                    .ok_or_else(|| io::Error::other("HTTP/2 request exceeds byte bound"))?;
-                if frame.kind != 9 && frame.flags & 1 != 0 {
-                    if !bounded_headers {
-                        return Err(io::Error::other("missing 16 KiB header-list setting").into());
-                    }
-                    return Ok(frame.stream);
-                }
+                request_data(&frame, &mut stream, &mut remaining, bounded_headers)?
             }
-            4 | 8 if frame.stream == 0 => {}
+            4 | 8 if frame.stream == 0 => None,
             _ => return Err(io::Error::other("unexpected HTTP/2 request frame").into()),
+        };
+        if let Some(stream) = completed {
+            return Ok(stream);
         }
     }
     Err(io::Error::other("HTTP/2 request frame count exceeds bound").into())
+}
+
+fn bounded_header_setting(payload: &[u8]) -> TestResult<bool> {
+    let (settings, remainder) = payload.as_chunks::<6>();
+    if !remainder.is_empty() {
+        return Err(io::Error::other("invalid HTTP/2 SETTINGS length").into());
+    }
+    Ok(settings.contains(&[0, 6, 0, 0, 0x40, 0]))
+}
+
+fn request_data(
+    frame: &Frame,
+    stream: &mut Option<u32>,
+    remaining: &mut usize,
+    bounded_headers: bool,
+) -> TestResult<Option<u32>> {
+    if frame.kind == 1 {
+        if stream.replace(frame.stream).is_some() || frame.stream.is_multiple_of(2) {
+            return Err(io::Error::other("unexpected HTTP/2 request stream").into());
+        }
+    } else if *stream != Some(frame.stream) {
+        return Err(io::Error::other("HTTP/2 request stream mismatch").into());
+    } else {
+        // Continuation and data frames belong to the selected stream.
+    }
+    *remaining = remaining
+        .checked_sub(frame.payload.len())
+        .ok_or_else(|| io::Error::other("HTTP/2 request exceeds byte bound"))?;
+    if frame.kind != 9 && frame.flags & 1 != 0 {
+        if !bounded_headers {
+            return Err(io::Error::other("missing 16 KiB header-list setting").into());
+        }
+        return Ok(Some(frame.stream));
+    }
+    Ok(None)
 }
 
 async fn http2_reply(
@@ -371,18 +397,7 @@ async fn http2_reply(
         kind = 9;
     }
     if let Some(body) = body {
-        if body.is_empty() {
-            peer.send(stream, 0, 1, &[]).await?;
-        } else {
-            let mut sent = 0;
-            while sent < body.len() {
-                let end = sent.saturating_add(16 << 10).min(body.len());
-                let chunk = body.get(sent..end).ok_or("invalid body chunk")?;
-                peer.send(stream, 0, u8::from(end == body.len()), chunk)
-                    .await?;
-                sent = end;
-            }
-        }
+        http2_body(peer, stream, body).await?;
         return Ok(());
     }
     // No DATA or END_STREAM: only header rejection can finish promptly.
@@ -390,10 +405,10 @@ async fn http2_reply(
         let Some(frame) = peer.next().await? else {
             return Ok(());
         };
+        if frame.kind == 3 && frame.stream == stream && frame.payload.len() != 4 {
+            return Err(io::Error::other("invalid HTTP/2 reset").into());
+        }
         if frame.kind == 3 && frame.stream == stream {
-            if frame.payload.len() != 4 {
-                return Err(io::Error::other("invalid HTTP/2 reset").into());
-            }
             return Ok(());
         }
         if frame.kind == 7 && frame.stream == 0 {
@@ -404,6 +419,22 @@ async fn http2_reply(
         }
     }
     Err(io::Error::other("HTTP/2 rejection frame count exceeds bound").into())
+}
+
+async fn http2_body(peer: &mut Peer<Stream>, stream: u32, body: &[u8]) -> TestResult<()> {
+    if body.is_empty() {
+        peer.send(stream, 0, 1, &[]).await?;
+        return Ok(());
+    }
+    let mut sent = 0;
+    while sent < body.len() {
+        let end = sent.saturating_add(16 << 10).min(body.len());
+        let chunk = body.get(sent..end).ok_or("invalid body chunk")?;
+        peer.send(stream, 0, u8::from(end == body.len()), chunk)
+            .await?;
+        sent = end;
+    }
+    Ok(())
 }
 
 async fn stalled_handshake(
@@ -465,33 +496,36 @@ async fn request(stream: &mut Stream, path: &str) -> TestResult<()> {
                 .get(..count)
                 .ok_or_else(|| io::Error::other("request read length"))?,
         );
-        if let Some(end) = bytes.windows(4).position(|bytes| bytes == b"\r\n\r\n") {
-            let head = std::str::from_utf8(
-                bytes
-                    .get(..end)
-                    .ok_or_else(|| io::Error::other("request header boundary"))?,
-            )?;
-            if !head.starts_with(&format!("POST {path} HTTP/1.1\r\n")) {
-                return Err(io::Error::other("unexpected fixture endpoint").into());
-            }
-            let length = head
-                .split("\r\n")
-                .filter_map(|line| line.split_once(':'))
-                .find(|(name, _)| name.eq_ignore_ascii_case("content-length"))
-                .ok_or_else(|| io::Error::other("missing request length"))?
-                .1
-                .trim()
-                .parse::<usize>()?;
-            let length = end
-                .checked_add(4)
-                .and_then(|end| end.checked_add(length))
-                .filter(|length| *length <= 8192)
-                .ok_or_else(|| io::Error::other("request body exceeds bound"))?;
-            if bytes.len() >= length {
-                return Ok(());
-            }
+        let Some(end) = bytes.windows(4).position(|bytes| bytes == b"\r\n\r\n") else {
+            continue;
+        };
+        if bytes.len() >= request_length(&bytes, path, end)? {
+            return Ok(());
         }
     }
+}
+
+fn request_length(bytes: &[u8], path: &str, end: usize) -> TestResult<usize> {
+    let head = std::str::from_utf8(
+        bytes
+            .get(..end)
+            .ok_or_else(|| io::Error::other("request header boundary"))?,
+    )?;
+    if !head.starts_with(&format!("POST {path} HTTP/1.1\r\n")) {
+        return Err(io::Error::other("unexpected fixture endpoint").into());
+    }
+    let length = head
+        .split("\r\n")
+        .filter_map(|line| line.split_once(':'))
+        .find(|(name, _)| name.eq_ignore_ascii_case("content-length"))
+        .ok_or_else(|| io::Error::other("missing request length"))?
+        .1
+        .trim()
+        .parse::<usize>()?;
+    end.checked_add(4)
+        .and_then(|end| end.checked_add(length))
+        .filter(|length| *length <= 8192)
+        .ok_or_else(|| io::Error::other("request body exceeds bound").into())
 }
 
 fn closed(error: &io::Error) -> bool {
@@ -506,11 +540,7 @@ fn closed(error: &io::Error) -> bool {
 
 async fn reply(stream: &mut Stream, headers: &[u8], body: Option<&[u8]>) -> TestResult<()> {
     if let Err(error) = stream.write_all(headers).await {
-        return if body.is_none() && closed(&error) {
-            Ok(())
-        } else {
-            Err(error.into())
-        };
+        return header_failure(error, body.is_none());
     }
     if let Some(body) = body {
         stream.write_all(body).await?;
@@ -523,5 +553,13 @@ async fn reply(stream: &mut Stream, headers: &[u8], body: Option<&[u8]>) -> Test
         Err(error) if closed(&error) => Ok(()),
         Ok(_) => Err(io::Error::other("unexpected bytes after complete request").into()),
         Err(error) => Err(error.into()),
+    }
+}
+
+fn header_failure(error: io::Error, withheld: bool) -> TestResult<()> {
+    if withheld && closed(&error) {
+        Ok(())
+    } else {
+        Err(error.into())
     }
 }

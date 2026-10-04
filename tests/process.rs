@@ -33,6 +33,7 @@ use tokio::{
 };
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TlsStream = tokio_rustls::client::TlsStream<tokio::net::TcpStream>;
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 
 struct Directory(PathBuf);
@@ -124,35 +125,7 @@ impl Fixture {
     }
 
     async fn ready(&self, process: &mut Process) -> TestResult<()> {
-        let client = self.client()?;
-        let url = format!(
-            "https://localhost:{}/.well-known/oauth-protected-resource/mcp",
-            self.address.port()
-        );
-        let end = Instant::now()
-            .checked_add(Duration::from_secs(5))
-            .ok_or("fixture readiness deadline overflow")?;
-        loop {
-            if process.0.try_wait()?.is_some() {
-                return Err(std::io::Error::other("process exited before readiness").into());
-            }
-            if let Ok(response) = client.get(&url).send().await {
-                assert_eq!(response.status(), reqwest::StatusCode::OK);
-                let metadata: serde_json::Value = response.json().await?;
-                assert_eq!(
-                    metadata.get("resource"),
-                    Some(&json!(format!(
-                        "https://localhost:{}/mcp",
-                        self.address.port()
-                    )))
-                );
-                return Ok(());
-            }
-            if Instant::now() >= end {
-                return Err(std::io::Error::other("readiness deadline exceeded").into());
-            }
-            sleep(Duration::from_millis(10)).await;
-        }
+        readiness(self, process).await
     }
 
     async fn tls(&self) -> TestResult<tokio_rustls::client::TlsStream<tokio::net::TcpStream>> {
@@ -201,18 +174,7 @@ impl Process {
     }
 
     async fn wait(&mut self) -> TestResult<ExitStatus> {
-        let end = Instant::now()
-            .checked_add(Duration::from_secs(8))
-            .ok_or("fixture process deadline overflow")?;
-        let status = loop {
-            if let Some(status) = self.0.try_wait()? {
-                break status;
-            }
-            if Instant::now() >= end {
-                return Err(std::io::Error::other("exit deadline exceeded").into());
-            }
-            sleep(Duration::from_millis(10)).await;
-        };
+        let status = process_exit(&mut self.0).await?;
         let mut output = Vec::new();
         if let Some(stdout) = self.0.stdout.take() {
             let _: usize = stdout.take(4096).read_to_end(&mut output)?;
@@ -225,6 +187,53 @@ impl Process {
             "process must not emit configuration or credential diagnostics"
         );
         Ok(status)
+    }
+}
+
+async fn readiness(fixture: &Fixture, process: &mut Process) -> TestResult<()> {
+    let client = fixture.client()?;
+    let url = format!(
+        "https://localhost:{}/.well-known/oauth-protected-resource/mcp",
+        fixture.address.port()
+    );
+    let end = Instant::now()
+        .checked_add(Duration::from_secs(5))
+        .ok_or("fixture readiness deadline overflow")?;
+    loop {
+        if process.0.try_wait()?.is_some() {
+            return Err(std::io::Error::other("process exited before readiness").into());
+        }
+        if let Ok(response) = client.get(&url).send().await {
+            assert_eq!(response.status(), reqwest::StatusCode::OK);
+            let metadata: serde_json::Value = response.json().await?;
+            assert_eq!(
+                metadata.get("resource"),
+                Some(&json!(format!(
+                    "https://localhost:{}/mcp",
+                    fixture.address.port()
+                )))
+            );
+            return Ok(());
+        }
+        if Instant::now() >= end {
+            return Err(std::io::Error::other("readiness deadline exceeded").into());
+        }
+        sleep(Duration::from_millis(10)).await;
+    }
+}
+
+async fn process_exit(child: &mut Child) -> TestResult<ExitStatus> {
+    let end = Instant::now()
+        .checked_add(Duration::from_secs(8))
+        .ok_or("fixture process deadline overflow")?;
+    loop {
+        if let Some(status) = child.try_wait()? {
+            return Ok(status);
+        }
+        if Instant::now() >= end {
+            return Err(std::io::Error::other("exit deadline exceeded").into());
+        }
+        sleep(Duration::from_millis(10)).await;
     }
 }
 
@@ -288,22 +297,10 @@ async fn idle_and_partial_protocol_prefixes_expire_and_the_listener_recovers() {
     let mut process = Process::start(&fixture.config).expect("native executable");
     fixture.ready(&mut process).await.expect("readiness");
     sleep(Duration::from_millis(50)).await;
-    let mut peers = Vec::new();
-    timeout(Duration::from_secs(3), async {
-        for prefix in [b"".as_slice(), b"P", b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r"]
-            .into_iter()
-            .cycle()
-            .take(64)
-        {
-            let mut tls = fixture.tls().await.expect("verified TLS");
-            tls.write_all(prefix)
-                .await
-                .expect("partial protocol prefix");
-            peers.push(tls);
-        }
-    })
-    .await
-    .expect("all slots occupied before the prefix deadline");
+    let peers = timeout(Duration::from_secs(3), occupied_prefixes(&fixture))
+        .await
+        .expect("all slots occupied before the prefix deadline")
+        .expect("verified TLS prefixes");
     let mut excess = tokio::net::TcpStream::connect(fixture.address)
         .await
         .expect("excess peer");
@@ -312,14 +309,9 @@ async fn idle_and_partial_protocol_prefixes_expire_and_the_listener_recovers() {
         .await
         .expect("capacity rejection before prefix expiry");
     assert!(matches!(result, Ok(0) | Err(_)));
-    timeout(Duration::from_secs(7), async {
-        for mut peer in peers {
-            let mut bytes = [0; 1];
-            assert!(matches!(peer.read(&mut bytes).await, Ok(0) | Err(_)));
-        }
-    })
-    .await
-    .expect("all protocol detection slots expire");
+    timeout(Duration::from_secs(7), closed_prefixes(peers))
+        .await
+        .expect("all protocol detection slots expire");
     fixture
         .ready(&mut process)
         .await
@@ -327,6 +319,27 @@ async fn idle_and_partial_protocol_prefixes_expire_and_the_listener_recovers() {
     process.signal(Signal::TERM).expect("shutdown signal");
     assert!(process.wait().await.expect("exit").success());
     drop(TcpListener::bind(fixture.address).expect("listener released"));
+}
+
+async fn occupied_prefixes(fixture: &Fixture) -> TestResult<Vec<TlsStream>> {
+    let mut peers = Vec::new();
+    for prefix in [b"".as_slice(), b"P", b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r"]
+        .into_iter()
+        .cycle()
+        .take(64)
+    {
+        let mut tls = fixture.tls().await?;
+        tls.write_all(prefix).await?;
+        peers.push(tls);
+    }
+    Ok(peers)
+}
+
+async fn closed_prefixes(peers: Vec<TlsStream>) {
+    for mut peer in peers {
+        let mut bytes = [0; 1];
+        assert!(matches!(peer.read(&mut bytes).await, Ok(0) | Err(_)));
+    }
 }
 
 #[tokio::test]

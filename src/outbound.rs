@@ -55,6 +55,11 @@ pub struct Outbound {
 }
 
 impl Outbound {
+    /// Construct the fixed HTTPS client with system trust and bounded connections.
+    ///
+    /// # Errors
+    /// Rejects an empty or oversized extra certificate and TLS verifier or
+    /// protocol configuration failures.
     pub(super) fn new(certificate: Option<CertificateDer<'static>>) -> Result<Self, Failure> {
         if certificate.as_ref().is_some_and(|certificate| {
             certificate.as_ref().is_empty() || certificate.as_ref().len() > 256 << 10_u32
@@ -102,6 +107,10 @@ impl Outbound {
         Ok(Self { client })
     }
 
+    /// Send one authenticated POST through the configured HTTPS connector.
+    ///
+    /// # Errors
+    /// Returns Unavailable if the request cannot be built or the exchange fails.
     pub(super) async fn post(
         &self,
         endpoint: &str,

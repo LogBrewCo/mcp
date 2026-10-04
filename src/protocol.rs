@@ -184,6 +184,11 @@ impl ServerHandler for Tools {
 }
 
 impl Tools {
+    /// Execute one discovered contract with current-request authority.
+    ///
+    /// # Errors
+    /// Rejects invalid arguments, unknown operations, missing authority, upstream
+    /// failures and results that violate the operation's output contract.
     async fn execute(
         &self,
         arguments: &Value,

@@ -173,6 +173,10 @@ impl Catalog {
     }
 }
 
+/// Compile validated operation contracts into a deterministic lookup.
+///
+/// # Errors
+/// Rejects duplicate identifiers, invalid metadata or schemas that cannot be compiled.
 fn compile_entries(operations: Vec<Operation>) -> Result<BTreeMap<String, Entry>, Failure> {
     let mut entries = BTreeMap::new();
     for operation in operations {
@@ -189,6 +193,11 @@ fn compile_entries(operations: Vec<Operation>) -> Result<BTreeMap<String, Entry>
     Ok(entries)
 }
 
+/// Decode catalog records while preserving already parsed schema values.
+///
+/// # Errors
+/// Rejects unsupported versions, missing or extra fields, invalid metadata
+/// types and operation counts outside the catalog limit.
 fn decode_operations(value: &Value) -> Result<Vec<Operation>, Failure> {
     let fields = value.as_object().ok_or(Kind::Configuration)?;
     if fields.len() != 2 || fields.get("format_version").and_then(Value::as_u64) != Some(1) {
@@ -231,12 +240,20 @@ fn decode_operations(value: &Value) -> Result<Vec<Operation>, Failure> {
         .collect()
 }
 
+/// Read an optional string without changing its contents.
+///
+/// # Errors
+/// Rejects a supplied value that is not a string.
 fn optional_text(value: Option<&Value>) -> Result<&str, Failure> {
     value.map_or(Ok(""), |value| {
         value.as_str().ok_or_else(|| Kind::InvalidInput.into())
     })
 }
 
+/// Check exact JSON and its declared schema within the supplied byte limit.
+///
+/// # Errors
+/// Rejects encoding errors, invalid or out-of-budget JSON and schema violations.
 fn validate(schema: &jsonschema::Validator, value: &Value, limit: usize) -> Result<(), Failure> {
     let bytes = serde_json::to_vec(value).map_err(|_| Failure::from(Kind::InvalidInput))?;
     drop(strict_json::object(&bytes, limit)?);
@@ -246,6 +263,11 @@ fn validate(schema: &jsonschema::Validator, value: &Value, limit: usize) -> Resu
     Ok(())
 }
 
+/// Compile a bounded schema with format assertions and no external retrieval.
+///
+/// # Errors
+/// Rejects encoding or JSON limits, unsupported dialects and invalid schemas,
+/// including references that require external retrieval.
 fn compile(value: &Value) -> Result<jsonschema::Validator, Failure> {
     let bytes = serde_json::to_vec(value).map_err(|_| Failure::from(Kind::Configuration))?;
     drop(
@@ -260,6 +282,10 @@ fn compile(value: &Value) -> Result<jsonschema::Validator, Failure> {
         .map_err(|_| Kind::Configuration.into())
 }
 
+/// Check dialects recursively at schema locations.
+///
+/// # Errors
+/// Rejects an unknown dialect at this location or any schema subresource.
 fn validate_dialects(value: &Value, inherited: jsonschema::Draft) -> Result<(), Failure> {
     let draft = inherited.detect(value);
     if draft == jsonschema::Draft::Unknown {
@@ -283,6 +309,11 @@ impl jsonschema::Retrieve for DenyRetrieval {
     }
 }
 
+/// Check the identifier and public discovery metadata.
+///
+/// # Errors
+/// Rejects invalid text, permission tokens, stability or safety values and
+/// documentation URLs outside the accepted HTTPS contract.
 fn validate_operation(operation: &Operation) -> Result<(), Failure> {
     let info = &operation.info;
     if !valid_id(&operation.id)

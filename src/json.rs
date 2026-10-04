@@ -75,6 +75,10 @@ impl<'de> Visitor<'de> for ObjectVisitor {
     }
 }
 
+/// Collect raw object fields without reinterpreting ordinary property names.
+///
+/// # Errors
+/// Propagates field decoding failures and rejects duplicate decoded keys.
 fn unique_fields<'de, M: MapAccess<'de>>(
     mut map: M,
 ) -> Result<BTreeMap<String, Box<RawValue>>, M::Error> {
@@ -109,6 +113,10 @@ pub fn object(bytes: &[u8], limit: usize) -> Result<Value, Failure> {
     decode(raw.get(), 0)
 }
 
+/// Decode exact values recursively within the container and number budgets.
+///
+/// # Errors
+/// Rejects malformed values, duplicate decoded keys and exceeded budgets.
 fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
     if depth > DEPTH || (depth == DEPTH && matches!(raw.as_bytes().first(), Some(b'{' | b'['))) {
         return Err(Kind::InvalidInput.into());
@@ -142,6 +150,10 @@ fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
     }
 }
 
+/// Check a number's text length and optional decimal exponent.
+///
+/// # Errors
+/// Rejects oversized text, invalid exponents and exponents outside the budget.
 fn number(raw: &str) -> Result<(), Failure> {
     if raw.len() > NUMBER_BYTES {
         return Err(Kind::InvalidInput.into());

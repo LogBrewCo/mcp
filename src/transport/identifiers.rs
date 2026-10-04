@@ -75,6 +75,10 @@ pub(super) struct Reply<'a> {
 }
 
 // A present null must remain distinct from a missing JSON-RPC field.
+/// Preserve a present JSON-RPC value, including null.
+///
+/// # Errors
+/// Propagates the deserializer's raw-value decoding failure.
 fn present_raw<'de, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> Result<Option<&'de RawValue>, D::Error> {

@@ -158,6 +158,10 @@ pub fn read_file(path: &Path, limit: u64, allowed: u32) -> Result<Zeroizing<Vec<
     Ok(bytes)
 }
 
+/// Check regular-file identity, size and permitted mode bits.
+///
+/// # Errors
+/// Rejects nonregular files, excessive size and disallowed permissions.
 fn check_file(metadata: &fs::Metadata, limit: u64, allowed: u32) -> Result<(), Failure> {
     if !metadata.is_file() || metadata.len() > limit || metadata.mode() & 0o7777 & !allowed != 0 {
         return Err(Kind::Configuration.into());
@@ -231,6 +235,10 @@ impl Service {
     }
 }
 
+/// Load bounded private credential bytes without trimming them.
+///
+/// # Errors
+/// Rejects unsafe or unreadable files, invalid UTF-8 and invalid credentials.
 fn credential(id: &str, path: &str) -> Result<MachineCredential, Failure> {
     let bytes = read_file(Path::new(path), 8 << 10, 0o600)?;
     let secret = std::str::from_utf8(&bytes).map_err(|_| Failure::from(Kind::Configuration))?;

@@ -10,6 +10,11 @@ pub enum Rejection {
     Malformed,
 }
 
+/// Borrow the exact token from one bounded Bearer authorization field.
+///
+/// # Errors
+/// Returns Missing for an absent field or another authentication scheme.
+/// Returns Malformed for duplicate fields, invalid syntax or an invalid token.
 pub fn parse(headers: &HeaderMap) -> Result<&str, Rejection> {
     let mut values = headers.get_all(header::AUTHORIZATION).iter();
     let value = values.next().ok_or(Rejection::Missing)?;

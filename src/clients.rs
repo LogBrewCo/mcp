@@ -40,6 +40,10 @@ impl ClientAllowlist {
     }
 }
 
+/// Collect exact client identities without normalization.
+///
+/// # Errors
+/// Rejects duplicate, invalid or oversized client identities.
 fn decode_clients(ids: Vec<String>) -> Result<BTreeSet<String>, Failure> {
     let mut clients = BTreeSet::new();
     for client in ids {

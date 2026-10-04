@@ -189,6 +189,10 @@ impl Upstream {
         self
     }
 
+    /// Check the issuer-confirmed client against the configured exact allowlist.
+    ///
+    /// # Errors
+    /// Returns `PermissionDenied` when the client is absent from the allowlist.
     fn authorize_client(&self, principal: &Principal) -> Result<(), Failure> {
         if !self.clients.contains(&principal.client_id) {
             return Err(Kind::PermissionDenied.into());
@@ -216,6 +220,11 @@ impl Upstream {
             .map_err(AuthorizationFailure::failure)
     }
 
+    /// Measure bounded per-request introspection without an authorization cache.
+    ///
+    /// # Errors
+    /// Preserves credential, scope and client denials; returns Unavailable for
+    /// authorization service failures or an exceeded introspection deadline.
     pub(crate) async fn verify_request(
         &self,
         token: &str,
@@ -231,6 +240,11 @@ impl Upstream {
         result
     }
 
+    /// Introspect an opaque token and validate its claims and client authority.
+    ///
+    /// # Errors
+    /// Rejects invalid tokens, claims, clients and insufficient scopes; fails
+    /// closed on transport, header, body or introspection response errors.
     async fn verify_inner(&self, token: &str) -> Result<Principal, AuthorizationFailure> {
         if !bearer::valid(token) {
             return Err(Kind::Unauthorized.into());
@@ -286,6 +300,11 @@ impl Upstream {
         result
     }
 
+    /// Send bounded operation input with validated delegated authority.
+    ///
+    /// # Errors
+    /// Rejects invalid authority or input, denied clients, transport failures,
+    /// invalid response framing and output outside the exact JSON budget.
     async fn execute_inner(
         &self,
         principal: &Principal,
@@ -367,6 +386,11 @@ pub fn canonical_https(value: &str) -> Result<Url, Failure> {
     Ok(url)
 }
 
+/// Validate introspection identity, time, issuer, audience and scope syntax.
+///
+/// # Errors
+/// Returns Unauthorized for inactive or invalid credentials. Returns
+/// Unavailable for malformed claims or an unavailable local time source.
 fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure> {
     let fields = value.as_object().ok_or(Kind::Unavailable)?;
     if fields.len() > 128 {
@@ -444,6 +468,10 @@ fn bounded_headers(response: &Response) -> bool {
     header_bytes.is_some_and(|size| size <= HEADER_BYTES)
 }
 
+/// Read JSON response data under the header and body budgets.
+///
+/// # Errors
+/// Rejects invalid headers or media type, excessive body size and body errors.
 async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8>, Failure> {
     if !bounded_headers(&response)
         || response
@@ -517,6 +545,10 @@ fn retry_after(value: &str) -> Option<u64> {
     seconds.checked_mul(1000)
 }
 
+/// Encode one sensitive Basic field from the configured machine credential.
+///
+/// # Errors
+/// Returns Unavailable if the encoded field cannot form a valid HTTP header.
 fn authorization(credential: &MachineCredential) -> Result<HeaderValue, Failure> {
     let id = Zeroizing::new(form_component(&credential.id));
     let secret = Zeroizing::new(form_component(&credential.secret));

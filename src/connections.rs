@@ -75,6 +75,10 @@ where
 }
 
 impl<S> LimitedStream<S> {
+    /// Check the connection's response-delivery deadline.
+    ///
+    /// # Errors
+    /// Returns `TimedOut` after the delivery budget expires.
     fn check_delivery(&mut self, context: &mut Context<'_>) -> io::Result<()> {
         if self.expired.as_mut().poll(context).is_ready() {
             return Err(io::Error::new(
@@ -157,6 +161,10 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
     }
 }
 
+/// Advance bounded HTTP/2 preface detection or select HTTP/1.
+///
+/// # Errors
+/// Returns `InvalidData` if the matched-prefix counter cannot advance.
 fn detect_prefix(prefix: &mut Option<PrefixDeadline>, bytes: &[u8]) -> io::Result<()> {
     let Some(pending) = prefix.as_mut() else {
         return Ok(());

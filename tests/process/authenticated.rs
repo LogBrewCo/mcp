@@ -15,6 +15,12 @@ mod headers;
 #[path = "authenticated_sdk.rs"]
 mod sdk;
 
+#[path = "authenticated_tenant_backend.rs"]
+mod tenant_backend;
+
+#[path = "authenticated_tenants.rs"]
+mod tenants;
+
 use std::{fs, io, sync::atomic::Ordering, time::Duration};
 
 use rustix::process::Signal;
@@ -73,8 +79,19 @@ async fn request(
     http: &reqwest::Client,
     resource: &str,
     method: &str,
+    params: Value,
+    http2: bool,
+) -> TestResult<(reqwest::StatusCode, Value)> {
+    request_with_token(http, resource, method, params, http2, backend::TOKEN).await
+}
+
+async fn request_with_token(
+    http: &reqwest::Client,
+    resource: &str,
+    method: &str,
     mut params: Value,
     http2: bool,
+    token: &str,
 ) -> TestResult<(reqwest::StatusCode, Value)> {
     drop(
         params
@@ -94,7 +111,7 @@ async fn request(
         .unwrap_or_default();
     let response = http
         .post(resource)
-        .bearer_auth(backend::TOKEN)
+        .bearer_auth(token)
         .header("Accept", "application/json, text/event-stream")
         .header("MCP-Protocol-Version", "2026-07-28")
         .header("Mcp-Method", method)
@@ -137,6 +154,9 @@ async fn request(
         Value::Null
     } else if status == reqwest::StatusCode::GATEWAY_TIMEOUT {
         assert_eq!(bytes.as_ref(), b"request deadline exceeded");
+        Value::Null
+    } else if status == reqwest::StatusCode::FORBIDDEN {
+        assert_eq!(bytes.as_ref(), b"client access denied");
         Value::Null
     } else {
         serde_json::from_slice::<Value>(&bytes)?

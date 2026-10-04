@@ -156,7 +156,7 @@ impl Backend {
     }
 }
 
-fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
+pub(super) fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
     let expected = format!(
         "Basic {}",
         base64::engine::general_purpose::STANDARD.encode(format!("{client}:{SECRET}"))

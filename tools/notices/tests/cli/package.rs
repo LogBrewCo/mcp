@@ -10,6 +10,9 @@ const PREFIX: &str = "logbrew-mcp-0.1.0-aarch64-apple-darwin/";
 #[path = "package/linked.rs"]
 mod linked;
 
+#[path = "package/readable.rs"]
+mod readable;
+
 fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
     let mut binary = vec![0; 56];
     for (start, bytes) in [

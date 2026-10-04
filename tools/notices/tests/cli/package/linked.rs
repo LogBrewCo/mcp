@@ -7,7 +7,7 @@ use super::{Fixture, PREFIX, Result, digest, fixture, run, write_json};
 
 const NOTICE_PATH: &str = "licenses/linked-target-notices.json";
 
-fn inventory(fixture: &Fixture) -> Result<Value> {
+pub(super) fn inventory(fixture: &Fixture) -> Result<Value> {
     let text = "synthetic runtime attribution\n";
     Ok(
         json!({"format_version":1,"scope":"linked_target_source_notices",
@@ -18,7 +18,7 @@ fn inventory(fixture: &Fixture) -> Result<Value> {
     )
 }
 
-fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
+pub(super) fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
     write_json(&fixture.root.join(NOTICE_PATH), inventory)?;
     let bytes = fs::read(fixture.root.join(NOTICE_PATH))?;
     let mut plan: Value = serde_json::from_slice(&fs::read(fixture.root.join("plan.json"))?)?;

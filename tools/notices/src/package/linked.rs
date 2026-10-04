@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, io::Write as _};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -105,6 +105,37 @@ pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value
         "verification":"bound_input_bytes_and_inventory_structure",
         "coverage":"external_required","compilation_eligibility":"external_required",
         "license_permission_check":"external_required"}))
+}
+
+pub(super) fn readable(bytes: &[u8]) -> Result<Vec<u8>> {
+    let inventory: Inventory = serde_json::from_slice(bytes)?;
+    let mut output = super::Output {
+        bytes: Vec::new(),
+        limit: 8 << 20,
+    };
+    output.write_all(b"LogBrew MCP linked target source notices\n\n")?;
+    writeln!(
+        output,
+        "Target: {}\nBinary SHA-256: {}",
+        inventory.target, inventory.binary_sha256
+    )?;
+    for source in inventory.components {
+        writeln!(
+            output,
+            "\n{} {}\nSource: {}",
+            source.name, source.version, source.source_url
+        )?;
+        for notice in source.notices {
+            writeln!(
+                output,
+                "\n{}\nSHA-256: {}\n----- BEGIN UPSTREAM TEXT -----",
+                notice.upstream_path, notice.sha256
+            )?;
+            output.write_all(notice.text.as_bytes())?;
+            output.write_all(b"\n----- END UPSTREAM TEXT -----\n")?;
+        }
+    }
+    Ok(output.bytes)
 }
 
 #[cfg(test)]

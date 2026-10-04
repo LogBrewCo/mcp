@@ -8,6 +8,7 @@ use crate::{Result, checksum, error, input};
 
 mod binary;
 mod linked;
+mod readable;
 
 #[cfg(test)]
 mod tests;
@@ -98,8 +99,8 @@ impl Plan {
             return Err(error("packaging plan exceeds limit"));
         }
         let plan: Self = serde_json::from_slice(bytes)?;
-        if !matches!(plan.format_version, 1 | 2)
-            || (plan.format_version == 2) != plan.linked_target_notices.is_some()
+        if !matches!(plan.format_version, 1..=3)
+            || (plan.format_version >= 2) != plan.linked_target_notices.is_some()
             || plan.package_version != env!("CARGO_PKG_VERSION")
             || plan.rust_release != env!("CARGO_PKG_RUST_VERSION")
             || !hex(&plan.cargo_lock_sha256, 64)
@@ -188,6 +189,35 @@ fn notices(plan: &Plan, dependency: &[u8], toolchain: &[u8]) -> Result<()> {
     Ok(())
 }
 
+fn append_source_notices(
+    builder: &mut Builder,
+    prefix: &str,
+    plan: &Plan,
+    root: &Path,
+    dependency: &[u8],
+    toolchain: &[u8],
+) -> Result<()> {
+    for (path, binding) in [
+        ("LICENSE", &plan.project_license),
+        ("licenses/rmcp-3.5.0.txt", &plan.sdk_license),
+    ] {
+        append(
+            builder,
+            prefix,
+            path,
+            &binding.read(&root.join(path), LICENSE_BYTES)?,
+            0o644,
+        )?;
+    }
+    for (path, bytes) in [
+        ("licenses/locked-source-notices.json", dependency),
+        ("licenses/locked-rust-toolchain-notices.json", toolchain),
+    ] {
+        append(builder, prefix, path, bytes, 0o644)?;
+    }
+    Ok(())
+}
+
 pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u8>> {
     let plan = Plan::parse(plan_bytes)?;
     let lock = input::read(&root.join("Cargo.lock"), 1 << 20)?;
@@ -217,6 +247,14 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
             Ok::<_, Box<dyn std::error::Error>>((bytes, report))
         })
         .transpose()?;
+    let readable = if plan.format_version == 3 {
+        let (linked_bytes, _) = linked
+            .as_ref()
+            .ok_or_else(|| error("missing linked notice inventory"))?;
+        readable::derive(&dependency, &toolchain, linked_bytes)?
+    } else {
+        Vec::new()
+    };
     let prefix = format!(
         "logbrew-mcp-{}-{}",
         plan.package_version,
@@ -230,38 +268,7 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
         Compression::default(),
     ));
     append(&mut builder, &prefix, "bin/logbrew-mcp", &binary, 0o755)?;
-    append(
-        &mut builder,
-        &prefix,
-        "LICENSE",
-        &plan
-            .project_license
-            .read(&root.join("LICENSE"), LICENSE_BYTES)?,
-        0o644,
-    )?;
-    append(
-        &mut builder,
-        &prefix,
-        "licenses/rmcp-3.5.0.txt",
-        &plan
-            .sdk_license
-            .read(&root.join("licenses/rmcp-3.5.0.txt"), LICENSE_BYTES)?,
-        0o644,
-    )?;
-    append(
-        &mut builder,
-        &prefix,
-        "licenses/locked-source-notices.json",
-        &dependency,
-        0o644,
-    )?;
-    append(
-        &mut builder,
-        &prefix,
-        "licenses/locked-rust-toolchain-notices.json",
-        &toolchain,
-        0o644,
-    )?;
+    append_source_notices(&mut builder, &prefix, &plan, root, &dependency, &toolchain)?;
     if let Some((bytes, _)) = &linked {
         append(
             &mut builder,
@@ -270,6 +277,9 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
             bytes,
             0o644,
         )?;
+    }
+    for file in &readable {
+        append(&mut builder, &prefix, file.path, &file.bytes, 0o644)?;
     }
     let mut manifest = json!({"format_version":1,
         "integrity_scope":"bound_input_bytes","release_evidence":"external_required",
@@ -283,6 +293,12 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
             .as_object_mut()
             .ok_or_else(|| error("invalid package manifest"))?
             .insert("linked_target_notice_inventory".into(), report);
+    }
+    if !readable.is_empty() {
+        manifest
+            .as_object_mut()
+            .ok_or_else(|| error("invalid package manifest"))?
+            .insert("readable_notices".into(), readable::report(&readable)?);
     }
     let manifest = serde_json::to_vec_pretty(&manifest)?;
     append(&mut builder, &prefix, "MANIFEST.json", &manifest, 0o644)?;

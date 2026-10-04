@@ -92,7 +92,7 @@ execution, and required timing checks remain separate gates.
 
 ## Binary archives
 
-Use an operator-verified packaging plan. Its format_version is 1 or 2 and its
+Use an operator-verified packaging plan. Its format_version is 1, 2 or 3 and its
 package_version and rust_release match this package's pins. Record target,
 build_identity, source_revision, and cargo_lock_sha256. An uncommitted revision
 requires the development identity. The binary, project_license, sdk_license,
@@ -119,6 +119,19 @@ Limits are 64 components, 16 notices per component, 256 notices total, and 512 K
 per text. The inventory target and binary checksum must match the packaging plan.
 MANIFEST.json records the bound inventory and keeps coverage, compilation
 eligibility, permission policy and release evidence as external requirements.
+Version 3 requires the same inputs as version 2 and adds six readable files:
+licenses/DEPENDENCIES.txt, licenses/LINKED-TARGET.txt, and the four original Rust
+notices under licenses/rust/. COPYRIGHT-library.html stays HTML. The dependency
+file lists each package and notice path, including supplemental upstream notices,
+then includes each unique text once under its SHA-256. Linked notices retain their
+component, source URL and upstream path. Upstream text is copied verbatim; headings
+and separators are outside that text. The manifest binds every readable file to
+its source inventory and records the derived file's size and checksum. Version 3
+rejects missing, unreferenced or inconsistent dependency texts and incomplete Rust
+notice coverage. It allows at most 512 dependency packages, 4096 notice references,
+1 MiB per dependency text and 2 MiB per Rust text. The dependency text output is
+limited to 32 MiB and linked text output to 8 MiB. These copies do not select
+licenses or satisfy the external permission and release gates.
 It uses fixed order, ownership and timestamps. The binary mode is 0755; other
 entries are 0644. Input limits are 64 MiB for the binary, 512 KiB per license,
 16 MiB for dependency notices, 8 MiB for toolchain notices, and 1 MiB for Cargo.lock.

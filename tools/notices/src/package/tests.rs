@@ -68,7 +68,7 @@ fn packaging_plan_rejects_unknown_duplicate_or_invalid_identity_fields() -> Resu
 }
 
 #[test]
-fn version_two_requires_a_linked_notice_binding_and_version_one_rejects_it() -> Result<()> {
+fn later_versions_require_a_linked_notice_binding_and_version_one_rejects_it() -> Result<()> {
     let mut value_plan = plan();
     let object = value_plan.as_object_mut().ok_or("missing plan")?;
     object.insert(
@@ -76,10 +76,18 @@ fn version_two_requires_a_linked_notice_binding_and_version_one_rejects_it() -> 
         json!({"bytes":1,"sha256":"a".repeat(64)}),
     );
     assert!(Plan::parse(&serde_json::to_vec(&value_plan)?).is_err());
-    *value_plan
-        .get_mut("format_version")
-        .ok_or("missing version")? = json!(2);
-    Plan::parse(&serde_json::to_vec(&value_plan)?)?;
+    for version in [2, 3] {
+        *value_plan
+            .get_mut("format_version")
+            .ok_or("missing version")? = json!(version);
+        Plan::parse(&serde_json::to_vec(&value_plan)?)?;
+        let mut missing = value_plan.clone();
+        missing
+            .as_object_mut()
+            .ok_or("missing plan")?
+            .remove("linked_target_notices");
+        assert!(Plan::parse(&serde_json::to_vec(&missing)?).is_err());
+    }
     *value_plan
         .get_mut("linked_target_notices")
         .ok_or("missing binding")? = json!({"bytes":(4 << 20) + 1,"sha256":"a".repeat(64)});

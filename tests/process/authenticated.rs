@@ -12,6 +12,9 @@ mod deadline;
 #[path = "authenticated_headers.rs"]
 mod headers;
 
+#[path = "authenticated_multiplexed.rs"]
+mod multiplexed;
+
 #[path = "authenticated_sdk.rs"]
 mod sdk;
 
@@ -89,10 +92,39 @@ async fn request_with_token(
     http: &reqwest::Client,
     resource: &str,
     method: &str,
-    mut params: Value,
+    params: Value,
     http2: bool,
     token: &str,
 ) -> TestResult<(reqwest::StatusCode, Value)> {
+    let name = params
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let response = http
+        .post(resource)
+        .bearer_auth(token)
+        .header("Accept", "application/json, text/event-stream")
+        .header("MCP-Protocol-Version", "2026-07-28")
+        .header("Mcp-Method", method)
+        .header("Mcp-Name", name)
+        .json(&message(method, params)?)
+        .send()
+        .await?;
+    assert_eq!(
+        response.version(),
+        if http2 {
+            reqwest::Version::HTTP_2
+        } else {
+            reqwest::Version::HTTP_11
+        }
+    );
+    let status = response.status();
+    let headers = response.headers().clone();
+    let bytes = response.bytes().await?;
+    Ok((status, decode_response(status, &headers, &bytes)?))
+}
+
+fn message(method: &str, mut params: Value) -> TestResult<Value> {
     drop(
         params
             .as_object_mut()
@@ -105,64 +137,46 @@ async fn request_with_token(
             "io.modelcontextprotocol/clientCapabilities":{}}),
             ),
     );
-    let name = params
-        .get("name")
-        .and_then(Value::as_str)
-        .unwrap_or_default();
-    let response = http
-        .post(resource)
-        .bearer_auth(token)
-        .header("Accept", "application/json, text/event-stream")
-        .header("MCP-Protocol-Version", "2026-07-28")
-        .header("Mcp-Method", method)
-        .header("Mcp-Name", name)
-        .json(&json!({"jsonrpc":"2.0","id":1_i32,"method":method,"params":params}))
-        .send()
-        .await?;
+    Ok(json!({"jsonrpc":"2.0","id":1_i32,"method":method,"params":params}))
+}
+
+fn decode_response(
+    status: reqwest::StatusCode,
+    headers: &reqwest::header::HeaderMap,
+    bytes: &[u8],
+) -> TestResult<Value> {
     assert_eq!(
-        response.version(),
-        if http2 {
-            reqwest::Version::HTTP_2
-        } else {
-            reqwest::Version::HTTP_11
-        }
-    );
-    assert_eq!(
-        response
-            .headers()
+        headers
             .get("Cache-Control")
             .and_then(|value| value.to_str().ok()),
         Some("no-store")
     );
-    assert!(!response.headers().contains_key("Mcp-Session-Id"));
-    let status = response.status();
+    assert!(!headers.contains_key("Mcp-Session-Id"));
     if status == reqwest::StatusCode::UNAUTHORIZED {
         assert!(
-            response
-                .headers()
+            headers
                 .get("WWW-Authenticate")
                 .and_then(|value| value.to_str().ok())
                 .is_some_and(|challenge| challenge.contains("error=\"invalid_token\""))
         );
     }
-    let bytes = response.bytes().await?;
     let value = if status == reqwest::StatusCode::UNAUTHORIZED {
-        assert_eq!(bytes.as_ref(), b"unauthorized");
+        assert_eq!(bytes, b"unauthorized");
         Value::Null
     } else if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
-        assert_eq!(bytes.as_ref(), b"authorization unavailable");
+        assert_eq!(bytes, b"authorization unavailable");
         Value::Null
     } else if status == reqwest::StatusCode::GATEWAY_TIMEOUT {
-        assert_eq!(bytes.as_ref(), b"request deadline exceeded");
+        assert_eq!(bytes, b"request deadline exceeded");
         Value::Null
     } else if status == reqwest::StatusCode::FORBIDDEN {
-        assert_eq!(bytes.as_ref(), b"client access denied");
+        assert_eq!(bytes, b"client access denied");
         Value::Null
     } else {
-        serde_json::from_slice::<Value>(&bytes)?
+        serde_json::from_slice::<Value>(bytes)?
     };
     assert!(!value.to_string().contains("SYNTHETIC"));
-    Ok((status, value))
+    Ok(value)
 }
 
 fn envelope(reply: &Value, error: Option<&str>) -> TestResult<Value> {

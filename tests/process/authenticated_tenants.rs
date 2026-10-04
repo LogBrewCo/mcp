@@ -8,7 +8,7 @@ use sha2::{Digest as _, Sha256};
 use tokio::time::timeout;
 
 use super::{
-    Fixture, Process, TestResult, client, configure, envelope, request_with_token,
+    Fixture, Process, TestResult, client, configure, envelope, multiplexed, request_with_token,
     tenant_backend::{Backend, Identity, Observations},
 };
 
@@ -48,10 +48,21 @@ fn configure_projects(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
     Ok(())
 }
 
+enum Mode {
+    Http1,
+    Http2,
+    SharedHttp2,
+}
+
+enum Transport {
+    Http1(reqwest::Client),
+    Http2(reqwest::Client),
+    SharedHttp2(multiplexed::Connection),
+}
+
 struct Execution<'a> {
-    http: &'a reqwest::Client,
+    transport: Transport,
     resource: &'a str,
-    http2: bool,
 }
 
 impl Execution<'_> {
@@ -66,16 +77,26 @@ impl Execution<'_> {
             Identity::Beta | Identity::Rejected => json!({"token":Identity::Alpha.token(),
                 "client_id":"synthetic-alpha-client","credential_id":"synthetic-alpha-credential"}),
         };
-        request_with_token(
-            self.http,
-            self.resource,
-            "tools/call",
-            json!({"name":"execute","arguments":{"operation":"logs.read.v1",
-                "input":{"project":project,"context":context}}}),
-            self.http2,
-            identity.token(),
-        )
-        .await
+        let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
+            "input":{"project":project,"context":context}}});
+        match &self.transport {
+            Transport::Http1(http) | Transport::Http2(http) => {
+                request_with_token(
+                    http,
+                    self.resource,
+                    "tools/call",
+                    params,
+                    matches!(&self.transport, Transport::Http2(_)),
+                    identity.token(),
+                )
+                .await
+            }
+            Transport::SharedHttp2(connection) => {
+                connection
+                    .execute(self.resource, params, identity.token())
+                    .await
+            }
+        }
     }
 }
 
@@ -124,7 +145,7 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
     Ok(())
 }
 
-async fn isolation_and_recovery(http2: bool) -> TestResult<()> {
+async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut upstream = Backend::start(resource.clone()).await?;
@@ -135,11 +156,14 @@ async fn isolation_and_recovery(http2: bool) -> TestResult<()> {
             .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
-    let http = client(&fixture, http2)?;
-    let execution = Execution {
-        http: &http,
+    let transport = match mode {
+        Mode::Http1 => Transport::Http1(client(&fixture, false)?),
+        Mode::Http2 => Transport::Http2(client(&fixture, true)?),
+        Mode::SharedHttp2 => Transport::SharedHttp2(multiplexed::Connection::open(&fixture).await?),
+    };
+    let mut execution = Execution {
+        transport,
         resource: &resource,
-        http2,
     };
     overlapping(&execution, &upstream.observations).await?;
     upstream
@@ -177,6 +201,9 @@ async fn isolation_and_recovery(http2: bool) -> TestResult<()> {
         [2, 3, 0]
     );
     fixture.ready(&mut process).await?;
+    if let Transport::SharedHttp2(connection) = &mut execution.transport {
+        connection.close().await?;
+    }
     process.signal(Signal::TERM)?;
     assert!(process.wait().await?.success());
     drop(std::net::TcpListener::bind(fixture.address)?);
@@ -186,10 +213,19 @@ async fn isolation_and_recovery(http2: bool) -> TestResult<()> {
 
 #[tokio::test]
 async fn normal_linux_http1_concurrent_identity_isolation_and_recovery() -> TestResult<()> {
-    timeout(Duration::from_secs(20), isolation_and_recovery(false)).await?
+    timeout(Duration::from_secs(20), isolation_and_recovery(Mode::Http1)).await?
 }
 
 #[tokio::test]
 async fn normal_linux_http2_concurrent_identity_isolation_and_recovery() -> TestResult<()> {
-    timeout(Duration::from_secs(20), isolation_and_recovery(true)).await?
+    timeout(Duration::from_secs(20), isolation_and_recovery(Mode::Http2)).await?
+}
+
+#[tokio::test]
+async fn normal_linux_one_http2_connection_isolates_identities_and_recovers() -> TestResult<()> {
+    timeout(
+        Duration::from_secs(20),
+        isolation_and_recovery(Mode::SharedHttp2),
+    )
+    .await?
 }

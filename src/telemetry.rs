@@ -490,7 +490,7 @@ fn percentile(buckets: &[LatencyBucket], finished: u64) -> Option<u64> {
     {
         return None;
     }
-    let rank = finished - finished / 100;
+    let rank = finished.checked_sub(finished.checked_div(100)?)?;
     let mut cumulative = 0_u64;
     for bucket in buckets {
         cumulative = cumulative.checked_add(bucket.count)?;

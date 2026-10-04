@@ -222,7 +222,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
         Some(&json!("logs.read.v1"))
     );
     let execution = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
-    for attempt in 0..3 {
+    for attempt in 0_usize..3 {
         let active = attempt != 1;
         upstream.observations.active.store(active, Ordering::SeqCst);
         let (status, reply) =
@@ -237,8 +237,8 @@ async fn contracts(http2: bool) -> TestResult<()> {
             assert_eq!(status, reqwest::StatusCode::UNAUTHORIZED);
         }
         assert_eq!(
-            upstream.observations.verifies.load(Ordering::SeqCst),
-            4 + attempt
+            Some(upstream.observations.verifies.load(Ordering::SeqCst)),
+            attempt.checked_add(4)
         );
         assert_eq!(
             upstream.observations.executes.load(Ordering::SeqCst),

@@ -123,9 +123,9 @@ fn assert_cancelled_operation(
     before: &StageSnapshot,
 ) -> Result<(), &'static str> {
     let cancelled = operation(snapshot).ok_or("cancelled operation")?;
-    assert_eq!(cancelled.started, before.started + 1);
-    assert_eq!(cancelled.finished, before.finished + 1);
-    assert_eq!(cancelled.timed, before.timed + 1);
+    assert_eq!(Some(cancelled.started), before.started.checked_add(1));
+    assert_eq!(Some(cancelled.finished), before.finished.checked_add(1));
+    assert_eq!(Some(cancelled.timed), before.timed.checked_add(1));
     assert_eq!(cancelled.pending, Some(0));
     assert_eq!(cancelled.dropped_updates, 0);
     assert_eq!(

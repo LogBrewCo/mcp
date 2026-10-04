@@ -54,7 +54,7 @@ fn body(execute: bool) -> TestResult<Vec<u8>> {
         json!({"count":3})
     } else {
         json!({
-            "active":true,"exp":SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 300,
+            "active":true,"exp":SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs().checked_add(300).ok_or("fixture expiry overflow")?,
             "iss":"https://issuer.example","aud":"https://resource.example/mcp",
             "scope":"mcp:read","token_type":"Bearer",
             "jti":"synthetic-credential","client_id":"synthetic-client"
@@ -166,8 +166,13 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
         .checked_sub(fixed)
         .ok_or("invalid decoded fixture budget")?;
     let field = if compressed { 1024 } else { budget };
+    let overhead = b"x-control"
+        .len()
+        .checked_add(32)
+        .and_then(|size| size.checked_add(MARKER.len()))
+        .ok_or("invalid HTTP/2 field overhead")?;
     let length = field
-        .checked_sub(b"x-control".len() + 32 + MARKER.len())
+        .checked_sub(overhead)
         .ok_or("invalid HTTP/2 fixture size")?;
     let mut value = vec![b'a'; length];
     value.extend_from_slice(MARKER.as_bytes());
@@ -179,8 +184,18 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
         if !(2..=64).contains(&repetitions) {
             return Err("invalid compressed fixture repetition count".into());
         }
-        block.extend(std::iter::repeat_n(0xbe, repetitions - 1));
-        assert!(fixed + field * repetitions > 16 << 10);
+        block.extend(std::iter::repeat_n(
+            0xbe,
+            repetitions
+                .checked_sub(1)
+                .ok_or("invalid fixture repetition count")?,
+        ));
+        assert!(
+            field
+                .checked_mul(repetitions)
+                .and_then(|size| fixed.checked_add(size))
+                .is_some_and(|size| size > 16 << 10)
+        );
         assert!(block.len() < 2048);
     }
     Ok(block)

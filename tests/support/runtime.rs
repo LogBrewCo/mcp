@@ -72,7 +72,9 @@ impl Running {
             stop,
             task,
         };
-        let end = Instant::now() + Duration::from_secs(3);
+        let end = Instant::now()
+            .checked_add(Duration::from_secs(3))
+            .ok_or("fixture deadline overflow")?;
         loop {
             let metadata = running
                 .client

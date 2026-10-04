@@ -160,7 +160,13 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
                     *prefix = None;
                     break;
                 }
-                pending.matched += 1;
+                let Some(matched) = pending.matched.checked_add(1) else {
+                    return Poll::Ready(Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "invalid protocol detection state",
+                    )));
+                };
+                pending.matched = matched;
                 if pending.matched == HTTP2_PREFACE.len() {
                     *prefix = None;
                     break;

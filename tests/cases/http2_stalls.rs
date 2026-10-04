@@ -89,7 +89,7 @@ async fn responses(
         .iter()
         .map(|stream| (*stream, Response::default()))
         .collect();
-    let mut pings = 0;
+    let mut pings = 0_usize;
     for _ in 0..512 {
         let frame = peer
             .next()
@@ -98,7 +98,7 @@ async fn responses(
         if frame.kind == 6 && frame.flags == 0 && frame.stream == 0 {
             assert_eq!(frame.payload.len(), 8);
             peer.send(0, 6, 1, &frame.payload).await?;
-            pings += 1;
+            pings = pings.checked_add(1).ok_or("fixture ping count overflow")?;
             if drip && pings == 1 {
                 for stream in streams {
                     // Mid-request progress must not refresh the request deadline.
@@ -123,7 +123,13 @@ async fn responses(
             0 => {
                 assert!(response.headers && !response.complete);
                 assert_eq!(frame.flags & 8, 0, "fixture responses have no padding");
-                assert!(response.body.len() + frame.payload.len() <= 4096);
+                assert!(
+                    response
+                        .body
+                        .len()
+                        .checked_add(frame.payload.len())
+                        .is_some_and(|size| size <= 4096)
+                );
                 response.body.extend_from_slice(&frame.payload);
                 response.complete = frame.flags & 1 != 0;
             }
@@ -262,7 +268,7 @@ async fn unfinished_http2_bodies_expire_despite_ping_and_body_progress_and_capac
 async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
     let mut headers = BTreeSet::new();
     let mut resets = BTreeSet::new();
-    let mut pings = 0;
+    let mut pings = 0_usize;
     for _ in 0..512 {
         let Some(frame) = peer.next().await? else {
             assert_eq!(headers.len(), 64);
@@ -272,7 +278,7 @@ async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
             6 if frame.stream == 0 && frame.flags == 0 => {
                 assert_eq!(frame.payload.len(), 8);
                 peer.send(0, 6, 1, &frame.payload).await?;
-                pings += 1;
+                pings = pings.checked_add(1).ok_or("fixture ping count overflow")?;
                 if pings == 3 {
                     assert_eq!(headers.len(), 64);
                     return Ok(pings);
@@ -367,7 +373,10 @@ async fn closed_retention(fixture: &Fixture) -> TestResult<()> {
                         .map_or(0, |entry| entry.count)
                 };
                 assert!(count(Outcome::Deadline) > 0);
-                assert_eq!(count(Outcome::Deadline) + count(Outcome::Cancelled), 64);
+                assert_eq!(
+                    count(Outcome::Deadline).checked_add(count(Outcome::Cancelled)),
+                    Some(64)
+                );
                 assert_eq!(count(Outcome::Completed), 0);
                 assert_eq!(count(Outcome::Released), 0);
                 let encoded = serde_json::to_string(&snapshot)?;

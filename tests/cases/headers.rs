@@ -136,7 +136,7 @@ async fn rejected(peer: &mut Peer, block: &[u8]) -> TestResult<()> {
         let kind = if index == 0 { 1 } else { 9 };
         // END_STREAM belongs to HEADERS; END_HEADERS belongs to the final fragment.
         let mut flags = u8::from(index == 0);
-        if index + 1 == count {
+        if index.checked_add(1) == Some(count) {
             flags |= 4;
         }
         peer.send(1, kind, flags, chunk).await?;
@@ -198,7 +198,11 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
                 status = true;
             }
             0 => {
-                assert!(body.len() + frame.payload.len() <= 4096);
+                assert!(
+                    body.len()
+                        .checked_add(frame.payload.len())
+                        .is_some_and(|size| size <= 4096)
+                );
                 body.extend_from_slice(&frame.payload);
                 if frame.flags & 1 != 0 {
                     assert!(status);

@@ -229,12 +229,14 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
         3
     );
     assert_eq!(
-        connected
-            .upstream
-            .observations
-            .executes
-            .load(Ordering::SeqCst),
-        executions + 1
+        Some(
+            connected
+                .upstream
+                .observations
+                .executes
+                .load(Ordering::SeqCst)
+        ),
+        executions.checked_add(1)
     );
     connected.finish().await
 }

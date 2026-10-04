@@ -55,8 +55,8 @@ async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
     );
     assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 2);
     assert_eq!(
-        upstream.observations.executes.load(Ordering::SeqCst),
-        executions + 1
+        Some(upstream.observations.executes.load(Ordering::SeqCst)),
+        executions.checked_add(1)
     );
     assert_eq!(
         upstream

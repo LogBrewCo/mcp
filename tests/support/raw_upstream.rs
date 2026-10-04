@@ -440,7 +440,12 @@ async fn request(stream: &mut Stream, path: &str) -> TestResult<()> {
     let mut buffer = [0; 1024];
     loop {
         let count = stream.read(&mut buffer).await?;
-        if count == 0 || bytes.len() + count > 8192 {
+        if count == 0
+            || bytes
+                .len()
+                .checked_add(count)
+                .is_none_or(|size| size > 8192)
+        {
             return Err(io::Error::other("request fixture exceeds bound or closed").into());
         }
         bytes.extend_from_slice(

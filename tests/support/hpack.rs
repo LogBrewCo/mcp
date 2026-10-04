@@ -13,7 +13,10 @@ fn string(block: &mut Vec<u8>, value: &[u8]) -> TestResult<()> {
         block.push(u8::try_from(value.len())?);
     } else {
         block.push(127);
-        let mut length = value.len() - 127;
+        let mut length = value
+            .len()
+            .checked_sub(127)
+            .ok_or("invalid fixture length")?;
         while length >= 128 {
             block.push(u8::try_from(length & 127)? | 128);
             length >>= 7;

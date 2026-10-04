@@ -248,7 +248,7 @@ fn retention(
         .ok_or("response retention stage")?;
     assert_eq!(retained.started, started);
     assert_eq!(retained.pending, Some(pending));
-    assert_eq!(retained.finished, started - pending);
+    assert_eq!(Some(retained.finished), started.checked_sub(pending));
     assert_eq!(retained.dropped_updates, 0);
     assert_eq!(retained.p99_upper_ns.is_some(), pending == 0);
     for (outcome, expected) in [

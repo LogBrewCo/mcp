@@ -9,6 +9,7 @@ use std::{
 };
 
 use tokio::sync::OwnedSemaphorePermit;
+use tokio::time::Instant;
 use tokio_util::sync::CancellationToken;
 
 use crate::telemetry::{Measurement, Outcome};
@@ -38,7 +39,8 @@ impl Delivery {
         if let Some(connection) = connection.clone() {
             let completion = finished.clone();
             let retained = Arc::clone(&state);
-            let deadline = tokio::time::Instant::now() + Duration::from_secs(10);
+            let now = Instant::now();
+            let deadline = now.checked_add(Duration::from_secs(10)).unwrap_or(now);
             drop(tokio::spawn(async move {
                 tokio::select! {
                     () = completion.cancelled() => {},

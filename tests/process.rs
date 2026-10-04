@@ -130,7 +130,9 @@ impl Fixture {
             "https://localhost:{}/.well-known/oauth-protected-resource/mcp",
             self.address.port()
         );
-        let end = Instant::now() + Duration::from_secs(5);
+        let end = Instant::now()
+            .checked_add(Duration::from_secs(5))
+            .ok_or("fixture readiness deadline overflow")?;
         loop {
             if process.0.try_wait()?.is_some() {
                 return Err(std::io::Error::other("process exited before readiness").into());
@@ -200,7 +202,9 @@ impl Process {
     }
 
     async fn wait(&mut self) -> TestResult<ExitStatus> {
-        let end = Instant::now() + Duration::from_secs(8);
+        let end = Instant::now()
+            .checked_add(Duration::from_secs(8))
+            .ok_or("fixture process deadline overflow")?;
         let status = loop {
             if let Some(status) = self.0.try_wait()? {
                 break status;

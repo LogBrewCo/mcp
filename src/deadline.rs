@@ -1,7 +1,7 @@
 use std::{future::Future, time::Duration};
 
 pub async fn within<T>(budget: Duration, work: impl Future<Output = T>) -> Option<T> {
-    let deadline = tokio::time::Instant::now() + budget;
+    let deadline = tokio::time::Instant::now().checked_add(budget)?;
     // Timeout polls work before its timer. Reject a late completed result too.
     match tokio::time::timeout_at(deadline, work).await {
         Ok(result) if tokio::time::Instant::now() < deadline => Some(result),
@@ -51,6 +51,24 @@ mod tests {
         };
         assert_eq!(within(Duration::from_millis(5), work).await, None);
         assert!(polled.load(Ordering::SeqCst));
+        let _recovered = slots.try_acquire()?;
+        assert_eq!(within(Duration::from_secs(1), ready(7)).await, Some(7));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn unrepresentable_deadline_drops_work_without_polling_and_recovers()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let slots = Arc::new(Semaphore::new(1));
+        let permit = Arc::clone(&slots).try_acquire_owned()?;
+        let polled = AtomicBool::new(false);
+        let work = async {
+            let _permit = permit;
+            polled.store(true, Ordering::SeqCst);
+            pending::<()>().await;
+        };
+        assert_eq!(within(Duration::MAX, work).await, None);
+        assert!(!polled.load(Ordering::SeqCst));
         let _recovered = slots.try_acquire()?;
         assert_eq!(within(Duration::from_secs(1), ready(7)).await, Some(7));
         Ok(())

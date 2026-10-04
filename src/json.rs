@@ -47,7 +47,9 @@ pub(crate) fn unsigned_integer(value: &Value) -> Option<u64> {
         .iter()
         .take(retained)
         .try_fold(0_u64, |value, byte| {
-            value.checked_mul(10)?.checked_add(u64::from(byte - b'0'))
+            value
+                .checked_mul(10)?
+                .checked_add(u64::from(byte.checked_sub(b'0')?))
         })?;
     let multiplier = if shift > 0 {
         10_u64.checked_pow(u32::try_from(shift).ok()?)?

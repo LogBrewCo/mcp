@@ -86,7 +86,10 @@ async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<
         Some(&json!(3))
     );
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), before + 1);
+    assert_eq!(
+        Some(fixture.state.calls.load(Ordering::SeqCst)),
+        before.checked_add(1)
+    );
     Ok(())
 }
 
@@ -100,7 +103,7 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
         Some(json!([])),
         Some(json!({})),
     ];
-    let mut control_id = 1;
+    let mut control_id = 1_u64;
     for id in cases {
         let notification = id.is_none();
         let calls = fixture.state.calls.load(Ordering::SeqCst);
@@ -122,9 +125,14 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
         }
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
         assert_eq!(fixture.state.calls.load(Ordering::SeqCst), calls);
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), verifies + 1);
+        assert_eq!(
+            Some(fixture.state.verifies.load(Ordering::SeqCst)),
+            verifies.checked_add(1)
+        );
         control(sender, fixture, control_id).await?;
-        control_id += 1;
+        control_id = control_id
+            .checked_add(1)
+            .ok_or("fixture control ID overflow")?;
     }
     fixture.state.active.store(false, Ordering::SeqCst);
     let calls = fixture.state.calls.load(Ordering::SeqCst);
@@ -135,7 +143,10 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
     let bytes = to_bytes(response.into_body(), 4096).await?;
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), calls);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), verifies + 1);
+    assert_eq!(
+        Some(fixture.state.verifies.load(Ordering::SeqCst)),
+        verifies.checked_add(1)
+    );
     fixture.state.active.store(true, Ordering::SeqCst);
     control(sender, fixture, control_id).await
 }

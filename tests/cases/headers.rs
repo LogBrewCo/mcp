@@ -41,7 +41,7 @@ async fn recovery(fixture: &Fixture, running: &mut Running) -> TestResult<()> {
             .execute()
             .await?
             .pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
@@ -60,7 +60,7 @@ async fn http1_header_bytes_and_count_reject_before_authorization_and_recover() 
     let mut control = String::from(
         "GET /.well-known/oauth-protected-resource/mcp HTTP/1.1\r\nHost: resource.example\r\nConnection: close\r\n",
     );
-    for _ in 0..97 {
+    for _ in 0_i32..97_i32 {
         control.push_str("X-Count: a\r\n");
     }
     write!(control, "X-Control: {}\r\n\r\n", "a".repeat(14_500)).expect("control field");
@@ -98,7 +98,7 @@ async fn http1_header_bytes_and_count_reject_before_authorization_and_recover() 
     no_backend_work(&fixture);
 
     let mut count = prefix;
-    for _ in 0..97 {
+    for _ in 0_i32..97_i32 {
         count.push_str("X-Count: a\r\n");
     }
     count.push_str("Content-Length: 0\r\n\r\n");
@@ -141,7 +141,7 @@ async fn rejected(peer: &mut Peer, block: &[u8]) -> TestResult<()> {
         }
         peer.send(1, kind, flags, chunk).await?;
     }
-    for _ in 0..16 {
+    for _ in 0_i32..16_i32 {
         let frame = peer
             .next()
             .await?
@@ -184,7 +184,7 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
     peer.send(3, 1, 5, &block).await?;
     let mut body = Vec::new();
     let mut status = false;
-    for _ in 0..16 {
+    for _ in 0_i32..16_i32 {
         let frame = peer
             .next()
             .await?

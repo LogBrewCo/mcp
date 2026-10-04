@@ -10,7 +10,7 @@ use super::{Fixture, Process, TestResult, hpack::literal, peer::Peer};
 impl Peer {
     async fn ignored_ping_closes(&mut self) -> TestResult<bool> {
         let mut ping = false;
-        for _ in 0..16 {
+        for _ in 0_i32..16_i32 {
             let Some(frame) = self.next().await? else {
                 return Ok(ping);
             };
@@ -23,7 +23,7 @@ impl Peer {
     }
 
     async fn acknowledge_server_ping(&mut self) -> TestResult<()> {
-        for _ in 0..16 {
+        for _ in 0_i32..16_i32 {
             let frame = self
                 .next()
                 .await?
@@ -64,7 +64,7 @@ async fn unresponsive_http2_peers_close_after_preface_and_settings_and_capacity_
     assert!(complete.expect("idle peer closure and ping"));
     timeout(Duration::from_secs(3), async {
         let mut slots = Vec::new();
-        for _ in 0..64 {
+        for _ in 0_i32..64_i32 {
             slots.push(fixture.tls().await.expect("recovered TLS slot"));
         }
         assert_eq!(slots.len(), 64);
@@ -88,7 +88,7 @@ async fn responsive_idle_http2_peer_survives_ping_cycles_and_remains_usable() {
     let mut peer = Peer::connect(fixture.tls_protocol(Some(b"h2")).await.expect("TLS"), true)
         .await
         .expect("idle peer");
-    for _ in 0..2 {
+    for _ in 0_i32..2_i32 {
         timeout(Duration::from_secs(7), peer.acknowledge_server_ping())
             .await
             .expect("server ping bound")
@@ -136,9 +136,9 @@ async fn native_process_releases_response_admission_when_http2_window_is_withhel
     let client = fixture.client().expect("certificate-verified client");
     let url = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut headers = BTreeSet::new();
-    let mut pings = 0;
+    let mut pings = 0_i32;
     timeout(Duration::from_secs(12), async {
-        for _ in 0..256 {
+        for _ in 0_i32..256_i32 {
             let Some(frame) = peer.next().await? else {
                 return Ok::<(), Box<dyn std::error::Error + Send + Sync>>(());
             };
@@ -155,7 +155,7 @@ async fn native_process_releases_response_admission_when_http2_window_is_withhel
                 6 if frame.stream == 0 && frame.flags == 0 => {
                     assert_eq!(frame.payload.len(), 8);
                     peer.send(0, 6, 1, &frame.payload).await?;
-                    pings += 1;
+                    pings += 1_i32;
                 }
                 4 | 8 => {}
                 _ => return Err(io::Error::other("unexpected process stall frame").into()),
@@ -168,7 +168,7 @@ async fn native_process_releases_response_admission_when_http2_window_is_withhel
     .expect("stalled connection closed");
     assert_eq!(headers.len(), 64);
     assert!(
-        pings > 0,
+        pings > 0_i32,
         "the native process received actual PING acknowledgements"
     );
     assert_eq!(

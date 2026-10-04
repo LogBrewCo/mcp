@@ -78,7 +78,7 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
         assert_eq!(value.get("id"), Some(&json!("http2-check")));
         assert_eq!(
             value.pointer("/result/structuredContent/data/count"),
-            Some(&json!(3))
+            Some(&json!(3_i32))
         );
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
@@ -119,7 +119,7 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     assert_eq!(value.get("id"), Some(&json!("http2-check")));
     assert_eq!(
         value.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
 
     let response = request(&client, &resource)
@@ -138,7 +138,7 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     assert_eq!(response.version(), reqwest::Version::HTTP_2);
     assert_eq!(response.status(), reqwest::StatusCode::BAD_REQUEST);
     let value: Value = response.json().await.expect("JSON error");
-    assert_eq!(value.pointer("/error/code"), Some(&json!(-32020)));
+    assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 
     fixture.state.pause.store(true, Ordering::SeqCst);

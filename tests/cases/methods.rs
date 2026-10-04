@@ -56,7 +56,7 @@ async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<B
 }
 
 fn assert_error(status: StatusCode, bytes: &[u8], id: &Value, code: i32) -> TestResult<()> {
-    let expected = if code == -32601 {
+    let expected = if code == -32_601_i32 {
         StatusCode::NOT_FOUND
     } else {
         StatusCode::BAD_REQUEST
@@ -75,7 +75,7 @@ fn assert_error(status: StatusCode, bytes: &[u8], id: &Value, code: i32) -> Test
 async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for id in [
-        json!(1),
+        json!(1_i32),
         json!("opaque-request"),
         serde_json::from_str("184467440737095516160")?,
     ] {
@@ -99,11 +99,11 @@ async fn malformed_known_methods_return_invalid_params_without_execution() -> Te
         let response = fixture
             .router
             .clone()
-            .oneshot(packet(method, params, &json!(1)).await?)
+            .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
         let status = response.status();
         let bytes = to_bytes(response.into_body(), 4096).await?;
-        assert_error(status, &bytes, &json!(1), -32602)?;
+        assert_error(status, &bytes, &json!(1_i32), -32602)?;
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     Ok(())
@@ -122,13 +122,13 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
         let response = fixture
             .router
             .clone()
-            .oneshot(packet(method, params, &json!(1)).await?)
+            .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
         assert_eq!(response.status(), StatusCode::OK);
         let bytes = to_bytes(response.into_body(), 32_768).await?;
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_"));
         let result: Value = serde_json::from_slice(&bytes)?;
-        assert_eq!(result.get("id"), Some(&json!(1)));
+        assert_eq!(result.get("id"), Some(&json!(1_i32)));
         assert!(result.get("error").is_none());
         if method == "tools/list" {
             let tools = result
@@ -161,11 +161,11 @@ async fn wire(http2: bool) -> TestResult<()> {
         (running.http1_client(), Version::HTTP_11)
     };
     let id: Value = serde_json::from_str("184467440737095516160")?;
-    let mut cases = vec![(PRIVATE_METHOD, json!({}), -32601)];
+    let mut cases = vec![(PRIVATE_METHOD, json!({}), -32_601_i32)];
     cases.extend(
         malformed()
             .into_iter()
-            .map(|(method, params)| (method, params, -32602)),
+            .map(|(method, params)| (method, params, -32_602_i32)),
     );
     for (method, params, code) in cases {
         let request = packet(method, params, &id).await?;
@@ -183,7 +183,7 @@ async fn wire(http2: bool) -> TestResult<()> {
     let request = packet(
         "tools/call",
         json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}}),
-        &json!(1),
+        &json!(1_i32),
     )
     .await?;
     let response = send(&client, &running, &authority, request).await?;
@@ -192,7 +192,7 @@ async fn wire(http2: bool) -> TestResult<()> {
     let result: Value = response.json().await?;
     assert_eq!(
         result.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
     running.stop.cancel();

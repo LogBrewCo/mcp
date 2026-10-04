@@ -47,7 +47,7 @@ impl ClientAllowlist {
 }
 
 impl fmt::Debug for ClientAllowlist {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("client allowlist [redacted]")
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("client allowlist [redacted]")
     }
 }

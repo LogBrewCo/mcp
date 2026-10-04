@@ -186,7 +186,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
         credential_id: "synthetic-credential-reference".to_owned(),
         client_id: "synthetic-client".to_owned(),
     };
-    for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "é"] {
+    for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "\u{e9}"] {
         assert_eq!(
             tokio::time::timeout(Duration::from_millis(200), raw.upstream.verify(token))
                 .await?
@@ -242,7 +242,7 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone()).await?;
     let mut running = Running::at(address, fixture.router.clone(), &authority).await?;
-    let body = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+    let body = json!({"jsonrpc":"2.0","id":1_i32,"method":"tools/call","params":{
         "name":"execute","arguments":{"operation":"logs.read.v1","input":{}},"_meta":{
             "io.modelcontextprotocol/protocolVersion":"2026-07-28",
             "io.modelcontextprotocol/clientCapabilities":{}}}});

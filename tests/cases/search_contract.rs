@@ -73,8 +73,8 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
     let validator = schema(&fixture).await?;
     let queries = [
         "a".repeat(256),
-        "é".repeat(256),
-        "🦀".repeat(256),
+        "\u{e9}".repeat(256),
+        "\u{1f980}".repeat(256),
         "e\u{301}".repeat(128),
     ];
     for query in queries {
@@ -86,8 +86,8 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
     }
     for query in [
         "a".repeat(257),
-        "é".repeat(257),
-        "🦀".repeat(257),
+        "\u{e9}".repeat(257),
+        "\u{1f980}".repeat(257),
         "e\u{301}".repeat(129),
     ] {
         let arguments = json!({"query":query});
@@ -194,7 +194,7 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
         json!("1"),
         json!(true),
         Value::Null,
-        json!([1]),
+        json!([1_i32]),
         json!({"$serde_json::private::Number":"1"}),
         json!({"$serde_json::private::RawValue":"1"}),
     ] {
@@ -208,10 +208,10 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
 }
 
 fn catalog() -> TestResult<Vec<u8>> {
-    let operations: Vec<_> = (1..=23)
+    let operations: Vec<_> = (1_i32..=23_i32)
         .map(|version| {
-            let summary = if version % 2 == 1 {
-                "Read selected café logs"
+            let summary = if version % 2_i32 == 1_i32 {
+                "Read selected \u{63}\u{61}\u{66}\u{e9} logs"
             } else {
                 "Read unrelated traces"
             };
@@ -231,8 +231,8 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
 {
     let fixture = Fixture::with_catalog(catalog()?).await?;
     let validator = schema(&fixture).await?;
-    let mut expected: Vec<_> = (1..=23)
-        .filter(|version| version % 2 == 1)
+    let mut expected: Vec<_> = (1_i32..=23_i32)
+        .filter(|version| version % 2_i32 == 1_i32)
         .map(|version| format!("signals.read.v{version}"))
         .collect();
     expected.sort_unstable();
@@ -246,7 +246,7 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
         let mut cursor = String::new();
         let mut collected = Vec::new();
         for _ in 0..=expected.len() {
-            let arguments = json!({"query":" CAFÉ\tselected\n", "limit":limit, "after":cursor});
+            let arguments = json!({"query":" \u{43}\u{41}\u{46}\u{c9}\tselected\n", "limit":limit, "after":cursor});
             assert!(validator.is_valid(&arguments));
             let data = search(&fixture, arguments, true).await?;
             let page = data

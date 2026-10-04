@@ -91,7 +91,7 @@ async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_aut
     let response: Value = serde_json::from_slice(&bytes)?;
     assert_eq!(
         response.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);

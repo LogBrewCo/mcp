@@ -146,7 +146,15 @@ impl Raw {
         let task = tokio::spawn(async move {
             while let Some(exchange) = receiver.recv().await {
                 let deadline = match &exchange.plan {
-                    Plan::Http { .. } | Plan::Http2 { .. } => Duration::from_secs(3),
+                    Plan::Http {
+                        path: _,
+                        headers: _,
+                        body: _,
+                    }
+                    | Plan::Http2 {
+                        headers: _,
+                        body: _,
+                    } => Duration::from_secs(3),
                     Plan::StalledTls(_) => Duration::from_secs(12),
                 };
                 let acceptor = acceptor.clone();
@@ -182,7 +190,9 @@ impl Raw {
         headers: Vec<u8>,
         body: Option<Vec<u8>>,
     ) -> TestResult<oneshot::Receiver<TestResult<()>>> {
-        if headers.len() > 600 << 10 || body.as_ref().is_some_and(|body| body.len() > 64 << 10) {
+        if headers.len() > 600 << 10_i32
+            || body.as_ref().is_some_and(|body| body.len() > 64 << 10_i32)
+        {
             return Err(io::Error::other("response fixture exceeds bound").into());
         }
         let (done, receipt) = oneshot::channel();
@@ -224,8 +234,8 @@ impl Raw {
         body: Option<Vec<u8>>,
     ) -> TestResult<oneshot::Receiver<TestResult<()>>> {
         if headers.is_empty()
-            || headers.len() > 64 << 10
-            || body.as_ref().is_some_and(|body| body.len() > 64 << 10)
+            || headers.len() > 64 << 10_i32
+            || body.as_ref().is_some_and(|body| body.len() > 64 << 10_i32)
         {
             return Err(io::Error::other("HTTP/2 response fixture exceeds bound").into());
         }
@@ -295,7 +305,7 @@ async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
     let mut stream = None;
     let mut bounded_headers = false;
     let mut remaining: usize = 8192;
-    for _ in 0..64 {
+    for _ in 0_i32..64_i32 {
         let frame = peer.next().await?.ok_or("HTTP/2 request closed")?;
         match frame.kind {
             4 if frame.stream == 0 && frame.flags == 0 => {
@@ -313,6 +323,8 @@ async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
                     }
                 } else if stream != Some(frame.stream) {
                     return Err(io::Error::other("HTTP/2 request stream mismatch").into());
+                } else {
+                    // Continuation and data frames belong to the selected stream.
                 }
                 remaining = remaining
                     .checked_sub(frame.payload.len())
@@ -345,7 +357,7 @@ async fn http2_reply(
     let mut sent = 0;
     let mut kind = 1;
     while sent < headers.len() {
-        let size = if sent == 0 { 1024 } else { 16 << 10 };
+        let size = if sent == 0 { 1024 } else { 16 << 10_i32 };
         let end = sent.saturating_add(size).min(headers.len());
         let chunk = headers.get(sent..end).ok_or("invalid header chunk")?;
         peer.send(
@@ -374,7 +386,7 @@ async fn http2_reply(
         return Ok(());
     }
     // No DATA or END_STREAM: only header rejection can finish promptly.
-    for _ in 0..64 {
+    for _ in 0_i32..64_i32 {
         let Some(frame) = peer.next().await? else {
             return Ok(());
         };
@@ -405,7 +417,7 @@ async fn stalled_handshake(
     if content_type != 22
         || major != 3
         || !matches!(minor, 1..=3)
-        || !(1..=16 << 10).contains(&length)
+        || !(1..=16 << 10_i32).contains(&length)
     {
         return Err(io::Error::other("bounded TLS handshake record required").into());
     }

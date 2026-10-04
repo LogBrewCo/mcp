@@ -4,7 +4,7 @@ use std::{collections::BTreeMap, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 
 use crate::{Failure, INPUT_BYTES, OUTPUT_BYTES, error::Kind, json as strict_json};
 
@@ -81,11 +81,11 @@ impl Catalog {
             }
         }
         let definitions: Vec<&Operation> = entries.values().map(|entry| &entry.operation).collect();
-        let encoded = serde_json::to_vec(&json!({"operations":definitions,"format_version":1}))
+        let encoded = serde_json::to_vec(&json!({"operations":definitions,"format_version":1_u32}))
             .map_err(|_| Failure::from(Kind::Configuration))?;
         let mut digest = String::with_capacity(64);
         for byte in Sha256::digest(encoded) {
-            use std::fmt::Write;
+            use std::fmt::Write as _;
             write!(digest, "{byte:02x}").map_err(|_| Failure::from(Kind::Configuration))?;
         }
         Ok(Arc::new(Self { entries, digest }))

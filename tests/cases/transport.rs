@@ -63,7 +63,7 @@ async fn unsupported_versions_return_modern_negotiation_errors() {
         .await
         .expect("negotiation response");
     assert_eq!(status, StatusCode::BAD_REQUEST);
-    assert_eq!(response.pointer("/error/code"), Some(&json!(-32022)));
+    assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
     assert_eq!(
         response.pointer("/error/data/requested"),
         Some(&json!("1900-01-01"))
@@ -109,7 +109,7 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
             .await
             .expect("header validation");
         assert_eq!(status, StatusCode::BAD_REQUEST, "{name}: {value:?}");
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32020)));
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_020_i32)));
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
 }
@@ -121,7 +121,7 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
     let marker = "SYNTHETIC_REJECTED_PRIVATE_FIELD";
     let mut reflected = Vec::new();
     for id in [
-        json!(1),
+        json!(1_i32),
         json!("correlation"),
         serde_json::from_str("18446744073709551616")?,
     ] {
@@ -136,7 +136,7 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
             );
             let (status, error, bytes, _) = response(&fixture, request).await?;
             assert_eq!(status, StatusCode::BAD_REQUEST);
-            assert_eq!(error.pointer("/error/code"), Some(&json!(-32020)));
+            assert_eq!(error.pointer("/error/code"), Some(&json!(-32_020_i32)));
             assert_eq!(error.get("id"), Some(&id));
             if String::from_utf8_lossy(&bytes).contains(marker) {
                 reflected.push(name);
@@ -148,7 +148,7 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         result.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
     assert!(
@@ -177,7 +177,7 @@ async fn every_current_request_requires_complete_client_metadata() {
             .await
             .expect("metadata validation");
         assert_eq!(status, StatusCode::BAD_REQUEST, "{field}");
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32602)));
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_602_i32)));
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
 }
@@ -199,7 +199,7 @@ async fn optional_client_identity_is_not_required_for_authorized_execution() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         result.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
@@ -216,7 +216,7 @@ async fn unknown_methods_return_a_modern_error_without_extra_capabilities() {
     ));
     let (status, response, _, _) = response(&fixture, request).await.expect("unknown method");
     assert_eq!(status, StatusCode::NOT_FOUND);
-    assert_eq!(response.pointer("/error/code"), Some(&json!(-32601)));
+    assert_eq!(response.pointer("/error/code"), Some(&json!(-32_601_i32)));
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
 }
 
@@ -378,7 +378,7 @@ async fn encoded_tool_names_are_decoded_before_matching_the_body() {
         let (status, value, _, _) = response(&fixture, request).await.expect("encoded header");
         assert_eq!(status, expected, "{name}");
         if status.is_client_error() {
-            assert_eq!(value.pointer("/error/code"), Some(&json!(-32020)));
+            assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
         }
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
@@ -389,8 +389,8 @@ async fn malformed_message_shapes_never_reach_execution_or_echo_private_values()
     let fixture = Fixture::new().await.expect("fixture");
     for value in [
         json!([body()]),
-        json!({"jsonrpc":"2.0","id":1,"result":{"private":"SYNTHETIC_PRIVATE_MARKER"}}),
-        json!({"jsonrpc":"2.0","id":1,"error":{"code":-32603,"message":"SYNTHETIC_PRIVATE_MARKER"}}),
+        json!({"jsonrpc":"2.0","id":1_i32,"result":{"private":"SYNTHETIC_PRIVATE_MARKER"}}),
+        json!({"jsonrpc":"2.0","id":1_i32,"error":{"code":-32_603_i32,"message":"SYNTHETIC_PRIVATE_MARKER"}}),
         json!("SYNTHETIC_PRIVATE_MARKER"),
         {
             let mut value = body();
@@ -399,7 +399,7 @@ async fn malformed_message_shapes_never_reach_execution_or_echo_private_values()
         },
         {
             let mut value = body();
-            *value.get_mut("id").expect("id") = json!(1.5);
+            *value.get_mut("id").expect("id") = json!(1.5_f64);
             value
         },
     ] {
@@ -461,7 +461,7 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
         assert_eq!(status, StatusCode::OK, "{content_type}");
         assert_eq!(
             result.pointer("/result/structuredContent/data/count"),
-            Some(&json!(3))
+            Some(&json!(3_i32))
         );
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 7);

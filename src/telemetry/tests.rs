@@ -38,7 +38,7 @@ fn latency_buckets_bound_zero_power_edges_and_the_full_integer_range() {
         (3, 4),
         (4, 4),
         (5, 8),
-        (1 << 63, 1 << 63),
+        (1 << 63_i32, 1 << 63_i32),
         (u64::MAX, u64::MAX),
     ] {
         let mut stats = Stats::EMPTY;

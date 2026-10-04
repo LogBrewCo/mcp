@@ -40,7 +40,10 @@ async fn configuration_check_leaves_the_running_service_and_upstreams_untouched(
     let mut running = Process::start(&fixture.config).expect("running server");
     fixture.ready(&mut running).await.expect("service ready");
     let mut preflight = check(&fixture.config).expect("offline check");
-    assert_eq!(preflight.wait().await.expect("check exits").code(), Some(0));
+    assert_eq!(
+        preflight.wait().await.expect("check exits").code(),
+        Some(0_i32)
+    );
     fixture
         .ready(&mut running)
         .await
@@ -91,7 +94,7 @@ async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
         let mut process = check(&fixture.config).expect("native executable");
         assert_eq!(
             process.wait().await.expect("bounded private exit").code(),
-            Some(1),
+            Some(1_i32),
             "invalid {invalid} must fail the configuration check"
         );
         drop(TcpListener::bind(fixture.address).expect("invalid check did not bind"));
@@ -117,7 +120,7 @@ async fn configuration_check_requires_one_path_and_rejects_extra_arguments() {
             .expect("native executable");
         assert_eq!(
             process.wait().await.expect("argument failure").code(),
-            Some(1)
+            Some(1_i32)
         );
         drop(TcpListener::bind(fixture.address).expect("invalid arguments did not bind"));
     }

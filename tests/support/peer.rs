@@ -77,7 +77,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
         flags: u8,
         payload: &[u8],
     ) -> TestResult<()> {
-        if payload.len() > 16 << 10 || stream > 0x7fff_ffff {
+        if payload.len() > 16 << 10_i32 || stream > 0x7fff_ffff {
             return Err(io::Error::other("frame exceeds test bound").into());
         }
         let [_, high, middle, low] = u32::try_from(payload.len())?.to_be_bytes();
@@ -110,8 +110,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
             Err(error) => return Err(error.into()),
         }
         let [high, middle, low, kind, flags, a, b, c, d] = header;
-        let length = usize::from(high) << 16 | usize::from(middle) << 8 | usize::from(low);
-        if length > 16 << 10 {
+        let length =
+            (usize::from(high) << 16_i32) | (usize::from(middle) << 8_i32) | usize::from(low);
+        if length > 16 << 10_i32 {
             return Err(io::Error::other("received frame exceeds test bound").into());
         }
         let mut payload = vec![0; length];
@@ -126,7 +127,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
 
     pub async fn probe(&mut self) -> TestResult<()> {
         self.send(0, 6, 0, b"TESTPING").await?;
-        for _ in 0..16 {
+        for _ in 0_i32..16_i32 {
             let frame = self
                 .next()
                 .await?

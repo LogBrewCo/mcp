@@ -194,7 +194,12 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
     let mut claims = fixture.authority().expect("valid claims");
     *claims.get_mut("scope").expect("scope") = json!("other:scope");
     for (field, value, expected, body) in [
-        ("exp", json!(0), StatusCode::UNAUTHORIZED, "unauthorized"),
+        (
+            "exp",
+            json!(0_i32),
+            StatusCode::UNAUTHORIZED,
+            "unauthorized",
+        ),
         (
             "iss",
             json!("https://foreign.example"),

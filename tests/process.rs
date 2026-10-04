@@ -17,7 +17,7 @@ use std::{
     fs,
     io::Read as _,
     net::{SocketAddr, TcpListener},
-    os::unix::fs::PermissionsExt,
+    os::unix::fs::{DirBuilderExt as _, PermissionsExt as _},
     path::{Path, PathBuf},
     process::{Child, Command, ExitStatus, Stdio},
     sync::atomic::{AtomicUsize, Ordering},
@@ -26,7 +26,7 @@ use std::{
 
 use rustix::process::{Pid, Signal, kill_process};
 use serde_json::json;
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 use tokio::{
     io::{AsyncReadExt as _, AsyncWriteExt as _},
     time::{Instant, sleep, timeout},
@@ -44,8 +44,7 @@ impl Directory {
             std::process::id(),
             NEXT.fetch_add(1, Ordering::SeqCst)
         ));
-        fs::create_dir(&path)?;
-        fs::set_permissions(&path, fs::Permissions::from_mode(0o700))?;
+        fs::DirBuilder::new().mode(0o700).create(&path)?;
         Ok(Self(path))
     }
 
@@ -84,7 +83,7 @@ impl Fixture {
         )?;
         let secret = directory.write("secret", b"SYNTHETIC_MACHINE_SECRET", 0o600)?;
         let clients = directory.write("clients.json", br#"{"version":"1","clients":[]}"#, 0o600)?;
-        let catalog = serde_json::to_vec(&json!({"format_version":1,"operations":[{
+        let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
             "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read",
                 "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
             "input_schema":{"type":"object","additionalProperties":false},
@@ -340,7 +339,7 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
     let mut process = Process::start(&invalid).expect("native executable");
     assert_eq!(
         process.wait().await.expect("configuration exit").code(),
-        Some(1)
+        Some(1_i32)
     );
     let other =
         rcgen::generate_simple_self_signed(vec!["localhost".to_owned()]).expect("different key");
@@ -355,7 +354,7 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
             .expect("mismatched key"),
     );
     let mut process = Process::start(&fixture.config).expect("native executable");
-    assert_eq!(process.wait().await.expect("TLS exit").code(), Some(1));
+    assert_eq!(process.wait().await.expect("TLS exit").code(), Some(1_i32));
     drop(TcpListener::bind(fixture.address).expect("no listener on invalid startup"));
 }
 
@@ -381,7 +380,7 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
         let mut process = Process::start(&fixture.config).expect("native executable");
         assert_eq!(
             process.wait().await.expect("bounded private exit").code(),
-            Some(1)
+            Some(1_i32)
         );
         drop(TcpListener::bind(fixture.address).expect("invalid policy did not bind"));
     }
@@ -389,7 +388,7 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
     let mut process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(
         process.wait().await.expect("missing policy exit").code(),
-        Some(1)
+        Some(1_i32)
     );
     let target = fixture
         .directory
@@ -404,7 +403,7 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
     let mut process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(
         process.wait().await.expect("symlink rejection").code(),
-        Some(1)
+        Some(1_i32)
     );
     drop(TcpListener::bind(fixture.address).expect("no listener on symlink policy"));
     fs::remove_file(fixture.directory.0.join("clients.json")).expect("remove disposable symlink");
@@ -428,7 +427,7 @@ async fn connections_above_capacity_are_closed_before_tls_and_capacity_recovers(
     fixture.ready(&mut process).await.expect("readiness");
     sleep(Duration::from_millis(50)).await;
     let mut peers = Vec::new();
-    for _ in 0..64 {
+    for _ in 0_i32..64_i32 {
         peers.push(
             tokio::net::TcpStream::connect(fixture.address)
                 .await
@@ -466,7 +465,7 @@ async fn valid_configuration_does_not_replace_an_existing_listener() {
     let mut process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(
         process.wait().await.expect("bind failure exit").code(),
-        Some(1)
+        Some(1_i32)
     );
     assert_eq!(
         existing.local_addr().expect("original listener preserved"),

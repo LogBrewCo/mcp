@@ -70,10 +70,10 @@ impl HttpBody for AdmittedBody {
 
     fn poll_frame(
         self: Pin<&mut Self>,
-        context: &mut Context<'_>,
+        cx: &mut Context<'_>,
     ) -> Poll<Option<Result<Frame<Self::Data>, Self::Error>>> {
         let this = self.get_mut();
-        Pin::new(&mut this.inner).poll_frame(context).map(|frame| {
+        Pin::new(&mut this.inner).poll_frame(cx).map(|frame| {
             frame.map(|frame| {
                 frame.map(|frame| {
                     frame.map_data(|inner| {

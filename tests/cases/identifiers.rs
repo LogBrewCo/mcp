@@ -77,7 +77,7 @@ async fn succeeds(fixture: &Fixture, raw: &str, method: &str) -> TestResult<()> 
     if method == "tools/call" {
         assert_eq!(
             response.pointer("/result/structuredContent/data/count"),
-            Some(&json!(3))
+            Some(&json!(3_i32))
         );
     }
     Ok(())
@@ -94,7 +94,7 @@ async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestR
         "9223372036854775807",
         r#""-1""#,
         r#""""#,
-        r#""client-λ""#,
+        "\"client-\u{3bb}\"",
     ] {
         succeeds(&fixture, raw, "tools/call").await?;
     }
@@ -162,12 +162,12 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
         );
         let (status, response) = reply(&fixture, call).await?;
         assert_eq!(status, StatusCode::BAD_REQUEST);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32022)));
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
         assert_eq!(response.get("id"), body.get("id"));
         let body = payload(raw, "unknown/method")?;
         let (status, response) = reply(&fixture, request(&body)?).await?;
         assert_eq!(status, StatusCode::NOT_FOUND);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32601)));
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_601_i32)));
         assert_eq!(response.get("id"), body.get("id"));
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
@@ -187,7 +187,7 @@ async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> T
         let body = payload(raw, "tools/call")?;
         let (status, response) = reply(&fixture, request(&body)?).await?;
         assert_eq!(status, StatusCode::BAD_REQUEST);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32600)));
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_600_i32)));
         assert!(response.get("id").is_none());
     }
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 5);
@@ -228,7 +228,7 @@ async fn wire_reply(
     assert_eq!(reply.get("id"), body.get("id"));
     assert_eq!(
         reply.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     Ok(())
 }
@@ -292,14 +292,14 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
 #[tokio::test]
 async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() -> TestResult<()> {
     let fixture = Fixture::new().await?;
-    let empty = json!({"blob":"","count":3}).to_string();
+    let empty = json!({"blob":"","count":3_i32}).to_string();
     for size in [logbrew_mcp::OUTPUT_BYTES, logbrew_mcp::OUTPUT_BYTES + 1] {
         let remaining = size - empty.len();
         let mut blob = "\"".repeat(remaining / 2);
         if remaining % 2 == 1 {
             blob.push('x');
         }
-        let body = json!({"blob":blob,"count":3}).to_string();
+        let body = json!({"blob":blob,"count":3_i32}).to_string();
         assert_eq!(body.len(), size);
         fixture.reply(StatusCode::OK, body, HeaderMap::new())?;
         let call = payload("18446744073709551616", "tools/call")?;

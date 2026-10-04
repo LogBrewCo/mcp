@@ -90,7 +90,7 @@ async fn responses(
         .map(|stream| (*stream, Response::default()))
         .collect();
     let mut pings = 0_usize;
-    for _ in 0..512 {
+    for _ in 0_i32..512_i32 {
         let frame = peer
             .next()
             .await?
@@ -183,7 +183,7 @@ async fn recovery(peer: &mut Peer, block: &[u8], stream: u32) -> TestResult<()> 
     assert_eq!(value.get("id"), Some(&json!("recovered")));
     assert_eq!(
         value.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     Ok(())
 }
@@ -269,7 +269,7 @@ async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
     let mut headers = BTreeSet::new();
     let mut resets = BTreeSet::new();
     let mut pings = 0_usize;
-    for _ in 0..512 {
+    for _ in 0_i32..512_i32 {
         let Some(frame) = peer.next().await? else {
             assert_eq!(headers.len(), 64);
             return Ok(pings);
@@ -439,7 +439,7 @@ async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_pi
             .await
             .expect("response stalls released request admission")
             .pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
@@ -467,15 +467,15 @@ async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadli
         .expect("complete initial response");
     let completed = Instant::now();
     timeout(Duration::from_secs(18), async {
-        let mut pings = 0;
-        for _ in 0..32 {
+        let mut pings = 0_i32;
+        for _ in 0_i32..32_i32 {
             let frame = peer.next().await?.ok_or("completed connection closed")?;
             match frame.kind {
                 6 if frame.stream == 0 && frame.flags == 0 => {
                     assert_eq!(frame.payload.len(), 8);
                     peer.send(0, 6, 1, &frame.payload).await?;
-                    pings += 1;
-                    if pings == 3 {
+                    pings += 1_i32;
+                    if pings == 3_i32 {
                         return Ok::<(), Box<dyn std::error::Error + Send + Sync>>(());
                     }
                 }

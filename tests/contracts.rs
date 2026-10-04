@@ -2,7 +2,7 @@
 
 use logbrew_mcp::{catalog::Catalog, json, startup::Config};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 
 fn artifact(schema: &Value) -> Vec<u8> {
     json!({"format_version":1,"operations":[{
@@ -29,7 +29,7 @@ fn decoded_duplicates_utf8_and_trailing_documents_are_rejected() {
             "strict parsing accepted invalid evidence"
         );
     }
-    assert!(json::object("{\"text\":\"İstanbul, �\"}".as_bytes(), 1024).is_ok());
+    drop(json::object("{\"text\":\"\u{130}stanbul, \u{fffd}\"}".as_bytes(), 1024).unwrap());
 }
 
 #[test]
@@ -62,18 +62,22 @@ fn ordinary_property_names_keep_their_schema_contracts_in_catalog_loading() {
         let bytes = serde_json::to_vec(&value).expect("encoded artifact");
         let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into())
             .expect("ordinary property contract");
+        catalog
+            .input("logs.read.v1", &json!({name:"preserved"}))
+            .unwrap();
         assert!(
             catalog
-                .input("logs.read.v1", &json!({name:"preserved"}))
-                .is_ok()
+                .input("logs.read.v1", &json!({name:123_i32}))
+                .is_err()
         );
-        assert!(catalog.input("logs.read.v1", &json!({name:123})).is_err());
+        catalog
+            .output("logs.read.v1", &json!({name:"preserved"}))
+            .unwrap();
         assert!(
             catalog
-                .output("logs.read.v1", &json!({name:"preserved"}))
-                .is_ok()
+                .output("logs.read.v1", &json!({name:123_i32}))
+                .is_err()
         );
-        assert!(catalog.output("logs.read.v1", &json!({name:123})).is_err());
         let exact = catalog
             .search(&json!({"operation":"logs.read.v1"}))
             .expect("contract");
@@ -85,10 +89,10 @@ fn ordinary_property_names_keep_their_schema_contracts_in_catalog_loading() {
 #[test]
 fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields() {
     let base = json::object(&artifact(&json!({"type":"object"})), 8 << 20).expect("artifact");
-    for case in 0..8 {
+    for case in 0_i32..8_i32 {
         let mut value = base.clone();
         match case {
-            0 => {
+            0_i32 => {
                 drop(
                     value
                         .as_object_mut()
@@ -96,16 +100,16 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
                         .insert("private".to_owned(), json!("SYNTHETIC_PRIVATE_MARKER")),
                 );
             }
-            1 => {
-                *value.get_mut("format_version").expect("version") = json!(1.5);
+            1_i32 => {
+                *value.get_mut("format_version").expect("version") = json!(1.5_f64);
             }
-            2 => {
+            2_i32 => {
                 *value.get_mut("operations").expect("operations") = json!([]);
             }
-            3 => {
+            3_i32 => {
                 *value.get_mut("operations").expect("operations") = json!({});
             }
-            4 => {
+            4_i32 => {
                 drop(
                     value
                         .pointer_mut("/operations/0")
@@ -114,7 +118,7 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
                         .remove("input_schema"),
                 );
             }
-            5 => {
+            5_i32 => {
                 drop(
                     value
                         .pointer_mut("/operations/0")
@@ -123,7 +127,7 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
                         .insert("extra".to_owned(), json!("SYNTHETIC_PRIVATE_MARKER")),
                 );
             }
-            6 => {
+            6_i32 => {
                 drop(
                     value
                         .pointer_mut("/operations/0/info")
@@ -156,7 +160,7 @@ fn authority_identifier_strings_keep_the_existing_root_url_form() {
         "https://issuer.example/",
         "https://service.example/execute",
     ] {
-        assert!(logbrew_mcp::upstream::canonical_https(value).is_ok());
+        drop(logbrew_mcp::upstream::canonical_https(value).unwrap());
     }
     for value in [
         "http://issuer.example/",
@@ -164,7 +168,7 @@ fn authority_identifier_strings_keep_the_existing_root_url_form() {
         "https://issuer.example/?token=synthetic",
         "https://issuer.example/#fragment",
     ] {
-        assert!(logbrew_mcp::upstream::canonical_https(value).is_err());
+        let _: logbrew_mcp::Failure = logbrew_mcp::upstream::canonical_https(value).unwrap_err();
     }
 }
 
@@ -180,15 +184,15 @@ fn exact_numbers_and_resource_limits_are_preserved() {
         value.get("decimal").expect("decimal").to_string(),
         "0.12345678901234567890123456789"
     );
-    assert!(json::object(bytes, bytes.len().saturating_sub(1)).is_err());
+    let _: logbrew_mcp::Failure = json::object(bytes, bytes.len().saturating_sub(1)).unwrap_err();
     for value in ["1e1025", "1e-1025", &"9".repeat(257)] {
         let data = format!("{{\"number\":{value}}}");
-        assert!(json::object(data.as_bytes(), 1024).is_err());
+        let _: logbrew_mcp::Failure = json::object(data.as_bytes(), 1024).unwrap_err();
     }
     let nested = format!("{}0{}", "{\"v\":".repeat(65), "}".repeat(65));
-    assert!(json::object(nested.as_bytes(), 1024).is_err());
+    let _: logbrew_mcp::Failure = json::object(nested.as_bytes(), 1024).unwrap_err();
     let nested = format!("{}0{}", "{\"v\":".repeat(64), "}".repeat(64));
-    assert!(json::object(nested.as_bytes(), 1024).is_ok());
+    drop(json::object(nested.as_bytes(), 1024).unwrap());
 }
 
 #[test]
@@ -199,11 +203,9 @@ fn catalog_integrity_schema_isolation_and_format_assertions_are_required() {
     let digest: [u8; 32] = Sha256::digest(&bytes).into();
     let catalog = Catalog::load(&bytes, &digest).expect("trusted catalog");
     assert!(Catalog::load(&bytes, &[0; 32]).is_err());
-    assert!(
-        catalog
-            .input("logs.read.v1", &json!({"email":"reader@example.com"}))
-            .is_ok()
-    );
+    catalog
+        .input("logs.read.v1", &json!({"email":"reader@example.com"}))
+        .unwrap();
     assert!(
         catalog
             .input("logs.read.v1", &json!({"email":"broken"}))
@@ -224,7 +226,7 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
     let bytes = artifact(&json!({"type":"object"}));
     let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("catalog");
     let page = catalog
-        .search(&json!({"query":"selected logs","limit":1}))
+        .search(&json!({"query":"selected logs","limit":1_i32}))
         .expect("search");
     let entry = page
         .get("operations")
@@ -239,11 +241,11 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
     assert!(exact.get("input_schema").is_some());
     for input in [
         json!({"operation":"logs.read.v1","query":""}),
-        json!({"query":"","limit":0}),
+        json!({"query":"","limit":0_i32}),
         json!({"query":"","after":"unknown.read.v1"}),
         json!({"query":"","token":"synthetic"}),
     ] {
-        assert!(catalog.search(&input).is_err());
+        let _: logbrew_mcp::Failure = catalog.search(&input).unwrap_err();
     }
 }
 
@@ -257,20 +259,22 @@ fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
         "catalog_sha256":"00".repeat(32),"certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"});
     let bytes = serde_json::to_vec(&fields).expect("configuration");
     let config = Config::decode(&bytes).expect("secret references only");
-    assert!(config.address_digest().is_ok());
+    let _: (std::net::SocketAddr, [u8; 32]) = config.address_digest().unwrap();
     assert!(!format!("{config:?}").contains("synthetic"));
     assert!(config.client_allowlist_file.is_none());
     let mut policy = fields.clone();
     *policy.get_mut("version").expect("version") = json!("2");
-    assert!(Config::decode(&serde_json::to_vec(&policy).expect("version 2")).is_err());
-    for reference in [json!(""), json!(null), json!([]), json!(42)] {
+    let _: logbrew_mcp::Failure =
+        Config::decode(&serde_json::to_vec(&policy).expect("version 2")).unwrap_err();
+    for reference in [json!(""), json!(null), json!([]), json!(42_i32)] {
         drop(
             policy
                 .as_object_mut()
                 .expect("configuration")
                 .insert("client_allowlist_file".to_owned(), reference),
         );
-        assert!(Config::decode(&serde_json::to_vec(&policy).expect("invalid reference")).is_err());
+        let _: logbrew_mcp::Failure =
+            Config::decode(&serde_json::to_vec(&policy).expect("invalid reference")).unwrap_err();
     }
     *policy.get_mut("client_allowlist_file").expect("reference") = json!("/synthetic/clients.json");
     let bytes = serde_json::to_vec(&policy).expect("policy reference");
@@ -282,14 +286,17 @@ fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
         Some("/synthetic/clients.json")
     );
     *policy.get_mut("version").expect("version") = json!("1");
-    assert!(Config::decode(&serde_json::to_vec(&policy).expect("additive policy")).is_ok());
+    drop(Config::decode(&serde_json::to_vec(&policy).expect("additive policy")).unwrap());
     *policy.get_mut("version").expect("version") = json!("3");
-    assert!(Config::decode(&serde_json::to_vec(&policy).expect("unsupported version")).is_err());
+    let _: logbrew_mcp::Failure =
+        Config::decode(&serde_json::to_vec(&policy).expect("unsupported version")).unwrap_err();
     let mut inline = fields;
     drop(inline.as_object_mut().expect("object").insert(
         "client_secret".to_owned(),
         json!("SYNTHETIC_PRIVATE_MARKER"),
     ));
-    assert!(Config::decode(&serde_json::to_vec(&inline).expect("inline field")).is_err());
-    assert!(Config::decode(b"{\"version\":\"1\",\"version\":\"1\"}").is_err());
+    let _: logbrew_mcp::Failure =
+        Config::decode(&serde_json::to_vec(&inline).expect("inline field")).unwrap_err();
+    let _: logbrew_mcp::Failure =
+        Config::decode(b"{\"version\":\"1\",\"version\":\"1\"}").unwrap_err();
 }

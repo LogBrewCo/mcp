@@ -84,8 +84,8 @@ impl Principal {
 }
 
 impl fmt::Debug for Principal {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("verified principal [redacted]")
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("verified principal [redacted]")
     }
 }
 
@@ -110,8 +110,8 @@ impl MachineCredential {
 }
 
 impl fmt::Debug for MachineCredential {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("machine credential [redacted]")
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("machine credential [redacted]")
     }
 }
 
@@ -436,9 +436,10 @@ fn bounded_headers(response: &Response) -> bool {
         .headers()
         .iter()
         .try_fold(0_usize, |size, (key, value)| {
-            size.checked_add(key.as_str().len())?
-                .checked_add(value.len())
-                .and_then(|size| size.checked_add(4))
+            let size = size
+                .checked_add(key.as_str().len())?
+                .checked_add(value.len())?;
+            size.checked_add(4)
         });
     header_bytes.is_some_and(|size| size <= HEADER_BYTES)
 }

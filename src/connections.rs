@@ -64,13 +64,13 @@ where
     type Error = S::Error;
     type Future = S::Future;
 
-    fn poll_ready(&mut self, context: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.poll_ready(context)
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        self.inner.poll_ready(cx)
     }
 
-    fn call(&mut self, mut request: Request<B>) -> Self::Future {
-        drop(request.extensions_mut().insert(self.connection.clone()));
-        self.inner.call(request)
+    fn call(&mut self, mut req: Request<B>) -> Self::Future {
+        drop(req.extensions_mut().insert(self.connection.clone()));
+        self.inner.call(req)
     }
 }
 
@@ -131,29 +131,29 @@ where
 impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
     fn poll_read(
         mut self: Pin<&mut Self>,
-        context: &mut Context<'_>,
-        buffer: &mut ReadBuf<'_>,
+        cx: &mut Context<'_>,
+        buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
-        self.as_mut().get_mut().check_delivery(context)?;
+        self.as_mut().get_mut().check_delivery(cx)?;
         let Self { inner, prefix, .. } = self.get_mut();
-        if buffer.remaining() == 0 {
+        if buf.remaining() == 0 {
             return Poll::Ready(Ok(()));
         }
         if prefix
             .as_mut()
-            .is_some_and(|prefix| prefix.timer.as_mut().poll(context).is_ready())
+            .is_some_and(|prefix| prefix.timer.as_mut().poll(cx).is_ready())
         {
             return Poll::Ready(Err(io::Error::new(
                 io::ErrorKind::TimedOut,
                 "protocol detection deadline exceeded",
             )));
         }
-        let filled = buffer.filled().len();
-        let result = Pin::new(inner).poll_read(context, buffer);
+        let filled = buf.filled().len();
+        let result = Pin::new(inner).poll_read(cx, buf);
         if matches!(result, Poll::Ready(Ok(())))
             && let Some(pending) = prefix.as_mut()
         {
-            for byte in buffer.filled().get(filled..).unwrap_or_default() {
+            for byte in buf.filled().get(filled..).unwrap_or_default() {
                 // A mismatch selects HTTP/1; the full preface selects HTTP/2.
                 // Neither path keeps this deadline during authenticated work.
                 if HTTP2_PREFACE.get(pending.matched) != Some(byte) {
@@ -180,22 +180,22 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
 impl<S: AsyncWrite + Unpin> AsyncWrite for LimitedStream<S> {
     fn poll_write(
         self: Pin<&mut Self>,
-        context: &mut Context<'_>,
-        buffer: &[u8],
+        cx: &mut Context<'_>,
+        buf: &[u8],
     ) -> Poll<io::Result<usize>> {
         let this = self.get_mut();
-        this.check_delivery(context)?;
-        Pin::new(&mut this.inner).poll_write(context, buffer)
+        this.check_delivery(cx)?;
+        Pin::new(&mut this.inner).poll_write(cx, buf)
     }
 
-    fn poll_flush(self: Pin<&mut Self>, context: &mut Context<'_>) -> Poll<io::Result<()>> {
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         let this = self.get_mut();
-        this.check_delivery(context)?;
-        Pin::new(&mut this.inner).poll_flush(context)
+        this.check_delivery(cx)?;
+        Pin::new(&mut this.inner).poll_flush(cx)
     }
 
-    fn poll_shutdown(self: Pin<&mut Self>, context: &mut Context<'_>) -> Poll<io::Result<()>> {
-        Pin::new(&mut self.get_mut().inner).poll_shutdown(context)
+    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        Pin::new(&mut self.get_mut().inner).poll_shutdown(cx)
     }
 
     fn is_write_vectored(&self) -> bool {
@@ -204,11 +204,11 @@ impl<S: AsyncWrite + Unpin> AsyncWrite for LimitedStream<S> {
 
     fn poll_write_vectored(
         self: Pin<&mut Self>,
-        context: &mut Context<'_>,
-        buffers: &[IoSlice<'_>],
+        cx: &mut Context<'_>,
+        bufs: &[IoSlice<'_>],
     ) -> Poll<io::Result<usize>> {
         let this = self.get_mut();
-        this.check_delivery(context)?;
-        Pin::new(&mut this.inner).poll_write_vectored(context, buffers)
+        this.check_delivery(cx)?;
+        Pin::new(&mut this.inner).poll_write_vectored(cx, bufs)
     }
 }

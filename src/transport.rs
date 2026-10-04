@@ -3,7 +3,7 @@
 use axum::{
     Json,
     http::{HeaderMap, HeaderValue, StatusCode, header},
-    response::{IntoResponse, Response},
+    response::{IntoResponse as _, Response},
 };
 use serde_json::{Value, json};
 

@@ -52,7 +52,7 @@ async fn check(fixture: &Fixture, request: Request<Body>, expected: StatusCode) 
         let body: Value = serde_json::from_slice(&bytes)?;
         assert_eq!(
             body.pointer("/result/structuredContent/data/count"),
-            Some(&json!(3))
+            Some(&json!(3_i32))
         );
     }
     Ok(())

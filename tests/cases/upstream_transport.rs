@@ -40,7 +40,7 @@ async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
         let value = upstream
             .execute(&principal, TOKEN, "logs.read.v1", &json!({}))
             .await?;
-        assert_eq!(value, json!({"count":3}));
+        assert_eq!(value, json!({"count":3_i32}));
     } else {
         let principal = upstream.verify(TOKEN).await?;
         assert_eq!(principal.credential_id, "synthetic-credential");
@@ -71,7 +71,7 @@ async fn exercise(execute: bool) -> TestResult<()> {
 
     // Exactly 100 fields remain valid below the aggregate header byte limit.
     let control = headers(200, body.len(), 100, 14_000)?;
-    assert!(control.len() > 15_000 && control.len() < 16 << 10);
+    assert!(control.len() > 15_000 && control.len() < 16 << 10_i32);
     let done = raw.queue(path, control, Some(body.clone())).await?;
     timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
     timeout(Duration::from_secs(2), done).await???;
@@ -194,7 +194,7 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
             field
                 .checked_mul(repetitions)
                 .and_then(|size| fixed.checked_add(size))
-                .is_some_and(|size| size > 16 << 10)
+                .is_some_and(|size| size > 16 << 10_i32)
         );
         assert!(block.len() < 2048);
     }

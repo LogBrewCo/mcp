@@ -2,13 +2,13 @@
 
 use std::{
     fs::{self, File},
-    io::Read,
+    io::Read as _,
     net::SocketAddr,
-    os::unix::fs::MetadataExt,
+    os::unix::fs::MetadataExt as _,
     path::Path,
 };
 
-use rustls::pki_types::pem::PemObject;
+use rustls::pki_types::pem::PemObject as _;
 use serde::Deserialize;
 use zeroize::Zeroizing;
 
@@ -62,8 +62,8 @@ pub struct Config {
 }
 
 impl std::fmt::Debug for Config {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("startup configuration [redacted]")
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("startup configuration [redacted]")
     }
 }
 

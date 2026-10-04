@@ -19,7 +19,7 @@ fn catalog(ids: &[String]) -> std::sync::Arc<Catalog> {
             })
         })
         .collect();
-    let bytes = serde_json::to_vec(&json!({"format_version":1,"operations":operations}))
+    let bytes = serde_json::to_vec(&json!({"format_version":1_i32,"operations":operations}))
         .expect("controlled catalog JSON");
     Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("verified catalog")
 }
@@ -53,11 +53,13 @@ fn labels_are_frozen_to_the_verified_bounded_inventory() {
             .operations
             .is_none()
     );
-    let ids: Vec<_> = (0..256).map(|n| format!("logs.read{n}.v1")).collect();
+    let ids: Vec<_> = (0_i32..256_i32)
+        .map(|n| format!("logs.read{n}.v1"))
+        .collect();
     let catalog = catalog(&ids);
     telemetry.register_catalog(&catalog);
     let measurement = telemetry.begin(Stage::Execute);
-    for n in 0..2048 {
+    for n in 0_i32..2_048_i32 {
         assert!(
             measurement
                 .operation(&format!("SYNTHETIC_PRIVATE_{n}"))
@@ -105,7 +107,7 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
         .get_mut(*inventory.slots.get("logs.fast.v1").expect("fast slot"))
         .expect("fast counts");
     fast.started = 100;
-    for _ in 0..100 {
+    for _ in 0_i32..100_i32 {
         fast.finish(Outcome::Completed, Some(100));
     }
     let slow = stats
@@ -131,7 +133,7 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
     );
     let mut aggregate = Stats::EMPTY;
     aggregate.started = 101;
-    for _ in 0..100 {
+    for _ in 0_i32..100_i32 {
         aggregate.finish(Outcome::Completed, Some(100));
     }
     aggregate.finish(Outcome::InvalidOutput, Some(1_000_000));

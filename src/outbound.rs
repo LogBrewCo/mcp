@@ -44,8 +44,8 @@ impl Service<Uri> for ConnectDeadline {
         self.0.poll_ready(cx)
     }
 
-    fn call(&mut self, uri: Uri) -> Self::Future {
-        let connecting = self.0.call(uri);
+    fn call(&mut self, req: Uri) -> Self::Future {
+        let connecting = self.0.call(req);
         Box::pin(async move { tokio::time::timeout(Duration::from_secs(5), connecting).await? })
     }
 }
@@ -57,7 +57,7 @@ pub struct Outbound {
 impl Outbound {
     pub(super) fn new(certificate: Option<CertificateDer<'static>>) -> Result<Self, Failure> {
         if certificate.as_ref().is_some_and(|certificate| {
-            certificate.as_ref().is_empty() || certificate.as_ref().len() > 256 << 10
+            certificate.as_ref().is_empty() || certificate.as_ref().len() > 256 << 10_u32
         }) {
             return Err(Kind::Configuration.into());
         }

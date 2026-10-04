@@ -116,7 +116,7 @@ async fn request_with_token(
         .header("MCP-Protocol-Version", "2026-07-28")
         .header("Mcp-Method", method)
         .header("Mcp-Name", name)
-        .json(&json!({"jsonrpc":"2.0","id":1,"method":method,"params":params}))
+        .json(&json!({"jsonrpc":"2.0","id":1_i32,"method":method,"params":params}))
         .send()
         .await?;
     assert_eq!(
@@ -234,7 +234,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
             .map(Vec::len),
         Some(2)
     );
-    let search = json!({"name":"search","arguments":{"query":"logs","limit":1}});
+    let search = json!({"name":"search","arguments":{"query":"logs","limit":1_i32}});
     let (status, reply) = request(&http, &resource, "tools/call", search, http2).await?;
     assert_eq!(status, reqwest::StatusCode::OK);
     assert_eq!(
@@ -251,7 +251,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
             assert_eq!(status, reqwest::StatusCode::OK);
             assert_eq!(
                 envelope(&reply, None)?.pointer("/data/count"),
-                Some(&json!(3))
+                Some(&json!(3_i32))
             );
         } else {
             assert_eq!(status, reqwest::StatusCode::UNAUTHORIZED);

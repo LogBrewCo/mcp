@@ -77,7 +77,7 @@ fn a_request_scoped_sdk_parse_error_can_recover_its_missing_id() -> TestResult<(
     .ok_or_else(|| io::Error::other("SDK error rejected"))?;
     let reply: Value = serde_json::from_slice(&bytes)?;
     assert_eq!(reply.get("id"), Some(&id));
-    assert_eq!(reply.pointer("/error/code"), Some(&json!(-32600)));
+    assert_eq!(reply.pointer("/error/code"), Some(&json!(-32_600_i32)));
     Ok(())
 }
 
@@ -177,7 +177,7 @@ async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> T
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
         let reply: Value = serde_json::from_slice(&bytes)?;
         assert_eq!(reply.get("id"), Some(&id));
-        assert_eq!(reply.pointer("/error/code"), Some(&json!(-32603)));
+        assert_eq!(reply.pointer("/error/code"), Some(&json!(-32_603_i32)));
         assert!(dropped.load(Ordering::SeqCst));
     }
     Ok(())
@@ -191,14 +191,12 @@ async fn cancelling_restoration_drops_the_pending_body() -> TestResult<()> {
         pending: true,
         dropped: Arc::clone(&dropped),
     });
-    assert!(
-        timeout(
-            Duration::from_millis(20),
-            restore_id(Some(NumericId(original()?)), response(body)?)
-        )
-        .await
-        .is_err()
-    );
+    let _: tokio::time::error::Elapsed = timeout(
+        Duration::from_millis(20),
+        restore_id(Some(NumericId(original()?)), response(body)?),
+    )
+    .await
+    .unwrap_err();
     assert!(dropped.load(Ordering::SeqCst));
     Ok(())
 }

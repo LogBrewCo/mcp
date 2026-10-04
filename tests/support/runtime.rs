@@ -128,7 +128,7 @@ impl Running {
             .header("Mcp-Method", "tools/call")
             .header("Mcp-Name", "execute")
             .json(
-                &json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{
+                &json!({"jsonrpc":"2.0","id":1_i32,"method":"tools/call","params":{
                 "name":"execute","arguments":{"operation":"logs.read.v1","input":{}},"_meta":{
                     "io.modelcontextprotocol/protocolVersion":"2026-07-28",
                     "io.modelcontextprotocol/clientInfo":{"name":"synthetic","version":"1"},

@@ -224,5 +224,5 @@ async fn execute(
     assert_eq!(input.pointer("/request/input"), Some(&json!({})));
     assert!(observed.executes.fetch_add(1, Ordering::SeqCst) < 4);
     let _active = observed.enter(PendingStage::Execution).await;
-    Ok(axum::Json(json!({"count":3})))
+    Ok(axum::Json(json!({"count":3_i32})))
 }

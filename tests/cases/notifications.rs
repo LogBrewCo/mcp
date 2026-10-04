@@ -83,7 +83,7 @@ async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<
     assert_eq!(value.get("id"), Some(&json!(id)));
     assert_eq!(
         value.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
     assert_eq!(
@@ -99,7 +99,7 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
         Some(Value::Null),
         Some(json!(true)),
         Some(json!(false)),
-        Some(json!(1.5)),
+        Some(json!(1.5_f64)),
         Some(json!([])),
         Some(json!({})),
     ];
@@ -120,7 +120,7 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
             assert!(bytes.is_empty());
         } else {
             let error: Value = serde_json::from_slice(&bytes)?;
-            assert_eq!(error.pointer("/error/code"), Some(&json!(-32600)));
+            assert_eq!(error.pointer("/error/code"), Some(&json!(-32_600_i32)));
             assert!(error.get("id").is_none());
         }
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));

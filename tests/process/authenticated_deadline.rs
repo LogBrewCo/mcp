@@ -51,7 +51,7 @@ async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
     assert_eq!(status, reqwest::StatusCode::OK);
     assert_eq!(
         envelope(&reply, None)?.pointer("/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 2);
     assert_eq!(

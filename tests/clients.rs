@@ -22,25 +22,25 @@ fn client_policy_rejects_invalid_and_ambiguous_documents() {
         b"{\"version\":\"1\",\"clients\":[\"invalid,client\"]}",
         b"{\"version\":\"1\",\"clients\":[\"client\\n\"]}",
         b"{\"version\":\"1\",\"clients\":[\"client\",\"client\"]}",
-        b"{\"version\":\"1\",\"clients\":[\"client\",\"clien\\u0074\"]}",
+        b"{\"version\":\"1\",\"clients\":[\"client\",\"\\u0063\\u006c\\u0069\\u0065\\u006e\\u0074\"]}",
         b"{\"version\":\"1\",\"clients\":[],\"clients\":[]}",
         b"{\"version\":\"1\",\"clients\":[],\"mode\":\"allow_all\"}",
         b"{\"version\":\"1\",\"clients\":[]} trailing",
     ] {
-        assert!(ClientAllowlist::decode(document).is_err());
+        let _: logbrew_mcp::Failure = ClientAllowlist::decode(document).unwrap_err();
     }
 }
 
 #[test]
 fn client_policy_has_exact_entry_id_and_document_bounds() {
     let encode = |clients| serde_json::to_vec(&json!({"version":"1","clients":clients}));
-    for count in [0, 1, 64, 65] {
-        let clients: Vec<_> = (0..count)
+    for count in [0_i32, 1_i32, 64_i32, 65_i32] {
+        let clients: Vec<_> = (0_i32..count)
             .map(|n| format!("synthetic-client-{n}"))
             .collect();
         assert_eq!(
             ClientAllowlist::decode(&encode(clients).expect("policy")).is_ok(),
-            count <= 64
+            count <= 64_i32
         );
     }
     for length in [2048, 2049] {
@@ -55,7 +55,7 @@ fn client_policy_has_exact_entry_id_and_document_bounds() {
     let policy = ClientAllowlist::decode(&bytes).expect("exact document limit");
     assert!(!format!("{policy:?}").contains("client.example"));
     bytes.push(b' ');
-    assert!(ClientAllowlist::decode(&bytes).is_err());
+    let _: logbrew_mcp::Failure = ClientAllowlist::decode(&bytes).unwrap_err();
 }
 
 #[tokio::test]

@@ -26,8 +26,8 @@ use logbrew_mcp::{
 };
 use rustls::pki_types::{CertificateDer, pem::PemObject as _};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
-use tower::ServiceExt;
+use sha2::{Digest as _, Sha256};
+use tower::ServiceExt as _;
 use zeroize::Zeroizing;
 
 pub const RESOURCE: &str = "https://resource.example/mcp";
@@ -220,7 +220,7 @@ impl Fixture {
         }
         let artifact = match artifact {
             Some(artifact) => artifact,
-            None => serde_json::to_vec(&json!({"format_version":1,"operations":[{
+            None => serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
                 "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read","documentation":"https://docs.example/logs",
                     "stability":"stable","cost":"one read","safety":"read_only"},
                 "input_schema":{"type":"object","additionalProperties":false,
@@ -447,7 +447,7 @@ async fn execute(
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .clone();
     Ok(reply.map_or_else(
-        || axum::Json(json!({"count":3})).into_response(),
+        || axum::Json(json!({"count":3_i32})).into_response(),
         Reply::into_response,
     ))
 }

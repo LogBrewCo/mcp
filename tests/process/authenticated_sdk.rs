@@ -112,7 +112,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
     assert_eq!(names, ["search", "execute"]);
     let search = connected
         .sdk
-        .call_tool(tool("search", json!({"query":"logs","limit":1}))?)
+        .call_tool(tool("search", json!({"query":"logs","limit":1_i32}))?)
         .await?;
     assert_eq!(
         result(&search, None)?.pointer("/data/operations/0/id"),
@@ -122,7 +122,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let reply = connected.sdk.call_tool(execution.clone()).await?;
     assert_eq!(
         result(&reply, None)?.pointer("/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     let rejected = connected
         .sdk
@@ -137,7 +137,12 @@ async fn contracts(http2: bool) -> TestResult<()> {
         .observations
         .active
         .store(false, Ordering::SeqCst);
-    assert!(connected.sdk.call_tool(execution.clone()).await.is_err());
+    let _rejected = connected
+        .sdk
+        .call_tool(execution.clone())
+        .await
+        .err()
+        .ok_or("revoked credential unexpectedly accepted")?;
     assert_eq!(
         connected
             .upstream
@@ -154,7 +159,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let recovered = connected.sdk.call_tool(execution).await?;
     assert_eq!(
         result(&recovered, None)?.pointer("/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(
         connected
@@ -218,7 +223,7 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
     let reply = connected.sdk.call_tool(execution).await?;
     assert_eq!(
         result(&reply, None)?.pointer("/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(
         connected

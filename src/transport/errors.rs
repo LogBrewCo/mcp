@@ -41,7 +41,7 @@ pub async fn fixed_header_error(response: Response) -> Response {
         .filter(|reply| {
             reply.error.is_some_and(|error| {
                 serde_json::from_str::<ErrorCode>(error.get())
-                    .is_ok_and(|error| error.code == -32020)
+                    .is_ok_and(|error| error.code == -32020_i32)
             })
         })
         .map(|reply| {

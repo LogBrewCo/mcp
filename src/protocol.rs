@@ -8,7 +8,7 @@ use axum::{
     extract::{Request, State},
     http::{StatusCode, header},
     middleware::{self, Next},
-    response::{IntoResponse, Response},
+    response::{IntoResponse as _, Response},
     routing::any,
 };
 use rmcp::{
@@ -507,9 +507,9 @@ fn definition(name: &str) -> Tool {
         (
             "Find operation contracts.",
             json!({"type":"object","additionalProperties":false,
-            "properties":{"operation":{"type":"string","minLength":1,"maxLength":128},
-                "query":{"type":"string","maxLength":256},"after":{"type":"string","maxLength":128},
-                "limit":{"type":"integer","minimum":1,"maximum":10}},
+            "properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32},
+                "query":{"type":"string","maxLength":256_u32},"after":{"type":"string","maxLength":128_u32},
+                "limit":{"type":"integer","minimum":1_u32,"maximum":10_u32}},
             "oneOf":[{"required":["operation"],"not":{"anyOf":[{"required":["query"]},
                 {"required":["after"]},{"required":["limit"]}]}},{"required":["query"],"not":{"required":["operation"]}}]}),
         )
@@ -517,7 +517,7 @@ fn definition(name: &str) -> Tool {
         (
             "Run a discovered operation.",
             json!({"type":"object","additionalProperties":false,
-            "required":["operation","input"],"properties":{"operation":{"type":"string","minLength":1,"maxLength":128},
+            "required":["operation","input"],"properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32},
                 "input":{"type":"object"}}}),
         )
     };

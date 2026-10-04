@@ -11,7 +11,7 @@ use axum::{
 };
 use logbrew_mcp::telemetry::{CatalogSnapshot, Outcome, Snapshot, Stage, StageSnapshot};
 use serde_json::{Value, json};
-use tower::ServiceExt;
+use tower::ServiceExt as _;
 
 use crate::http::{Fixture, TOKEN};
 use crate::runtime::Running;
@@ -268,12 +268,12 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
         assert_eq!(stage.p99_upper_ns, None);
     }
     running.abort();
-    assert!(
+    drop(
         tokio::time::timeout(Duration::from_secs(2), request)
             .await
             .expect("request stopped")
             .expect("request task")
-            .is_err()
+            .unwrap_err(),
     );
     tokio::time::timeout(Duration::from_secs(2), async {
         loop {

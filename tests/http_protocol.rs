@@ -52,7 +52,7 @@ use axum::{
     http::{HeaderMap, Request, StatusCode, header},
 };
 use serde_json::{Value, json};
-use tower::ServiceExt;
+use tower::ServiceExt as _;
 
 use http::{Fixture, RESOURCE, TOKEN};
 
@@ -100,7 +100,7 @@ async fn execution_carries_verified_identity_and_rechecks_revocation() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         response.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(
         response.pointer("/result/structuredContent/error"),
@@ -312,7 +312,7 @@ async fn operation_object_keys_keep_their_meaning_through_the_sdk() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         response.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
@@ -320,11 +320,11 @@ async fn operation_object_keys_keep_their_meaning_through_the_sdk() {
 #[tokio::test]
 async fn maximum_output_survives_both_content_forms_and_one_more_byte_is_rejected() {
     let fixture = Fixture::new().await.expect("fixture");
-    let empty = json!({"blob":"","count":3}).to_string();
+    let empty = json!({"blob":"","count":3_i32}).to_string();
     let arguments = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
     for size in [logbrew_mcp::OUTPUT_BYTES, logbrew_mcp::OUTPUT_BYTES + 1] {
         let blob = "x".repeat(size - empty.len());
-        let body = json!({"blob":blob,"count":3}).to_string();
+        let body = json!({"blob":blob,"count":3_i32}).to_string();
         assert_eq!(body.len(), size);
         fixture
             .reply(StatusCode::OK, body, HeaderMap::new())
@@ -392,8 +392,18 @@ async fn invalid_upstream_json_and_output_contracts_return_no_rejected_data() {
 async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
     let fixture = Fixture::new().await.expect("fixture");
     for (status, delay, code, expected) in [
-        (StatusCode::TOO_MANY_REQUESTS, "0", "throttled", json!(0)),
-        (StatusCode::TOO_MANY_REQUESTS, "2", "throttled", json!(2000)),
+        (
+            StatusCode::TOO_MANY_REQUESTS,
+            "0",
+            "throttled",
+            json!(0_i32),
+        ),
+        (
+            StatusCode::TOO_MANY_REQUESTS,
+            "2",
+            "throttled",
+            json!(2_000_i32),
+        ),
         (
             StatusCode::TOO_MANY_REQUESTS,
             "invalid",
@@ -458,7 +468,7 @@ async fn advertised_output_contract_rejects_inconsistent_or_unbounded_metadata()
             json!({"data":{},"error":error,"provenance":provenance}),
             json!({"data":null,"error":null,"provenance":provenance}),
             json!({"data":{},"error":null,"provenance":{"definition_sha256":"bad"}}),
-            json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1},"provenance":null}),
+            json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1_i32},"provenance":null}),
         ] {
             assert!(!validator.is_valid(&invalid));
         }

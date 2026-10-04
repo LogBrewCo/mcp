@@ -2,10 +2,10 @@
 
 use logbrew_mcp::{Failure, catalog::Catalog, error::Kind};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 
 fn load(schema: &Value) -> Result<std::sync::Arc<Catalog>, Failure> {
-    let bytes = json!({"format_version":1,"operations":[{
+    let bytes = json!({"format_version":1_i32,"operations":[{
         "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"logs:read",
             "documentation":"https://docs.example/logs","stability":"stable",
             "cost":"one read","safety":"read_only"},
@@ -16,19 +16,32 @@ fn load(schema: &Value) -> Result<std::sync::Arc<Catalog>, Failure> {
     Catalog::load(&bytes, &Sha256::digest(&bytes).into())
 }
 
-fn check_tuple(catalog: &Catalog) {
+fn check_tuple(catalog: &Catalog) -> Result<(), Failure> {
     let allowed = json!({"values":["preserved"]});
-    assert!(catalog.input("logs.read.v1", &allowed).is_ok());
-    assert!(catalog.output("logs.read.v1", &allowed).is_ok());
+    catalog.input("logs.read.v1", &allowed)?;
+    catalog.output("logs.read.v1", &allowed)?;
     for rejected in [
-        json!({"values":[42]}),
+        json!({"values":[42_i32]}),
         json!({"values":["preserved","extra"]}),
         json!({"values":[]}),
         json!({}),
     ] {
-        assert!(catalog.input("logs.read.v1", &rejected).is_err());
-        assert!(catalog.output("logs.read.v1", &rejected).is_err());
+        assert_eq!(
+            catalog
+                .input("logs.read.v1", &rejected)
+                .err()
+                .map(|error| error.kind),
+            Some(Kind::InvalidInput)
+        );
+        assert_eq!(
+            catalog
+                .output("logs.read.v1", &rejected)
+                .err()
+                .map(|error| error.kind),
+            Some(Kind::InvalidOutput)
+        );
     }
+    Ok(())
 }
 
 #[test]
@@ -41,10 +54,10 @@ fn declared_legacy_dialects_preserve_input_and_output_tuple_contracts() {
     ] {
         let schema = json!({"$schema":dialect,"type":"object",
             "required":["values"],"additionalProperties":false,
-            "properties":{"values":{"type":"array","minItems":1,
+            "properties":{"values":{"type":"array","minItems":1_i32,
                 "items":[{"type":"string"}],"additionalItems":false}}});
         let catalog = load(&schema).expect("declared tuple dialect");
-        check_tuple(&catalog);
+        check_tuple(&catalog).expect("legacy tuple validation");
         let found = catalog
             .search(&json!({"operation":"logs.read.v1"}))
             .expect("discovered contract");
@@ -56,7 +69,7 @@ fn declared_legacy_dialects_preserve_input_and_output_tuple_contracts() {
 #[test]
 fn absent_and_explicit_2020_dialects_preserve_prefix_item_contracts() {
     let base = json!({"type":"object","required":["values"],"additionalProperties":false,
-        "properties":{"values":{"type":"array","minItems":1,
+        "properties":{"values":{"type":"array","minItems":1_i32,
             "prefixItems":[{"type":"string"}],"items":false}}});
     for dialect in [
         None,
@@ -72,7 +85,8 @@ fn absent_and_explicit_2020_dialects_preserve_prefix_item_contracts() {
                     .insert("$schema".to_owned(), json!(dialect)),
             );
         }
-        check_tuple(&load(&schema).expect("2020-12 tuple contract"));
+        check_tuple(&load(&schema).expect("2020-12 tuple contract"))
+            .expect("2020-12 tuple validation");
     }
 }
 
@@ -84,7 +98,7 @@ fn unknown_or_malformed_dialects_fail_without_repeating_the_declaration() {
         json!(""),
         Value::Null,
         json!(false),
-        json!(17),
+        json!(17_i32),
         json!(["https://json-schema.org/draft/2020-12/schema"]),
     ] {
         let schema = json!({"$schema":dialect,"type":"object"});
@@ -111,8 +125,8 @@ fn ordinary_schema_keys_and_annotations_remain_instance_data() {
         "additionalProperties":false,"properties":{"$schema":{"type":"string"}},
         "const":data,"default":data,"examples":[data]});
     let catalog = load(&schema).expect("ordinary schema-named data");
-    assert!(catalog.input("logs.read.v1", &data).is_ok());
-    assert!(catalog.output("logs.read.v1", &data).is_ok());
+    catalog.input("logs.read.v1", &data).unwrap();
+    catalog.output("logs.read.v1", &data).unwrap();
     let different = json!({"$schema":"changed"});
     assert!(catalog.input("logs.read.v1", &different).is_err());
     assert!(catalog.output("logs.read.v1", &different).is_err());

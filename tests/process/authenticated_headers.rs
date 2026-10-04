@@ -11,7 +11,7 @@ use super::{Fixture, Process, TestResult, backend, client, configure, envelope, 
 async fn rejected(http: &reqwest::Client, resource: &str, http2: bool) -> TestResult<()> {
     let marker = "SYNTHETIC_REJECTED_PRIVATE_FIELD";
     for id in [
-        json!(1),
+        json!(1_i32),
         json!("correlation"),
         serde_json::from_str("18446744073709551616")?,
     ] {
@@ -58,7 +58,7 @@ async fn rejected(http: &reqwest::Client, resource: &str, http2: bool) -> TestRe
             assert!(!String::from_utf8_lossy(&bytes).contains(marker));
             let error: Value = serde_json::from_slice(&bytes)?;
             assert_eq!(error.get("id"), Some(&id));
-            assert_eq!(error.pointer("/error/code"), Some(&json!(-32020)));
+            assert_eq!(error.pointer("/error/code"), Some(&json!(-32_020_i32)));
             assert_eq!(
                 error.pointer("/error/message"),
                 Some(&json!("invalid request headers"))
@@ -88,7 +88,7 @@ async fn privacy_and_recovery(http2: bool) -> TestResult<()> {
     assert_eq!(status, reqwest::StatusCode::OK);
     assert_eq!(
         envelope(&result, None)?.pointer("/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 7);
     assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 1);

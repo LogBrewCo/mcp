@@ -48,7 +48,7 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
         .expect("drained response");
     assert_eq!(
         response.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     Arc::get_mut(&mut running)
         .expect("request references released")
@@ -78,12 +78,12 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
     .await
     .expect("execution reached backend");
     running.abort();
-    assert!(
+    drop(
         tokio::time::timeout(std::time::Duration::from_secs(2), request)
             .await
             .expect("request stopped")
             .expect("request task")
-            .is_err()
+            .unwrap_err(),
     );
     tokio::time::timeout(std::time::Duration::from_secs(2), async {
         while fixture.state.active_executions.load(Ordering::SeqCst) != 0 {
@@ -101,7 +101,7 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     let fixture = Arc::new(Fixture::new().await.expect("fixture"));
     fixture.state.pause.store(true, Ordering::SeqCst);
     let mut requests = Vec::new();
-    for _ in 0..64 {
+    for _ in 0_i32..64_i32 {
         let request_fixture = Arc::clone(&fixture);
         requests.push(tokio::spawn(async move {
             request_fixture
@@ -179,7 +179,7 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
         .await
         .expect("complete body");
     let value: serde_json::Value = serde_json::from_slice(&bytes).expect("valid response");
-    assert_eq!(value.get("id"), Some(&json!(63)));
+    assert_eq!(value.get("id"), Some(&json!(63_i32)));
     retention(&fixture, 64, 64, 0)?;
     let (status, _) = fixture
         .request("tools/list", json!({}), TOKEN)

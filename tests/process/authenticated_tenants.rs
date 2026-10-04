@@ -19,16 +19,16 @@ fn configure_projects(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
         br#"{"version":"1","clients":["synthetic-alpha-client","synthetic-beta-client"]}"#,
         0o600,
     )?);
-    let catalog = serde_json::to_vec(&json!({"format_version":1,"operations":[{
+    let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
         "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read",
             "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
         "input_schema":{"type":"object","required":["project"],"additionalProperties":false,
             "properties":{"project":{"type":"string","enum":["alpha","beta"]},
-                "context":{"type":"object","maxProperties":8,
-                    "additionalProperties":{"type":"string","maxLength":256}}}},
+                "context":{"type":"object","maxProperties":8_i32,
+                    "additionalProperties":{"type":"string","maxLength":256_i32}}}},
         "output_schema":{"type":"object","required":["project","record"],"additionalProperties":false,
             "properties":{"project":{"type":"string","enum":["alpha","beta"]},
-                "record":{"type":"string","maxLength":32}}}
+                "record":{"type":"string","maxLength":32_i32}}}
     }]}))?;
     let catalog_file = fixture.directory.write("catalog.json", &catalog, 0o644)?;
     let mut digest = String::new();

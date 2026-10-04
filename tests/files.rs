@@ -2,7 +2,7 @@
 
 use std::{
     fs,
-    os::unix::fs::{PermissionsExt, symlink},
+    os::unix::fs::{DirBuilderExt as _, PermissionsExt as _, symlink},
     path::PathBuf,
     sync::atomic::{AtomicUsize, Ordering},
 };
@@ -20,7 +20,7 @@ impl Directory {
             std::process::id(),
             NEXT.fetch_add(1, Ordering::SeqCst)
         ));
-        fs::create_dir(&path)?;
+        fs::DirBuilder::new().mode(0o700).create(&path)?;
         Ok(Self(path))
     }
 }
@@ -39,13 +39,14 @@ fn file_identity_permissions_and_exact_byte_limits_are_enforced() {
     fs::set_permissions(&file, fs::Permissions::from_mode(0o600)).expect("private mode");
     let bytes = read_file(&file, 17, 0o600).expect("bounded private file");
     assert_eq!(bytes.as_slice(), b"SYNTHETIC_SECRET\n");
-    assert!(read_file(&file, 16, 0o600).is_err());
-    assert!(read_file(&directory.0, 1024, 0o700).is_err());
+    let _: logbrew_mcp::Failure = read_file(&file, 16, 0o600).unwrap_err();
+    let _: logbrew_mcp::Failure = read_file(&directory.0, 1024, 0o700).unwrap_err();
     fs::set_permissions(&file, fs::Permissions::from_mode(0o644)).expect("broad mode");
-    assert!(read_file(&file, 17, 0o600).is_err());
-    assert!(read_file(&file, 17, 0o644).is_ok());
+    let _: logbrew_mcp::Failure = read_file(&file, 17, 0o600).unwrap_err();
+    drop(read_file(&file, 17, 0o644).unwrap());
     let link = directory.0.join("link");
     symlink(&file, &link).expect("synthetic symlink");
-    assert!(read_file(&link, 17, 0o644).is_err());
-    assert!(read_file(std::path::Path::new("relative"), 1024, 0o644).is_err());
+    let _: logbrew_mcp::Failure = read_file(&link, 17, 0o644).unwrap_err();
+    let _: logbrew_mcp::Failure =
+        read_file(std::path::Path::new("relative"), 1024, 0o644).unwrap_err();
 }

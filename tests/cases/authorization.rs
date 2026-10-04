@@ -17,7 +17,7 @@ async fn invalid_authority_claims_fail_closed_before_execution() {
     for (field, value, expected) in [
         ("active", json!(false), StatusCode::UNAUTHORIZED),
         ("active", json!("true"), StatusCode::SERVICE_UNAVAILABLE),
-        ("exp", json!(0), StatusCode::UNAUTHORIZED),
+        ("exp", json!(0_i32), StatusCode::UNAUTHORIZED),
         ("exp", json!("invalid"), StatusCode::SERVICE_UNAVAILABLE),
         ("iat", json!(u64::MAX), StatusCode::UNAUTHORIZED),
         ("nbf", json!(u64::MAX), StatusCode::UNAUTHORIZED),
@@ -31,7 +31,7 @@ async fn invalid_authority_claims_fail_closed_before_execution() {
             json!("https://foreign.example/mcp"),
             StatusCode::UNAUTHORIZED,
         ),
-        ("aud", json!([RESOURCE, 42]), StatusCode::UNAUTHORIZED),
+        ("aud", json!([RESOURCE, 42_i32]), StatusCode::UNAUTHORIZED),
         ("scope", json!("different:scope"), StatusCode::FORBIDDEN),
         (
             "scope",
@@ -155,7 +155,7 @@ async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         response.pointer("/result/structuredContent/data/count"),
-        Some(&json!(3))
+        Some(&json!(3_i32))
     );
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
@@ -164,18 +164,18 @@ async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
 async fn introspection_payload_headers_and_media_type_are_bounded_before_authorization() {
     let fixture = Fixture::new().await.expect("fixture");
     let authority = fixture.authority().expect("valid authority");
-    for mode in 0..3 {
+    for mode in 0_i32..3_i32 {
         let mut body = authority.clone();
         let mut headers = HeaderMap::new();
         match mode {
-            0 => {
+            0_i32 => {
                 drop(
                     body.as_object_mut()
                         .expect("claims")
                         .insert("filler".to_owned(), json!("x".repeat(64 << 10))),
                 );
             }
-            1 => {
+            1_i32 => {
                 drop(headers.insert(
                     "x-synthetic-large",
                     "x".repeat(17 << 10).parse().expect("large header"),

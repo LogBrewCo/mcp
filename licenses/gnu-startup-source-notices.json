@@ -1,0 +1,79 @@
+{
+  "format_version": 1,
+  "scope": "gnu_startup_source_notices",
+  "target": "aarch64-unknown-linux-gnu",
+  "notice_text_scope": "leading_license_comment",
+  "source_bindings": [
+    {
+      "component": "gcc-runtime",
+      "upstream_path": "libgcc/crtstuff.c",
+      "bytes": 26398,
+      "sha256": "88dcd1a3ace8485020573c79a34797d209851ea27a22208d777a95d375d050b5"
+    },
+    {
+      "component": "glibc-startup",
+      "upstream_path": "sysdeps/aarch64/start.S",
+      "bytes": 3771,
+      "sha256": "36f8b8ce03b47684697bbe9f4fb67bb82e88d462fef268401f3f14f1299867a8"
+    },
+    {
+      "component": "glibc-startup",
+      "upstream_path": "sysdeps/aarch64/crti.S",
+      "bytes": 2934,
+      "sha256": "ccfe7a92cc72d9472975af0f376e7fdab503da66996c9fc41716426fa645eb55"
+    },
+    {
+      "component": "glibc-startup",
+      "upstream_path": "sysdeps/aarch64/crtn.S",
+      "bytes": 2030,
+      "sha256": "671e34a5bb0da14687251da4c39baf71016c54455661da8cd2247161ffb91aa2"
+    },
+    {
+      "component": "glibc-startup",
+      "upstream_path": "csu/abi-note.c",
+      "bytes": 3123,
+      "sha256": "09e9fdd2299964ca69395fa37cc203ce30e53e6d6f6964b6783d3d2d242f1fdb"
+    }
+  ],
+  "components": [
+    {
+      "name": "gcc-runtime",
+      "version": "15.2.0-16ubuntu1",
+      "source_url": "https://launchpad.net/ubuntu/+source/gcc-15/15.2.0-16ubuntu1",
+      "notices": [
+        {
+          "upstream_path": "libgcc/crtstuff.c",
+          "sha256": "6735d78faf1ae1f307f51e8df89aa35a775a8b38fffe385cd495efc46a6d4840",
+          "text": "/* Specialized bits of code needed to support construction and\n   destruction of file-scope objects in C++ code.\n   Copyright (C) 1991-2025 Free Software Foundation, Inc.\n   Contributed by Ron Guilmette (rfg@monkeys.com).\n\nThis file is part of GCC.\n\nGCC is free software; you can redistribute it and/or modify it under\nthe terms of the GNU General Public License as published by the Free\nSoftware Foundation; either version 3, or (at your option) any later\nversion.\n\nGCC is distributed in the hope that it will be useful, but WITHOUT ANY\nWARRANTY; without even the implied warranty of MERCHANTABILITY or\nFITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License\nfor more details.\n\nUnder Section 7 of GPL version 3, you are granted additional\npermissions described in the GCC Runtime Library Exception, version\n3.1, as published by the Free Software Foundation.\n\nYou should have received a copy of the GNU General Public License and\na copy of the GCC Runtime Library Exception along with this program;\nsee the files COPYING3 and COPYING.RUNTIME respectively.  If not, see\n<http://www.gnu.org/licenses/>.  */\n"
+        }
+      ]
+    },
+    {
+      "name": "glibc-startup",
+      "version": "2.43-2ubuntu2.4",
+      "source_url": "https://launchpad.net/ubuntu/+source/glibc/2.43-2ubuntu2.4",
+      "notices": [
+        {
+          "upstream_path": "sysdeps/aarch64/start.S",
+          "sha256": "322612c6bc89a72f04d2713bc3cafa3a561b5ea166cd2216f8fd6af9da9f8199",
+          "text": "/* Copyright (C) 1995-2026 Free Software Foundation, Inc.\n\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   In addition to the permissions in the GNU Lesser General Public\n   License, the Free Software Foundation gives you unlimited\n   permission to link the compiled version of this file with other\n   programs, and to distribute those programs without any restriction\n   coming from the use of this file. (The GNU Lesser General Public\n   License restrictions do apply in other respects; for example, they\n   cover modification of the file, and distribution when not linked\n   into another program.)\n\n   Note that people who make modified versions of this file are not\n   obligated to grant this special exception for their modified\n   versions; it is their choice whether to do so. The GNU Lesser\n   General Public License gives permission to release a modified\n   version without this exception; this exception also makes it\n   possible to release a modified version which carries forward this\n   exception.\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */\n"
+        },
+        {
+          "upstream_path": "sysdeps/aarch64/crti.S",
+          "sha256": "28b162e9c0c5f6e714905f7486516ebbced61332ab6808b34b9fe6b8beff140b",
+          "text": "/* Special .init and .fini section support for AArch64.\n   Copyright (C) 1995-2026 Free Software Foundation, Inc.\n\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   In addition to the permissions in the GNU Lesser General Public\n   License, the Free Software Foundation gives you unlimited\n   permission to link the compiled version of this file with other\n   programs, and to distribute those programs without any restriction\n   coming from the use of this file. (The GNU Lesser General Public\n   License restrictions do apply in other respects; for example, they\n   cover modification of the file, and distribution when not linked\n   into another program.)\n\n   Note that people who make modified versions of this file are not\n   obligated to grant this special exception for their modified\n   versions; it is their choice whether to do so. The GNU Lesser\n   General Public License gives permission to release a modified\n   version without this exception; this exception also makes it\n   possible to release a modified version which carries forward this\n   exception.\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */\n"
+        },
+        {
+          "upstream_path": "sysdeps/aarch64/crtn.S",
+          "sha256": "28b162e9c0c5f6e714905f7486516ebbced61332ab6808b34b9fe6b8beff140b",
+          "text": "/* Special .init and .fini section support for AArch64.\n   Copyright (C) 1995-2026 Free Software Foundation, Inc.\n\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   In addition to the permissions in the GNU Lesser General Public\n   License, the Free Software Foundation gives you unlimited\n   permission to link the compiled version of this file with other\n   programs, and to distribute those programs without any restriction\n   coming from the use of this file. (The GNU Lesser General Public\n   License restrictions do apply in other respects; for example, they\n   cover modification of the file, and distribution when not linked\n   into another program.)\n\n   Note that people who make modified versions of this file are not\n   obligated to grant this special exception for their modified\n   versions; it is their choice whether to do so. The GNU Lesser\n   General Public License gives permission to release a modified\n   version without this exception; this exception also makes it\n   possible to release a modified version which carries forward this\n   exception.\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */\n"
+        },
+        {
+          "upstream_path": "csu/abi-note.c",
+          "sha256": "ac9c4c28eb4dff14375fc35d3e698e7d72d822170d0b596ef106eaa26441beab",
+          "text": "/* Special .init and .fini section support.\n   Copyright (C) 1997-2026 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   In addition to the permissions in the GNU Lesser General Public\n   License, the Free Software Foundation gives you unlimited\n   permission to link the compiled version of this file with other\n   programs, and to distribute those programs without any restriction\n   coming from the use of this file.  (The Lesser General Public\n   License restrictions do apply in other respects; for example, they\n   cover modification of the file, and distribution when not linked\n   into another program.)\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */\n"
+        }
+      ]
+    }
+  ]
+}

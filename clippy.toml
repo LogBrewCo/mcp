@@ -1,4 +1,13 @@
 allow-expect-in-tests = true
 allow-unwrap-in-tests = true
 allow-panic-in-tests = true
+# Check metadata while crates.io publication is disabled.
+cargo-ignore-publish = true
+# ring 0.17.14 needs getrandom 0.2 and windows-sys 0.52.
+# Schema crates need getrandom 0.3 and r-efi 5; rmcp uses getrandom 0.4.
+# Upstream macros require both syn 2 and syn 3.
+# Clippy names crates; deny.toml constrains extra versions and features.
+# Reviewed 2026-10-04; review by 2026-11-04 or before a lockfile change.
+# https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#multiple_crate_versions
+allowed-duplicate-crates = ["getrandom", "r-efi", "syn", "windows-sys"]
 excessive-nesting-threshold = 3

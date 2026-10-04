@@ -6,6 +6,9 @@ rust-version = "1.99.0"
 description = "Authenticated LogBrew Model Context Protocol server"
 repository = "https://github.com/LogBrewCo/mcp"
 license = "Apache-2.0"
+readme = "README.md"
+keywords = ["mcp", "logbrew", "observability"]
+categories = ["development-tools"]
 publish = false
 
 [package.metadata.quality-tools]
@@ -46,6 +49,7 @@ tokio-rustls = "=0.26.6"
 tower = { version = "=0.5.3", features = ["util"] }
 
 [lints.clippy]
+cargo = { level = "deny", priority = -4 }
 all = { level = "deny", priority = -3 }
 allow_attributes = "deny"
 allow_attributes_without_reason = "deny"

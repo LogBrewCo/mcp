@@ -21,7 +21,7 @@ workspace-default-features = "deny"
 external-default-features = "deny"
 skip = [
   { crate = "getrandom@0.2.17", reason = "ring 0.17 requires the 0.2 API for test certificate generation" },
-  { crate = "getrandom@0.3.4", reason = "schema validation requires the 0.3 API while build tooling uses 0.4" },
+  { crate = "getrandom@0.3.4", reason = "schema validation requires the 0.3 API while rmcp and build tooling use 0.4" },
   { crate = "r-efi@5.3.0", reason = "getrandom 0.3 requires this platform binding version" },
   { crate = "syn@2.0.119", reason = "upstream macros require both the 2.x and 3.x APIs" },
   { crate = "windows-sys@0.52.0", reason = "ring's platform bindings use the 0.52 API" },

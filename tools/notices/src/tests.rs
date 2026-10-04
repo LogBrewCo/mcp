@@ -15,7 +15,7 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
     struct Directory(std::path::PathBuf);
     impl Drop for Directory {
         fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.0);
+            let _cleanup: std::io::Result<()> = std::fs::remove_dir_all(&self.0);
         }
     }
     let nanos = std::time::SystemTime::now()
@@ -25,7 +25,7 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
         "logbrew-notice-input-{}-{nanos}",
         std::process::id()
     ));
-    std::fs::create_dir(&path)?;
+    std::fs::DirBuilder::new().create(&path)?;
     let directory = Directory(path);
     let file = directory.0.join("source");
     let bytes = b"complete source";
@@ -34,11 +34,14 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
         crate::input::read(&file, u64::try_from(bytes.len())?)?,
         bytes
     );
-    assert!(crate::input::read(&file, 1).is_err());
-    assert!(crate::input::read(&directory.0, 1024).is_err());
+    let _error: Box<dyn std::error::Error> =
+        crate::input::read(&file, 1).expect_err("input must be rejected");
+    let _error: Box<dyn std::error::Error> =
+        crate::input::read(&directory.0, 1024).expect_err("input must be rejected");
     let link = directory.0.join("link");
     std::os::unix::fs::symlink(&file, &link)?;
-    assert!(crate::input::read(&link, 1024).is_err());
+    let _error: Box<dyn std::error::Error> =
+        crate::input::read(&link, 1024).expect_err("input must be rejected");
     assert_eq!(std::fs::read(&file)?, bytes);
     Ok(())
 }
@@ -153,7 +156,7 @@ fn rejects_checksum_gzip_footer_and_truncation_corruption() -> Result<()> {
         .is_err()
     );
     let mut truncated = bytes;
-    truncated.pop();
+    let _removed: Option<u8> = truncated.pop();
     assert!(
         archive::collect(
             &package(),
@@ -171,7 +174,8 @@ fn validates_members_and_expansion_after_tar_end_marker() -> Result<()> {
     let mut bytes = fixture(&[])?;
     let trailing = gzip(&vec![0; 8192])?;
     bytes.extend_from_slice(&trailing);
-    assert!(archive::collect(&package(), &bytes, &checksum(&bytes)?, Limits::default()).is_ok());
+    let _collected: archive::Collected =
+        archive::collect(&package(), &bytes, &checksum(&bytes)?, Limits::default())?;
     let limits = Limits {
         expanded_bytes: 4096,
         ..Limits::default()
@@ -272,7 +276,7 @@ fn rejects_duplicate_unknown_and_unused_supplement_records() -> Result<()> {
         );
     }
     let bytes = serde_json::to_vec(
-        &json!({"format_version":1,"notices":[{"package":"example","version":"1.0.0",
+        &json!({"format_version":1_u32,"notices":[{"package":"example","version":"1.0.0",
         "published_package_sha256":"0".repeat(64),"source_commit":"0".repeat(40),"source_url":"https://example.invalid/LICENSE",
         "upstream_path":"LICENSE","file":"example.txt","sha256":"0".repeat(64)}]}),
     )?;
@@ -297,18 +301,17 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         "[[package]]\nname='example'\nversion='1.0.0'\n[[package]]\nname='example'\nversion='1.0.0'\n",
         "package=[]\n",
     ] {
-        assert!(
-            inventory(
-                &metadata,
-                lock.as_bytes(),
-                Path::new("."),
-                &mut Texts::default()
-            )
-            .is_err()
-        );
+        let _error: Box<dyn std::error::Error> = inventory(
+            &metadata,
+            lock.as_bytes(),
+            Path::new("."),
+            &mut Texts::default(),
+        )
+        .expect_err("invalid lockfile must be rejected");
     }
     for name in ["../example", "", "example/example", "example\\example"] {
-        assert!(identity(&json!({"name":name,"version":"1.0.0"})).is_err());
+        let _error: Box<dyn std::error::Error> =
+            identity(&json!({"name":name,"version":"1.0.0"})).expect_err("input must be rejected");
     }
     for path in [
         "../LICENSE",
@@ -317,6 +320,7 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         "./LICENSE",
         "LICENSE\\secret",
     ] {
-        assert!(relative_path(path).is_err());
+        let _error: Box<dyn std::error::Error> =
+            relative_path(path).expect_err("input must be rejected");
     }
 }

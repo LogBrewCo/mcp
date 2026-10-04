@@ -4,12 +4,12 @@ use super::validate;
 use crate::Result;
 
 fn counted_summary(bans_notes: u32, license_helps: u32) -> String {
-    let empty = json!({"errors":0,"warnings":0,"notes":0,"helps":0});
+    let empty = json!({"errors":0_u32,"warnings":0_u32,"notes":0_u32,"helps":0_u32});
     format!(
         "{}\n",
         json!({"type":"summary","fields":{
-            "bans":{"errors":0,"warnings":0,"notes":bans_notes,"helps":0},
-            "licenses":{"errors":0,"warnings":0,"notes":0,"helps":license_helps},
+            "bans":{"errors":0_u32,"warnings":0_u32,"notes":bans_notes,"helps":0_u32},
+            "licenses":{"errors":0_u32,"warnings":0_u32,"notes":0_u32,"helps":license_helps},
             "sources":empty
         }})
     )
@@ -55,14 +55,12 @@ fn documented_informational_records_require_matching_check_totals() {
     let accepted = diagnostic("help", "accepted");
     let skipped = diagnostic("note", "skipped");
     let counted = counted_summary(1, 1);
-    assert!(
-        validate(
-            true,
-            b"",
-            format!("{accepted}{skipped}{counted}").as_bytes()
-        )
-        .is_ok()
-    );
+    validate(
+        true,
+        b"",
+        format!("{accepted}{skipped}{counted}").as_bytes(),
+    )
+    .expect("valid policy output");
     for output in [
         format!("{accepted}{skipped}{}", summary()),
         format!("{accepted}{counted}"),
@@ -88,11 +86,11 @@ fn log(level: &str) -> String {
 #[test]
 fn zero_exit_with_a_data_loading_error_cannot_pass_a_clean_summary() {
     let clean = summary();
-    assert!(validate(true, b"", clean.as_bytes()).is_ok());
+    validate(true, b"", clean.as_bytes()).expect("valid policy output");
     for level in ["ERROR", "WARN", "unknown"] {
         assert!(validate(true, b"", format!("{}{clean}", log(level)).as_bytes()).is_err());
     }
-    assert!(validate(true, b"", format!("{}{clean}", log("INFO")).as_bytes()).is_ok());
+    validate(true, b"", format!("{}{clean}", log("INFO")).as_bytes()).expect("valid policy output");
 }
 
 #[test]
@@ -104,7 +102,7 @@ fn process_failure_warnings_and_incomplete_check_sets_are_rejected() -> Result<(
     assert!(validate(true, b"", clean.trim_end().as_bytes()).is_err());
     for check in ["bans", "licenses", "sources"] {
         let mut changed: serde_json::Value = serde_json::from_str(&clean)?;
-        changed
+        let _removed: Option<serde_json::Value> = changed
             .get_mut("fields")
             .and_then(serde_json::Value::as_object_mut)
             .ok_or("missing synthetic fields")?
@@ -155,14 +153,12 @@ fn record_bytes_and_record_count_have_explicit_limits() {
     let record = json!({"type":"log","fields":{"level":"INFO","message":long,"timestamp":"now"}});
     assert!(validate(true, b"", format!("{record}\n{clean}").as_bytes()).is_err());
     let info = log("INFO");
-    assert!(
-        validate(
-            true,
-            b"",
-            format!("{}{clean}", info.repeat(super::RECORDS - 1)).as_bytes()
-        )
-        .is_ok()
-    );
+    validate(
+        true,
+        b"",
+        format!("{}{clean}", info.repeat(super::RECORDS - 1)).as_bytes(),
+    )
+    .expect("valid policy output");
     assert!(
         validate(
             true,
@@ -174,9 +170,20 @@ fn record_bytes_and_record_count_have_explicit_limits() {
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
+fn await_readiness(mut ready: impl FnMut() -> Result<bool>) -> Result<()> {
+    // Read past the native test harness prefix with bounded output.
+    for _ in 0_u8..16_u8 {
+        if ready()? {
+            return Ok(());
+        }
+    }
+    Err("missing descendant readiness".into())
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 mod subprocess {
     use std::{
-        io::{self, BufRead as _, BufReader, Read as _, Write as _},
+        io::{self, BufReader, Read as _, Write as _},
         net::{SocketAddr, TcpListener, TcpStream},
         process::{Command, Stdio},
         time::{Duration, Instant},
@@ -186,7 +193,7 @@ mod subprocess {
 
     fn fixture_command(mode: &str) -> Result<Command> {
         let mut command = Command::new(std::env::current_exe()?);
-        command
+        let _command: &mut Command = command
             .args([
                 "--exact",
                 "policy::tests::subprocess::native_child_fixture",
@@ -217,19 +224,24 @@ mod subprocess {
             .spawn()?;
         let stdout = descendant.stdout.take().ok_or("missing fixture stdout")?;
         let mut reader = BufReader::new(stdout.take(4096));
+        super::await_readiness(|| ready_line(&mut reader))?;
+        drop(descendant);
+        Ok(())
+    }
+
+    fn ready_line(reader: &mut impl io::BufRead) -> Result<bool> {
         let mut line = Vec::new();
-        // Read past the native test harness prefix with bounded output.
-        for _ in 0..16 {
-            if reader.read_until(b'\n', &mut line)? == 0 {
-                return Err("descendant exited before readiness".into());
-            }
-            if line.ends_with(b"descendant ready\n") {
-                drop(descendant);
-                return Ok(());
-            }
-            line.clear();
+        if reader.read_until(b'\n', &mut line)? == 0 {
+            return Err("descendant exited before readiness".into());
         }
-        Err("missing descendant readiness".into())
+        Ok(line.ends_with(b"descendant ready\n"))
+    }
+
+    fn flood() -> Result<()> {
+        let buffer = [b'x'; 8192];
+        loop {
+            std::io::stdout().write_all(&buffer)?;
+        }
     }
 
     #[test]
@@ -237,12 +249,7 @@ mod subprocess {
     fn native_child_fixture() -> Result<()> {
         match std::env::var("LOGBREW_POLICY_TEST_MODE")?.as_str() {
             "failure" => return Err("synthetic child failure".into()),
-            "flood" => {
-                let buffer = [b'x'; 8192];
-                loop {
-                    std::io::stdout().write_all(&buffer)?;
-                }
-            }
+            "flood" => flood()?,
             "stall" => std::thread::sleep(Duration::from_secs(60)),
             "stopped" => {
                 rustix::process::kill_process(
@@ -279,7 +286,7 @@ mod subprocess {
             let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))?;
             listener.set_nonblocking(true)?;
             let mut command = fixture_command(mode)?;
-            command.env(
+            let _command: &mut Command = command.env(
                 "LOGBREW_POLICY_TEST_ADDRESS",
                 listener.local_addr()?.to_string(),
             );
@@ -291,13 +298,17 @@ mod subprocess {
             stream.set_nonblocking(false)?;
             stream.set_read_timeout(Some(Duration::from_millis(500)))?;
             let mut byte = [0_u8; 1];
-            match stream.read(&mut byte) {
-                Ok(0) => {}
-                Err(err) if err.kind() == io::ErrorKind::ConnectionReset => {}
-                result => panic!("{mode}: descendant connection remains open: {result:?}"),
-            }
+            assert_closed(mode, stream.read(&mut byte));
         }
         Ok(())
+    }
+
+    fn assert_closed(mode: &str, result: io::Result<usize>) {
+        match result {
+            Ok(0) => {}
+            Err(err) if err.kind() == io::ErrorKind::ConnectionReset => {}
+            result => panic!("{mode}: descendant connection remains open: {result:?}"),
+        }
     }
 
     #[test]

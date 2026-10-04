@@ -83,6 +83,28 @@ pub fn category(filename: &str) -> Option<&'static str> {
     None
 }
 
+fn add_notice(
+    entry: impl io::Read,
+    relative: &str,
+    limits: Limits,
+    notices: &mut BTreeMap<String, String>,
+    notice_bytes: &mut usize,
+) -> Result<()> {
+    let bytes = bounded(entry, limits.notice_bytes)?;
+    let text = std::str::from_utf8(&bytes)?;
+    if text.trim().is_empty() {
+        return Err(error("empty notice file"));
+    }
+    *notice_bytes = notice_bytes
+        .checked_add(bytes.len())
+        .ok_or_else(|| error("notice size overflow"))?;
+    if *notice_bytes > limits.total_notice_bytes || notices.len() >= 256 {
+        return Err(error("notice budget exceeded"));
+    }
+    let _previous: Option<String> = notices.insert(relative.to_owned(), text.to_owned());
+    Ok(())
+}
+
 pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) -> Result<Collected> {
     if u64::try_from(bytes.len())? > ARCHIVE_BYTES || checksum(bytes)? != expected {
         return Err(error("registry archive checksum or size mismatch"));
@@ -118,7 +140,7 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
         if path.len() > 4096 || path_bytes > limits.path_bytes {
             return Err(error("archive path budget exceeded"));
         }
-        relative_path(path)?;
+        let _path: &Path = relative_path(path)?;
         let relative = Path::new(path)
             .strip_prefix(&prefix)?
             .to_str()
@@ -127,7 +149,7 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
         if kind.is_dir() {
             continue;
         }
-        relative_path(relative)?;
+        let _relative: &Path = relative_path(relative)?;
         if !kind.is_file() {
             return Err(error("archive link or special file rejected"));
         }
@@ -141,29 +163,28 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
         if relative == "Cargo.toml" {
             let bytes = bounded(&mut entry, 64 << 10)?;
             manifest = Some(std::str::from_utf8(&bytes)?.parse::<toml::Table>()?);
-        } else if relative == ".cargo_vcs_info.json" {
+            continue;
+        }
+        if relative == ".cargo_vcs_info.json" {
             vcs = Some(serde_json::from_slice::<Value>(&bounded(
                 &mut entry,
                 16 << 10,
             )?)?);
-        } else if category(filename).is_some() {
-            let bytes = bounded(&mut entry, limits.notice_bytes)?;
-            let text = std::str::from_utf8(&bytes)?;
-            if text.trim().is_empty() {
-                return Err(error("empty notice file"));
-            }
-            notice_bytes = notice_bytes
-                .checked_add(bytes.len())
-                .ok_or_else(|| error("notice size overflow"))?;
-            if notice_bytes > limits.total_notice_bytes || notices.len() >= 256 {
-                return Err(error("notice budget exceeded"));
-            }
-            notices.insert(relative.to_owned(), text.to_owned());
+            continue;
+        }
+        if category(filename).is_some() {
+            add_notice(
+                &mut entry,
+                relative,
+                limits,
+                &mut notices,
+                &mut notice_bytes,
+            )?;
         }
     }
     // Read through every gzip footer, including data after the tar end marker.
     let mut expanded = archive.into_inner();
-    io::copy(&mut expanded, &mut io::sink())?;
+    let _remaining_bytes: u64 = io::copy(&mut expanded, &mut io::sink())?;
     if expanded.limit() == 0 {
         return Err(error("expanded archive exceeds limit"));
     }

@@ -10,7 +10,7 @@ const NOTICE_PATH: &str = "licenses/linked-target-notices.json";
 pub(super) fn inventory(fixture: &Fixture) -> Result<Value> {
     let text = "synthetic runtime attribution\n";
     Ok(
-        json!({"format_version":1,"scope":"linked_target_source_notices",
+        json!({"format_version":1_u32,"scope":"linked_target_source_notices",
         "target":"aarch64-apple-darwin","binary_sha256":digest(&fs::read(fixture.root.join("server"))?)?,
         "components":[{"name":"synthetic-runtime","version":"1.0.0",
             "source_url":"https://example.com/runtime/1.0.0.tar.gz",
@@ -23,8 +23,8 @@ pub(super) fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
     let bytes = fs::read(fixture.root.join(NOTICE_PATH))?;
     let mut plan: Value = serde_json::from_slice(&fs::read(fixture.root.join("plan.json"))?)?;
     let object = plan.as_object_mut().ok_or("missing plan")?;
-    object.insert("format_version".into(), json!(2));
-    object.insert(
+    let _previous: Option<Value> = object.insert("format_version".into(), json!(2_u32));
+    let _previous: Option<Value> = object.insert(
         "linked_target_notices".into(),
         json!({"bytes":bytes.len(),"sha256":digest(&bytes)?}),
     );
@@ -64,10 +64,10 @@ fn version_two_preserves_linked_notice_bytes_and_external_release_requirements()
             }
         );
         let mut bytes = Vec::new();
-        entry.read_to_end(&mut bytes)?;
+        let _read_bytes: usize = entry.read_to_end(&mut bytes)?;
         assert!(files.insert(relative, bytes).is_none());
     }
-    std::io::copy(&mut archive.into_inner(), &mut std::io::sink())?;
+    let _remaining_bytes: u64 = std::io::copy(&mut archive.into_inner(), &mut std::io::sink())?;
     assert_eq!(files.len(), 7);
     assert_eq!(files.get(NOTICE_PATH), Some(&expected));
     let manifest: Value =
@@ -96,7 +96,7 @@ fn version_two_preserves_linked_notice_bytes_and_external_release_requirements()
 fn another_binary_or_target_and_corrupted_text_preserve_the_complete_package() -> Result<()> {
     let fixture = fixture()?;
     let original = inventory(&fixture)?;
-    bind(&fixture, &original)?;
+    let _bound: Vec<u8> = bind(&fixture, &original)?;
     assert!(run(&fixture)?.status.success());
     let previous = fs::read(fixture.root.join("package.tar.gz"))?;
     for (pointer, value) in [
@@ -109,7 +109,7 @@ fn another_binary_or_target_and_corrupted_text_preserve_the_complete_package() -
     ] {
         let mut changed = original.clone();
         *changed.pointer_mut(pointer).ok_or("missing notice field")? = value;
-        bind(&fixture, &changed)?;
+        let _bound: Vec<u8> = bind(&fixture, &changed)?;
         assert!(!run(&fixture)?.status.success(), "{pointer}");
         assert_eq!(fs::read(fixture.root.join("package.tar.gz"))?, previous);
     }
@@ -138,7 +138,7 @@ fn package_output_cannot_replace_the_bound_linked_notice_inventory() -> Result<(
 #[test]
 fn linked_notice_input_symlink_preserves_the_previous_package() -> Result<()> {
     let fixture = fixture()?;
-    bind(&fixture, &inventory(&fixture)?)?;
+    let _bound: Vec<u8> = bind(&fixture, &inventory(&fixture)?)?;
     assert!(run(&fixture)?.status.success());
     let previous = fs::read(fixture.root.join("package.tar.gz"))?;
     fs::rename(

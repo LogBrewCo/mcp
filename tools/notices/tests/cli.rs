@@ -11,7 +11,7 @@ use std::{
 
 use flate2::{Compression, write::GzEncoder};
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 
 #[path = "cli/package.rs"]
 mod package;
@@ -31,7 +31,8 @@ impl Fixture {
             std::process::id(),
             SEQUENCE.fetch_add(1, Ordering::Relaxed)
         ));
-        fs::create_dir(&root)?;
+        // Require a new directory so a fixture cannot adopt an existing tree.
+        fs::DirBuilder::new().create(&root)?;
         Ok(Self { root })
     }
 
@@ -50,7 +51,7 @@ impl Fixture {
 
 impl Drop for Fixture {
     fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.root);
+        let _cleanup: io::Result<()> = fs::remove_dir_all(&self.root);
     }
 }
 
@@ -86,8 +87,8 @@ fn write_json(path: &Path, value: &Value) -> Result<()> {
 fn project_fixture() -> Result<Fixture> {
     let fixture = Fixture::new()?;
     let root = &fixture.root;
-    fs::create_dir(root.join("project"))?;
-    fs::create_dir(root.join("cache"))?;
+    fs::create_dir_all(root.join("project"))?;
+    fs::create_dir_all(root.join("cache"))?;
     fs::write(root.join("project/LICENSE"), b"synthetic project license\n")?;
     fs::write(
         root.join("Cargo.lock"),
@@ -100,7 +101,7 @@ fn project_fixture() -> Result<Fixture> {
     )?;
     write_json(
         &root.join("sources.json"),
-        &json!({"format_version":1,"notices":[]}),
+        &json!({"format_version":1_u32,"notices":[]}),
     )?;
     Ok(fixture)
 }
@@ -127,7 +128,7 @@ fn replacement_preserves_an_existing_hard_link_and_open_reader() -> Result<()> {
     let output = fixture.root.join("output.json");
     fs::write(&protected, b"previous complete inventory")?;
     fs::hard_link(&protected, &output)?;
-    let mut reader = fs::File::open(&output)?;
+    let reader = fs::File::open(&output)?;
     let result = fixture.run()?;
     assert!(
         result.status.success(),
@@ -136,10 +137,10 @@ fn replacement_preserves_an_existing_hard_link_and_open_reader() -> Result<()> {
     );
     assert_eq!(fs::read(&protected)?, b"previous complete inventory");
     let mut old = Vec::new();
-    reader.read_to_end(&mut old)?;
+    let _read_bytes: usize = reader.take(4096).read_to_end(&mut old)?;
     assert_eq!(old, b"previous complete inventory");
     let inventory: Value = serde_json::from_slice(&fs::read(&output)?)?;
-    assert_eq!(inventory.get("format_version"), Some(&Value::from(1)));
+    assert_eq!(inventory.get("format_version"), Some(&Value::from(1_u32)));
     Ok(())
 }
 
@@ -147,9 +148,9 @@ fn replacement_preserves_an_existing_hard_link_and_open_reader() -> Result<()> {
 fn reproducible_generation_rejects_changed_sources_and_preserves_previous_output() -> Result<()> {
     let fixture = Fixture::new()?;
     let root = &fixture.root;
-    fs::create_dir(root.join("cache"))?;
-    fs::create_dir(root.join("project"))?;
-    fs::create_dir(root.join("dependency"))?;
+    fs::create_dir_all(root.join("cache"))?;
+    fs::create_dir_all(root.join("project"))?;
+    fs::create_dir_all(root.join("dependency"))?;
     let bytes = archive()?;
     let package_digest = digest(&bytes)?;
     let notice = b"Copyright synthetic author\r\nPermission synthetic notice\r\n";
@@ -168,7 +169,7 @@ fn reproducible_generation_rejects_changed_sources_and_preserves_previous_output
             "version=4\n[[package]]\nname='example'\nversion='1.0.0'\nsource='registry+https://github.com/rust-lang/crates.io-index'\nchecksum='{package_digest}'\n[[package]]\nname='logbrew-mcp'\nversion='0.1.0'\n"
         ),
     )?;
-    let supplements = json!({"format_version":1,"notices":[{"package":"example","version":"1.0.0","published_package_sha256":package_digest,
+    let supplements = json!({"format_version":1_u32,"notices":[{"package":"example","version":"1.0.0","published_package_sha256":package_digest,
         "source_commit":"0".repeat(40),"upstream_path":"LICENSE","source_url":format!("https://raw.githubusercontent.com/example/project/{}/LICENSE", "0".repeat(40)),
         "file":"example.txt","sha256":digest(notice)?}]});
     write_json(&root.join("sources.json"), &supplements)?;
@@ -270,7 +271,7 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
         header.set_mtime(0);
         header.set_cksum();
         builder.append_data(&mut header, format!("{prefix}/{path}"), notice.as_slice())?;
-        files.insert(
+        let _previous: Option<Value> = files.insert(
             path.to_owned(),
             json!({"sha256":digest(notice)?,"bytes":notice.len()}),
         );
@@ -282,7 +283,7 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
         "manifest-version='2'\ndate='2026-10-01'\n[pkg.rustc]\nversion='{version} (synthetic)'\ngit_commit_hash='{commit}'\n[pkg.rustc.target.synthetic-target]\navailable=true\nurl='{url}'\nhash='{}'\n",
         digest(&archive)?
     );
-    let source = json!({"format_version":1,"scope":"rust_standard_library_source_notices","release":version,"target":"synthetic-target",
+    let source = json!({"format_version":1_u32,"scope":"rust_standard_library_source_notices","release":version,"target":"synthetic-target",
         "source_commit":commit,"release_date":"2026-10-01","distribution_manifest_sha256":digest(manifest.as_bytes())?,
         "component_archive_sha256":digest(&archive)?,"component_archive_url":url,"files":files});
     write_json(&root.join("sources.json"), &source)?;
@@ -343,15 +344,35 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
 }
 
 #[cfg(unix)]
+struct Process(std::process::Child);
+
+#[cfg(unix)]
+impl Drop for Process {
+    fn drop(&mut self) {
+        let _kill: io::Result<()> = self.0.kill();
+        let _status: io::Result<std::process::ExitStatus> = self.0.wait();
+    }
+}
+
+#[cfg(unix)]
+fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
+    let end = std::time::Instant::now()
+        .checked_add(std::time::Duration::from_secs(1))
+        .ok_or("fixture deadline overflow")?;
+    loop {
+        if let Some(status) = child.try_wait()? {
+            return Ok(!status.success());
+        }
+        if std::time::Instant::now() >= end {
+            return Ok(false);
+        }
+        std::thread::sleep(std::time::Duration::from_millis(10));
+    }
+}
+
+#[cfg(unix)]
 #[test]
 fn notice_and_package_commands_reject_input_pipes_without_waiting_for_a_writer() -> Result<()> {
-    struct Process(std::process::Child);
-    impl Drop for Process {
-        fn drop(&mut self) {
-            let _ = self.0.kill();
-            let _ = self.0.wait();
-        }
-    }
     let fixture = Fixture::new()?;
     let input = fixture.root.join("input");
     if !Command::new("/usr/bin/mkfifo")
@@ -386,17 +407,7 @@ fn notice_and_package_commands_reject_input_pipes_without_waiting_for_a_writer()
                 .stderr(std::process::Stdio::null())
                 .spawn()?,
         );
-        let end = std::time::Instant::now() + std::time::Duration::from_secs(1);
-        let rejected = loop {
-            if let Some(status) = child.0.try_wait()? {
-                break !status.success();
-            }
-            if std::time::Instant::now() >= end {
-                break false;
-            }
-            std::thread::sleep(std::time::Duration::from_millis(10));
-        };
-        outcomes.push(rejected);
+        outcomes.push(rejected_without_writer(&mut child.0)?);
     }
     assert_eq!(
         outcomes,

@@ -1,11 +1,12 @@
 use std::{
     collections::{BTreeMap, BTreeSet},
     io::{self, Read as _},
+    path::Path,
 };
 
 use flate2::read::MultiGzDecoder;
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{Value, json};
 
 use crate::{Result, bounded, checksum, error, relative_path};
 
@@ -38,31 +39,36 @@ struct Notice {
     bytes: u64,
 }
 
+fn insert_file(files: &mut BTreeMap<String, Notice>, path: String, notice: Notice) -> Result<()> {
+    if files.len() >= 4 || files.insert(path, notice).is_some() {
+        return Err(error("duplicate or excess Rust notice path"));
+    }
+    Ok(())
+}
+
+struct UniqueFiles;
+
+impl<'de> serde::de::Visitor<'de> for UniqueFiles {
+    type Value = BTreeMap<String, Notice>;
+    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str("four unique standard-library notice paths")
+    }
+    fn visit_map<A: serde::de::MapAccess<'de>>(
+        self,
+        mut map: A,
+    ) -> std::result::Result<Self::Value, A::Error> {
+        let mut files = BTreeMap::new();
+        while let Some((path, notice)) = map.next_entry::<String, Notice>()? {
+            insert_file(&mut files, path, notice).map_err(serde::de::Error::custom)?;
+        }
+        Ok(files)
+    }
+}
+
 fn files<'de, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> std::result::Result<BTreeMap<String, Notice>, D::Error> {
-    struct Unique;
-    impl<'de> serde::de::Visitor<'de> for Unique {
-        type Value = BTreeMap<String, Notice>;
-        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            formatter.write_str("four unique standard-library notice paths")
-        }
-        fn visit_map<A: serde::de::MapAccess<'de>>(
-            self,
-            mut map: A,
-        ) -> std::result::Result<Self::Value, A::Error> {
-            let mut files = BTreeMap::new();
-            while let Some((path, notice)) = map.next_entry::<String, Notice>()? {
-                if files.len() >= 4 || files.insert(path, notice).is_some() {
-                    return Err(serde::de::Error::custom(
-                        "duplicate or excess Rust notice path",
-                    ));
-                }
-            }
-            Ok(files)
-        }
-    }
-    deserializer.deserialize_map(Unique)
+    deserializer.deserialize_map(UniqueFiles)
 }
 
 fn hex(value: &str, bytes: usize) -> bool {
@@ -146,6 +152,40 @@ pub fn collect(source: &Binding, bytes: &[u8], installed: &[u8]) -> Result<Vec<u
     collect_bounded(source, bytes, installed, EXPANDED_BYTES)
 }
 
+fn add_notice(
+    entry: impl io::Read,
+    expected: &Notice,
+    relative: &str,
+    installed: &[u8],
+    notice_bytes: &mut usize,
+    notices: &mut BTreeMap<String, Value>,
+) -> Result<()> {
+    let content = bounded(entry, NOTICE_BYTES)?;
+    if u64::try_from(content.len())? != expected.bytes || checksum(&content)? != expected.sha256 {
+        return Err(error("Rust notice checksum or size mismatch"));
+    }
+    *notice_bytes = notice_bytes
+        .checked_add(content.len())
+        .ok_or_else(|| error("Rust notice size overflow"))?;
+    if *notice_bytes > 4_usize << 20_u32 {
+        return Err(error("Rust notice text budget exceeded"));
+    }
+    let text = std::str::from_utf8(&content)?;
+    if text.trim().is_empty() {
+        return Err(error("empty Rust notice"));
+    }
+    if relative == LIBRARY_NOTICE && content != installed {
+        return Err(error(
+            "installed Rust library notice differs from distribution",
+        ));
+    }
+    let _previous: Option<Value> = notices.insert(
+        relative.to_owned(),
+        json!({"sha256":expected.sha256,"bytes":expected.bytes,"text":text}),
+    );
+    Ok(())
+}
+
 fn collect_bounded(
     source: &Binding,
     bytes: &[u8],
@@ -164,13 +204,13 @@ fn collect_bounded(
     let mut archive = tar::Archive::new(MultiGzDecoder::new(bytes).take(expanded_limit));
     let mut seen = BTreeSet::new();
     let mut notices = BTreeMap::new();
-    let mut path_bytes = 0usize;
-    let mut notice_bytes = 0usize;
+    let mut path_bytes = 0_usize;
+    let mut notice_bytes = 0_usize;
     for (index, entry) in archive.entries()?.enumerate() {
         if index >= 4096 {
             return Err(error("Rust component entry budget exceeded"));
         }
-        let mut entry = entry?;
+        let entry = entry?;
         let path = entry.path()?.into_owned();
         let path = path
             .to_str()
@@ -178,7 +218,7 @@ fn collect_bounded(
         path_bytes = path_bytes
             .checked_add(path.len())
             .ok_or_else(|| error("Rust component path overflow"))?;
-        if path.len() > 4096 || path_bytes > 1 << 20 {
+        if path.len() > 4096 || path_bytes > 1_usize << 20_u32 {
             return Err(error("Rust component path budget exceeded"));
         }
         let kind = entry.header().entry_type();
@@ -187,7 +227,7 @@ fn collect_bounded(
         } else {
             path
         };
-        relative_path(path)?;
+        let _path: &Path = relative_path(path)?;
         let relative = std::path::Path::new(path)
             .strip_prefix(&prefix)?
             .to_str()
@@ -198,47 +238,30 @@ fn collect_bounded(
         if kind.is_dir() {
             continue;
         }
-        relative_path(relative)?;
+        let _relative: &Path = relative_path(relative)?;
         if !kind.is_file() {
             return Err(error("Rust component link or special file rejected"));
         }
         if let Some(expected) = source.files.get(relative) {
-            let content = bounded(&mut entry, NOTICE_BYTES)?;
-            if u64::try_from(content.len())? != expected.bytes
-                || checksum(&content)? != expected.sha256
-            {
-                return Err(error("Rust notice checksum or size mismatch"));
-            }
-            notice_bytes = notice_bytes
-                .checked_add(content.len())
-                .ok_or_else(|| error("Rust notice size overflow"))?;
-            if notice_bytes > 4 << 20 {
-                return Err(error("Rust notice text budget exceeded"));
-            }
-            let text = std::str::from_utf8(&content)?;
-            if text.trim().is_empty() {
-                return Err(error("empty Rust notice"));
-            }
-            if relative == LIBRARY_NOTICE && content != installed {
-                return Err(error(
-                    "installed Rust library notice differs from distribution",
-                ));
-            }
-            notices.insert(
-                relative.to_owned(),
-                json!({"sha256":expected.sha256,"bytes":expected.bytes,"text":text}),
-            );
+            add_notice(
+                entry,
+                expected,
+                relative,
+                installed,
+                &mut notice_bytes,
+                &mut notices,
+            )?;
         }
     }
     let mut expanded = archive.into_inner();
-    io::copy(&mut expanded, &mut io::sink())?;
+    let _remaining_bytes: u64 = io::copy(&mut expanded, &mut io::sink())?;
     if expanded.limit() == 0 {
         return Err(error("Rust component expansion budget exceeded"));
     }
     if notices.keys().ne(source.files.keys()) {
         return Err(error("Rust component notice coverage mismatch"));
     }
-    let output = json!({"format_version":1,"scope":source.scope,"release":source.release,"target":source.target,
+    let output = json!({"format_version":1_u32,"scope":source.scope,"release":source.release,"target":source.target,
         "source_commit":source.source_commit,"release_date":source.release_date,
         "distribution_manifest_sha256":source.distribution_manifest_sha256,"component_archive_sha256":source.component_archive_sha256,
         "component_archive_url":source.component_archive_url,"source_binding":"trusted_distribution_manifest_and_component_checksums",
@@ -246,7 +269,7 @@ fn collect_bounded(
         "license_permission_check":"separate_target_specific_gate_required","files":notices});
     let mut bytes = serde_json::to_vec_pretty(&output)?;
     bytes.push(b'\n');
-    if bytes.len() > 8 << 20 {
+    if bytes.len() > 8_usize << 20_u32 {
         return Err(error("Rust notice output budget exceeded"));
     }
     Ok(bytes)

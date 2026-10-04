@@ -7,7 +7,7 @@ use super::{Fixture, PREFIX, Result, digest, fixture, linked, run, write_json};
 
 const DEPENDENCY: &str = "licenses/locked-source-notices.json";
 const TOOLCHAIN: &str = "licenses/locked-rust-toolchain-notices.json";
-const SHARED: &str = "Copyright synthetic upstream ©\r\nShared license without final newline";
+const SHARED: &str = "Copyright synthetic upstream \u{a9}\r\nShared license without final newline";
 const SUPPLEMENT: &str = "Synthetic supplementary notice\n";
 const RUST_FILES: [(&str, &str, &str); 4] = [
     (
@@ -28,7 +28,7 @@ const RUST_FILES: [(&str, &str, &str); 4] = [
     (
         "rustc/share/doc/rust/COPYRIGHT-library.html",
         "licenses/rust/COPYRIGHT-library.html",
-        "<!DOCTYPE html>\n<html><body>Synthetic Rust attribution ©</body></html>\n",
+        "<!DOCTYPE html>\n<html><body>Synthetic Rust attribution \u{a9}</body></html>\n",
     ),
 ];
 
@@ -37,7 +37,7 @@ fn record(text: &str) -> Result<Value> {
 }
 
 fn insert(value: &mut Value, key: &str, entry: Value) -> Result<()> {
-    value
+    let _previous: Option<Value> = value
         .as_object_mut()
         .ok_or("missing fixture object")?
         .insert(key.into(), entry);
@@ -55,7 +55,7 @@ fn bind(fixture: &Fixture, field: &str, path: &str, inventory: &Value) -> Result
 
 fn readable_fixture() -> Result<Fixture> {
     let fixture = fixture()?;
-    linked::bind(&fixture, &linked::inventory(&fixture)?)?;
+    let _bound: Vec<u8> = linked::bind(&fixture, &linked::inventory(&fixture)?)?;
     let mut dependency: Value = serde_json::from_slice(&fs::read(fixture.root.join(DEPENDENCY))?)?;
     let shared = digest(SHARED.as_bytes())?;
     let supplement = digest(SUPPLEMENT.as_bytes())?;
@@ -78,12 +78,12 @@ fn readable_fixture() -> Result<Fixture> {
     let mut toolchain: Value = serde_json::from_slice(&fs::read(fixture.root.join(TOOLCHAIN))?)?;
     let mut files = serde_json::Map::new();
     for (source, _, text) in RUST_FILES {
-        files.insert(source.into(), record(text)?);
+        let _previous: Option<Value> = files.insert(source.into(), record(text)?);
     }
     insert(&mut toolchain, "files", Value::Object(files))?;
     bind(&fixture, "toolchain_notices", TOOLCHAIN, &toolchain)?;
     let mut plan: Value = serde_json::from_slice(&fs::read(fixture.root.join("plan.json"))?)?;
-    *plan.get_mut("format_version").ok_or("missing version")? = json!(3);
+    *plan.get_mut("format_version").ok_or("missing version")? = json!(3_u32);
     write_json(&fixture.root.join("plan.json"), &plan)?;
     Ok(fixture)
 }
@@ -107,10 +107,10 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
         let path = entry.path()?.to_string_lossy().into_owned();
         let relative = path.strip_prefix(PREFIX).ok_or("wrong prefix")?.to_owned();
         let mut bytes = Vec::new();
-        entry.read_to_end(&mut bytes)?;
+        let _read_bytes: usize = entry.read_to_end(&mut bytes)?;
         assert!(files.insert(relative, bytes).is_none());
     }
-    std::io::copy(&mut archive.into_inner(), &mut std::io::sink())?;
+    let _remaining_bytes: u64 = std::io::copy(&mut archive.into_inner(), &mut std::io::sink())?;
     assert_eq!(files.len(), 13);
     for (_, path, text) in RUST_FILES {
         assert_eq!(files.get(path).map(Vec::as_slice), Some(text.as_bytes()));
@@ -174,14 +174,17 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
     let original: Value = serde_json::from_slice(&fs::read(fixture.root.join(DEPENDENCY))?)?;
     for (pointer, value) in [
         ("/packages/synthetic-a 1.0.0/name", json!("different-name")),
-        ("/packages/synthetic-a 1.0.0/files/LICENSE/bytes", json!(1)),
+        (
+            "/packages/synthetic-a 1.0.0/files/LICENSE/bytes",
+            json!(1_u32),
+        ),
         (
             "/packages/synthetic-a 1.0.0/files/LICENSE/sha256",
             json!("0".repeat(64)),
         ),
         (
             "/packages/synthetic-a 1.0.0/supplemental_notices/0/bytes",
-            json!(1),
+            json!(1_u32),
         ),
         (
             "/packages/synthetic-a 1.0.0/supplemental_notices/0/upstream_path",
@@ -202,7 +205,7 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
     for (pointer, value) in [
         ("/files/COPYRIGHT/text", json!("changed upstream text")),
         ("/files", json!({})),
-        ("/files/LICENSE-MIT/bytes", json!(0)),
+        ("/files/LICENSE-MIT/bytes", json!(0_u32)),
     ] {
         let mut changed = original.clone();
         *changed

@@ -59,7 +59,7 @@ fn source_url(package: &Value, source_commit: &str, upstream_path: &str) -> Resu
     {
         return Err(error("supplemental revision mismatch"));
     }
-    relative_path(upstream_path)?;
+    let _path: &Path = relative_path(upstream_path)?;
     Ok(format!(
         "https://raw.githubusercontent.com/{repository}/{source_commit}/{upstream_path}"
     ))

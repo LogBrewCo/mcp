@@ -8,7 +8,7 @@ const TARGET: &str = "aarch64-unknown-linux-gnu";
 fn inventory() -> Result<Value> {
     let text = "synthetic component attribution\n";
     Ok(
-        json!({"format_version":1,"scope":"linked_target_source_notices",
+        json!({"format_version":1_u32,"scope":"linked_target_source_notices",
         "target":TARGET,"binary_sha256":"b".repeat(64),
         "components":[{"name":"synthetic-runtime","version":"1.0.0",
             "source_url":"https://example.com/runtime/1.0.0.tar.gz",
@@ -30,15 +30,15 @@ fn bound_inventory_preserves_external_coverage_and_permission_requirements() -> 
     ] {
         assert_eq!(report.get(key), Some(&json!("external_required")), "{key}");
     }
-    assert_eq!(report.get("components"), Some(&json!(1)));
-    assert_eq!(report.get("notices"), Some(&json!(1)));
+    assert_eq!(report.get("components"), Some(&json!(1_u32)));
+    assert_eq!(report.get("notices"), Some(&json!(1_u32)));
     Ok(())
 }
 
 #[test]
 fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Result<()> {
     for (key, value) in [
-        ("format_version", json!(2)),
+        ("format_version", json!(2_u32)),
         ("scope", json!("complete_permission")),
         ("target", json!("x86_64-unknown-linux-gnu")),
         ("binary_sha256", json!("c".repeat(64))),
@@ -46,7 +46,7 @@ fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Resul
         ("components", json!([])),
     ] {
         let mut value_inventory = inventory()?;
-        value_inventory
+        let _previous: Option<Value> = value_inventory
             .as_object_mut()
             .ok_or("missing inventory")?
             .insert(key.into(), value);
@@ -57,7 +57,9 @@ fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Resul
         "\"format_version\":1",
         "\"format_version\":1,\"format_version\":1",
     );
-    assert!(validate(TARGET, &"b".repeat(64), duplicate.as_bytes()).is_err());
+    let _error: Box<dyn std::error::Error> =
+        validate(TARGET, &"b".repeat(64), duplicate.as_bytes())
+            .expect_err("input must be rejected");
     Ok(())
 }
 
@@ -71,7 +73,7 @@ fn modified_text_paths_and_unrecognized_notice_fields_are_rejected() -> Result<(
         ("unknown", json!(true)),
     ] {
         let mut value_inventory = inventory()?;
-        value_inventory
+        let _previous: Option<Value> = value_inventory
             .pointer_mut("/components/0/notices/0")
             .and_then(Value::as_object_mut)
             .ok_or("missing notice")?
@@ -122,8 +124,11 @@ fn notice_text_and_encoded_inventory_limits_reject_before_packaging() -> Result<
         .pointer_mut("/components/0/notices/0")
         .ok_or("missing notice")?;
     *notice = json!({"upstream_path":"COPYING","sha256":checksum(text.as_bytes())?,"text":text});
-    assert!(check(&value_inventory).is_err());
-    assert!(validate(TARGET, &"b".repeat(64), &vec![b' '; (4 << 20) + 1]).is_err());
+    let _error: Box<dyn std::error::Error> =
+        check(&value_inventory).expect_err("input must be rejected");
+    let _error: Box<dyn std::error::Error> =
+        validate(TARGET, &"b".repeat(64), &vec![b' '; (4 << 20) + 1])
+            .expect_err("oversized inventory must be rejected");
     Ok(())
 }
 
@@ -135,7 +140,7 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
         .ok_or("missing component")?
         .clone();
     let mut sources = Vec::new();
-    for index in 0..64 {
+    for index in 0_usize..64_usize {
         let mut source = original.clone();
         *source.get_mut("name").ok_or("missing name")? = json!(format!("runtime-{index}"));
         let first = source
@@ -143,7 +148,7 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
             .ok_or("missing notice")?
             .clone();
         let mut notices = Vec::new();
-        for notice_index in 0..4 {
+        for notice_index in 0_usize..4_usize {
             let mut notice = first.clone();
             *notice.get_mut("upstream_path").ok_or("missing path")? =
                 json!(format!("COPYING-{notice_index}"));
@@ -156,8 +161,8 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
         .get_mut("components")
         .ok_or("missing components")? = json!(sources);
     let report = check(&value_inventory)?;
-    assert_eq!(report.get("components"), Some(&json!(64)));
-    assert_eq!(report.get("notices"), Some(&json!(256)));
+    assert_eq!(report.get("components"), Some(&json!(64_u32)));
+    assert_eq!(report.get("notices"), Some(&json!(256_u32)));
     let values = value_inventory
         .pointer_mut("/components/0/notices")
         .and_then(Value::as_array_mut)
@@ -165,6 +170,7 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
     let mut additional = values.first().ok_or("missing notice")?.clone();
     *additional.get_mut("upstream_path").ok_or("missing path")? = json!("ADDITIONAL");
     values.push(additional);
-    assert!(check(&value_inventory).is_err());
+    let _error: Box<dyn std::error::Error> =
+        check(&value_inventory).expect_err("input must be rejected");
     Ok(())
 }

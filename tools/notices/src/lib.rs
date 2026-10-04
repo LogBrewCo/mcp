@@ -19,7 +19,7 @@ use std::{
 };
 
 use serde_json::{Value, json};
-use sha2::{Digest, Sha256};
+use sha2::{Digest as _, Sha256};
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
@@ -55,7 +55,7 @@ fn bounded(reader: impl io::Read, limit: u64) -> Result<Vec<u8>> {
         .checked_add(1)
         .ok_or_else(|| error("invalid byte limit"))?;
     let mut bytes = Vec::new();
-    reader.take(read_limit).read_to_end(&mut bytes)?;
+    let _read_bytes: usize = reader.take(read_limit).read_to_end(&mut bytes)?;
     if u64::try_from(bytes.len())? > limit {
         return Err(error("file exceeds limit"));
     }
@@ -115,20 +115,21 @@ impl Texts {
             return Err(error("notice file limit reached"));
         }
         let digest = checksum(text.as_bytes())?;
-        if let Some(existing) = self.values.get(&digest) {
-            if existing != text {
-                return Err(error("notice digest collision"));
-            }
-        } else {
-            self.bytes = self
-                .bytes
-                .checked_add(text.len())
-                .ok_or_else(|| error("text size overflow"))?;
-            if self.bytes > 16 << 20 {
-                return Err(error("total notice text budget exceeded"));
-            }
-            self.values.insert(digest.clone(), text.to_owned());
+        let existing = self.values.get(&digest);
+        if existing.is_some_and(|value| value != text) {
+            return Err(error("notice digest collision"));
         }
+        if existing.is_some() {
+            return Ok(digest);
+        }
+        self.bytes = self
+            .bytes
+            .checked_add(text.len())
+            .ok_or_else(|| error("text size overflow"))?;
+        if self.bytes > 16_usize << 20_u32 {
+            return Err(error("total notice text budget exceeded"));
+        }
+        let _previous: Option<String> = self.values.insert(digest.clone(), text.to_owned());
         Ok(digest)
     }
 }
@@ -159,7 +160,7 @@ fn registry(
             .and_then(archive::category)
             .ok_or_else(|| error("invalid notice category"))?;
         let digest = texts.insert(&text)?;
-        files.insert(
+        let _previous: Option<Value> = files.insert(
             relative,
             json!({"kind":kind,"sha256":digest,"bytes":text.len()}),
         );
@@ -168,6 +169,20 @@ fn registry(
         json!({"name":name,"version":version,"declared_license":package.get("license"),
         "repository":package.get("repository"),"vcs":collected.vcs,"files":files,
         "published_package_sha256":expected,"published_archive_verified":true}),
+    )
+}
+
+fn project_notice(package: &Value, root: &Path, texts: &mut Texts) -> Result<Value> {
+    let bytes = input::read(&root.join("LICENSE"), archive::NOTICE_BYTES)?;
+    let text = std::str::from_utf8(&bytes)?;
+    if text.trim().is_empty() {
+        return Err(error("empty project license"));
+    }
+    let digest = texts.insert(text)?;
+    Ok(
+        json!({"name":package.get("name"),"version":package.get("version"),"declared_license":package.get("license"),
+        "files":{"LICENSE":{"kind":"license","sha256":digest,"bytes":bytes.len()}},
+        "published_archive_verified":false}),
     )
 }
 
@@ -233,15 +248,7 @@ fn inventory(
             )?
         } else if string(package, "name")? == "logbrew-mcp" && source.is_none() && digest.is_none()
         {
-            let bytes = input::read(&root.join("LICENSE"), archive::NOTICE_BYTES)?;
-            let text = std::str::from_utf8(&bytes)?;
-            if text.trim().is_empty() {
-                return Err(error("empty project license"));
-            }
-            let digest = texts.insert(text)?;
-            json!({"name":package.get("name"),"version":package.get("version"),"declared_license":package.get("license"),
-                "files":{"LICENSE":{"kind":"license","sha256":digest,"bytes":bytes.len()}},
-                "published_archive_verified":false})
+            project_notice(package, root, texts)?
         } else {
             return Err(error("unsupported source"));
         };
@@ -284,13 +291,13 @@ fn generate(
             return Err(error("package has no verified notice source"));
         }
     }
-    let output = json!({"format_version":1,"scope":"all_locked_packages_including_inactive_and_development",
+    let output = json!({"format_version":1_u32,"scope":"all_locked_packages_including_inactive_and_development",
         "inventory_kind":"named_source_license_and_attribution_files","binary_and_toolchain_coverage":"not_evaluated",
         "license_permission_check":"separate_cargo_deny_gate_required","cargo_lock_sha256":checksum(lock_bytes)?,
         "supplement_manifest_sha256":checksum(supplemental_bytes)?,"packages":packages,"texts":texts.values});
     let mut bytes = serde_json::to_vec_pretty(&output)?;
     bytes.push(b'\n');
-    if bytes.len() > 64 << 20 {
+    if bytes.len() > 64_usize << 20_u32 {
         return Err(error("output budget exceeded"));
     }
     Ok(bytes)

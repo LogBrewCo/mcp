@@ -11,7 +11,7 @@ use serde_json::{Value, json};
 use super::{TextBudget, bytes};
 
 pub fn validate_commands(region: &[u8], count: u32) -> Result<()> {
-    let mut offset = 0usize;
+    let mut offset = 0_usize;
     for _ in 0..count {
         let size_offset = offset.checked_add(4).ok_or("command offset overflow")?;
         let size = usize::try_from(u32::from_le_bytes(bytes(region, size_offset)?))?;
@@ -43,18 +43,69 @@ pub fn validate_commands(region: &[u8], count: u32) -> Result<()> {
                 contained_records(command, 56, 68, value.nsects)?;
                 None
             }
-            _ => None,
+            CommandVariant::Uuid(_)
+            | CommandVariant::Symtab(_)
+            | CommandVariant::Symseg(_)
+            | CommandVariant::Thread(_)
+            | CommandVariant::Unixthread(_)
+            | CommandVariant::LoadFvmlib(_)
+            | CommandVariant::IdFvmlib(_)
+            | CommandVariant::Ident(_)
+            | CommandVariant::Fvmfile(_)
+            | CommandVariant::Prepage(_)
+            | CommandVariant::Dysymtab(_)
+            | CommandVariant::LoadDylinker(_)
+            | CommandVariant::IdDylinker(_)
+            | CommandVariant::PreboundDylib(_)
+            | CommandVariant::Routines32(_)
+            | CommandVariant::Routines64(_)
+            | CommandVariant::SubFramework(_)
+            | CommandVariant::SubUmbrella(_)
+            | CommandVariant::SubClient(_)
+            | CommandVariant::SubLibrary(_)
+            | CommandVariant::TwolevelHints(_)
+            | CommandVariant::PrebindCksum(_)
+            | CommandVariant::CodeSignature(_)
+            | CommandVariant::SegmentSplitInfo(_)
+            | CommandVariant::EncryptionInfo32(_)
+            | CommandVariant::EncryptionInfo64(_)
+            | CommandVariant::DyldInfo(_)
+            | CommandVariant::DyldInfoOnly(_)
+            | CommandVariant::VersionMinMacosx(_)
+            | CommandVariant::VersionMinIphoneos(_)
+            | CommandVariant::FunctionStarts(_)
+            | CommandVariant::DyldEnvironment(_)
+            | CommandVariant::Main(_)
+            | CommandVariant::DataInCode(_)
+            | CommandVariant::FilesetEntry(_)
+            | CommandVariant::SourceVersion(_)
+            | CommandVariant::DylibCodeSignDrs(_)
+            | CommandVariant::LinkerOption(_)
+            | CommandVariant::LinkerOptimizationHint(_)
+            | CommandVariant::VersionMinTvos(_)
+            | CommandVariant::VersionMinWatchos(_)
+            | CommandVariant::DyldExportsTrie(_)
+            | CommandVariant::DyldChainedFixups(_)
+            | CommandVariant::Note(_)
+            | CommandVariant::Unimplemented(_) => None,
+            // Review future Goblin variants before accepting their command layout.
+            _ => return Err(error("unsupported binary load command")),
         };
         if let Some((minimum, start)) = string {
-            let start = usize::try_from(start)?;
-            if start < minimum || !command.get(start..).is_some_and(|value| value.contains(&0)) {
-                return Err(error("load command string exceeds its command"));
-            }
+            validate_string(command, minimum, start)?;
         }
         offset = end;
     }
     if offset != region.len() {
         return Err(error("load command sizes differ from declared region"));
+    }
+    Ok(())
+}
+
+fn validate_string(command: &[u8], minimum: usize, start: u32) -> Result<()> {
+    let start = usize::try_from(start)?;
+    if start < minimum || !command.get(start..).is_some_and(|value| value.contains(&0)) {
+        return Err(error("load command string exceeds its command"));
     }
     Ok(())
 }
@@ -93,7 +144,58 @@ pub fn requirements(binary: &MachO<'_>) -> Result<Value> {
             }
             CommandVariant::VersionMinMacosx(build) => Some(json!({"kind":"version_min_macos",
                 "minimum_os":version(build.version),"sdk":version(build.sdk)})),
-            _ => None,
+            CommandVariant::Segment32(_)
+            | CommandVariant::Segment64(_)
+            | CommandVariant::Uuid(_)
+            | CommandVariant::Symtab(_)
+            | CommandVariant::Symseg(_)
+            | CommandVariant::Thread(_)
+            | CommandVariant::Unixthread(_)
+            | CommandVariant::LoadFvmlib(_)
+            | CommandVariant::IdFvmlib(_)
+            | CommandVariant::Ident(_)
+            | CommandVariant::Fvmfile(_)
+            | CommandVariant::Prepage(_)
+            | CommandVariant::Dysymtab(_)
+            | CommandVariant::LoadDylib(_)
+            | CommandVariant::IdDylib(_)
+            | CommandVariant::LoadDylinker(_)
+            | CommandVariant::IdDylinker(_)
+            | CommandVariant::PreboundDylib(_)
+            | CommandVariant::Routines32(_)
+            | CommandVariant::Routines64(_)
+            | CommandVariant::SubFramework(_)
+            | CommandVariant::SubUmbrella(_)
+            | CommandVariant::SubClient(_)
+            | CommandVariant::SubLibrary(_)
+            | CommandVariant::TwolevelHints(_)
+            | CommandVariant::PrebindCksum(_)
+            | CommandVariant::LoadWeakDylib(_)
+            | CommandVariant::Rpath(_)
+            | CommandVariant::CodeSignature(_)
+            | CommandVariant::SegmentSplitInfo(_)
+            | CommandVariant::ReexportDylib(_)
+            | CommandVariant::LazyLoadDylib(_)
+            | CommandVariant::EncryptionInfo32(_)
+            | CommandVariant::EncryptionInfo64(_)
+            | CommandVariant::DyldInfo(_)
+            | CommandVariant::DyldInfoOnly(_)
+            | CommandVariant::LoadUpwardDylib(_)
+            | CommandVariant::FunctionStarts(_)
+            | CommandVariant::DyldEnvironment(_)
+            | CommandVariant::Main(_)
+            | CommandVariant::DataInCode(_)
+            | CommandVariant::FilesetEntry(_)
+            | CommandVariant::SourceVersion(_)
+            | CommandVariant::DylibCodeSignDrs(_)
+            | CommandVariant::LinkerOption(_)
+            | CommandVariant::LinkerOptimizationHint(_)
+            | CommandVariant::DyldExportsTrie(_)
+            | CommandVariant::DyldChainedFixups(_)
+            | CommandVariant::Note(_)
+            | CommandVariant::Unimplemented(_) => None,
+            // Review future Goblin variants before accepting their requirements.
+            _ => return Err(error("unsupported binary load requirement command")),
         };
         if let Some(record) = record
             && deployment.replace(record).is_some()

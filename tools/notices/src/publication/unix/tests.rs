@@ -18,7 +18,7 @@ impl Fixture {
         let root = std::env::temp_dir()
             .join(&staged.name)
             .with_extension("directory");
-        fs::create_dir(&root)?;
+        fs::DirBuilder::new().create(&root)?;
         Ok(Self { root })
     }
 
@@ -31,7 +31,7 @@ impl Fixture {
 
 impl Drop for Fixture {
     fn drop(&mut self) {
-        let _ = fs::remove_dir_all(&self.root);
+        let _cleanup: io::Result<()> = fs::remove_dir_all(&self.root);
     }
 }
 
@@ -78,7 +78,7 @@ fn rejects_fifo_socket_and_directory_without_opening_them() -> Result<()> {
     let socket = fixture.root.join("socket");
     let _listener = UnixListener::bind(&socket)?;
     let directory = fixture.root.join("directory");
-    fs::create_dir(&directory)?;
+    fs::DirBuilder::new().create(&directory)?;
     for path in [&fifo, &socket, &directory] {
         assert!(write(path, b"replacement").is_err());
     }
@@ -91,7 +91,7 @@ fn rejects_symlinked_output_directory() -> Result<()> {
     let fixture = Fixture::new()?;
     let target = fixture.root.join("target");
     let link = fixture.root.join("link");
-    fs::create_dir(&target)?;
+    fs::DirBuilder::new().create(&target)?;
     std::os::unix::fs::symlink(&target, &link)?;
     assert!(write(&link.join("output.json"), b"replacement").is_err());
     assert!(fs::read_dir(target)?.next().is_none());
@@ -103,12 +103,12 @@ fn rejects_changed_parent_and_cleans_only_its_original_directory() -> Result<()>
     let fixture = Fixture::new()?;
     let parent = fixture.root.join("parent");
     let archived = fixture.root.join("original");
-    fs::create_dir(&parent)?;
+    fs::DirBuilder::new().create(&parent)?;
     fs::write(parent.join("output.json"), b"previous complete inventory")?;
     let mut staged = Staged::create(&parent)?;
     staged.file.write_all(b"replacement")?;
     fs::rename(&parent, &archived)?;
-    fs::create_dir(&parent)?;
+    fs::DirBuilder::new().create(&parent)?;
     fs::write(parent.join("output.json"), b"new directory output")?;
     assert!(staged.publish(&parent, "output.json".as_ref()).is_err());
     assert_eq!(

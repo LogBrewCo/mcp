@@ -8,3 +8,4 @@ cargo-ignore-publish = true
 # Reviewed 2026-10-04; review by 2026-11-04 or before a lockfile change.
 # https://rust-lang.github.io/rust-clippy/rust-1.99.0/index.html#multiple_crate_versions
 allowed-duplicate-crates = ["syn"]
+excessive-nesting-threshold = 3

@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, io::Write as _};
+use std::{collections::BTreeSet, io::Write as _, path::Path};
 
 use serde_json::{Map, Value, json};
 
@@ -55,14 +55,14 @@ fn reference(
     path: &str,
     record: &Value,
 ) -> Result<()> {
-    relative_path(path)?;
+    let _path: &Path = relative_path(path)?;
     let digest = string(record, "sha256")?;
     let content = texts
         .get(digest)
         .and_then(Value::as_str)
         .ok_or_else(|| error("missing referenced notice text"))?;
-    text(record, content, 1 << 20)?;
-    seen.insert(digest.to_owned());
+    let _content: &str = text(record, content, 1_usize << 20_u32)?;
+    let _new: bool = seen.insert(digest.to_owned());
     writeln!(output, "  {path}\n    SHA-256: {digest}")?;
     Ok(())
 }
@@ -77,7 +77,7 @@ fn dependencies(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut output = writer();
     output.write_all(b"LogBrew MCP locked dependency source notices\n\nIncludes inactive and development packages.\nThe package index identifies each source file by SHA-256.\nEach unique upstream text appears once in the notice texts section.\n\nPackage index\n=============\n")?;
     let mut seen = BTreeSet::new();
-    let mut count = 0usize;
+    let mut count = 0_usize;
     for (key, package) in packages {
         if identity(package)? != *key {
             return Err(error("readable dependency identity mismatch"));
@@ -92,7 +92,10 @@ fn dependencies(bytes: &[u8]) -> Result<Vec<u8>> {
                     .ok_or_else(|| error("invalid supplemental notice list"))
             })
             .transpose()?;
-        let package_count = files.len() + supplements.map_or(0, Vec::len);
+        let package_count = files
+            .len()
+            .checked_add(supplements.map_or(0, Vec::len))
+            .ok_or_else(|| error("readable notice count overflow"))?;
         count = count
             .checked_add(package_count)
             .ok_or_else(|| error("readable notice count overflow"))?;
@@ -167,14 +170,14 @@ pub(super) fn derive(dependency: &[u8], toolchain: &[u8], linked: &[u8]) -> Resu
 pub(super) fn report(files: &[File]) -> Result<Value> {
     let mut entries = Map::new();
     for file in files {
-        entries.insert(
+        let _previous: Option<Value> = entries.insert(
             file.path.into(),
             json!({"bytes":file.bytes.len(),"sha256":checksum(&file.bytes)?,
                 "source_inventory":file.inventory,"source_inventory_sha256":file.inventory_sha256}),
         );
     }
     Ok(
-        json!({"format_version":1,"scope":"readable_copies_of_bound_inventory_texts",
+        json!({"format_version":1_u32,"scope":"readable_copies_of_bound_inventory_texts",
         "upstream_text":"preserved_verbatim","license_permission_check":"external_required",
         "files":entries}),
     )

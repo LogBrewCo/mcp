@@ -95,7 +95,7 @@ fn hex(value: &str, length: usize) -> bool {
 
 impl Plan {
     fn parse(bytes: &[u8]) -> Result<Self> {
-        if bytes.len() > 16 << 10 {
+        if bytes.len() > 16_usize << 10_u32 {
             return Err(error("packaging plan exceeds limit"));
         }
         let plan: Self = serde_json::from_slice(bytes)?;
@@ -133,20 +133,20 @@ struct Output {
 }
 
 impl io::Write for Output {
-    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         if self
             .bytes
             .len()
-            .checked_add(bytes.len())
+            .checked_add(buf.len())
             .is_none_or(|size| size > self.limit)
         {
             return Err(io::Error::other("compressed package exceeds limit"));
         }
         self.bytes
-            .try_reserve(bytes.len())
+            .try_reserve(buf.len())
             .map_err(io::Error::other)?;
-        self.bytes.extend_from_slice(bytes);
-        Ok(bytes.len())
+        self.bytes.extend_from_slice(buf);
+        Ok(buf.len())
     }
 
     fn flush(&mut self) -> io::Result<()> {
@@ -171,12 +171,12 @@ fn append(builder: &mut Builder, prefix: &str, path: &str, bytes: &[u8], mode: u
 fn notices(plan: &Plan, dependency: &[u8], toolchain: &[u8]) -> Result<()> {
     let dependency: Value = serde_json::from_slice(dependency)?;
     let toolchain: Value = serde_json::from_slice(toolchain)?;
-    if dependency.get("format_version") != Some(&Value::from(1))
+    if dependency.get("format_version") != Some(&Value::from(1_u32))
         || dependency.get("cargo_lock_sha256").and_then(Value::as_str)
             != Some(&plan.cargo_lock_sha256)
         || dependency.get("scope").and_then(Value::as_str)
             != Some("all_locked_packages_including_inactive_and_development")
-        || toolchain.get("format_version") != Some(&Value::from(1))
+        || toolchain.get("format_version") != Some(&Value::from(1_u32))
         || toolchain.get("scope").and_then(Value::as_str)
             != Some("rust_standard_library_source_notices")
         || toolchain.get("release").and_then(Value::as_str) != Some(&plan.rust_release)
@@ -281,7 +281,7 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
     for file in &readable {
         append(&mut builder, &prefix, file.path, &file.bytes, 0o644)?;
     }
-    let mut manifest = json!({"format_version":1,
+    let mut manifest = json!({"format_version":1_u32,
         "integrity_scope":"bound_input_bytes","release_evidence":"external_required",
         "binary_header_check":"format_and_architecture_only",
         "binary_load_requirements":requirements,
@@ -289,13 +289,13 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
         "final_linked_target_notices":"external_required",
         "packaging_plan_sha256":checksum(plan_bytes)?,"plan":plan});
     if let Some((_, report)) = linked {
-        manifest
+        let _previous: Option<Value> = manifest
             .as_object_mut()
             .ok_or_else(|| error("invalid package manifest"))?
             .insert("linked_target_notice_inventory".into(), report);
     }
     if !readable.is_empty() {
-        manifest
+        let _previous: Option<Value> = manifest
             .as_object_mut()
             .ok_or_else(|| error("invalid package manifest"))?
             .insert("readable_notices".into(), readable::report(&readable)?);

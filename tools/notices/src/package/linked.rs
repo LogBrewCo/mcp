@@ -1,4 +1,4 @@
-use std::{collections::BTreeSet, io::Write as _};
+use std::{collections::BTreeSet, io::Write as _, path::Path};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
@@ -60,10 +60,10 @@ fn component(component: &Component) -> Result<String> {
     }
     let mut seen = BTreeSet::new();
     for notice in &component.notices {
-        relative_path(&notice.upstream_path)?;
+        let _path: &Path = relative_path(&notice.upstream_path)?;
         if !seen.insert(&notice.upstream_path)
             || notice.text.trim().is_empty()
-            || notice.text.len() > 512 << 10
+            || notice.text.len() > 512_usize << 10_u32
             || checksum(notice.text.as_bytes())? != notice.sha256
         {
             return Err(error("invalid linked component notice text"));
@@ -73,7 +73,7 @@ fn component(component: &Component) -> Result<String> {
 }
 
 pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value> {
-    if bytes.len() > 4 << 20 {
+    if bytes.len() > 4_usize << 20_u32 {
         return Err(error("linked notice inventory exceeds limit"));
     }
     let inventory: Inventory = serde_json::from_slice(bytes)?;
@@ -87,7 +87,7 @@ pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value
         return Err(error("linked notice inventory identity mismatch"));
     }
     let mut seen = BTreeSet::new();
-    let mut count = 0usize;
+    let mut count = 0_usize;
     for source in &inventory.components {
         if !seen.insert(component(source)?) {
             return Err(error("duplicate linked component"));

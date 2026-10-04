@@ -37,6 +37,37 @@ fn permissions(directory: impl AsFd, name: &OsStr) -> Result<Mode> {
     }
 }
 
+fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
+    let sequence = SEQUENCE
+        .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
+            value.checked_add(1)
+        })
+        .map_err(|_| error("notice staging sequence exhausted"))?;
+    let name = OsString::from(format!(
+        ".logbrew-notices-{}-{sequence}.tmp",
+        std::process::id()
+    ));
+    match fs::openat(
+        directory,
+        &name,
+        OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::RUSR | Mode::WUSR,
+    ) {
+        Ok(file) => Ok(Some((File::from(file), name))),
+        Err(Errno::EXIST) => Ok(None),
+        Err(error) => Err(error.into()),
+    }
+}
+
+fn stage_file(directory: &OwnedFd) -> Result<(File, OsString)> {
+    for _ in 0_u8..8_u8 {
+        if let Some(file) = create_file(directory)? {
+            return Ok(file);
+        }
+    }
+    Err(error("notice staging collision limit reached"))
+}
+
 impl Staged {
     fn create(parent: &Path) -> Result<Self> {
         let directory = fs::open(
@@ -44,35 +75,13 @@ impl Staged {
             OFlags::RDONLY | OFlags::DIRECTORY | OFlags::CLOEXEC | OFlags::NOFOLLOW,
             Mode::empty(),
         )?;
-        for _ in 0..8 {
-            let sequence = SEQUENCE
-                .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
-                    value.checked_add(1)
-                })
-                .map_err(|_| error("notice staging sequence exhausted"))?;
-            let name = OsString::from(format!(
-                ".logbrew-notices-{}-{sequence}.tmp",
-                std::process::id()
-            ));
-            match fs::openat(
-                &directory,
-                &name,
-                OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
-                Mode::RUSR | Mode::WUSR,
-            ) {
-                Ok(file) => {
-                    return Ok(Self {
-                        directory,
-                        file: File::from(file),
-                        name,
-                        published: false,
-                    });
-                }
-                Err(Errno::EXIST) => {}
-                Err(error) => return Err(error.into()),
-            }
-        }
-        Err(error("notice staging collision limit reached"))
+        let (file, name) = stage_file(&directory)?;
+        Ok(Self {
+            directory,
+            file,
+            name,
+            published: false,
+        })
     }
 
     fn owns_name(&self) -> bool {
@@ -114,7 +123,8 @@ impl Staged {
 impl Drop for Staged {
     fn drop(&mut self) {
         if !self.published && self.owns_name() {
-            let _ = fs::unlinkat(&self.directory, &self.name, AtFlags::empty());
+            let _cleanup: rustix::io::Result<()> =
+                fs::unlinkat(&self.directory, &self.name, AtFlags::empty());
         }
     }
 }
@@ -128,13 +138,13 @@ fn replace(path: &Path, write: impl FnOnce(&mut File) -> io::Result<()>) -> Resu
         .filter(|parent| !parent.as_os_str().is_empty())
         .unwrap_or_else(|| Path::new("."));
     let mut staged = Staged::create(parent)?;
-    permissions(&staged.directory, destination)?;
+    let _initial_permissions: Mode = permissions(&staged.directory, destination)?;
     write(&mut staged.file)?;
     staged.publish(parent, destination)
 }
 
 pub fn write(path: &Path, bytes: &[u8]) -> Result<()> {
-    if bytes.len() > 64 << 20 {
+    if bytes.len() > 64_usize << 20_u32 {
         return Err(error("notice output exceeds limit"));
     }
     replace(path, |file| file.write_all(bytes))

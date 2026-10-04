@@ -16,19 +16,19 @@ mod readable;
 fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
     let mut binary = vec![0; 56];
     for (start, bytes) in [
-        (0, 0xfeed_facfu32),
-        (4, 0x0100_000cu32),
-        (12, 2u32),
+        (0_usize, 0xfeed_facf_u32),
+        (4, 0x0100_000c_u32),
+        (12, 2_u32),
         (16, 1),
         (20, 24),
         (32, goblin::mach::load_command::LC_BUILD_VERSION),
         (36, 24),
         (40, 1),
-        (44, 11 << 16),
-        (48, 27 << 16),
+        (44, 11_u32 << 16_u32),
+        (48, 27_u32 << 16_u32),
     ] {
         binary
-            .get_mut(start..start + 4)
+            .get_mut(start..start.checked_add(4).ok_or("fixture header overflow")?)
             .ok_or("invalid fixture header")?
             .copy_from_slice(&bytes.to_le_bytes());
     }
@@ -44,13 +44,13 @@ fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
         (
             "licenses/locked-source-notices.json",
             serde_json::to_vec(&json!({
-            "format_version":1,"scope":"all_locked_packages_including_inactive_and_development",
+            "format_version":1_u32,"scope":"all_locked_packages_including_inactive_and_development",
             "cargo_lock_sha256":digest(lock)?}))?,
         ),
         (
             "licenses/locked-rust-toolchain-notices.json",
             serde_json::to_vec(&json!({
-            "format_version":1,"scope":"rust_standard_library_source_notices",
+            "format_version":1_u32,"scope":"rust_standard_library_source_notices",
             "release":"1.99.0","target":"aarch64-apple-darwin"}))?,
         ),
     ]))
@@ -58,9 +58,9 @@ fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
 
 fn fixture() -> Result<Fixture> {
     let fixture = Fixture::new()?;
-    fs::create_dir(fixture.root.join("licenses"))?;
+    fs::create_dir_all(fixture.root.join("licenses"))?;
     let source_files = files()?;
-    let mut plan = json!({"format_version":1,"package_version":"0.1.0",
+    let mut plan = json!({"format_version":1_u32,"package_version":"0.1.0",
         "build_identity":"development","source_revision":"uncommitted","rust_release":"1.99.0",
         "target":"aarch64-apple-darwin","cargo_lock_sha256":digest(source_files.get("Cargo.lock").ok_or("missing lock")?)?});
     for (field, path) in [
@@ -74,7 +74,7 @@ fn fixture() -> Result<Fixture> {
         ),
     ] {
         let bytes = source_files.get(path).ok_or("missing source")?;
-        plan.as_object_mut().ok_or("missing plan object")?.insert(
+        let _previous: Option<Value> = plan.as_object_mut().ok_or("missing plan object")?.insert(
             field.into(),
             json!({"bytes":bytes.len(),"sha256":digest(bytes)?}),
         );
@@ -97,20 +97,8 @@ fn run(fixture: &Fixture) -> Result<std::process::Output> {
         .output()?)
 }
 
-#[test]
-fn package_is_reproducible_and_preserves_all_bound_bytes_with_fixed_metadata() -> Result<()> {
-    let fixture = fixture()?;
-    let result = run(&fixture)?;
-    assert!(
-        result.status.success(),
-        "{}",
-        String::from_utf8_lossy(&result.stderr)
-    );
-    assert_eq!(result.stdout, [0u8; 0]);
-    let first = fs::read(fixture.root.join("package.tar.gz"))?;
-    assert!(run(&fixture)?.status.success());
-    assert_eq!(fs::read(fixture.root.join("package.tar.gz"))?, first);
-    let mut archive = tar::Archive::new(MultiGzDecoder::new(first.as_slice()));
+fn archived_package(bytes: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
+    let mut archive = tar::Archive::new(MultiGzDecoder::new(bytes));
     let mut archived = BTreeMap::new();
     for entry in archive.entries()? {
         let mut entry = entry?;
@@ -129,25 +117,45 @@ fn package_is_reproducible_and_preserves_all_bound_bytes_with_fixed_metadata() -
             }
         );
         let mut bytes = Vec::new();
-        entry.read_to_end(&mut bytes)?;
+        let _read_bytes: usize = entry.read_to_end(&mut bytes)?;
         assert!(archived.insert(relative.to_owned(), bytes).is_none());
     }
     let mut decoded = archive.into_inner();
-    std::io::copy(&mut decoded, &mut std::io::sink())?;
+    let _remaining_bytes: u64 = std::io::copy(&mut decoded, &mut std::io::sink())?;
     let header = decoded.header().ok_or("missing gzip header")?;
     assert_eq!(header.mtime(), 0);
     assert!(header.filename().is_none());
     assert!(header.comment().is_none());
+    Ok(archived)
+}
+
+fn archived_path(path: &str) -> &str {
+    match path {
+        "server" => "bin/logbrew-mcp",
+        _ => path,
+    }
+}
+
+#[test]
+fn package_is_reproducible_and_preserves_all_bound_bytes_with_fixed_metadata() -> Result<()> {
+    let fixture = fixture()?;
+    let result = run(&fixture)?;
+    assert!(
+        result.status.success(),
+        "{}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(result.stdout, [0_u8; 0]);
+    let first = fs::read(fixture.root.join("package.tar.gz"))?;
+    assert!(run(&fixture)?.status.success());
+    assert_eq!(fs::read(fixture.root.join("package.tar.gz"))?, first);
+    let archived = archived_package(&first)?;
     assert_eq!(archived.len(), 6);
     for (path, bytes) in files()? {
-        if path != "Cargo.lock" {
-            let archived_path = if path == "server" {
-                "bin/logbrew-mcp"
-            } else {
-                path
-            };
-            assert_eq!(archived.get(archived_path), Some(&bytes));
+        if path == "Cargo.lock" {
+            continue;
         }
+        assert_eq!(archived.get(archived_path(path)), Some(&bytes));
     }
     let manifest: Value =
         serde_json::from_slice(archived.get("MANIFEST.json").ok_or("missing manifest")?)?;
@@ -202,7 +210,7 @@ fn trusted_hash_does_not_allow_inconsistent_load_command_regions() -> Result<()>
     assert!(run(&fixture)?.status.success());
     let previous = fs::read(fixture.root.join("package.tar.gz"))?;
     let original = fs::read(fixture.root.join("server"))?;
-    for (region, command) in [(8u32, 24u32), (32, 24), (24, 0), (16, 16), (25, 25)] {
+    for (region, command) in [(8_u32, 24_u32), (32, 24), (24, 0), (16, 16), (25, 25)] {
         let mut binary = original.clone();
         binary.resize(binary.len().max(32 + usize::try_from(region)?), 0);
         binary

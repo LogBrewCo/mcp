@@ -63,40 +63,56 @@ impl<R: Read + AsFd> Pipe<R> {
         })
     }
 
+    fn append(&mut self, buffer: &[u8], count: usize, limit: usize) -> Result<()> {
+        if self
+            .bytes
+            .len()
+            .checked_add(count)
+            .is_none_or(|size| size > limit)
+        {
+            return Err(error("cargo-deny output exceeded its byte limit"));
+        }
+        self.bytes.extend_from_slice(
+            buffer
+                .get(..count)
+                .ok_or_else(|| error("invalid pipe read"))?,
+        );
+        Ok(())
+    }
+
+    fn read_once(&mut self, buffer: &mut [u8], limit: usize) -> Result<bool> {
+        match self.reader.read(buffer) {
+            Ok(0) => {
+                self.closed = true;
+                Ok(false)
+            }
+            Ok(count) => {
+                self.append(buffer, count, limit)?;
+                Ok(true)
+            }
+            Err(err) if err.kind() == io::ErrorKind::WouldBlock => Ok(false),
+            Err(err) if err.kind() == io::ErrorKind::Interrupted => Ok(true),
+            Err(err) => Err(err.into()),
+        }
+    }
+
     fn drain(&mut self, limit: usize) -> Result<()> {
         if self.closed {
             return Ok(());
         }
         let mut buffer = [0_u8; 8192];
-        // Bound work per pipe so a busy writer cannot starve the deadline.
-        for _ in 0..8 {
-            match self.reader.read(&mut buffer) {
-                Ok(0) => {
-                    self.closed = true;
-                    break;
-                }
-                Ok(count) => {
-                    if self
-                        .bytes
-                        .len()
-                        .checked_add(count)
-                        .is_none_or(|size| size > limit)
-                    {
-                        return Err(error("cargo-deny output exceeded its byte limit"));
-                    }
-                    self.bytes.extend_from_slice(
-                        buffer
-                            .get(..count)
-                            .ok_or_else(|| error("invalid pipe read"))?,
-                    );
-                }
-                Err(err) if err.kind() == io::ErrorKind::WouldBlock => break,
-                Err(err) if err.kind() == io::ErrorKind::Interrupted => {}
-                Err(err) => return Err(err.into()),
-            }
-        }
-        Ok(())
+        drain_reads(self, &mut buffer, limit)
     }
+}
+
+fn drain_reads<R: Read + AsFd>(pipe: &mut Pipe<R>, buffer: &mut [u8], limit: usize) -> Result<()> {
+    // Bound work per pipe so a busy writer cannot starve the deadline.
+    for _ in 0_u8..8_u8 {
+        if !pipe.read_once(buffer, limit)? {
+            break;
+        }
+    }
+    Ok(())
 }
 
 pub(super) fn capture(command: &mut Command, timeout: Duration, limit: usize) -> Result<Captured> {

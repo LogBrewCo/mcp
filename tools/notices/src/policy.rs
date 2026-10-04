@@ -73,6 +73,45 @@ struct Summary {
     sources: Stats,
 }
 
+fn observe(record: Record, observed: &mut Summary) -> Result<bool> {
+    match record {
+        Record::Log(log) => {
+            if !matches!(log.level.as_str(), "INFO" | "DEBUG" | "TRACE")
+                || log.message.is_empty()
+                || log.timestamp.is_empty()
+            {
+                return Err(error(
+                    "cargo-deny logged a warning, error or invalid record",
+                ));
+            }
+        }
+        Record::Diagnostic(diagnostic) => {
+            if diagnostic.message.is_empty() {
+                return Err(error("cargo-deny emitted an invalid diagnostic"));
+            }
+            // These pinned tool codes report explicit policy acceptance.
+            // Other diagnostics fail regardless of their severity.
+            let counter = match (diagnostic.code.as_str(), diagnostic.severity.as_str()) {
+                ("accepted", "help") => &mut observed.licenses.helps,
+                ("skipped", "note") => &mut observed.bans.notes,
+                _ => return Err(error("cargo-deny emitted an unaccepted diagnostic")),
+            };
+            *counter = counter
+                .checked_add(1)
+                .ok_or_else(|| error("cargo-deny diagnostic count exceeded its limit"))?;
+        }
+        Record::Summary(stats) => {
+            if stats != *observed {
+                return Err(error(
+                    "cargo-deny summary disagrees with its accepted diagnostic records",
+                ));
+            }
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 fn validate(success: bool, stdout: &[u8], stderr: &[u8]) -> Result<()> {
     if !success || !stdout.is_empty() || !stderr.ends_with(b"\n") {
         return Err(error("cargo-deny failed or produced incomplete output"));
@@ -86,43 +125,7 @@ fn validate(success: bool, stdout: &[u8], stderr: &[u8]) -> Result<()> {
         if summary || index >= RECORDS || line.is_empty() || line.len() > RECORD_BYTES {
             return Err(error("invalid cargo-deny record sequence"));
         }
-        match serde_json::from_slice::<Record>(line)? {
-            Record::Log(log) => {
-                if !matches!(log.level.as_str(), "INFO" | "DEBUG" | "TRACE")
-                    || log.message.is_empty()
-                    || log.timestamp.is_empty()
-                {
-                    return Err(error(
-                        "cargo-deny logged a warning, error or invalid record",
-                    ));
-                }
-            }
-            Record::Diagnostic(diagnostic) => {
-                if diagnostic.message.is_empty() {
-                    return Err(error("cargo-deny emitted an invalid diagnostic"));
-                }
-                // These pinned tool codes report explicit policy acceptance.
-                // Other diagnostics fail regardless of their severity.
-                let counter = match (diagnostic.code.as_str(), diagnostic.severity.as_str()) {
-                    ("accepted", "help") => &mut observed.licenses.helps,
-                    ("skipped", "note") => &mut observed.bans.notes,
-                    _ => {
-                        return Err(error("cargo-deny emitted an unaccepted diagnostic"));
-                    }
-                };
-                *counter = counter
-                    .checked_add(1)
-                    .ok_or_else(|| error("cargo-deny diagnostic count exceeded its limit"))?;
-            }
-            Record::Summary(stats) => {
-                if stats != observed {
-                    return Err(error(
-                        "cargo-deny summary disagrees with its accepted diagnostic records",
-                    ));
-                }
-                summary = true;
-            }
-        }
+        summary = observe(serde_json::from_slice::<Record>(line)?, &mut observed)?;
     }
     if !summary {
         return Err(error("cargo-deny did not complete all required checks"));

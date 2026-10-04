@@ -1,0 +1,53 @@
+[package]
+name = "logbrew-mcp-notices"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.0"
+description = "Locked source notice inventory for LogBrew MCP packaging"
+repository = "https://github.com/LogBrewCo/mcp"
+license = "Apache-2.0"
+publish = false
+default-run = "logbrew-mcp-notices"
+
+[dependencies]
+goblin = { version = "=0.10.7", default-features = false, features = ["std", "elf32", "elf64", "mach32", "mach64", "endian_fd"] }
+flate2 = { version = "=1.1.10", default-features = false, features = ["miniz_oxide"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.11.0"
+tar = { version = "=0.4.46", default-features = false }
+toml = { version = "=1.1.6", default-features = false, features = ["parse", "std", "serde"] }
+
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+rustix = { version = "=1.1.5", features = ["fs", "process"] }
+
+[lints.clippy]
+all = { level = "deny", priority = -3 }
+as_conversions = "deny"
+dbg_macro = "deny"
+exit = "deny"
+expect_used = "deny"
+indexing_slicing = "deny"
+mem_forget = "deny"
+nursery = { level = "deny", priority = -1 }
+panic = "deny"
+pedantic = { level = "deny", priority = -2 }
+print_stderr = "deny"
+print_stdout = "deny"
+string_slice = "deny"
+todo = "deny"
+undocumented_unsafe_blocks = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+
+[lints.rust]
+missing_docs = "deny"
+unsafe_code = "forbid"
+warnings = "deny"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

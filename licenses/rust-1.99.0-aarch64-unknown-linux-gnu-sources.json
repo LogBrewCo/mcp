@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "scope": "rust_standard_library_source_notices",
+  "release": "1.99.0",
+  "target": "aarch64-unknown-linux-gnu",
+  "source_commit": "b940084d7eb6a299eb4bfeb8e34901bc051e7ac4",
+  "release_date": "2026-10-01",
+  "distribution_manifest_sha256": "ce6dddc886364f8d786514771212cebe9b731ba82d6b859951c6b0ccc516b6a2",
+  "component_archive_sha256": "6780ebb1b8ae66cc5d37ebfdc70b18fe775b1083c997f4e2c963d45a7eec59bc",
+  "component_archive_url": "https://static.rust-lang.org/dist/2026-10-01/rustc-1.99.0-aarch64-unknown-linux-gnu.tar.gz",
+  "files": {
+    "COPYRIGHT": {"sha256": "172020dbfd5b53a226dfde77616190a48dcff519b0bc0e6deb91a8450782c4af", "bytes": 1571},
+    "LICENSE-APACHE": {"sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a", "bytes": 9723},
+    "LICENSE-MIT": {"sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1", "bytes": 1068},
+    "rustc/share/doc/rust/COPYRIGHT-library.html": {"sha256": "5647be074c8edf7339fd863055923a8fc80bc5610a8d4661ec3b767b9d392c27", "bytes": 1499465}
+  }
+}

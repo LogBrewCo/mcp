@@ -1,0 +1,135 @@
+{
+  "format_version": 1,
+  "notices": [
+    {
+      "file": "asn1-rs-impl-0.2.0.txt",
+      "package": "asn1-rs-impl",
+      "published_package_sha256": "7b18050c2cd6fe86c3a76584ef5e0baf286d038cda203eb6223df2cc413565f7",
+      "sha256": "a5c61b93b6ee1d104af9920cf020ff3c7efe818e31fe562c72261847a728f513",
+      "source_commit": "a20e5f7319c896737ad0f2557037817b91ad854f",
+      "source_url": "https://raw.githubusercontent.com/rusticata/asn1-rs/a20e5f7319c896737ad0f2557037817b91ad854f/LICENSE-MIT",
+      "upstream_path": "LICENSE-MIT",
+      "version": "0.2.0"
+    },
+    {
+      "file": "jni-0.22.4.txt",
+      "package": "jni",
+      "published_package_sha256": "5efd9a482cf3a427f00d6b35f14332adc7902ce91efb778580e180ff90fa3498",
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960",
+      "source_commit": "5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7",
+      "source_url": "https://raw.githubusercontent.com/jni-rs/jni-rs/5ae9458a4ec44c5318f37ddc7569c1d4ae8a69e7/LICENSE-MIT",
+      "upstream_path": "LICENSE-MIT",
+      "version": "0.22.4"
+    },
+    {
+      "file": "jni-0.22.4.txt",
+      "package": "jni-macros",
+      "published_package_sha256": "a00109accc170f0bdb141fed3e393c565b6f5e072365c3bd58f5b062591560a3",
+      "sha256": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960",
+      "source_commit": "33045a124105c939d1e2cbdcb5a39e5d868ffa03",
+      "source_url": "https://raw.githubusercontent.com/jni-rs/jni-rs/33045a124105c939d1e2cbdcb5a39e5d868ffa03/LICENSE-MIT",
+      "upstream_path": "LICENSE-MIT",
+      "version": "0.22.4"
+    },
+    {
+      "file": "jni-sys-macros-0.4.1.txt",
+      "package": "jni-sys-macros",
+      "published_package_sha256": "38c0b942f458fe50cdac086d2f946512305e5631e720728f2a61aabcd47a6264",
+      "sha256": "1d85bd754b04ceec93e98e890edd1fa3c6a22e81bcb32135806beeccefa51cd1",
+      "source_commit": "64d77b7a5f119d7b55b4e2c169a4668067ff59e6",
+      "source_url": "https://raw.githubusercontent.com/jni-rs/jni-sys/64d77b7a5f119d7b55b4e2c169a4668067ff59e6/LICENSE-MIT",
+      "upstream_path": "LICENSE-MIT",
+      "version": "0.4.1"
+    },
+    {
+      "file": "jsonschema-0.58.5.txt",
+      "package": "jsonschema-macros",
+      "published_package_sha256": "ef3da09f0a27daeae23033d6e018a5c4b606953a3a90eee16f3e360e975444d3",
+      "sha256": "117829c3ca21efb132d81a44b55363d395ab8eea18526873bc828da4c0e5f038",
+      "source_commit": "21a061d68984c7b1fb1aad3398a260c585ca89a9",
+      "source_url": "https://raw.githubusercontent.com/Stranger6667/jsonschema/21a061d68984c7b1fb1aad3398a260c585ca89a9/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.58.5"
+    },
+    {
+      "file": "jsonschema-0.58.5.txt",
+      "package": "jsonschema-macros-core",
+      "published_package_sha256": "a12bd067dca38b8182b307bca050da4c5a73f9be452d06415e03a0957517a70b",
+      "sha256": "117829c3ca21efb132d81a44b55363d395ab8eea18526873bc828da4c0e5f038",
+      "source_commit": "21a061d68984c7b1fb1aad3398a260c585ca89a9",
+      "source_url": "https://raw.githubusercontent.com/Stranger6667/jsonschema/21a061d68984c7b1fb1aad3398a260c585ca89a9/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.58.5"
+    },
+    {
+      "file": "jsonschema-0.58.5.txt",
+      "package": "jsonschema-regex",
+      "published_package_sha256": "854e9e22c420535035e95eed240cbfb4a5f4b7da74d122d63144e0c31926dbfd",
+      "sha256": "117829c3ca21efb132d81a44b55363d395ab8eea18526873bc828da4c0e5f038",
+      "source_commit": "21a061d68984c7b1fb1aad3398a260c585ca89a9",
+      "source_url": "https://raw.githubusercontent.com/Stranger6667/jsonschema/21a061d68984c7b1fb1aad3398a260c585ca89a9/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.58.5"
+    },
+    {
+      "file": "jsonschema-0.58.5.txt",
+      "package": "jsonschema-value",
+      "published_package_sha256": "4e3bfac11ac357ec620880025757d38c67da8fd5b9ef5024d19f0f360002b4ca",
+      "sha256": "117829c3ca21efb132d81a44b55363d395ab8eea18526873bc828da4c0e5f038",
+      "source_commit": "21a061d68984c7b1fb1aad3398a260c585ca89a9",
+      "source_url": "https://raw.githubusercontent.com/Stranger6667/jsonschema/21a061d68984c7b1fb1aad3398a260c585ca89a9/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.58.5"
+    },
+    {
+      "file": "rmcp-3.5.0.txt",
+      "package": "rmcp",
+      "published_package_sha256": "fae7019994ae0fe4ada40b732f798f3ff26f0f04facb1477f1bf37eb4f18a2d3",
+      "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
+      "source_commit": "0cde3c5cf3e6aff0cc852ce6045f107e95991f48",
+      "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/0cde3c5cf3e6aff0cc852ce6045f107e95991f48/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "3.5.0"
+    },
+    {
+      "file": "rustls-platform-verifier-android-0.2.0.txt",
+      "package": "rustls-platform-verifier-android",
+      "published_package_sha256": "eec689c0bc40ff2458a5977b6619cb718087084a18e02a131c599b62d05e1a5f",
+      "sha256": "1c7cf76689c837a68ed8d704994e52a0f2940c087958f860d17f3186afbdcc0c",
+      "source_commit": "252e25161a91af476cbea620e29d277592d27ec7",
+      "source_url": "https://raw.githubusercontent.com/rustls/rustls-platform-verifier/252e25161a91af476cbea620e29d277592d27ec7/LICENSE-MIT",
+      "upstream_path": "LICENSE-MIT",
+      "version": "0.2.0"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-chromium.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "845022e0c1db1abb41a6ba4cd3c4b674ec290f3359d9d3c78ae558d4c0ed9308",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/third-party/chromium/LICENSE",
+      "upstream_path": "third-party/chromium/LICENSE",
+      "version": "0.103.15"
+    },
+    {
+      "file": "simd-0.8.0.txt",
+      "package": "uuid-simd",
+      "published_package_sha256": "23b082222b4f6619906941c17eb2297fff4c2fb96cb60164170522942a200bd8",
+      "sha256": "71674605ec4c087fe9eb534e3e4f9e26eb2e4aabcd76a29fd156c6a844d44b3d",
+      "source_commit": "d74c030d9dc4f3cae02146d1f497ff62726ef09a",
+      "source_url": "https://raw.githubusercontent.com/Nugine/simd/d74c030d9dc4f3cae02146d1f497ff62726ef09a/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.8.0"
+    },
+    {
+      "file": "simd-0.8.0.txt",
+      "package": "vsimd",
+      "published_package_sha256": "5c3082ca00d5a5ef149bb8b555a72ae84c9c59f7250f013ac822ac2e49b19c64",
+      "sha256": "71674605ec4c087fe9eb534e3e4f9e26eb2e4aabcd76a29fd156c6a844d44b3d",
+      "source_commit": "d74c030d9dc4f3cae02146d1f497ff62726ef09a",
+      "source_url": "https://raw.githubusercontent.com/Nugine/simd/d74c030d9dc4f3cae02146d1f497ff62726ef09a/LICENSE",
+      "upstream_path": "LICENSE",
+      "version": "0.8.0"
+    }
+  ]
+}

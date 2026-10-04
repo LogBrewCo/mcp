@@ -1,0 +1,60 @@
+//! Bounded HTTPS serving shared by the standalone process and runtime regressions.
+
+use std::{future::Future, net::SocketAddr, time::Duration};
+
+use crate::{Failure, connections::ConnectionLimit, error::Kind, startup::Service};
+
+struct Stop(axum_server::Handle<SocketAddr>);
+
+impl Drop for Stop {
+    fn drop(&mut self) {
+        self.0.shutdown();
+    }
+}
+
+/// Serve validated configuration until termination, preserving active request drain.
+///
+/// # Errors
+/// Returns a fixed failure for listener errors, shutdown-source failure or
+/// incomplete connection drain. Cancelling this future stops admitted connections.
+pub async fn serve(
+    service: Service,
+    shutdown: impl Future<Output = Result<(), Failure>>,
+) -> Result<(), Failure> {
+    let handle = axum_server::Handle::new();
+    let _stop = Stop(handle.clone());
+    let acceptor = axum_server::tls_rustls::RustlsAcceptor::new(service.tls)
+        .handshake_timeout(Duration::from_secs(5));
+    let mut server = axum_server::bind(service.address)
+        .acceptor(ConnectionLimit::new(acceptor, 64))
+        .handle(handle.clone());
+    let _ = server
+        .http_builder()
+        .http1()
+        .timer(hyper_util::rt::TokioTimer::new())
+        .header_read_timeout(Duration::from_secs(5))
+        .max_buf_size(16 << 10)
+        .max_headers(100);
+    let _ = server
+        .http_builder()
+        .http2()
+        .timer(hyper_util::rt::TokioTimer::new())
+        .keep_alive_interval(Duration::from_secs(5))
+        .keep_alive_timeout(Duration::from_secs(5))
+        .max_header_list_size(16 << 10)
+        .max_concurrent_streams(64);
+    let future = server.serve(service.router.into_make_service());
+    tokio::pin!(future);
+    tokio::select! {
+        result = &mut future => result.map_err(|_| Kind::Unavailable.into()),
+        result = shutdown => {
+            result?;
+            handle.graceful_shutdown(Some(Duration::from_secs(12)));
+            future.await.map_err(|_| Failure::from(Kind::Unavailable))?;
+            if handle.connection_count() != 0 {
+                return Err(Kind::Unavailable.into());
+            }
+            Ok(())
+        }
+    }
+}

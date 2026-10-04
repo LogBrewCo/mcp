@@ -1,0 +1,175 @@
+use std::{
+    fs,
+    io::{self, Write as _},
+    os::unix::{fs::PermissionsExt as _, net::UnixListener},
+    path::PathBuf,
+};
+
+use super::{Staged, replace, write};
+use crate::{Result, error};
+
+struct Fixture {
+    root: PathBuf,
+}
+
+impl Fixture {
+    fn new() -> Result<Self> {
+        let staged = Staged::create(&std::env::temp_dir())?;
+        let root = std::env::temp_dir()
+            .join(&staged.name)
+            .with_extension("directory");
+        fs::create_dir(&root)?;
+        Ok(Self { root })
+    }
+
+    fn entries(&self) -> Result<Vec<PathBuf>> {
+        Ok(fs::read_dir(&self.root)?
+            .map(|entry| entry.map(|entry| entry.path()))
+            .collect::<io::Result<_>>()?)
+    }
+}
+
+impl Drop for Fixture {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.root);
+    }
+}
+
+#[test]
+fn failed_partial_write_preserves_previous_output_and_removes_staging_file() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let path = fixture.root.join("output.json");
+    fs::write(&path, b"previous complete inventory")?;
+    let result = replace(&path, |file| {
+        file.write_all(b"incomplete replacement")?;
+        Err(io::Error::other("controlled write failure"))
+    });
+    assert!(result.is_err());
+    assert_eq!(fs::read(&path)?, b"previous complete inventory");
+    assert_eq!(fixture.entries()?, [path]);
+    Ok(())
+}
+
+#[test]
+fn failed_initial_write_leaves_no_output_or_staging_file() -> Result<()> {
+    let fixture = Fixture::new()?;
+    assert!(
+        replace(&fixture.root.join("output.json"), |file| {
+            file.write_all(b"incomplete first inventory")?;
+            Err(io::Error::other("controlled write failure"))
+        })
+        .is_err()
+    );
+    assert_eq!(fixture.entries()?, Vec::<PathBuf>::new());
+    Ok(())
+}
+
+#[test]
+fn rejects_fifo_socket_and_directory_without_opening_them() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let fifo = fixture.root.join("pipe");
+    if !std::process::Command::new("/usr/bin/mkfifo")
+        .arg(&fifo)
+        .status()?
+        .success()
+    {
+        return Err(error("could not create fixture FIFO"));
+    }
+    let socket = fixture.root.join("socket");
+    let _listener = UnixListener::bind(&socket)?;
+    let directory = fixture.root.join("directory");
+    fs::create_dir(&directory)?;
+    for path in [&fifo, &socket, &directory] {
+        assert!(write(path, b"replacement").is_err());
+    }
+    assert_eq!(fixture.entries()?.len(), 3);
+    Ok(())
+}
+
+#[test]
+fn rejects_symlinked_output_directory() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let target = fixture.root.join("target");
+    let link = fixture.root.join("link");
+    fs::create_dir(&target)?;
+    std::os::unix::fs::symlink(&target, &link)?;
+    assert!(write(&link.join("output.json"), b"replacement").is_err());
+    assert!(fs::read_dir(target)?.next().is_none());
+    Ok(())
+}
+
+#[test]
+fn rejects_changed_parent_and_cleans_only_its_original_directory() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let parent = fixture.root.join("parent");
+    let archived = fixture.root.join("original");
+    fs::create_dir(&parent)?;
+    fs::write(parent.join("output.json"), b"previous complete inventory")?;
+    let mut staged = Staged::create(&parent)?;
+    staged.file.write_all(b"replacement")?;
+    fs::rename(&parent, &archived)?;
+    fs::create_dir(&parent)?;
+    fs::write(parent.join("output.json"), b"new directory output")?;
+    assert!(staged.publish(&parent, "output.json".as_ref()).is_err());
+    assert_eq!(
+        fs::read(archived.join("output.json"))?,
+        b"previous complete inventory"
+    );
+    assert_eq!(
+        fs::read(parent.join("output.json"))?,
+        b"new directory output"
+    );
+    assert_eq!(fs::read_dir(archived)?.count(), 1);
+    assert_eq!(fs::read_dir(parent)?.count(), 1);
+    Ok(())
+}
+
+#[test]
+fn changed_staging_name_is_rejected_and_foreign_replacement_is_preserved() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let mut staged = Staged::create(&fixture.root)?;
+    staged.file.write_all(b"replacement")?;
+    let name = fixture.root.join(&staged.name);
+    fs::remove_file(&name)?;
+    fs::write(&name, b"foreign file")?;
+    assert!(
+        staged
+            .publish(&fixture.root, "output.json".as_ref())
+            .is_err()
+    );
+    assert_eq!(fs::read(&name)?, b"foreign file");
+    assert_eq!(fixture.entries()?, [name]);
+    Ok(())
+}
+
+#[test]
+fn target_changed_to_symlink_during_staging_is_preserved() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let protected = fixture.root.join("protected");
+    fs::write(&protected, b"protected bytes")?;
+    let mut staged = Staged::create(&fixture.root)?;
+    staged.file.write_all(b"replacement")?;
+    let output = fixture.root.join("output.json");
+    std::os::unix::fs::symlink(&protected, &output)?;
+    assert!(
+        staged
+            .publish(&fixture.root, "output.json".as_ref())
+            .is_err()
+    );
+    assert!(fs::symlink_metadata(output)?.is_symlink());
+    assert_eq!(fs::read(protected)?, b"protected bytes");
+    assert_eq!(fixture.entries()?.len(), 2);
+    Ok(())
+}
+
+#[test]
+fn preserves_existing_read_write_permissions() -> Result<()> {
+    let fixture = Fixture::new()?;
+    let output = fixture.root.join("output.json");
+    fs::write(&output, b"previous")?;
+    fs::set_permissions(&output, fs::Permissions::from_mode(0o600))?;
+    write(&output, b"replacement")?;
+    assert_eq!(fs::metadata(&output)?.permissions().mode() & 0o7777, 0o600);
+    assert_eq!(fs::read(output)?, b"replacement");
+    Ok(())
+}

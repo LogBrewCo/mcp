@@ -1,0 +1,83 @@
+[package]
+name = "logbrew-mcp"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.0"
+description = "Authenticated LogBrew Model Context Protocol server"
+repository = "https://github.com/LogBrewCo/mcp"
+license = "Apache-2.0"
+publish = false
+
+[package.metadata.quality-tools]
+cargo-deny = "=0.20.2"
+
+[dependencies]
+axum = "=0.8.9"
+axum-server = { version = "=0.8.0", features = ["tls-rustls"] }
+base64 = "=0.23.1"
+http-body = "=1.1.0"
+http-body-util = "=0.1.5"
+httpdate = "=1.0.3"
+hyper = { version = "=1.11.1", features = ["client", "http1", "http2"] }
+hyper-rustls = { version = "=0.27.10", default-features = false, features = ["aws-lc-rs", "http1", "http2", "tls12"] }
+hyper-util = { version = "=0.1.21", features = ["client-legacy", "http1", "http2", "tokio"] }
+jsonschema = { version = "=0.58.5", default-features = false, features = ["arbitrary-precision"] }
+mime = "=0.3.17"
+rmcp = { version = "=3.5.0", default-features = false, features = ["server", "transport-streamable-http-server"] }
+rustix = { version = "=1.1.5", features = ["fs"] }
+rustls = { version = "=0.23.45", default-features = false, features = ["aws_lc_rs", "std", "tls12"] }
+rustls-platform-verifier = "=0.7.1"
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = { version = "=1.0.151", features = ["arbitrary_precision", "raw_value"] }
+sha2 = "=0.11.0"
+tokio = { version = "=1.53.1", features = ["macros", "rt-multi-thread", "signal", "sync", "time", "net"] }
+tokio-util = { version = "=0.7.19", features = ["rt"] }
+tower-service = "=0.3.3"
+url = "=2.5.8"
+zeroize = "=1.9.0"
+
+[dev-dependencies]
+rcgen = "=0.14.10"
+reqwest = { version = "=0.13.5", default-features = false, features = ["rustls", "http2", "json", "form"] }
+rustix = { version = "=1.1.5", features = ["process"] }
+tokio = { version = "=1.53.1", features = ["io-util"] }
+tokio-rustls = "=0.26.6"
+tower = { version = "=0.5.3", features = ["util"] }
+
+[lints.clippy]
+all = { level = "deny", priority = -3 }
+as_conversions = "deny"
+dbg_macro = "deny"
+exit = "deny"
+expect_used = "deny"
+indexing_slicing = "deny"
+mem_forget = "deny"
+nursery = { level = "deny", priority = -1 }
+panic = "deny"
+pedantic = { level = "deny", priority = -2 }
+print_stderr = "deny"
+print_stdout = "deny"
+string_slice = "deny"
+todo = "deny"
+undocumented_unsafe_blocks = "deny"
+unimplemented = "deny"
+unreachable = "deny"
+unwrap_used = "deny"
+
+[lints.rust]
+let_underscore_drop = "deny"
+missing_docs = "deny"
+unsafe_code = "forbid"
+unused_results = "deny"
+warnings = "deny"
+
+[profile.dev]
+debug = 0
+
+[profile.release]
+strip = "symbols"
+lto = "thin"
+codegen-units = 1
+
+[profile.test]
+debug = 0

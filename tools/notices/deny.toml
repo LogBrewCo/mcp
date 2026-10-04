@@ -1,0 +1,288 @@
+[graph]
+all-features = true
+
+[licenses]
+confidence-threshold = 0.95
+include-dev = true
+include-build = true
+unused-allowed-license = "deny"
+unused-license-exception = "deny"
+allow = ["Apache-2.0", "MIT", "Unicode-3.0"]
+
+[licenses.private]
+ignore = false
+
+[bans]
+multiple-versions = "deny"
+multiple-versions-include-dev = true
+wildcards = "deny"
+workspace-default-features = "deny"
+external-default-features = "deny"
+skip = [{ crate = "syn@2.0.119", reason = "scroll_derive 0.13.1 requires syn 2 while serde_derive 1.0.229 requires syn 3" }]
+
+[bans.workspace-dependencies]
+duplicates = "deny"
+include-path-dependencies = true
+unused = "deny"
+
+[bans.std-replacements]
+scope = "workspace"
+level = "deny"
+rust-version = "1.99"
+
+[[bans.features]]
+crate = "goblin@0.10.7"
+allow = ["alloc", "archive", "elf32", "elf64", "endian_fd", "log", "mach32", "mach64", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "log@0.4.34"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "plain@0.2.3"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "scroll@0.13.0"
+allow = ["derive", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "scroll_derive@0.13.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "syn@2.0.119"
+allow = ["clone-impls", "default", "derive", "parsing", "printing", "proc-macro"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "adler2@2.0.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "bitflags@2.13.2"
+allow = ["std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "block-buffer@0.12.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "cfg-if@1.0.5"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "const-oid@0.10.2"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "cpufeatures@0.3.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "crc32fast@1.5.2"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "crypto-common@0.2.2"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "digest@0.11.3"
+allow = ["alloc", "block-api", "default", "oid"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "equivalent@1.0.2"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "errno@0.3.14"
+allow = ["std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "filetime@0.2.29"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "flate2@1.1.10"
+allow = ["any_impl", "miniz_oxide"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "hashbrown@0.17.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "hybrid-array@0.4.15"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "indexmap@2.14.2"
+allow = ["std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "itoa@1.0.18"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "libc@0.2.190"
+allow = ["default", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "linux-raw-sys@0.12.1"
+allow = ["auxvec", "elf", "errno", "general", "ioctl", "no_std", "prctl"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "logbrew-mcp-notices@0.1.0"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "memchr@2.8.3"
+allow = ["alloc", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "miniz_oxide@0.9.1"
+allow = ["default", "simd", "simd-adler32", "with-alloc"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "proc-macro2@1.0.107"
+allow = ["default", "proc-macro"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "quote@1.0.47"
+allow = ["default", "proc-macro"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "rustix@1.1.5"
+allow = ["alloc", "default", "fs", "process", "std"]
+reason = "Native bounded policy checks use process groups and unreaped child status"
+
+[[bans.features]]
+crate = "serde@1.0.229"
+allow = ["default", "derive", "serde_derive", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "serde_core@1.0.229"
+allow = ["alloc", "result", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "serde_derive@1.0.229"
+allow = ["default"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "serde_json@1.0.151"
+allow = ["default", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "serde_spanned@1.1.1"
+allow = ["alloc", "serde", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "sha2@0.11.0"
+allow = ["alloc", "default", "oid"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "simd-adler32@0.3.10"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "syn@3.0.6"
+allow = ["clone-impls", "derive", "parsing", "printing", "proc-macro"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "tar@0.4.46"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "toml@1.1.6+spec-1.1.0"
+allow = ["parse", "serde", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "toml_datetime@1.1.1+spec-1.1.0"
+allow = ["alloc", "serde", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "toml_parser@1.1.3+spec-1.1.0"
+allow = ["alloc", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "toml_writer@1.1.2+spec-1.1.0"
+allow = ["alloc", "std"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "typenum@1.20.1"
+allow = ["const-generics"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "unicode-ident@1.0.26"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "windows-link@0.2.1"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "windows-sys@0.61.2"
+allow = ["Win32", "Win32_Foundation", "Win32_Networking", "Win32_Networking_WinSock", "Win32_System", "Win32_System_Diagnostics", "Win32_System_Diagnostics_Debug", "default"]
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "winnow@1.0.4"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[[bans.features]]
+crate = "zmij@1.0.23"
+allow = []
+reason = "Reviewed features for this exact locked packaging dependency"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+unused-allowed-source = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

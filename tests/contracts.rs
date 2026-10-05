@@ -199,13 +199,13 @@ fn authority_identifier_strings_keep_the_existing_root_url_form() {
 /// limits accept invalid input, or the maximum supported nesting is rejected.
 fn exact_numbers_and_resource_limits_are_preserved() {
     let bytes = b"{\"integer\":9007199254740993,\"decimal\":0.12345678901234567890123456789,\"large\":1e1024}";
-    let value = json::object(bytes, bytes.len()).expect("bounded exact values");
+    let parsed = json::object(bytes, bytes.len()).expect("bounded exact values");
     assert_eq!(
-        value.get("integer").expect("integer").to_string(),
+        parsed.get("integer").expect("integer").to_string(),
         "9007199254740993"
     );
     assert_eq!(
-        value.get("decimal").expect("decimal").to_string(),
+        parsed.get("decimal").expect("decimal").to_string(),
         "0.12345678901234567890123456789"
     );
     let _: logbrew_mcp::Failure = json::object(bytes, bytes.len().saturating_sub(1)).unwrap_err();
@@ -213,10 +213,10 @@ fn exact_numbers_and_resource_limits_are_preserved() {
         let data = format!("{{\"number\":{value}}}");
         let _: logbrew_mcp::Failure = json::object(data.as_bytes(), 1024).unwrap_err();
     }
-    let nested = format!("{}0{}", "{\"v\":".repeat(65), "}".repeat(65));
-    let _: logbrew_mcp::Failure = json::object(nested.as_bytes(), 1024).unwrap_err();
-    let nested = format!("{}0{}", "{\"v\":".repeat(64), "}".repeat(64));
-    drop(json::object(nested.as_bytes(), 1024).unwrap());
+    let over_nested = format!("{}0{}", "{\"v\":".repeat(65), "}".repeat(65));
+    let _: logbrew_mcp::Failure = json::object(over_nested.as_bytes(), 1024).unwrap_err();
+    let max_nested = format!("{}0{}", "{\"v\":".repeat(64), "}".repeat(64));
+    drop(json::object(max_nested.as_bytes(), 1024).unwrap());
 }
 
 #[test]
@@ -245,8 +245,9 @@ fn catalog_integrity_schema_isolation_and_format_assertions_are_required() {
             .output("logs.read.v1", &json!({"count":"unproven"}))
             .is_err()
     );
-    let bytes = artifact(&json!({"type":"object","$ref":"https://schemas.invalid/private"}));
-    assert!(Catalog::load(&bytes, &Sha256::digest(&bytes).into()).is_err());
+    let remote_schema =
+        artifact(&json!({"type":"object","$ref":"https://schemas.invalid/private"}));
+    assert!(Catalog::load(&remote_schema, &Sha256::digest(&remote_schema).into()).is_err());
 }
 
 #[test]
@@ -313,9 +314,9 @@ fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
             Config::decode(&serde_json::to_vec(&policy).expect("invalid reference")).unwrap_err();
     }
     *policy.get_mut("client_allowlist_file").expect("reference") = json!("/synthetic/clients.json");
-    let bytes = serde_json::to_vec(&policy).expect("policy reference");
+    let policy_bytes = serde_json::to_vec(&policy).expect("policy reference");
     assert_eq!(
-        Config::decode(&bytes)
+        Config::decode(&policy_bytes)
             .expect("version 2")
             .client_allowlist_file
             .as_deref(),

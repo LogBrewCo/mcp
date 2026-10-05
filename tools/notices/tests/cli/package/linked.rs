@@ -29,7 +29,7 @@ pub(super) fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
     let bytes = fs::read(fixture.root.join(NOTICE_PATH))?;
     let mut plan: Value = serde_json::from_slice(&fs::read(fixture.root.join("plan.json"))?)?;
     let object = plan.as_object_mut().ok_or("missing plan")?;
-    let _previous: Option<Value> = object.insert("format_version".into(), json!(2_u32));
+    let _previous_format: Option<Value> = object.insert("format_version".into(), json!(2_u32));
     let _previous: Option<Value> = object.insert(
         "linked_target_notices".into(),
         json!({"bytes":bytes.len(),"sha256":digest(&bytes)?}),
@@ -124,7 +124,7 @@ fn version_two_preserves_linked_notice_bytes_and_external_release_requirements()
 fn another_binary_or_target_and_corrupted_text_preserve_the_complete_package() -> Result<()> {
     let fixture = fixture()?;
     let original = inventory(&fixture)?;
-    let _bound: Vec<u8> = bind(&fixture, &original)?;
+    let _original_bound: Vec<u8> = bind(&fixture, &original)?;
     assert!(run(&fixture)?.status.success());
     let previous = fs::read(fixture.root.join("package.tar.gz"))?;
     for (pointer, value) in [

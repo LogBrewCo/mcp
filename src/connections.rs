@@ -110,7 +110,7 @@ where
         };
         let future = self.inner.accept(stream, service);
         Box::pin(async move {
-            let (inner, service) = future.await?;
+            let (inner, accepted_service) = future.await?;
             let cancelled = CancellationToken::new();
             Ok((
                 LimitedStream {
@@ -124,7 +124,7 @@ where
                     expired: Box::pin(cancelled.clone().cancelled_owned()),
                 },
                 ConnectedService {
-                    inner: service,
+                    inner: accepted_service,
                     connection: Connection(cancelled),
                 },
             ))

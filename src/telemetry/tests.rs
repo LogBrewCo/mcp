@@ -133,14 +133,14 @@ fn unavailable_clock_timing_is_not_recorded_as_zero_latency() {
 #[test]
 fn contention_drops_measurements_without_waiting_and_recovery_keeps_the_loss() {
     let telemetry = Telemetry::default();
-    let stats = telemetry.0.stats.lock().expect("controlled lock");
+    let search_stats = telemetry.0.stats.lock().expect("controlled lock");
     let dropped = telemetry.begin(Stage::Search);
     dropped.finish(Outcome::Completed);
     assert!(telemetry.snapshot().is_none());
-    drop(stats);
+    drop(search_stats);
     telemetry.begin(Stage::Search).finish(Outcome::Completed);
-    let snapshot = telemetry.snapshot().expect("recovered snapshot");
-    let search = snapshot
+    let search_snapshot = telemetry.snapshot().expect("recovered snapshot");
+    let search = search_snapshot
         .stages
         .iter()
         .find(|s| s.stage == Stage::Search)
@@ -174,14 +174,14 @@ fn contention_drops_measurements_without_waiting_and_recovery_keeps_the_loss() {
 fn dropped_work_is_cancelled_and_visible_while_pending() {
     let telemetry = Telemetry::default();
     let measurement = telemetry.begin(Stage::Execute);
-    let snapshot = telemetry.snapshot().expect("pending snapshot");
-    let execute = snapshot
+    let pending_snapshot = telemetry.snapshot().expect("pending snapshot");
+    let pending_execute = pending_snapshot
         .stages
         .iter()
         .find(|s| s.stage == Stage::Execute)
         .expect("execute stage");
-    assert_eq!(execute.pending, Some(1));
-    assert_eq!(execute.p99_upper_ns, None);
+    assert_eq!(pending_execute.pending, Some(1));
+    assert_eq!(pending_execute.p99_upper_ns, None);
     drop(measurement);
     let snapshot = telemetry.snapshot().expect("cancelled snapshot");
     let execute = snapshot

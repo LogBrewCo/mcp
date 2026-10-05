@@ -323,8 +323,8 @@ impl Upstream {
             return Err(Kind::Unavailable.into());
         }
         self.authorize_client(principal)?;
-        let bytes = serde_json::to_vec(input).map_err(Failure::redact(Kind::InvalidInput))?;
-        drop(strict_json::object(&bytes, INPUT_BYTES)?);
+        let input_bytes = serde_json::to_vec(input).map_err(Failure::redact(Kind::InvalidInput))?;
+        drop(strict_json::object(&input_bytes, INPUT_BYTES)?);
         let credential = &self.options.execution_credential;
         let response = self
             .client

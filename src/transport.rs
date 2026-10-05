@@ -78,11 +78,13 @@ fn acceptable_field(field: &str) -> Option<(bool, bool)> {
     let mut events = false;
     let mut quoted = false;
     let mut escaped = false;
-    for value in field.split(|character| media_separator(character, &mut quoted, &mut escaped)) {
-        if value.trim().is_empty() {
+    for media_field in
+        field.split(|character| media_separator(character, &mut quoted, &mut escaped))
+    {
+        if media_field.trim().is_empty() {
             continue;
         }
-        let media = value.trim().parse::<mime::Mime>().ok()?;
+        let media = media_field.trim().parse::<mime::Mime>().ok()?;
         let mut quality = media.params().filter(|(name, _)| *name == "q");
         let weight = quality.next().map(|(_, value)| value);
         if quality.next().is_some() {

@@ -108,30 +108,30 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
         .expect("HTTPS runtime");
     let client = running.http2_client().expect("HTTP/2 client");
 
-    let response = request(&client, &resource).send().await.expect("execution");
-    assert_eq!(response.version(), reqwest::Version::HTTP_2);
-    assert_eq!(response.status(), reqwest::StatusCode::OK);
+    let execution_response = request(&client, &resource).send().await.expect("execution");
+    assert_eq!(execution_response.version(), reqwest::Version::HTTP_2);
+    assert_eq!(execution_response.status(), reqwest::StatusCode::OK);
     assert_eq!(
-        response
+        execution_response
             .headers()
             .get("Cache-Control")
             .expect("cache control"),
         "no-store"
     );
-    assert!(response.headers().get("Mcp-Session-Id").is_none());
-    let value: Value = response.json().await.expect("JSON result");
-    assert_eq!(value.get("id"), Some(&json!("http2-check")));
+    assert!(execution_response.headers().get("Mcp-Session-Id").is_none());
+    let result: Value = execution_response.json().await.expect("JSON result");
+    assert_eq!(result.get("id"), Some(&json!("http2-check")));
     assert_eq!(
-        value.pointer("/result/structuredContent/data/count"),
+        result.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
 
-    let response = request(&client, &resource)
+    let authority_response = request(&client, &resource)
         .header("Host", "wrong.example")
         .send()
         .await
         .expect("authority rejection");
-    assert_eq!(response.status(), reqwest::StatusCode::FORBIDDEN);
+    assert_eq!(authority_response.status(), reqwest::StatusCode::FORBIDDEN);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
 
     let response = request(&client, &resource)

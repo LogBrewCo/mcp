@@ -160,11 +160,11 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
         waiting
     })
     .await??;
-    let (status, beta) = execution.run(Identity::Beta, "beta").await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    let (beta_status, beta) = execution.run(Identity::Beta, "beta").await?;
+    assert_eq!(beta_status, reqwest::StatusCode::OK);
     result(&beta, "beta")?;
-    let (status, denied) = execution.run(Identity::Beta, "alpha").await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    let (denied_status, denied) = execution.run(Identity::Beta, "alpha").await?;
+    assert_eq!(denied_status, reqwest::StatusCode::OK);
     assert_eq!(
         envelope(&denied, Some("permission_denied"))?.get("data"),
         Some(&Value::Null)
@@ -217,13 +217,13 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
         .observations
         .alpha_active
         .store(false, Ordering::SeqCst);
-    let (status, _) = execution.run(Identity::Alpha, "alpha").await?;
-    assert_eq!(status, reqwest::StatusCode::UNAUTHORIZED);
-    let (status, beta) = execution.run(Identity::Beta, "beta").await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    let (revoked_status, _) = execution.run(Identity::Alpha, "alpha").await?;
+    assert_eq!(revoked_status, reqwest::StatusCode::UNAUTHORIZED);
+    let (healthy_status, beta) = execution.run(Identity::Beta, "beta").await?;
+    assert_eq!(healthy_status, reqwest::StatusCode::OK);
     result(&beta, "beta")?;
-    let (status, _) = execution.run(Identity::Rejected, "alpha").await?;
-    assert_eq!(status, reqwest::StatusCode::FORBIDDEN);
+    let (rejected_status, _) = execution.run(Identity::Rejected, "alpha").await?;
+    assert_eq!(rejected_status, reqwest::StatusCode::FORBIDDEN);
     upstream
         .observations
         .alpha_active

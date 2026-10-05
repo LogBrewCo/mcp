@@ -43,9 +43,9 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
         crate::input::read(&file, u64::try_from(bytes.len())?)?,
         bytes
     );
-    let _error: Box<dyn std::error::Error> =
+    let _budget_error: Box<dyn std::error::Error> =
         crate::input::read(&file, 1).expect_err("input must be rejected");
-    let _error: Box<dyn std::error::Error> =
+    let _directory_error: Box<dyn std::error::Error> =
         crate::input::read(&directory.0, 1024).expect_err("input must be rejected");
     let link = directory.0.join("link");
     std::os::unix::fs::symlink(&file, &link)?;
@@ -308,9 +308,16 @@ fn rejects_mismatched_manifest_and_notice_or_entry_budget_overruns() -> Result<(
         assert!(archive::collect(&package(), &bytes, &checksum(&bytes)?, limits).is_err());
     }
     for notice in [b"\n ".as_slice(), b"\xff".as_slice()] {
-        let bytes = fixture(&[("example-1.0.0/LICENSE", notice, tar::EntryType::Regular)])?;
+        let invalid_notice =
+            fixture(&[("example-1.0.0/LICENSE", notice, tar::EntryType::Regular)])?;
         assert!(
-            archive::collect(&package(), &bytes, &checksum(&bytes)?, Limits::default()).is_err()
+            archive::collect(
+                &package(),
+                &invalid_notice,
+                &checksum(&invalid_notice)?,
+                Limits::default()
+            )
+            .is_err()
         );
     }
     Ok(())

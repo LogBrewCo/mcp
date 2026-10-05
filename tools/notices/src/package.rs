@@ -344,7 +344,7 @@ pub fn guard_output(
     let filename = output
         .file_name()
         .ok_or_else(|| error("invalid package output path"))?;
-    let output = std::fs::canonicalize(parent)?.join(filename);
+    let canonical_output = std::fs::canonicalize(parent)?.join(filename);
     let mut sources = vec![
         plan.to_path_buf(),
         binary.to_path_buf(),
@@ -358,7 +358,7 @@ pub fn guard_output(
         sources.push(root.join("licenses/linked-target-notices.json"));
     }
     for source in sources {
-        if output == std::fs::canonicalize(source)? {
+        if canonical_output == std::fs::canonicalize(source)? {
             return Err(error("package output would replace an input file"));
         }
     }

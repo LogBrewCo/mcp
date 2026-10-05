@@ -75,9 +75,9 @@ impl Config {
     /// Version 1 remains supported; version 2 requires a client allowlist file.
     /// Loading version 1 without this file authorizes no client.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
-        let value =
+        let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
-        if value.as_object().is_none_or(|fields| {
+        if document.as_object().is_none_or(|fields| {
             fields
                 .values()
                 .any(|value| value.as_str().is_none_or(str::is_empty))
@@ -85,7 +85,7 @@ impl Config {
             return Err(Kind::Configuration.into());
         }
         let config: Self =
-            serde_json::from_value(value).map_err(Failure::redact(Kind::Configuration))?;
+            serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
         if !matches!(config.version.as_str(), "1" | "2")
             || (config.version == "2" && config.client_allowlist_file.is_none())
         {
@@ -184,11 +184,11 @@ impl Service {
     /// # Errors
     /// Reports configuration failures without filenames, contents, or credentials.
     pub fn load(path: &Path) -> Result<Self, Failure> {
-        let bytes = read_file(path, 16 << 10, 0o600)?;
-        let config = Config::decode(&bytes)?;
+        let config_bytes = read_file(path, 16 << 10, 0o600)?;
+        let config = Config::decode(&config_bytes)?;
         let (address, digest) = config.address_digest()?;
-        let bytes = read_file(Path::new(&config.catalog_file), 8 << 20, 0o644)?;
-        let catalog = Catalog::load(&bytes, &digest)?;
+        let catalog_bytes = read_file(Path::new(&config.catalog_file), 8 << 20, 0o644)?;
+        let catalog = Catalog::load(&catalog_bytes, &digest)?;
         let introspection_credential = credential(
             &config.introspection_client_id,
             &config.introspection_secret_file,
@@ -204,9 +204,9 @@ impl Service {
             introspection_credential,
             execution_credential,
         })?;
-        if let Some(path) = config.client_allowlist_file {
-            let bytes = read_file(Path::new(&path), 16 << 10, 0o600)?;
-            upstream = upstream.with_client_allowlist(ClientAllowlist::decode(&bytes)?);
+        if let Some(allowlist_path) = config.client_allowlist_file {
+            let allowlist_bytes = read_file(Path::new(&allowlist_path), 16 << 10, 0o600)?;
+            upstream = upstream.with_client_allowlist(ClientAllowlist::decode(&allowlist_bytes)?);
         }
         let router = protocol::router(catalog, upstream, config.resource, config.issuer)?;
         let certificate = read_file(Path::new(&config.certificate_file), 256 << 10, 0o644)?;

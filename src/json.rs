@@ -15,8 +15,8 @@ const NUMBER_BYTES: usize = 256;
 const EXPONENT: i64 = 1024;
 
 // Convert the exact decimal value without rounding or expanding its exponent.
-pub(crate) fn unsigned_integer(value: &Value) -> Option<u64> {
-    let number = value.as_number()?;
+pub(crate) fn unsigned_integer(document: &Value) -> Option<u64> {
+    let number = document.as_number()?;
     if let Some(value) = number.as_u64() {
         return Some(value);
     }

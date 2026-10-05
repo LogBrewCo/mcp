@@ -378,7 +378,7 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
         assert_eq!(
             value
                 .get("files")
-                .and_then(|files| files.get(path))
+                .and_then(|notices| notices.get(path))
                 .and_then(|record| record.get("text"))
                 .and_then(Value::as_str)
                 .map(str::as_bytes),

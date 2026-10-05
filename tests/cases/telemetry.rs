@@ -288,8 +288,8 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
     super::runtime::wait_executions(&fixture, 1, Duration::from_secs(2))
         .await
         .expect("execution reached backend");
-    let snapshot = fixture.telemetry.snapshot().expect("pending snapshot");
-    let pending = operation(&snapshot).expect("pending operation");
+    let pending_snapshot = fixture.telemetry.snapshot().expect("pending snapshot");
+    let pending = operation(&pending_snapshot).expect("pending operation");
     let before = operation(&baseline).expect("baseline operation");
     assert_eq!(pending.started, before.started + 1);
     assert_eq!(pending.finished, before.finished);
@@ -300,10 +300,10 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
         Stage::Execute,
         Stage::UpstreamExecute,
     ] {
-        let stage = stage(&snapshot, selected).expect("pending stage");
-        let before = self::stage(&baseline, selected).expect("baseline stage");
-        assert_eq!(stage.started, before.started + 1);
-        assert_eq!(stage.finished, before.finished);
+        let stage = stage(&pending_snapshot, selected).expect("pending stage");
+        let stage_before = self::stage(&baseline, selected).expect("baseline stage");
+        assert_eq!(stage.started, stage_before.started + 1);
+        assert_eq!(stage.finished, stage_before.finished);
         assert_eq!(stage.pending, Some(1));
         assert_eq!(stage.p99_upper_ns, None);
     }

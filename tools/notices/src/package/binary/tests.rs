@@ -12,16 +12,26 @@ use crate::Result;
     reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
 )]
 fn load_text_budget_counts_json_escaping_and_combined_fields() -> Result<()> {
-    let mut budget = TextBudget::default();
+    let mut escaped_budget = TextBudget::default();
     let escaped = "\u{0001}".repeat(1366);
-    let _error: Box<dyn std::error::Error> = budget
+    let _escaped_error: Box<dyn std::error::Error> = escaped_budget
         .strings(std::iter::once(escaped.as_str()))
         .expect_err("input must be rejected");
-    let mut budget = TextBudget::default();
+    let mut boundary_budget = TextBudget::default();
     let boundary = "a".repeat(4094);
-    assert_eq!(budget.strings(std::iter::once(boundary.as_str()))?.len(), 1);
-    assert_eq!(budget.strings(std::iter::once(boundary.as_str()))?.len(), 1);
-    let _error: Box<dyn std::error::Error> = budget
+    assert_eq!(
+        boundary_budget
+            .strings(std::iter::once(boundary.as_str()))?
+            .len(),
+        1
+    );
+    assert_eq!(
+        boundary_budget
+            .strings(std::iter::once(boundary.as_str()))?
+            .len(),
+        1
+    );
+    let _boundary_error: Box<dyn std::error::Error> = boundary_budget
         .strings(std::iter::once("more"))
         .expect_err("input must be rejected");
     let mut budget = TextBudget::default();

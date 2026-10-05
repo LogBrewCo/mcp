@@ -283,9 +283,9 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let http = client(&fixture, http2)?;
-    let (status, discovered) =
+    let (discovery_status, discovered) =
         request(&http, &resource, "server/discover", json!({}), http2).await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    assert_eq!(discovery_status, reqwest::StatusCode::OK);
     assert_eq!(
         discovered.pointer("/result/resultType"),
         Some(&json!("complete"))
@@ -294,8 +294,9 @@ async fn contracts(http2: bool) -> TestResult<()> {
         discovered.pointer("/result/capabilities"),
         Some(&json!({"tools":{}}))
     );
-    let (status, inventory) = request(&http, &resource, "tools/list", json!({}), http2).await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    let (inventory_status, inventory) =
+        request(&http, &resource, "tools/list", json!({}), http2).await?;
+    assert_eq!(inventory_status, reqwest::StatusCode::OK);
     assert_eq!(
         inventory.pointer("/result/tools/0/name"),
         Some(&json!("search"))
@@ -312,10 +313,11 @@ async fn contracts(http2: bool) -> TestResult<()> {
         Some(2)
     );
     let search = json!({"name":"search","arguments":{"query":"logs","limit":1_i32}});
-    let (status, reply) = request(&http, &resource, "tools/call", search, http2).await?;
-    assert_eq!(status, reqwest::StatusCode::OK);
+    let (search_status, search_reply) =
+        request(&http, &resource, "tools/call", search, http2).await?;
+    assert_eq!(search_status, reqwest::StatusCode::OK);
     assert_eq!(
-        envelope(&reply, None)?.pointer("/data/operations/0/id"),
+        envelope(&search_reply, None)?.pointer("/data/operations/0/id"),
         Some(&json!("logs.read.v1"))
     );
     revocation(&upstream, &http, &resource, http2).await?;

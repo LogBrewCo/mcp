@@ -199,12 +199,14 @@ fn compile_entries(operations: Vec<Operation>) -> Result<BTreeMap<String, Entry>
 /// # Errors
 /// Rejects unsupported versions, missing or extra fields, invalid metadata
 /// types and operation counts outside the catalog limit.
-fn decode_operations(value: &Value) -> Result<Vec<Operation>, Failure> {
-    let fields = value.as_object().ok_or(Kind::Configuration)?;
-    if fields.len() != 2 || fields.get("format_version").and_then(Value::as_u64) != Some(1) {
+fn decode_operations(document: &Value) -> Result<Vec<Operation>, Failure> {
+    let catalog_fields = document.as_object().ok_or(Kind::Configuration)?;
+    if catalog_fields.len() != 2
+        || catalog_fields.get("format_version").and_then(Value::as_u64) != Some(1)
+    {
         return Err(Kind::Configuration.into());
     }
-    let operations = fields
+    let operations = catalog_fields
         .get("operations")
         .and_then(Value::as_array)
         .filter(|operations| (1..=256).contains(&operations.len()))

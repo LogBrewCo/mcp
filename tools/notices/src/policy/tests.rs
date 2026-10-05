@@ -124,9 +124,9 @@ fn process_failure_warnings_and_incomplete_check_sets_are_rejected() -> Result<(
             .remove(check);
         assert!(validate(true, b"", format!("{changed}\n").as_bytes()).is_err());
         for counter in ["warnings", "errors"] {
-            let changed =
+            let with_counter_error =
                 clean.replacen(&format!("\"{counter}\":0"), &format!("\"{counter}\":1"), 1);
-            assert!(validate(true, b"", changed.as_bytes()).is_err());
+            assert!(validate(true, b"", with_counter_error.as_bytes()).is_err());
         }
     }
     Ok(())

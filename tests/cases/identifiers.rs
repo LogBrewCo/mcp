@@ -232,11 +232,14 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
         assert_eq!(response.get("id"), body.get("id"));
-        let body = payload(raw, "unknown/method")?;
-        let (status, response) = reply(&fixture, request(&body)?).await?;
-        assert_eq!(status, StatusCode::NOT_FOUND);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_601_i32)));
-        assert_eq!(response.get("id"), body.get("id"));
+        let unknown_method = payload(raw, "unknown/method")?;
+        let (unknown_status, unknown_response) = reply(&fixture, request(&unknown_method)?).await?;
+        assert_eq!(unknown_status, StatusCode::NOT_FOUND);
+        assert_eq!(
+            unknown_response.pointer("/error/code"),
+            Some(&json!(-32_601_i32))
+        );
+        assert_eq!(unknown_response.get("id"), unknown_method.get("id"));
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     Ok(())

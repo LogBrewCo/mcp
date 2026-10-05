@@ -38,28 +38,28 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
         "s".repeat(8192),
     ] {
         let fixture = Fixture::with_scope(scope.clone()).await.expect("fixture");
-        let request = Request::builder()
+        let challenge_request = Request::builder()
             .method("POST")
             .uri("/mcp")
             .header("Host", "resource.example")
             .body(Body::empty())
             .expect("unauthenticated request");
-        let response = fixture
+        let challenge_response = fixture
             .router
             .clone()
-            .oneshot(request)
+            .oneshot(challenge_request)
             .await
             .expect("challenge");
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        assert_eq!(challenge_response.status(), StatusCode::UNAUTHORIZED);
         assert_eq!(
-            response
+            challenge_response
                 .headers()
                 .get("WWW-Authenticate")
                 .expect("challenge"),
             format!("Bearer resource_metadata=\"{METADATA}\", scope=\"{scope}\"").as_str()
         );
         assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-        drop(response);
+        drop(challenge_response);
         let request = Request::builder()
             .uri("/.well-known/oauth-protected-resource/mcp")
             .header("Host", "resource.example")

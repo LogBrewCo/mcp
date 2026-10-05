@@ -104,11 +104,11 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     super::runtime::wait_executions(&fixture, 64, std::time::Duration::from_secs(3))
         .await
         .expect("capacity reached");
-    let (status, _) = fixture
+    let (capacity_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("capacity response");
-    assert_eq!(status, axum::http::StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(capacity_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 64);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
     for request in &requests {
@@ -121,11 +121,11 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
         .await
         .expect("backend capacity released");
     fixture.state.pause.store(false, Ordering::SeqCst);
-    let (status, _) = fixture
+    let (recovered_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("capacity recovered");
-    assert_eq!(status, axum::http::StatusCode::OK);
+    assert_eq!(recovered_status, axum::http::StatusCode::OK);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
 }
@@ -175,11 +175,11 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
         responses.push(response);
     }
     retention(&fixture, 64, 64, 0)?;
-    let (status, _) = fixture
+    let (capacity_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("capacity response");
-    assert_eq!(status, axum::http::StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(capacity_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 64);
     let complete = responses.pop().expect("pending response");
     let bytes = axum::body::to_bytes(complete.into_body(), logbrew_mcp::ENVELOPE_BYTES)
@@ -188,26 +188,26 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
     let value: serde_json::Value = serde_json::from_slice(&bytes).expect("valid response");
     assert_eq!(value.get("id"), Some(&json!(63_i32)));
     retention(&fixture, 64, 64, 0)?;
-    let (status, _) = fixture
+    let (retained_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("retained output capacity");
-    assert_eq!(status, axum::http::StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(retained_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
     let retained_copy = bytes.clone();
     drop(bytes);
     retention(&fixture, 64, 64, 0)?;
-    let (status, _) = fixture
+    let (cloned_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("cloned output capacity");
-    assert_eq!(status, axum::http::StatusCode::TOO_MANY_REQUESTS);
+    assert_eq!(cloned_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
     drop(retained_copy);
     retention(&fixture, 64, 63, 1)?;
-    let (status, _) = fixture
+    let (completed_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("slot recovered after body completion");
-    assert_eq!(status, axum::http::StatusCode::OK);
+    assert_eq!(completed_status, axum::http::StatusCode::OK);
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
     drop(responses.pop().expect("pending response"));
     let (status, _) = fixture

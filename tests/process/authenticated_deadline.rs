@@ -44,9 +44,9 @@ async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
         async move { request(&http, &resource, "tools/call", execution, http2).await }
     });
     upstream.observations.wait_for_pending(stage, 1).await?;
-    let (status, reply) = pending.await??;
-    assert_eq!(status, expected_status);
-    assert!(reply.is_null());
+    let (stalled_status, stalled_reply) = pending.await??;
+    assert_eq!(stalled_status, expected_status);
+    assert!(stalled_reply.is_null());
     upstream.observations.wait_for_pending(stage, 0).await?;
     let executions = usize::from(matches!(stage, PendingStage::Execution));
     assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 1);

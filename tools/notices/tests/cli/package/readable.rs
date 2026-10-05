@@ -205,7 +205,8 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
     let fixture = readable_fixture()?;
     assert!(run(&fixture)?.status.success());
     let previous = fs::read(fixture.root.join("package.tar.gz"))?;
-    let original: Value = serde_json::from_slice(&fs::read(fixture.root.join(DEPENDENCY))?)?;
+    let dependency_inventory: Value =
+        serde_json::from_slice(&fs::read(fixture.root.join(DEPENDENCY))?)?;
     for (pointer, value) in [
         ("/packages/synthetic-a 1.0.0/name", json!("different-name")),
         (
@@ -226,7 +227,7 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
         ),
         ("/texts", json!({})),
     ] {
-        let mut changed = original.clone();
+        let mut changed = dependency_inventory.clone();
         *changed
             .pointer_mut(pointer)
             .ok_or("missing fixture field")? = value;
@@ -234,7 +235,12 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
         assert!(!run(&fixture)?.status.success(), "{pointer}");
         assert_eq!(fs::read(fixture.root.join("package.tar.gz"))?, previous);
     }
-    bind(&fixture, "dependency_notices", DEPENDENCY, &original)?;
+    bind(
+        &fixture,
+        "dependency_notices",
+        DEPENDENCY,
+        &dependency_inventory,
+    )?;
     let original: Value = serde_json::from_slice(&fs::read(fixture.root.join(TOOLCHAIN))?)?;
     for (pointer, value) in [
         ("/files/COPYRIGHT/text", json!("changed upstream text")),

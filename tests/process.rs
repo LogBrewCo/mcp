@@ -461,9 +461,13 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
         .directory
         .write("invalid.json", b"{\"secret\":\"SYNTHETIC_SECRET\"}", 0o600)
         .expect("invalid file");
-    let mut process = Process::start(&invalid).expect("native executable");
+    let mut configuration_process = Process::start(&invalid).expect("native executable");
     assert_eq!(
-        process.wait().await.expect("configuration exit").code(),
+        configuration_process
+            .wait()
+            .await
+            .expect("configuration exit")
+            .code(),
         Some(1_i32)
     );
     let other =
@@ -515,9 +519,13 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
         drop(TcpListener::bind(fixture.address).expect("invalid policy did not bind"));
     }
     fs::remove_file(fixture.directory.0.join("clients.json")).expect("remove disposable policy");
-    let mut process = Process::start(&fixture.config).expect("native executable");
+    let mut missing_policy_process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(
-        process.wait().await.expect("missing policy exit").code(),
+        missing_policy_process
+            .wait()
+            .await
+            .expect("missing policy exit")
+            .code(),
         Some(1_i32)
     );
     let target = fixture
@@ -530,9 +538,13 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
         .expect("symlink target");
     std::os::unix::fs::symlink(target, fixture.directory.0.join("clients.json"))
         .expect("disposable policy symlink");
-    let mut process = Process::start(&fixture.config).expect("native executable");
+    let mut symlink_process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(
-        process.wait().await.expect("symlink rejection").code(),
+        symlink_process
+            .wait()
+            .await
+            .expect("symlink rejection")
+            .code(),
         Some(1_i32)
     );
     drop(TcpListener::bind(fixture.address).expect("no listener on symlink policy"));

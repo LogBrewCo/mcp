@@ -169,8 +169,8 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
             .and_then(|p| p.to_str())
             .ok_or_else(|| error("missing filename"))?;
         if relative == "Cargo.toml" {
-            let bytes = bounded(&mut entry, 64 << 10)?;
-            manifest = Some(std::str::from_utf8(&bytes)?.parse::<toml::Table>()?);
+            let manifest_bytes = bounded(&mut entry, 64 << 10)?;
+            manifest = Some(std::str::from_utf8(&manifest_bytes)?.parse::<toml::Table>()?);
             continue;
         }
         if relative == ".cargo_vcs_info.json" {

@@ -175,7 +175,7 @@ fn notice_text_and_encoded_inventory_limits_reject_before_packaging() -> Result<
         .pointer_mut("/components/0/notices/0")
         .ok_or("missing notice")?;
     *notice = json!({"upstream_path":"COPYING","sha256":checksum(text.as_bytes())?,"text":text});
-    let _error: Box<dyn std::error::Error> =
+    let _text_error: Box<dyn std::error::Error> =
         check(&value_inventory).expect_err("input must be rejected");
     let _error: Box<dyn std::error::Error> =
         validate(TARGET, &"b".repeat(64), &vec![b' '; (4 << 20) + 1])

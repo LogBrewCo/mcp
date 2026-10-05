@@ -109,14 +109,14 @@ async fn missing_or_unavailable_introspection_cannot_authorize_execution() {
             .expect("authorization result");
         assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE, "missing {field}");
     }
-    for (status, body) in [
+    for (upstream_status, body) in [
         (StatusCode::SERVICE_UNAVAILABLE, "SYNTHETIC_PRIVATE_MARKER"),
         (StatusCode::OK, "{\"active\":true,\"active\":false}"),
         (StatusCode::OK, "[true]"),
         (StatusCode::OK, "{\"active\":true} trailing"),
     ] {
         fixture
-            .introspection_reply(status, body.to_owned(), HeaderMap::new())
+            .introspection_reply(upstream_status, body.to_owned(), HeaderMap::new())
             .expect("failed authority");
         let (status, response) = fixture
             .request(

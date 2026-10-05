@@ -294,12 +294,12 @@ fn collect_bounded(
         "component_archive_url":source.component_archive_url,"source_binding":"trusted_distribution_manifest_and_component_checksums",
         "installed_library_notice_verified":true,"binary_linkage_coverage":"not_evaluated",
         "license_permission_check":"separate_target_specific_gate_required","files":notices});
-    let mut bytes = serde_json::to_vec_pretty(&output)?;
-    bytes.push(b'\n');
-    if bytes.len() > 8_usize << 20_u32 {
+    let mut output_bytes = serde_json::to_vec_pretty(&output)?;
+    output_bytes.push(b'\n');
+    if output_bytes.len() > 8_usize << 20_u32 {
         return Err(error("Rust notice output budget exceeded"));
     }
-    Ok(bytes)
+    Ok(output_bytes)
 }
 
 #[cfg(test)]

@@ -136,9 +136,9 @@ fn archived_package(bytes: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
                 0o644
             }
         );
-        let mut bytes = Vec::new();
-        let _read_bytes: usize = entry.read_to_end(&mut bytes)?;
-        assert!(archived.insert(relative.to_owned(), bytes).is_none());
+        let mut entry_bytes = Vec::new();
+        let _read_bytes: usize = entry.read_to_end(&mut entry_bytes)?;
+        assert!(archived.insert(relative.to_owned(), entry_bytes).is_none());
     }
     let mut decoded = archive.into_inner();
     let _remaining_bytes: u64 = std::io::copy(&mut decoded, &mut std::io::sink())?;

@@ -240,9 +240,9 @@ fn rejects_changed_distribution_fields_even_with_updated_manifest_checksum() -> 
 fn rejects_changed_archive_notice_installed_copy_and_gzip_footer() -> Result<()> {
     let (value, _, bytes) = fixture()?;
     let source = binding(&value)?;
-    let _error: Box<dyn std::error::Error> =
+    let _archive_error: Box<dyn std::error::Error> =
         collect(&source, b"changed archive", TEXT).expect_err("input must be rejected");
-    let _error: Box<dyn std::error::Error> =
+    let _installed_error: Box<dyn std::error::Error> =
         collect(&source, &bytes, b"changed installed copy").expect_err("input must be rejected");
     let mut changed = bytes.clone();
     let index = changed
@@ -256,14 +256,14 @@ fn rejects_changed_archive_notice_installed_copy_and_gzip_footer() -> Result<()>
     *updated
         .get_mut("component_archive_sha256")
         .ok_or_else(|| error("missing checksum"))? = json!(checksum(&changed)?);
-    let _error: Box<dyn std::error::Error> =
+    let _footer_error: Box<dyn std::error::Error> =
         collect(&binding(&updated)?, &changed, TEXT).expect_err("input must be rejected");
     let mut truncated = bytes;
-    let _removed: Option<u8> = truncated.pop();
+    let _removed_byte: Option<u8> = truncated.pop();
     *updated
         .get_mut("component_archive_sha256")
         .ok_or_else(|| error("missing checksum"))? = json!(checksum(&truncated)?);
-    let _error: Box<dyn std::error::Error> =
+    let _truncated_error: Box<dyn std::error::Error> =
         collect(&binding(&updated)?, &truncated, TEXT).expect_err("input must be rejected");
     let mut entries: Vec<_> = NOTICE_PATHS
         .iter()
@@ -271,12 +271,12 @@ fn rejects_changed_archive_notice_installed_copy_and_gzip_footer() -> Result<()>
         .collect();
     let _removed: Option<(&str, &[u8], tar::EntryType)> = entries.pop();
     entries.push((LIBRARY_NOTICE, b"wrong text", tar::EntryType::Regular));
-    let changed = archive(&entries)?;
+    let changed_notices = archive(&entries)?;
     *updated
         .get_mut("component_archive_sha256")
-        .ok_or_else(|| error("missing checksum"))? = json!(checksum(&changed)?);
+        .ok_or_else(|| error("missing checksum"))? = json!(checksum(&changed_notices)?);
     let _error: Box<dyn std::error::Error> =
-        collect(&binding(&updated)?, &changed, TEXT).expect_err("input must be rejected");
+        collect(&binding(&updated)?, &changed_notices, TEXT).expect_err("input must be rejected");
     Ok(())
 }
 
@@ -327,7 +327,7 @@ fn rejects_missing_notices_links_special_files_duplicate_and_unsafe_paths() -> R
 fn enforces_expansion_limit_and_reads_gzip_members_after_tar_end() -> Result<()> {
     let (mut value, _, mut bytes) = fixture()?;
     let source = binding(&value)?;
-    let _error: Box<dyn std::error::Error> =
+    let _expansion_error: Box<dyn std::error::Error> =
         collect_bounded(&source, &bytes, TEXT, 1024).expect_err("input must be rejected");
     let mut encoder = GzEncoder::new(Vec::new(), Compression::fast());
     encoder.write_all(&vec![0; 8192])?;
@@ -335,7 +335,7 @@ fn enforces_expansion_limit_and_reads_gzip_members_after_tar_end() -> Result<()>
     *value
         .get_mut("component_archive_sha256")
         .ok_or_else(|| error("missing checksum"))? = json!(checksum(&bytes)?);
-    let _error: Box<dyn std::error::Error> =
+    let _member_error: Box<dyn std::error::Error> =
         collect_bounded(&binding(&value)?, &bytes, TEXT, 8192).expect_err("input must be rejected");
     let _output: Vec<u8> = collect(&binding(&value)?, &bytes, TEXT)?;
     let index = bytes

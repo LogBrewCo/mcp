@@ -94,9 +94,9 @@ async fn exercise(execute: bool) -> TestResult<()> {
     // Exactly 100 fields remain valid below the aggregate header byte limit.
     let control = headers(200, body.len(), 100, 14_000)?;
     assert!(control.len() > 15_000 && control.len() < 16 << 10_i32);
-    let done = raw.queue(path, control, Some(body.clone())).await?;
+    let control_done = raw.queue(path, control, Some(body.clone())).await?;
     timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
-    timeout(Duration::from_secs(2), done).await???;
+    timeout(Duration::from_secs(2), control_done).await???;
 
     let mut partial = b"HTTP/1.1 200 Fixture\r\nX-Incomplete: ".to_vec();
     partial.extend(std::iter::repeat_n(b'a', 512 << 10));
@@ -227,11 +227,11 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
     let mut raw = Raw::http2()?;
     let body = body(execute)?;
     // h2 0.4.19 rejects a decoded list at or above the configured budget.
-    let done = raw
+    let control_done = raw
         .queue_http2(http2_headers((16 << 10) - 1, false)?, Some(body.clone()))
         .await?;
     timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
-    timeout(Duration::from_secs(2), done).await???;
+    timeout(Duration::from_secs(2), control_done).await???;
 
     for (case, headers) in [
         ("exact decoded budget", http2_headers(16 << 10, false)?),

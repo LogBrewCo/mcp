@@ -108,16 +108,16 @@ pub fn apply(
         if file.components().count() != 1 {
             return Err(error("supplement must be a sibling file"));
         }
-        let bytes = crate::input::read(&root.join(file), NOTICE_BYTES)?;
-        if checksum(&bytes)? != notice.sha256 {
+        let text_bytes = crate::input::read(&root.join(file), NOTICE_BYTES)?;
+        if checksum(&text_bytes)? != notice.sha256 {
             return Err(error("supplemental text checksum mismatch"));
         }
-        let text = std::str::from_utf8(&bytes)?;
+        let text = std::str::from_utf8(&text_bytes)?;
         if text.trim().is_empty() {
             return Err(error("empty supplemental text"));
         }
         let digest = texts.insert(text)?;
-        let record = json!({"file":notice.file,"sha256":digest,"bytes":bytes.len(),"source_url":notice.source_url,
+        let record = json!({"file":notice.file,"sha256":digest,"bytes":text_bytes.len(),"source_url":notice.source_url,
             "source_commit":notice.source_commit,"upstream_path":notice.upstream_path,
             "source_kind":"checked_upstream_file_omitted_from_published_archive"});
         let package = package

@@ -121,18 +121,18 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
     let telemetry = observer();
     let inventory = telemetry.0.operations.get().expect("catalog inventory");
     let mut stats = inventory.stats.lock().expect("controlled counts");
-    let fast = stats
+    let fast_counts = stats
         .get_mut(*inventory.slots.get("logs.fast.v1").expect("fast slot"))
         .expect("fast counts");
-    fast.started = 100;
+    fast_counts.started = 100;
     for _ in 0_i32..100_i32 {
-        fast.finish(Outcome::Completed, Some(100));
+        fast_counts.finish(Outcome::Completed, Some(100));
     }
-    let slow = stats
+    let slow_counts = stats
         .get_mut(*inventory.slots.get("logs.slow.v1").expect("slow slot"))
         .expect("slow counts");
-    slow.started = 1;
-    slow.finish(Outcome::InvalidOutput, Some(1_000_000));
+    slow_counts.started = 1;
+    slow_counts.finish(Outcome::InvalidOutput, Some(1_000_000));
     drop(stats);
     let snapshot = telemetry.snapshot().expect("distribution snapshot");
     let operations = snapshot.operations.expect("catalog distributions");
@@ -192,22 +192,22 @@ fn contention_is_nonblocking_and_loss_stays_with_the_selected_operation() {
     let telemetry = observer();
     let inventory = telemetry.0.operations.get().expect("catalog inventory");
     let parent = telemetry.begin(Stage::Execute);
-    let stats = inventory.stats.lock().expect("controlled lock");
+    let start_stats = inventory.stats.lock().expect("controlled lock");
     parent
         .operation("logs.fast.v1")
         .expect("known operation")
         .finish(Outcome::Completed);
     let busy = telemetry.snapshot().expect("fixed stages remain available");
     assert!(busy.operations.is_none());
-    drop(stats);
+    drop(start_stats);
     parent
         .operation("logs.fast.v1")
         .expect("recovered operation")
         .finish(Outcome::Completed);
-    let slow = parent.operation("logs.slow.v1").expect("slow operation");
-    let stats = inventory.stats.lock().expect("controlled finish lock");
-    slow.finish(Outcome::Completed);
-    drop(stats);
+    let slow_measurement = parent.operation("logs.slow.v1").expect("slow operation");
+    let finish_stats = inventory.stats.lock().expect("controlled finish lock");
+    slow_measurement.finish(Outcome::Completed);
+    drop(finish_stats);
     parent.finish(Outcome::Completed);
     let snapshot = telemetry.snapshot().expect("recovered snapshot");
     let operations = snapshot.operations.expect("catalog recovered");
@@ -239,10 +239,16 @@ fn operation_timing_starts_at_handler_entry_and_drop_records_cancellation() {
         .operation("logs.fast.v1")
         .expect("operation measurement");
     assert_eq!(operation.start, parent.start);
-    let snapshot = telemetry.snapshot().expect("pending snapshot");
-    let operations = snapshot.operations.expect("pending operations");
-    assert_eq!(execution(&operations, "logs.fast.v1").pending, Some(1));
-    assert_eq!(execution(&operations, "logs.fast.v1").p99_upper_ns, None);
+    let pending_snapshot = telemetry.snapshot().expect("pending snapshot");
+    let pending_operations = pending_snapshot.operations.expect("pending operations");
+    assert_eq!(
+        execution(&pending_operations, "logs.fast.v1").pending,
+        Some(1)
+    );
+    assert_eq!(
+        execution(&pending_operations, "logs.fast.v1").p99_upper_ns,
+        None
+    );
     drop(operation);
     drop(parent);
     let snapshot = telemetry.snapshot().expect("cancelled snapshot");

@@ -181,15 +181,15 @@ async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> T
 async fn untouched_ids_and_plain_http_errors_keep_their_original_body() -> TestResult<()> {
     let id = original()?;
     let bytes = "SYNTHETIC_BODY";
-    let unchanged = restore_id(None, response(Body::from(bytes))?).await;
+    let uncorrelated = restore_id(None, response(Body::from(bytes))?).await;
     assert_eq!(
-        unchanged
+        uncorrelated
             .headers()
             .get(header::CONTENT_LENGTH)
             .and_then(|v| v.to_str().ok()),
         Some("1")
     );
-    assert_eq!(to_bytes(unchanged.into_body(), 4096).await?, bytes);
+    assert_eq!(to_bytes(uncorrelated.into_body(), 4096).await?, bytes);
     let plain = (StatusCode::SERVICE_UNAVAILABLE, bytes).into_response();
     let unchanged = restore_id(Some(NumericId(id)), plain).await;
     assert_eq!(unchanged.status(), StatusCode::SERVICE_UNAVAILABLE);
@@ -256,9 +256,9 @@ async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> T
         assert_eq!(reply.status(), StatusCode::INTERNAL_SERVER_ERROR);
         let bytes = to_bytes(reply.into_body(), 4096).await?;
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
-        let reply: Value = serde_json::from_slice(&bytes)?;
-        assert_eq!(reply.get("id"), Some(&id));
-        assert_eq!(reply.pointer("/error/code"), Some(&json!(-32_603_i32)));
+        let envelope: Value = serde_json::from_slice(&bytes)?;
+        assert_eq!(envelope.get("id"), Some(&id));
+        assert_eq!(envelope.pointer("/error/code"), Some(&json!(-32_603_i32)));
         assert!(dropped.load(Ordering::SeqCst));
     }
     Ok(())

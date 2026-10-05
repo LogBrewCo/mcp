@@ -240,7 +240,7 @@ fn load_requirements_reject_missing_segments_and_oversized_command_headers() -> 
         Target::MacX86,
     ] {
         let mut bytes = header(target)?;
-        let _error: Box<dyn std::error::Error> =
+        let _missing_error: Box<dyn std::error::Error> =
             binary::requirements(target, &bytes).expect_err("input must be rejected");
         if matches!(target, Target::MacArm | Target::MacX86) {
             bytes
@@ -282,7 +282,7 @@ fn deployment_records_reject_other_platforms_and_conflicting_metadata() -> Resul
         Some("11.0.0")
     );
     field(&mut bytes, 40, &2_u32.to_le_bytes())?;
-    let _error: Box<dyn std::error::Error> =
+    let _platform_error: Box<dyn std::error::Error> =
         binary::requirements(target, &bytes).expect_err("input must be rejected");
     field(&mut bytes, 40, &1_u32.to_le_bytes())?;
     let duplicate = bytes.get(32..56).ok_or("missing command")?.to_vec();
@@ -383,10 +383,11 @@ fn command_strings_are_local_and_a_library_named_self_is_preserved() -> Result<(
     escaped.truncate(24);
     rpath.get_mut(12..).ok_or("missing path")?.fill(b'x');
     escaped.extend_from_slice(&rpath);
-    let mut binary = command_fixture(&escaped, 2)?;
-    binary.push(0);
-    let _error: Box<dyn std::error::Error> =
-        binary::requirements(Target::MacArm, &binary).expect_err("input must be rejected");
+    let mut unterminated_binary = command_fixture(&escaped, 2)?;
+    unterminated_binary.push(0);
+    let _unterminated_error: Box<dyn std::error::Error> =
+        binary::requirements(Target::MacArm, &unterminated_binary)
+            .expect_err("input must be rejected");
     Ok(())
 }
 
@@ -395,7 +396,8 @@ fn command_strings_are_local_and_a_library_named_self_is_preserved() -> Result<(
 /// Propagates fixture field writes, size conversion, or valid metadata parsing errors.
 fn build_tool_and_segment_section_counts_fit_their_own_commands() -> Result<()> {
     let mut build = command_words(&[0x32, 24, 1, 11 << 16_u32, 27 << 16_u32, 0]);
-    let _requirements: Value = binary::requirements(Target::MacArm, &command_fixture(&build, 1)?)?;
+    let _build_requirements: Value =
+        binary::requirements(Target::MacArm, &command_fixture(&build, 1)?)?;
     for count in [1_u32, u32::MAX] {
         field(&mut build, 20, &count.to_le_bytes())?;
         let _error: Box<dyn std::error::Error> =

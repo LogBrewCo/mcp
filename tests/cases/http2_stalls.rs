@@ -120,30 +120,30 @@ async fn responses(
         if frame.kind == 7 {
             return Err(io::Error::other("unexpected connection shutdown").into());
         }
-        let Some(response) = responses.get_mut(&frame.stream) else {
+        let Some(stream_response) = responses.get_mut(&frame.stream) else {
             continue; // SETTINGS, window updates or resets from completed streams.
         };
         match frame.kind {
             1 => {
                 assert_eq!(frame.flags & 5, 4);
-                assert!(!response.headers);
+                assert!(!stream_response.headers);
                 status(&frame.payload, expected)?;
-                response.headers = true;
+                stream_response.headers = true;
             }
             0 => {
-                assert!(response.headers && !response.complete);
+                assert!(stream_response.headers && !stream_response.complete);
                 assert_eq!(frame.flags & 8, 0, "fixture responses have no padding");
                 assert!(
-                    response
+                    stream_response
                         .body
                         .len()
                         .checked_add(frame.payload.len())
                         .is_some_and(|size| size <= 4096)
                 );
-                response.body.extend_from_slice(&frame.payload);
-                response.complete = frame.flags & 1 != 0;
+                stream_response.body.extend_from_slice(&frame.payload);
+                stream_response.complete = frame.flags & 1 != 0;
             }
-            3 => assert!(response.complete, "reset before complete response"),
+            3 => assert!(stream_response.complete, "reset before complete response"),
             8 => {}
             _ => return Err(io::Error::other("unexpected response frame").into()),
         }

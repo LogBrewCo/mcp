@@ -434,8 +434,8 @@ async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
             4 | 8 if frame.stream == 0 => None,
             _ => return Err(io::Error::other("unexpected HTTP/2 request frame").into()),
         };
-        if let Some(stream) = completed {
-            return Ok(stream);
+        if let Some(completed_stream) = completed {
+            return Ok(completed_stream);
         }
     }
     Err(io::Error::other("HTTP/2 request frame count exceeds bound").into())

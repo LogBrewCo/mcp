@@ -67,17 +67,17 @@ type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 /// completion state changes, or the inventory differs from search and execute.
 async fn discovery_and_tool_inventory_are_self_contained() {
     let fixture = Fixture::new().await.expect("fixture");
-    let (status, response) = fixture
+    let (discovery_status, discovery_response) = fixture
         .request("server/discover", json!({}), TOKEN)
         .await
         .expect("discovery");
-    assert_eq!(status, StatusCode::OK);
+    assert_eq!(discovery_status, StatusCode::OK);
     assert_eq!(
-        response.pointer("/result/capabilities"),
+        discovery_response.pointer("/result/capabilities"),
         Some(&json!({"tools":{}}))
     );
     assert_eq!(
-        response.pointer("/result/resultType"),
+        discovery_response.pointer("/result/resultType"),
         Some(&json!("complete"))
     );
     let (status, response) = fixture
@@ -130,11 +130,11 @@ async fn execution_carries_verified_identity_and_rechecks_revocation() {
             .clone()
     );
     fixture.state.active.store(false, Ordering::SeqCst);
-    let (status, _) = fixture
+    let (revoked_status, _) = fixture
         .request("tools/call", arguments, TOKEN)
         .await
         .expect("revocation");
-    assert_eq!(status, StatusCode::UNAUTHORIZED);
+    assert_eq!(revoked_status, StatusCode::UNAUTHORIZED);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
 }
 

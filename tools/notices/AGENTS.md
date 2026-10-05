@@ -92,6 +92,15 @@ Standard-library source notices are a superset, not a final binary license decis
 Target linkage, permission policy, distribution inclusion, provenance, platform
 execution, and required timing checks remain separate gates.
 
+Compare the linked standard-library crates with Rust's `library/Cargo.lock` at
+the pinned source commit. The compiler's COPYRIGHT-library.html may omit crates
+from that graph. For Rust 1.99.0, `licenses/rust-1.99.0-stdlib-supplement.json`
+preserves additional registry notices and compiler-builtins attribution with
+exact upstream source bindings. Include its applicable `components` in the
+linked-target inventory before packaging. Keep all notice text verbatim and
+verify the registry archive pins and the Rust and LLVM source commits. The
+supplement does not select licenses or prove complete linked-component coverage.
+
 ## Binary archives
 
 Use an operator-verified packaging plan. Its format_version is 1, 2 or 3 and its

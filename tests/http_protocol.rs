@@ -42,6 +42,8 @@ mod search_contract;
 mod telemetry;
 #[path = "cases/transport.rs"]
 mod transport;
+#[path = "cases/upstream_trailers.rs"]
+mod upstream_trailers;
 #[path = "cases/upstream_transport.rs"]
 mod upstream_transport;
 

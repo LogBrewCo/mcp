@@ -41,7 +41,7 @@ fn headers(status: u16, body_length: usize, count: usize, filler: usize) -> Test
 /// # Panics
 ///
 /// Panics if successful execution data or verified credential and client identity changes.
-async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
+pub async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
     if execute {
         let principal = Principal {
             credential_id: "synthetic-credential".to_owned(),
@@ -62,7 +62,7 @@ async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
 /// # Errors
 ///
 /// Returns a clock error or an error if the synthetic token expiry overflows.
-fn body(execute: bool) -> TestResult<Vec<u8>> {
+pub fn body(execute: bool) -> TestResult<Vec<u8>> {
     Ok(if execute {
         json!({"count":3})
     } else {
@@ -459,7 +459,7 @@ async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
 /// # Errors
 ///
 /// Returns a body, header, queued exchange, timeout or upstream operation error.
-async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
+pub async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
     let path = if execute { "/execute" } else { "/introspect" };
     let body = body(execute)?;
     let done = raw

@@ -36,6 +36,7 @@ enum Plan {
     Http2 {
         headers: Vec<u8>,
         body: Option<Vec<u8>>,
+        trailers: Option<Vec<u8>>,
     },
     StalledTls(oneshot::Sender<()>),
 }
@@ -237,9 +238,40 @@ impl Raw {
         headers: Vec<u8>,
         body: Option<Vec<u8>>,
     ) -> TestResult<oneshot::Receiver<TestResult<()>>> {
+        self.queue_http2_plan(headers, body, None).await
+    }
+
+    /// Queue complete HTTP/2 data followed by a separate trailer field block.
+    ///
+    /// # Errors
+    /// Returns an error if field blocks are empty, any section exceeds 64 KiB,
+    /// or the fixture has stopped accepting exchanges.
+    pub async fn queue_http2_trailers(
+        &self,
+        headers: Vec<u8>,
+        body: Vec<u8>,
+        trailers: Vec<u8>,
+    ) -> TestResult<oneshot::Receiver<TestResult<()>>> {
+        self.queue_http2_plan(headers, Some(body), Some(trailers))
+            .await
+    }
+
+    /// Queue a bounded HTTP/2 plan without opening a connection.
+    ///
+    /// # Errors
+    /// Rejects empty field blocks, sections above 64 KiB or a stopped queue.
+    async fn queue_http2_plan(
+        &self,
+        headers: Vec<u8>,
+        body: Option<Vec<u8>>,
+        trailers: Option<Vec<u8>>,
+    ) -> TestResult<oneshot::Receiver<TestResult<()>>> {
         if headers.is_empty()
             || headers.len() > 64 << 10_i32
             || body.as_ref().is_some_and(|body| body.len() > 64 << 10_i32)
+            || trailers
+                .as_ref()
+                .is_some_and(|trailers| trailers.is_empty() || trailers.len() > 64 << 10_i32)
         {
             return Err(io::Error::other("HTTP/2 response fixture exceeds bound").into());
         }
@@ -248,7 +280,11 @@ impl Raw {
             .as_ref()
             .ok_or_else(|| io::Error::other("fixture stopped"))?
             .send(Exchange {
-                plan: Plan::Http2 { headers, body },
+                plan: Plan::Http2 {
+                    headers,
+                    body,
+                    trailers,
+                },
                 done,
             })
             .await?;
@@ -293,6 +329,7 @@ async fn run_plans(
             | Plan::Http2 {
                 headers: _,
                 body: _,
+                trailers: _,
             } => Duration::from_secs(3),
             Plan::StalledTls(_) => Duration::from_secs(12),
         };
@@ -343,7 +380,11 @@ async fn run_exchange(
             reply(&mut stream, &headers, body.as_deref()).await
         }
         Plan::StalledTls(started) => stalled_handshake(stream, started).await,
-        Plan::Http2 { headers, body } => {
+        Plan::Http2 {
+            headers,
+            body,
+            trailers,
+        } => {
             let mut stream = acceptor.accept(stream).await?;
             let _: usize = accepted.fetch_add(1, Ordering::SeqCst);
             if stream.get_ref().1.alpn_protocol() != Some(b"h2") {
@@ -358,7 +399,14 @@ async fn run_exchange(
             peer.send(0, 4, 0, &[]).await?;
             let request = http2_request(&mut peer).await?;
             let _: usize = observed.fetch_add(1, Ordering::SeqCst);
-            http2_reply(&mut peer, request, &headers, body.as_deref()).await
+            http2_reply(
+                &mut peer,
+                request,
+                &headers,
+                body.as_deref(),
+                trailers.as_deref(),
+            )
+            .await
         }
     }
 }
@@ -447,30 +495,18 @@ async fn http2_reply(
     stream: u32,
     headers: &[u8],
     body: Option<&[u8]>,
+    trailers: Option<&[u8]>,
 ) -> TestResult<()> {
     // Each queued exchange owns one connection. Graceful GOAWAY preserves
     // this accepted stream while preventing reuse of its closing fixture.
     let [a, b, c, d] = stream.to_be_bytes();
     peer.send(0, 7, 0, &[a, b, c, d, 0, 0, 0, 0]).await?;
-    // A split field block exercises CONTINUATION as well as decoded size.
-    let mut sent = 0;
-    let mut kind = 1;
-    while sent < headers.len() {
-        let size = if sent == 0 { 1024 } else { 16 << 10_i32 };
-        let end = sent.saturating_add(size).min(headers.len());
-        let chunk = headers.get(sent..end).ok_or("invalid header chunk")?;
-        peer.send(
-            stream,
-            kind,
-            if end == headers.len() { 4 } else { 0 },
-            chunk,
-        )
-        .await?;
-        sent = end;
-        kind = 9;
-    }
+    http2_field_block(peer, stream, headers, false).await?;
     if let Some(body) = body {
-        http2_body(peer, stream, body).await?;
+        http2_body(peer, stream, body, trailers.is_none()).await?;
+        if let Some(trailers) = trailers {
+            http2_field_block(peer, stream, trailers, true).await?;
+        }
         return Ok(());
     }
     // No DATA or END_STREAM: only header rejection can finish promptly.
@@ -494,20 +530,55 @@ async fn http2_reply(
     Err(io::Error::other("HTTP/2 rejection frame count exceeds bound").into())
 }
 
-/// Send body chunks and mark the final HTTP/2 DATA frame as complete.
+/// Send a field block with `END_STREAM` only on its initial `HEADERS` frame.
+///
+/// # Errors
+/// Returns an error if field chunk selection or frame transmission fails.
+async fn http2_field_block(
+    peer: &mut Peer<Stream>,
+    stream: u32,
+    headers: &[u8],
+    complete: bool,
+) -> TestResult<()> {
+    // A split field block exercises CONTINUATION as well as decoded size.
+    let mut sent = 0;
+    let mut kind = 1;
+    while sent < headers.len() {
+        let size = if sent == 0 { 1024 } else { 16 << 10_i32 };
+        let end = sent.saturating_add(size).min(headers.len());
+        let chunk = headers.get(sent..end).ok_or("invalid header chunk")?;
+        peer.send(
+            stream,
+            kind,
+            (if end == headers.len() { 4 } else { 0 }) | u8::from(complete && sent == 0),
+            chunk,
+        )
+        .await?;
+        sent = end;
+        kind = 9;
+    }
+    Ok(())
+}
+
+/// Send body chunks and optionally complete the stream on the final `DATA` frame.
 ///
 /// # Errors
 /// Returns an error if body chunk selection or frame transmission fails.
-async fn http2_body(peer: &mut Peer<Stream>, stream: u32, body: &[u8]) -> TestResult<()> {
+async fn http2_body(
+    peer: &mut Peer<Stream>,
+    stream: u32,
+    body: &[u8],
+    complete: bool,
+) -> TestResult<()> {
     if body.is_empty() {
-        peer.send(stream, 0, 1, &[]).await?;
+        peer.send(stream, 0, u8::from(complete), &[]).await?;
         return Ok(());
     }
     let mut sent = 0;
     while sent < body.len() {
         let end = sent.saturating_add(16 << 10).min(body.len());
         let chunk = body.get(sent..end).ok_or("invalid body chunk")?;
-        peer.send(stream, 0, u8::from(end == body.len()), chunk)
+        peer.send(stream, 0, u8::from(complete && end == body.len()), chunk)
             .await?;
         sent = end;
     }

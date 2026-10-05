@@ -5,7 +5,7 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use axum::http::{HeaderValue, header};
+use axum::http::{HeaderMap, HeaderValue, header};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use http_body::Body as _;
 use http_body_util::BodyExt as _;
@@ -459,16 +459,16 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
 }
 
 fn bounded_headers(response: &Response) -> bool {
-    let header_bytes = response
-        .headers()
-        .iter()
-        .try_fold(0_usize, |size, (key, value)| {
-            let size = size
-                .checked_add(key.as_str().len())?
-                .checked_add(value.len())?;
-            size.checked_add(4)
-        });
-    header_bytes.is_some_and(|size| size <= HEADER_BYTES)
+    remaining_header_budget(response.headers(), HEADER_BYTES).is_some()
+}
+
+fn remaining_header_budget(headers: &HeaderMap, budget: usize) -> Option<usize> {
+    headers.iter().try_fold(budget, |remaining, (key, value)| {
+        remaining
+            .checked_sub(key.as_str().len())?
+            .checked_sub(value.len())?
+            .checked_sub(4)
+    })
 }
 
 /// Read JSON response data under the header and body budgets.
@@ -476,12 +476,13 @@ fn bounded_headers(response: &Response) -> bool {
 /// # Errors
 /// Rejects invalid headers or media type, excessive body size and body errors.
 async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8>, Failure> {
-    if !bounded_headers(&response)
-        || response
-            .body()
-            .size_hint()
-            .exact()
-            .is_some_and(|size| size > u64::try_from(limit).unwrap_or(u64::MAX))
+    let mut remaining_headers =
+        remaining_header_budget(response.headers(), HEADER_BYTES).ok_or(Kind::Unavailable)?;
+    if response
+        .body()
+        .size_hint()
+        .exact()
+        .is_some_and(|size| size > u64::try_from(limit).unwrap_or(u64::MAX))
         || !crate::media::json(response.headers())
     {
         return Err(Kind::Unavailable.into());
@@ -489,8 +490,17 @@ async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8
     let mut bytes = Vec::new();
     while let Some(frame) = response.body_mut().frame().await {
         let frame = frame.map_err(Failure::redact(Kind::Unavailable))?;
-        let Ok(chunk) = frame.into_data() else {
-            continue;
+        let chunk = match frame.into_data() {
+            Ok(chunk) => chunk,
+            Err(frame) => {
+                let trailers = frame
+                    .into_trailers()
+                    .map_err(Failure::redact(Kind::Unavailable))?;
+                // Count both sections without changing initial header semantics.
+                remaining_headers = remaining_header_budget(&trailers, remaining_headers)
+                    .ok_or(Kind::Unavailable)?;
+                continue;
+            }
         };
         if bytes.len().saturating_add(chunk.len()) > limit {
             return Err(Kind::Unavailable.into());

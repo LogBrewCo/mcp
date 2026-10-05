@@ -28,6 +28,9 @@ const TOKEN_BYTES: usize = 8 << 10;
 const CLAIM_BYTES: usize = 64 << 10;
 const HEADER_BYTES: usize = 16 << 10;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Copy)]
 pub(crate) enum AuthorizationFailure {
     Rejected(Failure),
@@ -527,22 +530,27 @@ fn response_failure(response: &Response) -> Failure {
 }
 
 fn retry_after(value: &str) -> Option<u64> {
+    retry_after_at(value, SystemTime::now())
+}
+
+fn retry_after_at(value: &str, now: SystemTime) -> Option<u64> {
     if value.is_empty() || value.len() > 128 {
         return None;
     }
-    let seconds = if value.bytes().all(|byte| byte.is_ascii_digit()) {
-        value.parse::<u64>().ok()?
+    let milliseconds = if value.bytes().all(|byte| byte.is_ascii_digit()) {
+        value.parse::<u64>().ok()?.checked_mul(1000)?
     } else {
-        httpdate::parse_http_date(value)
+        let remaining = httpdate::parse_http_date(value)
             .ok()?
-            .duration_since(SystemTime::now())
-            .unwrap_or_default()
-            .as_secs()
+            .duration_since(now)
+            .unwrap_or_default();
+        // Round up so the advice never shortens the server's requested wait.
+        let rounded = remaining
+            .checked_add(Duration::from_nanos(999_999))?
+            .as_millis();
+        u64::try_from(rounded).ok()?
     };
-    if seconds > 2_147_483_647 {
-        return None;
-    }
-    seconds.checked_mul(1000)
+    (milliseconds <= 2_147_483_647_000).then_some(milliseconds)
 }
 
 /// Encode one sensitive Basic field from the configured machine credential.

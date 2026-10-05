@@ -88,8 +88,9 @@ It validates startup material before binding the configured address. Outbound
 connections use system TLS trust, with no inherited proxy or custom dial hooks.
 SIGINT and SIGTERM request graceful shutdown. Startup and serving failures exit
 nonzero without printing paths, credentials, or upstream responses. Source builds
-identify themselves as `development`. This command is not a released package
-or verified hosted service.
+identify themselves as `development`. Use `cargo run --locked -- --version` to
+check the package version without loading configuration. This command is not a
+released package or verified hosted service.
 
 Check the configuration and its referenced files before starting or replacing
 a process:

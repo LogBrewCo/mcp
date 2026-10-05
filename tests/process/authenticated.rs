@@ -9,6 +9,9 @@ mod cancellation;
 #[path = "authenticated_deadline.rs"]
 mod deadline;
 
+#[path = "authenticated_encoding.rs"]
+mod encoding;
+
 #[path = "authenticated_headers.rs"]
 mod headers;
 

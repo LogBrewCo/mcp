@@ -353,7 +353,7 @@ mod subprocess {
         match result {
             Ok(0) => {}
             Err(err) if err.kind() == io::ErrorKind::ConnectionReset => {}
-            result => panic!("{mode}: descendant connection remains open: {result:?}"),
+            unexpected => panic!("{mode}: descendant connection remains open: {unexpected:?}"),
         }
     }
 

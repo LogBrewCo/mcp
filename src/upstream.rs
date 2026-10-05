@@ -474,7 +474,7 @@ fn remaining_header_budget(headers: &HeaderMap, budget: usize) -> Option<usize> 
 /// Read JSON response data under the header and body budgets.
 ///
 /// # Errors
-/// Rejects invalid headers or media type, excessive body size and body errors.
+/// Rejects invalid headers, media type or coding, excessive size and body errors.
 async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8>, Failure> {
     let mut remaining_headers =
         remaining_header_budget(response.headers(), HEADER_BYTES).ok_or(Kind::Unavailable)?;
@@ -484,6 +484,7 @@ async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8
         .exact()
         .is_some_and(|size| size > u64::try_from(limit).unwrap_or(u64::MAX))
         || !crate::media::json(response.headers())
+        || !crate::media::unencoded(response.headers())
     {
         return Err(Kind::Unavailable.into());
     }

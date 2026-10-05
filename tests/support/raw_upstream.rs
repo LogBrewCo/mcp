@@ -501,6 +501,8 @@ async fn http2_reply(
     // this accepted stream while preventing reuse of its closing fixture.
     let [a, b, c, d] = stream.to_be_bytes();
     peer.send(0, 7, 0, &[a, b, c, d, 0, 0, 0, 0]).await?;
+    // Observe GOAWAY processing before the result can start a recovery request.
+    peer.probe().await?;
     http2_field_block(peer, stream, headers, false).await?;
     if let Some(body) = body {
         http2_body(peer, stream, body, trailers.is_none()).await?;

@@ -32,6 +32,9 @@ struct Notice {
     text: String,
 }
 
+/// # Errors
+/// Rejects an oversized or non-HTTPS URL, invalid host, nongraphic bytes,
+/// credentials, query, fragment, or backslash.
 fn source_url(value: &str) -> Result<()> {
     let authority = value
         .strip_prefix("https://")
@@ -52,6 +55,9 @@ fn source_url(value: &str) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Rejects invalid identity or source metadata, excess or duplicate notices,
+/// unsafe paths, empty or oversized text, and mismatched text checksums.
 fn component(component: &Component) -> Result<String> {
     let key = identity(&json!({"name":component.name,"version":component.version}))?;
     source_url(&component.source_url)?;
@@ -72,6 +78,10 @@ fn component(component: &Component) -> Result<String> {
     Ok(key)
 }
 
+/// # Errors
+/// Rejects oversized or malformed strict-schema JSON, mismatched version,
+/// scope, target, or binary identity, excessive counts, duplicate components,
+/// and invalid component notices.
 pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value> {
     if bytes.len() > 4_usize << 20_u32 {
         return Err(error("linked notice inventory exceeds limit"));
@@ -107,6 +117,9 @@ pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value
         "license_permission_check":"external_required"}))
 }
 
+/// # Errors
+/// Returns an error for JSON decoding or bounded-output writes. Callers must
+/// validate inventory identity and notice bindings before rendering.
 pub(super) fn readable(bytes: &[u8]) -> Result<Vec<u8>> {
     let inventory: Inventory = serde_json::from_slice(bytes)?;
     let mut output = super::Output {

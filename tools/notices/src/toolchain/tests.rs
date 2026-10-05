@@ -10,10 +10,14 @@ use crate::{Result, checksum, error};
 
 const TEXT: &[u8] = b"synthetic copyright and license\r\n";
 
+/// # Errors
+/// Propagates synthetic target-archive construction errors.
 fn archive(entries: &[(&str, &[u8], tar::EntryType)]) -> Result<Vec<u8>> {
     archive_for_target(entries, "synthetic-target")
 }
 
+/// # Errors
+/// Propagates size conversion, fixture-path bounds, tar writes, or gzip encoding errors.
 fn archive_for_target(entries: &[(&str, &[u8], tar::EntryType)], target: &str) -> Result<Vec<u8>> {
     let prefix = format!("rustc-{}-{target}", env!("CARGO_PKG_RUST_VERSION"));
     let mut builder = tar::Builder::new(Vec::new());
@@ -36,10 +40,14 @@ fn archive_for_target(entries: &[(&str, &[u8], tar::EntryType)], target: &str) -
     Ok(encoder.finish()?)
 }
 
+/// # Errors
+/// Propagates synthetic source-binding, manifest, or archive construction errors.
 fn fixture() -> Result<(Value, Vec<u8>, Vec<u8>)> {
     fixture_for_target("synthetic-target")
 }
 
+/// # Errors
+/// Propagates archive construction or notice/archive/manifest checksum formatting errors.
 fn fixture_for_target(target: &str) -> Result<(Value, Vec<u8>, Vec<u8>)> {
     let entries: Vec<_> = NOTICE_PATHS
         .iter()
@@ -62,11 +70,22 @@ fn fixture_for_target(target: &str) -> Result<(Value, Vec<u8>, Vec<u8>)> {
     Ok((binding, manifest, bytes))
 }
 
+/// # Errors
+/// Propagates JSON encoding or source-binding validation errors.
 fn binding(value: &Value) -> Result<Binding> {
     source(&serde_json::to_vec(value)?)
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, source/distribution validation, notice collection, or output decoding errors.
+///
+/// # Panics
+/// Panics if target identity or preserved notice bytes differ from the fixture.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn verifies_x86_targets_through_distribution_and_notice_collection() -> Result<()> {
     for target in ["x86_64-apple-darwin", "x86_64-unknown-linux-gnu"] {
         let (value, manifest, bytes) = fixture_for_target(target)?;
@@ -90,6 +109,15 @@ fn verifies_x86_targets_through_distribution_and_notice_collection() -> Result<(
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, validation, collection, decoding, or missing output-file errors.
+///
+/// # Panics
+/// Panics if coverage claims, file count, or preserved notice bytes differ from expectations.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn verifies_distribution_and_preserves_all_notice_bytes() -> Result<()> {
     let (value, manifest, bytes) = fixture()?;
     let source = binding(&value)?;
@@ -117,6 +145,15 @@ fn verifies_distribution_and_preserves_all_notice_bytes() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, missing fixture fields, or JSON encoding errors.
+///
+/// # Panics
+/// Panics if an invalid, duplicate, unknown, or incomplete source binding is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_invalid_duplicate_unknown_and_incomplete_source_bindings() -> Result<()> {
     let (value, _, _) = fixture()?;
     for (pointer, replacement) in [
@@ -162,6 +199,15 @@ fn rejects_invalid_duplicate_unknown_and_incomplete_source_bindings() -> Result<
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, UTF-8 decoding, checksum, or source-binding errors.
+///
+/// # Panics
+/// Panics if changed distribution fields pass verification after rebinding the checksum.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_changed_distribution_fields_even_with_updated_manifest_checksum() -> Result<()> {
     let (value, manifest, _) = fixture()?;
     assert!(distribution(&binding(&value)?, b"changed manifest").is_err());
@@ -189,6 +235,8 @@ fn rejects_changed_distribution_fields_even_with_updated_manifest_checksum() -> 
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, source validation, missing fixture fields, or checksum errors.
 fn rejects_changed_archive_notice_installed_copy_and_gzip_footer() -> Result<()> {
     let (value, _, bytes) = fixture()?;
     let source = binding(&value)?;
@@ -233,6 +281,15 @@ fn rejects_changed_archive_notice_installed_copy_and_gzip_footer() -> Result<()>
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, archive encoding, missing fixture fields, or checksum errors.
+///
+/// # Panics
+/// Panics if missing notices, links, special files, duplicates, or unsafe paths are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_missing_notices_links_special_files_duplicate_and_unsafe_paths() -> Result<()> {
     let (value, _, _) = fixture()?;
     for extra in [
@@ -265,6 +322,8 @@ fn rejects_missing_notices_links_special_files_duplicate_and_unsafe_paths() -> R
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, encoding, field access, checksum, or valid collection errors.
 fn enforces_expansion_limit_and_reads_gzip_members_after_tar_end() -> Result<()> {
     let (mut value, _, mut bytes) = fixture()?;
     let source = binding(&value)?;

@@ -39,6 +39,8 @@ struct Notice {
     bytes: u64,
 }
 
+/// # Errors
+/// Rejects duplicate paths and more than four Rust notice paths.
 fn insert_file(files: &mut BTreeMap<String, Notice>, path: String, notice: Notice) -> Result<()> {
     if files.len() >= 4 || files.insert(path, notice).is_some() {
         return Err(error("duplicate or excess Rust notice path"));
@@ -65,6 +67,9 @@ impl<'de> serde::de::Visitor<'de> for UniqueFiles {
     }
 }
 
+/// # Errors
+/// Propagates deserialization failures, including duplicate or excess notice
+/// paths rejected by the map visitor.
 fn files<'de, D: serde::Deserializer<'de>>(
     deserializer: D,
 ) -> std::result::Result<BTreeMap<String, Notice>, D::Error> {
@@ -78,6 +83,10 @@ fn hex(value: &str, bytes: usize) -> bool {
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
+/// # Errors
+/// Rejects malformed strict-schema JSON, incorrect version or scope, invalid
+/// target, date, revision or checksum syntax, incorrect notice paths or sizes,
+/// and a component URL that disagrees with the release binding.
 pub fn source(bytes: &[u8]) -> Result<Binding> {
     let source: Binding = serde_json::from_slice(bytes)?;
     let date = source.release_date.as_bytes();
@@ -115,6 +124,10 @@ pub fn source(bytes: &[u8]) -> Result<Binding> {
     Ok(source)
 }
 
+/// # Errors
+/// Rejects a manifest checksum mismatch, invalid UTF-8 or TOML, missing
+/// compiler/target records, and distribution fields that disagree with the
+/// trusted source binding.
 pub fn distribution(source: &Binding, bytes: &[u8]) -> Result<()> {
     if checksum(bytes)? != source.distribution_manifest_sha256 {
         return Err(error("Rust distribution manifest checksum mismatch"));
@@ -148,10 +161,19 @@ pub fn distribution(source: &Binding, bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Rejects invalid archive size or checksum, unsafe or duplicate paths, links,
+/// entry or expansion budget violations, invalid or changed notice text,
+/// incomplete coverage, corrupt tar/gzip data, and serialization or output
+/// budget failures.
 pub fn collect(source: &Binding, bytes: &[u8], installed: &[u8]) -> Result<Vec<u8>> {
     collect_bounded(source, bytes, installed, EXPANDED_BYTES)
 }
 
+/// # Errors
+/// Rejects read or byte-count conversion failures, size or checksum mismatch,
+/// notice-budget overflow, invalid or empty UTF-8, and an installed library
+/// notice that differs from the distribution.
 fn add_notice(
     entry: impl io::Read,
     expected: &Notice,
@@ -186,6 +208,11 @@ fn add_notice(
     Ok(())
 }
 
+/// # Errors
+/// Rejects invalid archive size or checksum, expansion-limit overflow, unsafe
+/// or duplicate paths, special files, entry/path/text budgets, notice binding
+/// mismatches, and incomplete coverage. Tar/gzip reads, serialization, and
+/// output-budget errors propagate.
 fn collect_bounded(
     source: &Binding,
     bytes: &[u8],

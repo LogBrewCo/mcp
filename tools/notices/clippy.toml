@@ -1,6 +1,8 @@
+allow-comparison-to-zero = false
 allow-expect-in-tests = true
 allow-unwrap-in-tests = true
 allow-panic-in-tests = true
+check-private-items = true
 # Check metadata while crates.io publication is disabled.
 cargo-ignore-publish = true
 # scroll_derive 0.13.1 requires syn 2; serde_derive 1.0.229 requires syn 3.

@@ -23,6 +23,9 @@ struct Staged {
     published: bool,
 }
 
+/// # Errors
+/// Rejects an existing destination that is not a regular file and propagates
+/// metadata lookup errors other than an absent destination.
 fn permissions(directory: impl AsFd, name: &OsStr) -> Result<Mode> {
     match fs::statat(directory, name, AtFlags::SYMLINK_NOFOLLOW) {
         Ok(stat) => {
@@ -37,6 +40,9 @@ fn permissions(directory: impl AsFd, name: &OsStr) -> Result<Mode> {
     }
 }
 
+/// # Errors
+/// Rejects staging-sequence exhaustion and propagates exclusive-file open
+/// failures other than a name collision.
 fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
     let sequence = SEQUENCE
         .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
@@ -59,6 +65,9 @@ fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
     }
 }
 
+/// # Errors
+/// Returns an error for staging creation failure or eight consecutive name
+/// collisions.
 fn stage_file(directory: &OwnedFd) -> Result<(File, OsString)> {
     for _ in 0_u8..8_u8 {
         if let Some(file) = create_file(directory)? {
@@ -69,6 +78,8 @@ fn stage_file(directory: &OwnedFd) -> Result<(File, OsString)> {
 }
 
 impl Staged {
+    /// # Errors
+    /// Propagates directory-open or staging-file creation failures.
     fn create(parent: &Path) -> Result<Self> {
         let directory = fs::open(
             parent,
@@ -98,6 +109,11 @@ impl Staged {
         }
     }
 
+    /// # Errors
+    /// Rejects changed staging ownership or directory identity, nonregular
+    /// destinations, and metadata, permission, file-sync, or rename failures.
+    /// Directory-sync failure is reported after replacement: the new output
+    /// exists, but directory durability is unconfirmed.
     fn publish(mut self, parent: &Path, destination: &OsStr) -> Result<()> {
         let directory_now = fs::open(
             parent,
@@ -129,6 +145,10 @@ impl Drop for Staged {
     }
 }
 
+/// # Errors
+/// Rejects an invalid destination name or destination type and propagates
+/// staging, writer, and publication failures. A directory-sync failure may
+/// occur after replacement; unpublished staging cleanup is best effort.
 fn replace(path: &Path, write: impl FnOnce(&mut File) -> io::Result<()>) -> Result<()> {
     let destination = path
         .file_name()
@@ -143,6 +163,9 @@ fn replace(path: &Path, write: impl FnOnce(&mut File) -> io::Result<()>) -> Resu
     staged.publish(parent, destination)
 }
 
+/// # Errors
+/// Rejects output over 64 MiB and propagates staging, write, and publication
+/// failures. A directory-sync error can occur after the output is replaced.
 pub fn write(path: &Path, bytes: &[u8]) -> Result<()> {
     if bytes.len() > 64_usize << 20_u32 {
         return Err(error("notice output exceeds limit"));

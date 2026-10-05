@@ -15,6 +15,15 @@ fn plan() -> Value {
 }
 
 #[test]
+/// # Errors
+/// Propagates valid-plan encoding/parsing, UTF-8 conversion, or missing fixture fields.
+///
+/// # Panics
+/// Panics if invalid plan fields, duplicate fields, or invalid file bindings are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn packaging_plan_rejects_unknown_duplicate_or_invalid_identity_fields() -> Result<()> {
     let encoded = serde_json::to_vec(&plan())?;
     let _plan: Plan = Plan::parse(&encoded)?;
@@ -68,6 +77,15 @@ fn packaging_plan_rejects_unknown_duplicate_or_invalid_identity_fields() -> Resu
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture-field access, JSON encoding, or valid later-version parsing errors.
+///
+/// # Panics
+/// Panics if version-specific linked-notice requirements are not enforced.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn later_versions_require_a_linked_notice_binding_and_version_one_rejects_it() -> Result<()> {
     let mut value_plan = plan();
     let object = value_plan.as_object_mut().ok_or("missing plan")?;
@@ -96,6 +114,8 @@ fn later_versions_require_a_linked_notice_binding_and_version_one_rejects_it() -
     Ok(())
 }
 
+/// # Errors
+/// Rejects fixture offset overflow or a field outside the fixture buffer.
 fn field(bytes: &mut [u8], start: usize, value: &[u8]) -> Result<()> {
     let end = start.checked_add(value.len()).ok_or("fixture overflow")?;
     bytes
@@ -105,6 +125,8 @@ fn field(bytes: &mut [u8], start: usize, value: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Propagates failure to write the synthetic executable header fields.
 fn header(target: Target) -> Result<Vec<u8>> {
     let mut bytes = vec![0; 64];
     let fields: Vec<(usize, Vec<u8>)> = match target {
@@ -146,6 +168,15 @@ fn header(target: Target) -> Result<Vec<u8>> {
 }
 
 #[test]
+/// # Errors
+/// Propagates header construction, valid binary checks, or fixture-prefix access errors.
+///
+/// # Panics
+/// Panics if wrong architectures, truncated headers, or workstation paths are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn target_header_checks_reject_wrong_architecture_format_and_host_paths() -> Result<()> {
     for target in [
         Target::MacArm,
@@ -175,6 +206,15 @@ fn target_header_checks_reject_wrong_architecture_format_and_host_paths() -> Res
 }
 
 #[test]
+/// # Errors
+/// Propagates writes that should fit within the synthetic output limit.
+///
+/// # Panics
+/// Panics if over-limit writes succeed or change the expected output bytes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn compressed_output_limit_fails_without_exceeding_the_buffer_budget() -> Result<()> {
     let mut output = Output {
         bytes: Vec::new(),
@@ -190,6 +230,8 @@ fn compressed_output_limit_fails_without_exceeding_the_buffer_budget() -> Result
 }
 
 #[test]
+/// # Errors
+/// Propagates header construction or missing command-count field errors.
 fn load_requirements_reject_missing_segments_and_oversized_command_headers() -> Result<()> {
     for target in [
         Target::LinuxArm,
@@ -213,6 +255,15 @@ fn load_requirements_reject_missing_segments_and_oversized_command_headers() -> 
 }
 
 #[test]
+/// # Errors
+/// Propagates header construction, field writes, valid metadata parsing, or missing command errors.
+///
+/// # Panics
+/// Panics if the accepted minimum macOS version differs from the fixture.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn deployment_records_reject_other_platforms_and_conflicting_metadata() -> Result<()> {
     let target = Target::MacArm;
     let mut bytes = header(target)?;
@@ -244,6 +295,15 @@ fn deployment_records_reject_other_platforms_and_conflicting_metadata() -> Resul
 }
 
 #[test]
+/// # Errors
+/// Propagates header construction, field writes, or valid metadata parsing errors.
+///
+/// # Panics
+/// Panics if the zero-count fixture reports symbol-version requirements.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn declared_gnu_version_count_requires_corresponding_records() -> Result<()> {
     let target = Target::LinuxArm;
     let mut bytes = header(target)?;
@@ -275,6 +335,8 @@ fn declared_gnu_version_count_requires_corresponding_records() -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Propagates header construction, field writes, or command-length conversion failure.
 fn command_fixture(region: &[u8], count: u32) -> Result<Vec<u8>> {
     let mut binary = header(Target::MacArm)?;
     binary.truncate(32);
@@ -292,6 +354,15 @@ fn command_words(values: &[u32]) -> Vec<u8> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, valid metadata parsing, or path-field access errors.
+///
+/// # Panics
+/// Panics if the library identity or search path differs from the fixture.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn command_strings_are_local_and_a_library_named_self_is_preserved() -> Result<()> {
     let mut region = command_words(&[0x32, 24, 1, 11 << 16_u32, 27 << 16_u32, 0]);
     region.extend(command_words(&[0xc, 32, 24, 0, 0, 0]));
@@ -320,6 +391,8 @@ fn command_strings_are_local_and_a_library_named_self_is_preserved() -> Result<(
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture field writes, size conversion, or valid metadata parsing errors.
 fn build_tool_and_segment_section_counts_fit_their_own_commands() -> Result<()> {
     let mut build = command_words(&[0x32, 24, 1, 11 << 16_u32, 27 << 16_u32, 0]);
     let _requirements: Value = binary::requirements(Target::MacArm, &command_fixture(&build, 1)?)?;

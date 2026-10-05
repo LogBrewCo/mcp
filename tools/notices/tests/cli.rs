@@ -24,6 +24,9 @@ struct Fixture {
 }
 
 impl Fixture {
+    /// # Errors
+    ///
+    /// Returns an error if the system time precedes the Unix epoch or the fixture directory cannot be created.
     fn new() -> Result<Self> {
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.as_nanos();
         let root = std::env::temp_dir().join(format!(
@@ -36,6 +39,9 @@ impl Fixture {
         Ok(Self { root })
     }
 
+    /// # Errors
+    ///
+    /// Returns an error if the notice command cannot be launched or its output cannot be collected.
     fn run(&self) -> Result<std::process::Output> {
         Ok(Command::new(env!("CARGO_BIN_EXE_logbrew-mcp-notices"))
             .args([
@@ -55,6 +61,9 @@ impl Drop for Fixture {
     }
 }
 
+/// # Errors
+///
+/// Returns an error if the checksum cannot be formatted.
 fn digest(bytes: &[u8]) -> Result<String> {
     let mut output = String::with_capacity(64);
     for byte in Sha256::digest(bytes) {
@@ -63,6 +72,9 @@ fn digest(bytes: &[u8]) -> Result<String> {
     Ok(output)
 }
 
+/// # Errors
+///
+/// Returns an error if the notice size cannot be converted or tar or gzip encoding fails.
 fn archive() -> Result<Vec<u8>> {
     let mut builder = tar::Builder::new(GzEncoder::new(Vec::new(), Compression::fast()));
     for (path, bytes) in [
@@ -79,11 +91,17 @@ fn archive() -> Result<Vec<u8>> {
     Ok(builder.into_inner()?.finish()?)
 }
 
+/// # Errors
+///
+/// Returns an error if JSON encoding or file writing fails.
 fn write_json(path: &Path, value: &Value) -> Result<()> {
     fs::write(path, serde_json::to_vec(value)?)?;
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if fixture preparation, directory creation, JSON encoding, or file writing fails.
 fn project_fixture() -> Result<Fixture> {
     let fixture = Fixture::new()?;
     let root = &fixture.root;
@@ -108,6 +126,17 @@ fn project_fixture() -> Result<Fixture> {
 
 #[cfg(unix)]
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, file access, symlink creation, or command execution fails.
+///
+/// # Panics
+///
+/// Panics if an output symlink is accepted, its target changes, or the symlink is replaced.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_output_symlinks_without_changing_their_target() -> Result<()> {
     let fixture = project_fixture()?;
     let protected = fixture.root.join("protected.txt");
@@ -120,6 +149,17 @@ fn rejects_output_symlinks_without_changing_their_target() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, file access, hard link creation, command execution, or JSON decoding fails.
+///
+/// # Panics
+///
+/// Panics if replacement fails, protected bytes or an open reader change, or the output version is unexpected.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn replacement_preserves_an_existing_hard_link_and_open_reader() -> Result<()> {
     use std::io::Read as _;
 
@@ -145,6 +185,17 @@ fn replacement_preserves_an_existing_hard_link_and_open_reader() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, archive creation, checksum recording, file access, JSON conversion or field access, UTF-8 decoding, or command execution fails.
+///
+/// # Panics
+///
+/// Panics if notice generation, verbatim text, path exclusion, reproducibility, invalid source rejection, or preservation of previous output differs from the expected behavior.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn reproducible_generation_rejects_changed_sources_and_preserves_previous_output() -> Result<()> {
     let fixture = Fixture::new()?;
     let root = &fixture.root;
@@ -249,6 +300,17 @@ fn reproducible_generation_rejects_changed_sources_and_preserves_previous_output
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, time conversion, archive creation, checksum recording, file access, JSON conversion, UTF-8 decoding, or command execution fails.
+///
+/// # Panics
+///
+/// Panics if toolchain notice generation, text coverage, path exclusion, reproducibility, invalid source rejection, or preservation of previous output differs from the expected behavior.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn toolchain_command_preserves_notices_and_previous_output_after_failed_verification() -> Result<()>
 {
     let fixture = Fixture::new()?;
@@ -355,6 +417,9 @@ impl Drop for Process {
 }
 
 #[cfg(unix)]
+/// # Errors
+///
+/// Returns an error if the deadline cannot be constructed or the child status cannot be read.
 fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
     let end = std::time::Instant::now()
         .checked_add(std::time::Duration::from_secs(1))
@@ -372,6 +437,17 @@ fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
 
 #[cfg(unix)]
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, pipe creation, command execution, child polling, or file access fails.
+///
+/// # Panics
+///
+/// Panics if a command waits for a pipe writer or changes previous output.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn notice_and_package_commands_reject_input_pipes_without_waiting_for_a_writer() -> Result<()> {
     let fixture = Fixture::new()?;
     let input = fixture.root.join("input");

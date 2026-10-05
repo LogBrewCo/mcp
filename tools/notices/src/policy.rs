@@ -73,6 +73,9 @@ struct Summary {
     sources: Stats,
 }
 
+/// # Errors
+/// Rejects unsupported record levels or shapes, empty required log fields,
+/// diagnostic-count overflow, and summaries that disagree with observed counts.
 fn observe(record: Record, observed: &mut Summary) -> Result<bool> {
     match record {
         Record::Log(log) => {
@@ -112,6 +115,10 @@ fn observe(record: Record, observed: &mut Summary) -> Result<bool> {
     Ok(false)
 }
 
+/// # Errors
+/// Rejects process failure, unexpected stdout, incomplete or oversized
+/// stderr records, invalid records, and missing, duplicate, or inconsistent
+/// final summaries.
 fn validate(success: bool, stdout: &[u8], stderr: &[u8]) -> Result<()> {
     if !success || !stdout.is_empty() || !stderr.ends_with(b"\n") {
         return Err(error("cargo-deny failed or produced incomplete output"));
@@ -133,6 +140,10 @@ fn validate(success: bool, stdout: &[u8], stderr: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Rejects an argument count or executable path violation, unsupported
+/// platform, incorrect pinned version, process capture failure, and dependency
+/// output that fails the strict policy-record validation.
 pub fn run(mut args: impl Iterator<Item = OsString>) -> Result<()> {
     let executable = PathBuf::from(
         args.next()

@@ -28,6 +28,9 @@ struct Notice {
     sha256: String,
 }
 
+/// # Errors
+/// Rejects absent repository or VCS fields, unsupported GitHub repository
+/// paths, revision mismatch, and unsafe upstream paths.
 fn source_url(package: &Value, source_commit: &str, upstream_path: &str) -> Result<String> {
     let repository = string(package, "repository")?.trim_end_matches('/');
     let repository = repository.strip_suffix(".git").unwrap_or(repository);
@@ -65,6 +68,12 @@ fn source_url(package: &Value, source_commit: &str, upstream_path: &str) -> Resu
     ))
 }
 
+/// # Errors
+/// Rejects malformed or excessive supplements, missing or unverified packages,
+/// archive or revision disagreement, URL mismatch, duplicates, unsafe file
+/// paths, failed bounded reads, invalid UTF-8 or empty text, checksum mismatch,
+/// and malformed package records. Earlier supplements may already be applied
+/// when a later one fails; callers discard the failed inventory.
 pub fn apply(
     packages: &mut BTreeMap<String, Value>,
     texts: &mut Texts,

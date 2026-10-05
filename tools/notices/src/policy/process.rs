@@ -27,6 +27,9 @@ struct Process {
 }
 
 impl Process {
+    /// # Errors
+    /// Propagates failure to wait for the leader process. Process-group cleanup
+    /// is best effort; this result does not certify descendant retirement.
     fn finish(&mut self) -> Result<ExitStatus> {
         // As in Drop, termination is best effort; an exited-only group can reject signals.
         let _termination: rustix::io::Result<()> = kill_process_group(self.group, Signal::KILL);
@@ -53,6 +56,8 @@ struct Pipe<R> {
 }
 
 impl<R: Read + AsFd> Pipe<R> {
+    /// # Errors
+    /// Propagates errors when setting the pipe's nonblocking flags.
     fn new(reader: R) -> Result<Self> {
         fcntl_setfl(&reader, OFlags::NONBLOCK)
             .map_err(|err| io::Error::other(format!("nonblocking pipe setup: {err}")))?;
@@ -63,6 +68,9 @@ impl<R: Read + AsFd> Pipe<R> {
         })
     }
 
+    /// # Errors
+    /// Rejects an invalid buffer count, byte-count overflow, and output that
+    /// exceeds the pipe limit.
     fn append(&mut self, buffer: &[u8], count: usize, limit: usize) -> Result<()> {
         if self
             .bytes
@@ -80,6 +88,9 @@ impl<R: Read + AsFd> Pipe<R> {
         Ok(())
     }
 
+    /// # Errors
+    /// Propagates read errors other than interruption or would-block, and
+    /// rejects output that exceeds the pipe budget.
     fn read_once(&mut self, buffer: &mut [u8], limit: usize) -> Result<bool> {
         match self.reader.read(buffer) {
             Ok(0) => {
@@ -96,6 +107,9 @@ impl<R: Read + AsFd> Pipe<R> {
         }
     }
 
+    /// # Errors
+    /// Returns an error for pipe reads or output-budget violations during the
+    /// bounded drain.
     fn drain(&mut self, limit: usize) -> Result<()> {
         if self.closed {
             return Ok(());
@@ -105,6 +119,8 @@ impl<R: Read + AsFd> Pipe<R> {
     }
 }
 
+/// # Errors
+/// Propagates pipe-read and output-budget failures across the bounded batch.
 fn drain_reads<R: Read + AsFd>(pipe: &mut Pipe<R>, buffer: &mut [u8], limit: usize) -> Result<()> {
     // Bound work per pipe so a busy writer cannot starve the deadline.
     for _ in 0_u8..8_u8 {
@@ -115,6 +131,11 @@ fn drain_reads<R: Read + AsFd>(pipe: &mut Pipe<R>, buffer: &mut [u8], limit: usi
     Ok(())
 }
 
+/// # Errors
+/// Returns an error for process or pipe setup, PID conversion, deadline
+/// expiry, output-budget violations, read failures, or leader-wait failures.
+/// Cleanup attempts to kill the process group and reap the leader; it does not
+/// prove every descendant has retired or establish a kernel-enforced deadline.
 pub(super) fn capture(command: &mut Command, timeout: Duration, limit: usize) -> Result<Captured> {
     let start = Instant::now();
     let child = command

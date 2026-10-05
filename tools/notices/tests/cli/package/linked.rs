@@ -7,6 +7,9 @@ use super::{Fixture, PREFIX, Result, digest, fixture, run, write_json};
 
 const NOTICE_PATH: &str = "licenses/linked-target-notices.json";
 
+/// # Errors
+///
+/// Returns an error if the server fixture cannot be read or its checksum cannot be recorded.
 pub(super) fn inventory(fixture: &Fixture) -> Result<Value> {
     let text = "synthetic runtime attribution\n";
     Ok(
@@ -18,6 +21,9 @@ pub(super) fn inventory(fixture: &Fixture) -> Result<Value> {
     )
 }
 
+/// # Errors
+///
+/// Returns an error if JSON conversion, fixture file access, checksum recording, or plan field access fails.
 pub(super) fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
     write_json(&fixture.root.join(NOTICE_PATH), inventory)?;
     let bytes = fs::read(fixture.root.join(NOTICE_PATH))?;
@@ -33,6 +39,17 @@ pub(super) fn bind(fixture: &Fixture, inventory: &Value) -> Result<Vec<u8>> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, archive decoding, file access, or manifest decoding fails.
+///
+/// # Panics
+///
+/// Panics if packaging, reproducibility, archive metadata, linked notice bytes, or release requirements differ from the expected values.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn version_two_preserves_linked_notice_bytes_and_external_release_requirements() -> Result<()> {
     let fixture = fixture()?;
     let expected = bind(&fixture, &inventory(&fixture)?)?;
@@ -93,6 +110,17 @@ fn version_two_preserves_linked_notice_bytes_and_external_release_requirements()
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, JSON field access, file updates, or command execution fails.
+///
+/// # Panics
+///
+/// Panics if an invalid binary, target, or notice is accepted, or if the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn another_binary_or_target_and_corrupted_text_preserve_the_complete_package() -> Result<()> {
     let fixture = fixture()?;
     let original = inventory(&fixture)?;
@@ -117,6 +145,17 @@ fn another_binary_or_target_and_corrupted_text_preserve_the_complete_package() -
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, or inventory file access fails.
+///
+/// # Panics
+///
+/// Panics if packaging accepts replacement of its inventory, omits the expected rejection, or changes the inventory.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn package_output_cannot_replace_the_bound_linked_notice_inventory() -> Result<()> {
     let fixture = fixture()?;
     let original = bind(&fixture, &inventory(&fixture)?)?;
@@ -136,6 +175,17 @@ fn package_output_cannot_replace_the_bound_linked_notice_inventory() -> Result<(
 
 #[cfg(unix)]
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, renaming, or symlink creation fails.
+///
+/// # Panics
+///
+/// Panics if a linked notice symlink is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn linked_notice_input_symlink_preserves_the_previous_package() -> Result<()> {
     let fixture = fixture()?;
     let _bound: Vec<u8> = bind(&fixture, &inventory(&fixture)?)?;

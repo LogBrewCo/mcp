@@ -13,6 +13,8 @@ struct Fixture {
 }
 
 impl Fixture {
+    /// # Errors
+    /// Propagates staging-file or isolated test-directory creation errors.
     fn new() -> Result<Self> {
         let staged = Staged::create(&std::env::temp_dir())?;
         let root = std::env::temp_dir()
@@ -22,6 +24,8 @@ impl Fixture {
         Ok(Self { root })
     }
 
+    /// # Errors
+    /// Propagates directory enumeration or entry-read errors.
     fn entries(&self) -> Result<Vec<PathBuf>> {
         Ok(fs::read_dir(&self.root)?
             .map(|entry| entry.map(|entry| entry.path()))
@@ -36,6 +40,15 @@ impl Drop for Fixture {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, filesystem writes, or output/directory read errors.
+///
+/// # Panics
+/// Panics if partial writes succeed, change prior output, or leave staging files.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn failed_partial_write_preserves_previous_output_and_removes_staging_file() -> Result<()> {
     let fixture = Fixture::new()?;
     let path = fixture.root.join("output.json");
@@ -51,6 +64,15 @@ fn failed_partial_write_preserves_previous_output_and_removes_staging_file() -> 
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup or directory enumeration errors.
+///
+/// # Panics
+/// Panics if the controlled initial write succeeds or leaves any files.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn failed_initial_write_leaves_no_output_or_staging_file() -> Result<()> {
     let fixture = Fixture::new()?;
     assert!(
@@ -65,6 +87,15 @@ fn failed_initial_write_leaves_no_output_or_staging_file() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, FIFO creation/status, socket binding, or directory errors.
+///
+/// # Panics
+/// Panics if a nonregular destination is accepted or the fixture entries change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_fifo_socket_and_directory_without_opening_them() -> Result<()> {
     let fixture = Fixture::new()?;
     let fifo = fixture.root.join("pipe");
@@ -87,6 +118,15 @@ fn rejects_fifo_socket_and_directory_without_opening_them() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, directory creation, symlink creation, or directory reads.
+///
+/// # Panics
+/// Panics if publication through a symlinked directory succeeds or changes its target.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_symlinked_output_directory() -> Result<()> {
     let fixture = Fixture::new()?;
     let target = fixture.root.join("target");
@@ -99,6 +139,15 @@ fn rejects_symlinked_output_directory() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, staging, filesystem mutation, or output/directory reads.
+///
+/// # Panics
+/// Panics if a changed parent is accepted, outputs change, or staging cleanup is incorrect.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_changed_parent_and_cleans_only_its_original_directory() -> Result<()> {
     let fixture = Fixture::new()?;
     let parent = fixture.root.join("parent");
@@ -125,6 +174,15 @@ fn rejects_changed_parent_and_cleans_only_its_original_directory() -> Result<()>
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, staging, file replacement, or output/directory reads.
+///
+/// # Panics
+/// Panics if foreign staging ownership is accepted or the foreign file is changed.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn changed_staging_name_is_rejected_and_foreign_replacement_is_preserved() -> Result<()> {
     let fixture = Fixture::new()?;
     let mut staged = Staged::create(&fixture.root)?;
@@ -143,6 +201,15 @@ fn changed_staging_name_is_rejected_and_foreign_replacement_is_preserved() -> Re
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, staging, symlink creation, or metadata/output reads.
+///
+/// # Panics
+/// Panics if a symlink destination is accepted or protected bytes are changed.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn target_changed_to_symlink_during_staging_is_preserved() -> Result<()> {
     let fixture = Fixture::new()?;
     let protected = fixture.root.join("protected");
@@ -163,6 +230,15 @@ fn target_changed_to_symlink_during_staging_is_preserved() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture setup, filesystem operations, publication, or output reads.
+///
+/// # Panics
+/// Panics if replacement changes the expected permissions or output bytes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn preserves_existing_read_write_permissions() -> Result<()> {
     let fixture = Fixture::new()?;
     let output = fixture.root.join("output.json");

@@ -2,6 +2,15 @@ use super::TextBudget;
 use crate::Result;
 
 #[test]
+/// # Errors
+/// Propagates admission failures for the valid boundary inputs.
+///
+/// # Panics
+/// Panics if text-count or encoded-byte boundaries differ from the expected values.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn load_text_budget_counts_json_escaping_and_combined_fields() -> Result<()> {
     let mut budget = TextBudget::default();
     let escaped = "\u{0001}".repeat(1366);

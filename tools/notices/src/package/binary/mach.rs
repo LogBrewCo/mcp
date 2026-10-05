@@ -10,6 +10,9 @@ use serde_json::{Value, json};
 
 use super::{TextBudget, bytes};
 
+/// # Errors
+/// Rejects truncated, misaligned, overflowing, unsupported, or inconsistent
+/// load commands, invalid command strings, and out-of-bounds record arrays.
 pub fn validate_commands(region: &[u8], count: u32) -> Result<()> {
     let mut offset = 0_usize;
     for _ in 0..count {
@@ -102,6 +105,9 @@ pub fn validate_commands(region: &[u8], count: u32) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Rejects an invalid string offset or a string without a NUL terminator
+/// inside its own load command.
 fn validate_string(command: &[u8], minimum: usize, start: u32) -> Result<()> {
     let start = usize::try_from(start)?;
     if start < minimum || !command.get(start..).is_some_and(|value| value.contains(&0)) {
@@ -110,6 +116,9 @@ fn validate_string(command: &[u8], minimum: usize, start: u32) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Rejects count conversion or size arithmetic overflow and record arrays
+/// that extend beyond the command.
 fn contained_records(command: &[u8], header: usize, record: usize, count: u32) -> Result<()> {
     let required = usize::try_from(count)?
         .checked_mul(record)
@@ -124,6 +133,10 @@ fn version(value: u32) -> String {
     format!("{}.{}.{}", value >> 16, (value >> 8) & 255, value & 255)
 }
 
+/// # Errors
+/// Rejects excess or inconsistent commands, unsupported command variants,
+/// missing or conflicting macOS deployment targets, unexpected self-library
+/// identity, and invalid or excessive library and search-path text.
 pub fn requirements(binary: &MachO<'_>) -> Result<Value> {
     let mut text = TextBudget::default();
     if binary.load_commands.len() > 4096 || binary.load_commands.len() != binary.header.ncmds {

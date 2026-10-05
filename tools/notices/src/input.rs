@@ -2,6 +2,10 @@ use std::path::Path;
 
 use crate::Result;
 
+/// # Errors
+/// Returns an error if the platform is unsupported, opening or reading fails,
+/// the path is a symlink or nonregular file, the byte limit is exceeded, or
+/// file metadata changes during the read.
 pub fn read(path: &Path, limit: u64) -> Result<Vec<u8>> {
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {

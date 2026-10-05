@@ -23,6 +23,8 @@ pub(super) struct File {
     inventory_sha256: String,
 }
 
+/// # Errors
+/// Returns an error if the named field is absent or is not a JSON object.
 fn object<'a>(value: &'a Value, key: &str) -> Result<&'a Map<String, Value>> {
     value
         .get(key)
@@ -37,6 +39,9 @@ const fn writer() -> Output {
     }
 }
 
+/// # Errors
+/// Rejects absent, empty, or oversized text and a mismatched byte count or
+/// checksum.
 fn text<'a>(record: &Value, text: &'a str, limit: usize) -> Result<&'a str> {
     if text.trim().is_empty()
         || text.len() > limit
@@ -48,6 +53,9 @@ fn text<'a>(record: &Value, text: &'a str, limit: usize) -> Result<&'a str> {
     Ok(text)
 }
 
+/// # Errors
+/// Rejects unsafe paths, missing text references, invalid text bindings, and
+/// output writes that exceed the rendering budget.
 fn reference(
     output: &mut Output,
     texts: &Map<String, Value>,
@@ -67,6 +75,10 @@ fn reference(
     Ok(())
 }
 
+/// # Errors
+/// Rejects malformed JSON, missing or excessive package or text records,
+/// invalid notice maps or bindings, excess references, unreferenced text,
+/// and bounded-output write failures.
 fn dependencies(bytes: &[u8]) -> Result<Vec<u8>> {
     let inventory: Value = serde_json::from_slice(bytes)?;
     let packages = object(&inventory, "packages")?;
@@ -133,6 +145,10 @@ fn dependencies(bytes: &[u8]) -> Result<Vec<u8>> {
     Ok(output.bytes)
 }
 
+/// # Errors
+/// Returns an error for invalid dependency or toolchain inventories, missing
+/// or invalid bindings for the four Rust notices, linked-inventory decoding,
+/// checksum formatting, or bounded-output writes.
 pub(super) fn derive(dependency: &[u8], toolchain: &[u8], linked: &[u8]) -> Result<Vec<File>> {
     let mut files = vec![File {
         path: "licenses/DEPENDENCIES.txt",
@@ -167,6 +183,8 @@ pub(super) fn derive(dependency: &[u8], toolchain: &[u8], linked: &[u8]) -> Resu
     Ok(files)
 }
 
+/// # Errors
+/// Propagates checksum formatting errors while constructing file bindings.
 pub(super) fn report(files: &[File]) -> Result<Value> {
     let mut entries = Map::new();
     for file in files {

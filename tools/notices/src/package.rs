@@ -51,6 +51,9 @@ struct FileBinding {
 }
 
 impl FileBinding {
+    /// # Errors
+    /// Rejects zero or excessive size and a checksum that is not 64 lowercase
+    /// hexadecimal characters.
     fn validate(&self, limit: u64) -> Result<()> {
         if self.bytes == 0 || self.bytes > limit || !hex(&self.sha256, 64) {
             return Err(error("invalid package file binding"));
@@ -58,6 +61,9 @@ impl FileBinding {
         Ok(())
     }
 
+    /// # Errors
+    /// Returns an error for bounded file-read failure or a
+    /// byte-count or checksum mismatch.
     fn read(&self, path: &Path, limit: u64) -> Result<Vec<u8>> {
         let bytes = input::read(path, limit)?;
         if u64::try_from(bytes.len())? != self.bytes || checksum(&bytes)? != self.sha256 {
@@ -94,6 +100,10 @@ fn hex(value: &str, length: usize) -> bool {
 }
 
 impl Plan {
+    /// # Errors
+    /// Rejects oversized or malformed strict-schema JSON, unsupported plan
+    /// version, incompatible linked-notice presence, incorrect package or Rust
+    /// pins, invalid revision/build identity, and invalid input bindings.
     fn parse(bytes: &[u8]) -> Result<Self> {
         if bytes.len() > 16_usize << 10_u32 {
             return Err(error("packaging plan exceeds limit"));
@@ -156,6 +166,8 @@ impl io::Write for Output {
 
 type Builder = tar::Builder<GzEncoder<Output>>;
 
+/// # Errors
+/// Propagates size conversion, tar-path encoding, and archive-write errors.
 fn append(builder: &mut Builder, prefix: &str, path: &str, bytes: &[u8], mode: u32) -> Result<()> {
     let mut header = tar::Header::new_ustar();
     header.set_size(u64::try_from(bytes.len())?);
@@ -168,6 +180,9 @@ fn append(builder: &mut Builder, prefix: &str, path: &str, bytes: &[u8], mode: u
     Ok(())
 }
 
+/// # Errors
+/// Rejects malformed JSON and inventory version, scope, lockfile, Rust
+/// release, or target values that disagree with the packaging plan.
 fn notices(plan: &Plan, dependency: &[u8], toolchain: &[u8]) -> Result<()> {
     let dependency: Value = serde_json::from_slice(dependency)?;
     let toolchain: Value = serde_json::from_slice(toolchain)?;
@@ -189,6 +204,9 @@ fn notices(plan: &Plan, dependency: &[u8], toolchain: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Returns an error for bound license-file reads or checksum mismatches and
+/// tar-header or archive-write failures.
 fn append_source_notices(
     builder: &mut Builder,
     prefix: &str,
@@ -218,6 +236,10 @@ fn append_source_notices(
     Ok(())
 }
 
+/// # Errors
+/// Rejects invalid plans, changed or oversized inputs, lockfile or binary
+/// disagreement, invalid load metadata or notice inventories, and malformed
+/// readable notices. Serialization and bounded tar/gzip write errors propagate.
 pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u8>> {
     let plan = Plan::parse(plan_bytes)?;
     let lock = input::read(&root.join("Cargo.lock"), 1 << 20)?;
@@ -305,6 +327,9 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
     Ok(builder.into_inner()?.finish()?.bytes)
 }
 
+/// # Errors
+/// Rejects invalid output paths, failed path canonicalization, invalid plans,
+/// and outputs that would replace a packaging input.
 pub fn guard_output(
     plan_bytes: &[u8],
     plan: &Path,

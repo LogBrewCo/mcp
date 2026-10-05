@@ -23,6 +23,8 @@ fn diagnostic(severity: &str, code: &str) -> String {
 }
 
 #[test]
+/// # Panics
+/// Panics if unknown informational diagnostics or unmatched summary counts are accepted.
 fn unknown_low_severity_diagnostics_and_unreconciled_counts_fail() {
     let clean = counted_summary(0, 0);
     for (severity, code) in [
@@ -51,6 +53,8 @@ fn summary() -> String {
 }
 
 #[test]
+/// # Panics
+/// Panics if documented informational records with exact counts fail or mismatched counts pass.
 fn documented_informational_records_require_matching_check_totals() {
     let accepted = diagnostic("help", "accepted");
     let skipped = diagnostic("note", "skipped");
@@ -84,6 +88,8 @@ fn log(level: &str) -> String {
 }
 
 #[test]
+/// # Panics
+/// Panics if clean output fails, forbidden log levels pass, or valid informational logs fail.
 fn zero_exit_with_a_data_loading_error_cannot_pass_a_clean_summary() {
     let clean = summary();
     validate(true, b"", clean.as_bytes()).expect("valid policy output");
@@ -94,6 +100,15 @@ fn zero_exit_with_a_data_loading_error_cannot_pass_a_clean_summary() {
 }
 
 #[test]
+/// # Errors
+/// Propagates JSON decoding or missing synthetic summary-field errors.
+///
+/// # Panics
+/// Panics if failed processes, warnings, incomplete records, or missing checks are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn process_failure_warnings_and_incomplete_check_sets_are_rejected() -> Result<()> {
     let clean = summary();
     assert!(validate(false, b"", clean.as_bytes()).is_err());
@@ -118,6 +133,8 @@ fn process_failure_warnings_and_incomplete_check_sets_are_rejected() -> Result<(
 }
 
 #[test]
+/// # Panics
+/// Panics if malformed, unknown, duplicate, or out-of-order policy records are accepted.
 fn malformed_unknown_duplicate_and_out_of_order_records_fail_closed() {
     let clean = summary();
     for output in [
@@ -147,6 +164,8 @@ fn malformed_unknown_duplicate_and_out_of_order_records_fail_closed() {
 }
 
 #[test]
+/// # Panics
+/// Panics if record limits reject the valid boundary or accept oversized output.
 fn record_bytes_and_record_count_have_explicit_limits() {
     let clean = summary();
     let long = "x".repeat(super::RECORD_BYTES);
@@ -170,6 +189,8 @@ fn record_bytes_and_record_count_have_explicit_limits() {
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
+/// # Errors
+/// Propagates readiness-read errors or exhaustion of the bounded readiness attempts.
 fn await_readiness(mut ready: impl FnMut() -> Result<bool>) -> Result<()> {
     // Read past the native test harness prefix with bounded output.
     for _ in 0_u8..16_u8 {
@@ -191,6 +212,8 @@ mod subprocess {
 
     use crate::Result;
 
+    /// # Errors
+    /// Propagates failure to locate the current test executable.
     fn fixture_command(mode: &str) -> Result<Command> {
         let mut command = Command::new(std::env::current_exe()?);
         let _command: &mut Command = command
@@ -204,6 +227,9 @@ mod subprocess {
         Ok(command)
     }
 
+    /// # Errors
+    /// Propagates address parsing, socket setup, or readiness-output errors.
+    /// The final socket-read result is deliberately ignored so closure retires the fixture.
     fn connected_descendant() -> Result<()> {
         let address: SocketAddr = std::env::var("LOGBREW_POLICY_TEST_ADDRESS")?.parse()?;
         let mut stream = TcpStream::connect_timeout(&address, Duration::from_secs(2))?;
@@ -216,6 +242,8 @@ mod subprocess {
         Ok(())
     }
 
+    /// # Errors
+    /// Propagates fixture-command creation, child spawning, missing stdout, or readiness-read errors.
     fn spawn_connected_descendant() -> Result<()> {
         let mut descendant = fixture_command("connected-descendant")?
             .stdin(Stdio::null())
@@ -229,6 +257,8 @@ mod subprocess {
         Ok(())
     }
 
+    /// # Errors
+    /// Propagates line-read failure or EOF before descendant readiness.
     fn ready_line(reader: &mut impl io::BufRead) -> Result<bool> {
         let mut line = Vec::new();
         if reader.read_until(b'\n', &mut line)? == 0 {
@@ -237,6 +267,8 @@ mod subprocess {
         Ok(line.ends_with(b"descendant ready\n"))
     }
 
+    /// # Errors
+    /// Returns when writing the output flood fails.
     fn flood() -> Result<()> {
         let buffer = [b'x'; 8192];
         loop {
@@ -246,6 +278,9 @@ mod subprocess {
 
     #[test]
     #[ignore = "native subprocess fixture invoked by the process-bound tests"]
+    /// # Errors
+    /// Propagates mode lookup, command spawning, signaling, or output failures;
+    /// returns controlled errors for failure modes and unknown modes.
     fn native_child_fixture() -> Result<()> {
         match std::env::var("LOGBREW_POLICY_TEST_MODE")?.as_str() {
             "failure" => return Err("synthetic child failure".into()),
@@ -278,6 +313,15 @@ mod subprocess {
     }
 
     #[test]
+    /// # Errors
+    /// Propagates socket setup, command capture, connection acceptance, or timeout setup errors.
+    ///
+    /// # Panics
+    /// Panics if leader status differs or the descendant connection remains open.
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+    )]
     fn completed_commands_retire_descendants_with_closed_capture_pipes() -> Result<()> {
         for (mode, expected_success) in [
             ("closed-pipe-descendant", true),
@@ -303,6 +347,8 @@ mod subprocess {
         Ok(())
     }
 
+    /// # Panics
+    /// Panics unless the descendant connection is closed or reset.
     fn assert_closed(mode: &str, result: io::Result<usize>) {
         match result {
             Ok(0) => {}
@@ -312,6 +358,15 @@ mod subprocess {
     }
 
     #[test]
+    /// # Errors
+    /// Propagates fixture creation, valid-command capture, or captured-output UTF-8 errors.
+    ///
+    /// # Panics
+    /// Panics if status, output, limits, or observed deadline behavior differs from expectations.
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+    )]
     fn native_children_prove_status_pipe_limits_and_deadlines() -> Result<()> {
         let success = super::super::process::capture(
             &mut fixture_command("success")?,

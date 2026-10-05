@@ -83,6 +83,9 @@ pub fn category(filename: &str) -> Option<&'static str> {
     None
 }
 
+/// # Errors
+/// Read errors, invalid or empty UTF-8, notice-count overflow, or a notice
+/// byte budget violation prevent insertion.
 fn add_notice(
     entry: impl io::Read,
     relative: &str,
@@ -105,6 +108,11 @@ fn add_notice(
     Ok(())
 }
 
+/// # Errors
+/// Rejects invalid archive size or checksum, unsafe or duplicate paths, links,
+/// malformed metadata, mismatched package identity, exceeded entry or text
+/// budgets, and incomplete or corrupt tar/gzip data. Reader and decoder errors
+/// propagate.
 pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) -> Result<Collected> {
     if u64::try_from(bytes.len())? > ARCHIVE_BYTES || checksum(bytes)? != expected {
         return Err(error("registry archive checksum or size mismatch"));

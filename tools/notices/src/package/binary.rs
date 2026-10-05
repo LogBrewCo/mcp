@@ -10,6 +10,9 @@ mod tests;
 
 use serde_json::Value;
 
+/// # Errors
+/// Rejects an unsupported executable header, invalid Mach-O command extent,
+/// binary-parser failures, invalid load metadata, and an oversized JSON report.
 pub fn requirements(target: Target, input: &[u8]) -> Result<Value> {
     check(target, input)?;
     if matches!(target, Target::MacArm | Target::MacX86) {
@@ -48,6 +51,9 @@ struct TextBudget {
 }
 
 impl TextBudget {
+    /// # Errors
+    /// Rejects empty, oversized, NUL-containing, or line-breaking text, excessive
+    /// string count, and overflow or excess in the combined JSON text budget.
     fn admit(&mut self, value: &str) -> Result<()> {
         if self.strings >= 256
             || value.is_empty()
@@ -71,6 +77,9 @@ impl TextBudget {
         Ok(())
     }
 
+    /// # Errors
+    /// Returns an error when any string fails admission to the shared text and
+    /// count budgets.
     fn strings<'a>(&mut self, values: impl Iterator<Item = &'a str>) -> Result<Vec<&'a str>> {
         let mut result = Vec::new();
         for value in values {
@@ -81,6 +90,8 @@ impl TextBudget {
     }
 }
 
+/// # Errors
+/// Rejects offset overflow or a truncated fixed-width field.
 fn bytes<const N: usize>(input: &[u8], start: usize) -> Result<[u8; N]> {
     let end = start
         .checked_add(N)
@@ -91,6 +102,9 @@ fn bytes<const N: usize>(input: &[u8], start: usize) -> Result<[u8; N]> {
         .try_into()?)
 }
 
+/// # Errors
+/// Rejects an executable with the wrong format, architecture, or file type,
+/// a truncated header field, or a forbidden workstation path marker.
 pub fn check(target: Target, input: &[u8]) -> Result<()> {
     let matches = match target {
         Target::MacArm => check_mach(input, 0x0100_000c)?,
@@ -111,6 +125,9 @@ pub fn check(target: Target, input: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+/// Returns an error if a required Mach-O header field cannot be read.
+/// Unsupported header values return `Ok(false)`.
 fn check_mach(input: &[u8], machine: u32) -> Result<bool> {
     Ok(input.len() >= 32
         && u32::from_le_bytes(bytes(input, 0)?) == 0xfeed_facf
@@ -118,6 +135,9 @@ fn check_mach(input: &[u8], machine: u32) -> Result<bool> {
         && u32::from_le_bytes(bytes(input, 12)?) == 2)
 }
 
+/// # Errors
+/// Returns an error if a required ELF header field cannot be read.
+/// Unsupported header values return `Ok(false)`.
 fn check_elf(input: &[u8], machine: u16) -> Result<bool> {
     Ok(input.len() >= 64
         && bytes::<7>(input, 0)? == *b"\x7fELF\x02\x01\x01"

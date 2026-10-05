@@ -35,6 +35,8 @@ fn error(message: &str) -> Box<dyn std::error::Error> {
     io::Error::other(message).into()
 }
 
+/// # Errors
+/// Returns an error if the requested field is absent or is not a string.
 fn string<'a>(value: &'a Value, key: &str) -> Result<&'a str> {
     value
         .get(key)
@@ -42,6 +44,8 @@ fn string<'a>(value: &'a Value, key: &str) -> Result<&'a str> {
         .ok_or_else(|| error("missing string field"))
 }
 
+/// # Errors
+/// Propagates hexadecimal digest formatting errors.
 fn checksum(bytes: &[u8]) -> Result<String> {
     let mut result = String::with_capacity(64);
     for byte in Sha256::digest(bytes) {
@@ -50,6 +54,9 @@ fn checksum(bytes: &[u8]) -> Result<String> {
     Ok(result)
 }
 
+/// # Errors
+/// Rejects limit overflow, reader failures, byte-count conversion failure,
+/// and input beyond the byte limit.
 fn bounded(reader: impl io::Read, limit: u64) -> Result<Vec<u8>> {
     let read_limit = limit
         .checked_add(1)
@@ -62,6 +69,9 @@ fn bounded(reader: impl io::Read, limit: u64) -> Result<Vec<u8>> {
     Ok(bytes)
 }
 
+/// # Errors
+/// Rejects empty, oversized, absolute, nonnormal, or ambiguous paths,
+/// including dot components, empty components, backslashes, NULs, and line breaks.
 fn relative_path(value: &str) -> Result<&Path> {
     let path = Path::new(value);
     if value.is_empty()
@@ -79,6 +89,9 @@ fn relative_path(value: &str) -> Result<&Path> {
     Ok(path)
 }
 
+/// # Errors
+/// Rejects missing name/version strings and empty, oversized, or unsupported
+/// package identity characters.
 fn identity(package: &Value) -> Result<String> {
     let name = string(package, "name")?;
     let version = string(package, "version")?;
@@ -106,6 +119,10 @@ struct Texts {
 }
 
 impl Texts {
+    /// # Errors
+    /// Rejects file-count or text-size overflow, exceeded file/text budgets, and
+    /// a digest collision. Counters may have advanced before failure; callers
+    /// discard the failed inventory.
     fn insert(&mut self, text: &str) -> Result<String> {
         self.files = self
             .files
@@ -134,6 +151,10 @@ impl Texts {
     }
 }
 
+/// # Errors
+/// Returns an error for absent package fields, bounded archive or installed
+/// file reads, archive verification, changed installed notice bytes, invalid
+/// notice categories, and text-inventory admission.
 fn registry(
     package: &Value,
     root: &Path,
@@ -172,6 +193,9 @@ fn registry(
     )
 }
 
+/// # Errors
+/// Rejects failed bounded license reads, invalid or empty UTF-8, and text
+/// inventory admission failures.
 fn project_notice(package: &Value, root: &Path, texts: &mut Texts) -> Result<Value> {
     let bytes = input::read(&root.join("LICENSE"), archive::NOTICE_BYTES)?;
     let text = std::str::from_utf8(&bytes)?;
@@ -186,6 +210,10 @@ fn project_notice(package: &Value, root: &Path, texts: &mut Texts) -> Result<Val
     )
 }
 
+/// # Errors
+/// Rejects invalid lockfile or metadata, excess or incomplete package coverage,
+/// duplicate identities, unsupported sources, source disagreement, absent
+/// checksums or package paths, and failed archive or project-notice verification.
 fn inventory(
     metadata: &Value,
     lock_bytes: &[u8],
@@ -262,6 +290,10 @@ fn inventory(
     Ok(result)
 }
 
+/// # Errors
+/// Returns an error for failed package or supplement verification, missing
+/// verified notices, checksum or JSON serialization failure, and output beyond
+/// the byte budget.
 fn generate(
     metadata: &Value,
     lock_bytes: &[u8],

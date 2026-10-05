@@ -5,6 +5,8 @@ use crate::{Result, checksum};
 
 const TARGET: &str = "aarch64-unknown-linux-gnu";
 
+/// # Errors
+/// Propagates checksum formatting failure while building the synthetic inventory.
 fn inventory() -> Result<Value> {
     let text = "synthetic component attribution\n";
     Ok(
@@ -16,11 +18,22 @@ fn inventory() -> Result<Value> {
     )
 }
 
+/// # Errors
+/// Propagates inventory encoding or validation failure.
 fn check(value: &Value) -> Result<Value> {
     validate(TARGET, &"b".repeat(64), &serde_json::to_vec(value)?)
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction or inventory validation failure.
+///
+/// # Panics
+/// Panics if coverage, permission requirements, or count fields differ from expectations.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn bound_inventory_preserves_external_coverage_and_permission_requirements() -> Result<()> {
     let report = check(&inventory()?)?;
     for key in [
@@ -36,6 +49,15 @@ fn bound_inventory_preserves_external_coverage_and_permission_requirements() -> 
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, encoding, or missing fixture-field errors.
+///
+/// # Panics
+/// Panics if invalid identity, scope, schema, or duplicate fields are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Result<()> {
     for (key, value) in [
         ("format_version", json!(2_u32)),
@@ -64,6 +86,15 @@ fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Resul
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction or missing notice-field errors.
+///
+/// # Panics
+/// Panics if modified notice text, unsafe paths, or unknown fields are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn modified_text_paths_and_unrecognized_notice_fields_are_rejected() -> Result<()> {
     for (key, value) in [
         ("text", json!("modified attribution")),
@@ -84,6 +115,15 @@ fn modified_text_paths_and_unrecognized_notice_fields_are_rejected() -> Result<(
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction or missing inventory-array errors.
+///
+/// # Panics
+/// Panics if duplicate component or notice identities are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn duplicate_component_or_notice_identity_is_rejected() -> Result<()> {
     for pointer in ["/components", "/components/0/notices"] {
         let mut value_inventory = inventory()?;
@@ -99,6 +139,15 @@ fn duplicate_component_or_notice_identity_is_rejected() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction or missing source-URL errors.
+///
+/// # Panics
+/// Panics if a prohibited source URL is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn source_metadata_rejects_credentials_and_non_https_sources() -> Result<()> {
     for url in [
         "http://example.com/source.tar.gz",
@@ -117,6 +166,8 @@ fn source_metadata_rejects_credentials_and_non_https_sources() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, checksum, or missing notice-field errors.
 fn notice_text_and_encoded_inventory_limits_reject_before_packaging() -> Result<()> {
     let mut value_inventory = inventory()?;
     let text = "a".repeat((512 << 10) + 1);
@@ -133,6 +184,15 @@ fn notice_text_and_encoded_inventory_limits_reject_before_packaging() -> Result<
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture construction, missing fixture fields, or boundary validation errors.
+///
+/// # Panics
+/// Panics if accepted boundary counts differ from 64 components and 256 notices.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()> {
     let mut value_inventory = inventory()?;
     let original = value_inventory

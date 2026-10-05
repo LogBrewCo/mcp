@@ -11,6 +11,15 @@ use crate::{
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 #[test]
+/// # Errors
+/// Propagates clock, fixture setup, file reads/writes, symlink creation, or byte-count conversion errors.
+///
+/// # Panics
+/// Panics if valid reads differ or the source bytes change after rejected inputs.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<()> {
     struct Directory(std::path::PathBuf);
     impl Drop for Directory {
@@ -52,12 +61,16 @@ fn package() -> Value {
     json!({"name":"example","version":"1.0.0","license":"MIT","repository":"https://github.com/example/project"})
 }
 
+/// # Errors
+/// Propagates gzip writes or encoder finalization errors.
 fn gzip(bytes: &[u8]) -> Result<Vec<u8>> {
     let mut encoder = GzEncoder::new(Vec::new(), Compression::fast());
     encoder.write_all(bytes)?;
     Ok(encoder.finish()?)
 }
 
+/// # Errors
+/// Propagates size conversion, fixture-path bounds, tar writes, or gzip encoding errors.
 fn fixture(entries: &[(&str, &[u8], tar::EntryType)]) -> Result<Vec<u8>> {
     let mut builder = tar::Builder::new(Vec::new());
     for (path, bytes, kind) in std::iter::once((
@@ -85,6 +98,15 @@ fn fixture(entries: &[(&str, &[u8], tar::EntryType)]) -> Result<Vec<u8>> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture encoding, archive verification, checksums, or fixture-prefix errors.
+///
+/// # Panics
+/// Panics if the collected notice count or verbatim text differs from the fixture.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn preserves_nested_notices_and_attribution_verbatim() -> Result<()> {
     let entries = [
         (
@@ -134,6 +156,15 @@ fn preserves_nested_notices_and_attribution_verbatim() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture encoding, checksum formatting, or missing gzip-footer errors.
+///
+/// # Panics
+/// Panics if checksum, footer, or truncation corruption is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_checksum_gzip_footer_and_truncation_corruption() -> Result<()> {
     let bytes = fixture(&[])?;
     assert!(archive::collect(&package(), &bytes, &"0".repeat(64), Limits::default()).is_err());
@@ -170,6 +201,15 @@ fn rejects_checksum_gzip_footer_and_truncation_corruption() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture encoding, checksum formatting, valid collection, or footer-field errors.
+///
+/// # Panics
+/// Panics if post-tar expansion limits or corrupt trailing gzip members are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn validates_members_and_expansion_after_tar_end_marker() -> Result<()> {
     let mut bytes = fixture(&[])?;
     let trailing = gzip(&vec![0; 8192])?;
@@ -193,6 +233,15 @@ fn validates_members_and_expansion_after_tar_end_marker() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture encoding or checksum formatting errors.
+///
+/// # Panics
+/// Panics if unsafe paths, links, special files, or duplicate archive paths are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_unsafe_paths_links_special_files_and_duplicate_paths() -> Result<()> {
     for (path, kind) in [
         ("example-1.0.0/../LICENSE", tar::EntryType::Regular),
@@ -218,6 +267,15 @@ fn rejects_unsafe_paths_links_special_files_and_duplicate_paths() -> Result<()> 
 }
 
 #[test]
+/// # Errors
+/// Propagates fixture encoding, missing metadata fields, or checksum formatting errors.
+///
+/// # Panics
+/// Panics if metadata disagreement or entry/path/notice budgets are not enforced.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_mismatched_manifest_and_notice_or_entry_budget_overruns() -> Result<()> {
     let bytes = fixture(&[("example-1.0.0/LICENSE", b"notice", tar::EntryType::Regular)])?;
     for key in ["name", "version", "license", "repository"] {
@@ -259,6 +317,15 @@ fn rejects_mismatched_manifest_and_notice_or_entry_budget_overruns() -> Result<(
 }
 
 #[test]
+/// # Errors
+/// Propagates synthetic supplement JSON encoding failure.
+///
+/// # Panics
+/// Panics if duplicate, unknown, invalid-version, or unused supplement records are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rejects_duplicate_unknown_and_unused_supplement_records() -> Result<()> {
     for bytes in [
         b"{\"format_version\":1,\"format_version\":1,\"notices\":[]}".as_slice(),

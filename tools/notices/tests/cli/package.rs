@@ -13,6 +13,9 @@ mod linked;
 #[path = "package/readable.rs"]
 mod readable;
 
+/// # Errors
+///
+/// Returns an error if a fixture header offset, byte slice, checksum, or JSON encoding cannot be constructed.
 fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
     let mut binary = vec![0; 56];
     for (start, bytes) in [
@@ -56,6 +59,9 @@ fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
     ]))
 }
 
+/// # Errors
+///
+/// Returns an error if fixture creation, file access, checksum recording, JSON conversion, or fixture field access fails.
 fn fixture() -> Result<Fixture> {
     let fixture = Fixture::new()?;
     fs::create_dir_all(fixture.root.join("licenses"))?;
@@ -86,6 +92,9 @@ fn fixture() -> Result<Fixture> {
     Ok(fixture)
 }
 
+/// # Errors
+///
+/// Returns an error if the packaging command cannot be launched or its output cannot be collected.
 fn run(fixture: &Fixture) -> Result<std::process::Output> {
     Ok(Command::new(env!("CARGO_BIN_EXE_logbrew-mcp-package"))
         .args([
@@ -97,6 +106,17 @@ fn run(fixture: &Fixture) -> Result<std::process::Output> {
         .output()?)
 }
 
+/// # Errors
+///
+/// Returns an error if gzip or tar decoding, header parsing, archive path validation, or entry reading fails.
+///
+/// # Panics
+///
+/// Panics if entries have unexpected types, ownership, permissions, timestamps, duplicate paths, or gzip metadata.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn archived_package(bytes: &[u8]) -> Result<BTreeMap<String, Vec<u8>>> {
     let mut archive = tar::Archive::new(MultiGzDecoder::new(bytes));
     let mut archived = BTreeMap::new();
@@ -137,6 +157,17 @@ fn archived_path(path: &str) -> &str {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, archive decoding, file access, manifest decoding, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if packaging, reproducibility, archive contents, deployment metadata, release requirements, or the plan checksum differ from the expected values.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn package_is_reproducible_and_preserves_all_bound_bytes_with_fixed_metadata() -> Result<()> {
     let fixture = fixture()?;
     let result = run(&fixture)?;
@@ -189,6 +220,17 @@ fn package_is_reproducible_and_preserves_all_bound_bytes_with_fixed_metadata() -
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, or fixture file access fails.
+///
+/// # Panics
+///
+/// Panics if changed input is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn changed_package_inputs_preserve_the_previous_complete_archive() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -205,6 +247,17 @@ fn changed_package_inputs_preserve_the_previous_complete_archive() -> Result<()>
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, header conversion, JSON field access, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if an inconsistent load command region is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn trusted_hash_does_not_allow_inconsistent_load_command_regions() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -236,6 +289,17 @@ fn trusted_hash_does_not_allow_inconsistent_load_command_regions() -> Result<()>
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, header field access, JSON conversion, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if missing deployment metadata is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn trusted_hash_does_not_allow_missing_deployment_metadata() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -259,6 +323,17 @@ fn trusted_hash_does_not_allow_missing_deployment_metadata() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, plan field access, JSON conversion, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if a workstation path is accepted, the expected rejection is absent, or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn trusted_hash_does_not_allow_packaging_a_workstation_path() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -278,6 +353,17 @@ fn trusted_hash_does_not_allow_packaging_a_workstation_path() -> Result<()> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, JSON conversion or field access, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if a mismatched lockfile, release, or target is accepted, or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn rebound_notice_hashes_do_not_allow_another_lockfile_release_or_target() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -322,6 +408,17 @@ fn rebound_notice_hashes_do_not_allow_another_lockfile_release_or_target() -> Re
 
 #[cfg(unix)]
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file access, renaming, or symlink creation fails.
+///
+/// # Panics
+///
+/// Panics if an input symlink is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn package_rejects_a_bound_input_symlink_without_changing_existing_output() -> Result<()> {
     let fixture = fixture()?;
     assert!(run(&fixture)?.status.success());
@@ -337,6 +434,17 @@ fn package_rejects_a_bound_input_symlink_without_changing_existing_output() -> R
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, file access, or command execution fails.
+///
+/// # Panics
+///
+/// Panics if packaging accepts replacement of an input, omits the expected rejection, or changes the input.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn package_output_cannot_replace_its_plan_binary_lockfile_or_notices() -> Result<()> {
     let fixture = fixture()?;
     let mut paths = files()?.into_keys().collect::<Vec<_>>();

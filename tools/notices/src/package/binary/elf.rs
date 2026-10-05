@@ -4,6 +4,9 @@ use serde_json::{Value, json};
 
 use super::TextBudget;
 
+/// # Errors
+/// Rejects missing dynamic strings, incomplete version records, and library
+/// or version text that exceeds the shared load-metadata budget.
 fn version_requirement(
     binary: &Elf<'_>,
     need: &Verneed<'_>,
@@ -32,6 +35,9 @@ fn version_requirement(
     Ok(json!({"library":library,"structure_version":need.vn_version,"versions":versions}))
 }
 
+/// # Errors
+/// Rejects excess headers or dependencies, missing load segments or required
+/// interpreter, inconsistent version counts, and invalid or excessive load text.
 pub fn requirements(binary: &Elf<'_>) -> Result<Value> {
     let mut text = TextBudget::default();
     if binary.program_headers.len() > 4096

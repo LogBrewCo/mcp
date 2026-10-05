@@ -32,10 +32,16 @@ const RUST_FILES: [(&str, &str, &str); 4] = [
     ),
 ];
 
+/// # Errors
+///
+/// Returns an error if the notice checksum cannot be recorded.
 fn record(text: &str) -> Result<Value> {
     Ok(json!({"bytes":text.len(),"sha256":digest(text.as_bytes())?,"text":text}))
 }
 
+/// # Errors
+///
+/// Returns an error if the fixture value is not a JSON object.
 fn insert(value: &mut Value, key: &str, entry: Value) -> Result<()> {
     let _previous: Option<Value> = value
         .as_object_mut()
@@ -44,6 +50,9 @@ fn insert(value: &mut Value, key: &str, entry: Value) -> Result<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if JSON conversion, fixture file access, checksum recording, or plan field access fails.
 fn bind(fixture: &Fixture, field: &str, path: &str, inventory: &Value) -> Result<()> {
     write_json(&fixture.root.join(path), inventory)?;
     let bytes = fs::read(fixture.root.join(path))?;
@@ -53,6 +62,9 @@ fn bind(fixture: &Fixture, field: &str, path: &str, inventory: &Value) -> Result
     write_json(&fixture.root.join("plan.json"), &plan)
 }
 
+/// # Errors
+///
+/// Returns an error if fixture preparation, JSON conversion or field access, file access, or checksum recording fails.
 fn readable_fixture() -> Result<Fixture> {
     let fixture = fixture()?;
     let _bound: Vec<u8> = linked::bind(&fixture, &linked::inventory(&fixture)?)?;
@@ -89,6 +101,17 @@ fn readable_fixture() -> Result<Fixture> {
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, archive decoding, file access, UTF-8 decoding, checksum recording, or JSON field access fails.
+///
+/// # Panics
+///
+/// Panics if packaging, reproducibility, notice text, deduplication, source bindings, or external release requirements differ from the expected values.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Result<()> {
     let fixture = readable_fixture()?;
     let result = run(&fixture)?;
@@ -167,6 +190,17 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
 }
 
 #[test]
+/// # Errors
+///
+/// Returns an error if fixture preparation, command execution, file updates, JSON conversion or field access, or checksum recording fails.
+///
+/// # Panics
+///
+/// Panics if a malformed readable source is accepted or the previous package changes.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
+)]
 fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()> {
     let fixture = readable_fixture()?;
     assert!(run(&fixture)?.status.success());

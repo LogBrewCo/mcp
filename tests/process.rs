@@ -176,8 +176,12 @@ impl Fixture {
 struct Process(Child);
 
 impl Process {
+    /// Use the selected package executable, or Cargo's binary when no path is supplied.
+    /// A supplied path never falls back to the source binary after a startup failure.
     fn command() -> Command {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_logbrew-mcp"));
+        let executable: std::ffi::OsString = std::env::var_os("LOGBREW_MCP_PACKAGE_EXECUTABLE")
+            .unwrap_or_else(|| env!("CARGO_BIN_EXE_logbrew-mcp").into());
+        let mut command = Command::new(executable);
         let _: &mut Command = command
             .env_clear()
             .stdin(Stdio::null())

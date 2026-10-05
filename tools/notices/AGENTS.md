@@ -180,3 +180,16 @@ cargo build --locked --offline --release --bin logbrew-mcp
 The selected marker check is not a complete private-content or security scan.
 Release authorization, protected checks, final licenses, supported platforms,
 installation, hosted operation and real-client proof remain separate gates.
+
+Run the server's existing process suite against an extracted development archive
+by setting `LOGBREW_MCP_PACKAGE_EXECUTABLE` to its absolute executable path:
+
+```sh
+LOGBREW_MCP_PACKAGE_EXECUTABLE=/absolute/path/to/extracted/bin/logbrew-mcp cargo test --locked --offline --test process -- --test-threads=2
+```
+
+Run this from the server repository root. The harness clears the server's
+environment and keeps the source tests' assertions. An empty or unusable supplied
+path fails without selecting Cargo's binary. With the variable unset, ordinary
+source tests use Cargo's binary. These tests prove only the exercised local
+development executable behavior; they do not prove hosted or real-client access.

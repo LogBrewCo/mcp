@@ -1,12 +1,43 @@
 use std::{
+    error::Error as _,
     fs,
     io::{self, Write as _},
     os::unix::{fs::PermissionsExt as _, net::UnixListener},
     path::PathBuf,
+    sync::atomic::{AtomicU64, Ordering},
 };
 
-use super::{Staged, replace, write};
+use rustix::io::Errno;
+
+use super::{DirectorySyncFailure, Staged, next_sequence, replace, write};
 use crate::{Result, error};
+
+/// # Panics
+/// Fails if sequence exhaustion changes the counter or returns another error.
+#[test]
+fn sequence_exhaustion_preserves_counter_and_fixed_failure() {
+    let sequence = AtomicU64::new(u64::MAX);
+    let failure = next_sequence(&sequence).unwrap_err();
+    assert_eq!(sequence.load(Ordering::Relaxed), u64::MAX);
+    assert_eq!(failure.to_string(), "notice staging sequence exhausted");
+    assert!(failure.source().is_none());
+}
+
+/// # Panics
+/// Fails if a sync error loses replacement state or its original OS error.
+#[test]
+fn directory_sync_error_preserves_replacement_state_and_os_cause() {
+    let failure = DirectorySyncFailure { cause: Errno::IO };
+    assert_eq!(
+        failure.to_string(),
+        format!(
+            "notice output replaced; directory durability is unconfirmed: {}",
+            Errno::IO
+        )
+    );
+    let cause = failure.source().expect("original directory sync error");
+    assert_eq!(cause.downcast_ref::<Errno>(), Some(&Errno::IO));
+}
 
 struct Fixture {
     root: PathBuf,

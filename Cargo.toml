@@ -142,6 +142,7 @@ unused_result_ok = "deny"
 unused_trait_names = "deny"
 unwrap_in_result = "deny"
 unwrap_used = "deny"
+use_debug = "deny"
 verbose_file_reads = "deny"
 wildcard_enum_match_arm = "deny"
 

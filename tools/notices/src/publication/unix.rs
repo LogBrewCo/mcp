@@ -16,6 +16,27 @@ use crate::{Result, error};
 
 static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
+#[derive(Debug)]
+struct DirectorySyncFailure {
+    cause: Errno,
+}
+
+impl std::fmt::Display for DirectorySyncFailure {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "notice output replaced; directory durability is unconfirmed: {}",
+            self.cause
+        )
+    }
+}
+
+impl std::error::Error for DirectorySyncFailure {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(&self.cause)
+    }
+}
+
 struct Staged {
     directory: OwnedFd,
     file: File,
@@ -41,14 +62,24 @@ fn permissions(directory: impl AsFd, name: &OsStr) -> Result<Mode> {
 }
 
 /// # Errors
-/// Rejects staging-sequence exhaustion and propagates exclusive-file open
-/// failures other than a name collision.
-fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
-    let sequence = SEQUENCE
+/// Rejects exhaustion without changing the staging sequence.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Atomic update failure contains only the previous counter value. Keep a fixed exhaustion error and prove no wraparound or mutation. Reviewed 2026-10-05; review by 2026-11-05 or on sequence changes."
+)]
+fn next_sequence(sequence: &AtomicU64) -> Result<u64> {
+    sequence
         .try_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)
         })
-        .map_err(|_| error("notice staging sequence exhausted"))?;
+        .map_err(|_| error("notice staging sequence exhausted"))
+}
+
+/// # Errors
+/// Rejects staging-sequence exhaustion and propagates exclusive-file open
+/// failures other than a name collision.
+fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
+    let sequence = next_sequence(&SEQUENCE)?;
     let name = OsString::from(format!(
         ".logbrew-notices-{}-{sequence}.tmp",
         std::process::id()
@@ -130,8 +161,7 @@ impl Staged {
         self.file.sync_all()?;
         fs::renameat(&self.directory, &self.name, &self.directory, destination)?;
         self.published = true;
-        fs::fsync(&self.directory)
-            .map_err(|_| error("notice output replaced; directory durability is unconfirmed"))?;
+        fs::fsync(&self.directory).map_err(|cause| DirectorySyncFailure { cause })?;
         Ok(())
     }
 }

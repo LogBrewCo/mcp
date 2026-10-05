@@ -10,6 +10,14 @@ use super::backend::PendingStage;
 
 use super::{Fixture, Process, TestResult, backend, client, configure, envelope, request};
 
+/// # Errors
+///
+/// Returns a fixture, file, process, request, task join, timeout or shutdown error.
+///
+/// # Panics
+///
+/// Panics if cancellation leaves upstream work, recovery returns the wrong result,
+/// request counts change or the executable fails to exit successfully.
 async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -71,6 +79,13 @@ async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 cancellation fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if execution cancellation or recovery fails its assertions.
 async fn normal_linux_http1_authenticated_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -80,6 +95,13 @@ async fn normal_linux_http1_authenticated_cancellation_and_recovery() -> TestRes
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 cancellation fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if execution cancellation or recovery fails its assertions.
 async fn normal_linux_http2_authenticated_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -89,6 +111,13 @@ async fn normal_linux_http2_authenticated_cancellation_and_recovery() -> TestRes
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 verification fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if pending verification cancellation or recovery fails its assertions.
 async fn normal_linux_http1_pending_verification_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -98,6 +127,13 @@ async fn normal_linux_http1_pending_verification_cancellation_and_recovery() -> 
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 verification fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if pending verification cancellation or recovery fails its assertions.
 async fn normal_linux_http2_pending_verification_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),

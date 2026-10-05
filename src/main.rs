@@ -4,6 +4,10 @@ use std::{path::PathBuf, process::ExitCode};
 
 use logbrew_mcp::{Failure, error::Kind, runtime, startup::Service};
 
+/// Run the standalone server or configuration check and return its exit status.
+///
+/// # Panics
+/// Panics if the Tokio runtime cannot be created.
 #[tokio::main(worker_threads = 2)]
 async fn main() -> ExitCode {
     if run().await.is_ok() {
@@ -13,6 +17,11 @@ async fn main() -> ExitCode {
     }
 }
 
+/// Validate the command and startup material, then check configuration or serve.
+///
+/// # Errors
+/// Rejects missing or extra arguments, invalid startup material and serving or
+/// shutdown failures without exposing their underlying diagnostic values.
 async fn run() -> Result<(), Failure> {
     let (path, check_only) = {
         let mut arguments = std::env::args_os().skip(1);
@@ -36,6 +45,14 @@ async fn run() -> Result<(), Failure> {
     }
 }
 
+/// Wait for SIGINT or SIGTERM with fair signal polling.
+///
+/// # Errors
+/// Returns Unavailable if either signal listener cannot be installed.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
+)]
 async fn shutdown() -> Result<(), Failure> {
     use tokio::signal::unix::{SignalKind, signal};
     let mut interrupt =

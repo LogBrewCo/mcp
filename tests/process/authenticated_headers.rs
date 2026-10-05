@@ -8,6 +8,14 @@ use tokio::time::timeout;
 
 use super::{Fixture, Process, TestResult, backend, client, configure, envelope, request};
 
+/// # Errors
+///
+/// Returns a header, request, body-read or JSON parsing error.
+///
+/// # Panics
+///
+/// Panics if rejected headers alter correlation, status, transport, cache policy,
+/// session isolation or private-field redaction.
 async fn rejected(http: &reqwest::Client, resource: &str, http2: bool) -> TestResult<()> {
     let marker = "SYNTHETIC_REJECTED_PRIVATE_FIELD";
     for id in [
@@ -68,6 +76,14 @@ async fn rejected(http: &reqwest::Client, resource: &str, http2: bool) -> TestRe
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a fixture, file, process, request, timeout or shutdown error.
+///
+/// # Panics
+///
+/// Panics if header rejection reaches execution, recovery changes the result or
+/// call counts, upstream work remains or executable shutdown fails.
 async fn privacy_and_recovery(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -107,11 +123,25 @@ async fn privacy_and_recovery(http2: bool) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 header fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if header privacy, rejection or recovery fails its assertions.
 async fn normal_linux_http1_header_error_privacy_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), privacy_and_recovery(false)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 header fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if header privacy, rejection or recovery fails its assertions.
 async fn normal_linux_http2_header_error_privacy_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), privacy_and_recovery(true)).await?
 }

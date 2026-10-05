@@ -21,6 +21,9 @@ use super::{
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const PRIVATE_BODY: &[u8] = br#"{"SYNTHETIC_PRIVATE_BODY":"#;
 
+/// # Errors
+///
+/// Returns an HPACK encoding error for the fixed request headers.
 fn post() -> TestResult<Vec<u8>> {
     let mut block = vec![0x83, 0x87]; // Static POST and https indices.
     let authorization = format!("Bearer {TOKEN}");
@@ -39,6 +42,9 @@ fn post() -> TestResult<Vec<u8>> {
     Ok(block)
 }
 
+/// # Errors
+///
+/// Returns an error if the response header block does not encode the expected status.
 fn status(block: &[u8], expected: u16) -> TestResult<()> {
     // SETTINGS_HEADER_TABLE_SIZE=0 removes dynamic response indices. The first
     // block can include a zero table-size update before its status field.
@@ -79,6 +85,15 @@ struct Response {
     body: Vec<u8>,
 }
 
+/// # Errors
+///
+/// Returns a frame read, write, status or count error, or an error if the peer
+/// closes, shuts down, or sends an unexpected response frame.
+///
+/// # Panics
+///
+/// Panics if PING size, response ordering, padding, body bounds or reset timing
+/// violates the fixture contract.
 async fn responses(
     peer: &mut Peer,
     streams: &[u32],
@@ -139,6 +154,9 @@ async fn responses(
     Err(io::Error::other("response frame count exceeds test bound").into())
 }
 
+/// # Errors
+///
+/// Returns a write error while adding progress to an unfinished request body.
 async fn drip_requests(
     peer: &mut Peer,
     streams: &[u32],
@@ -154,6 +172,13 @@ async fn drip_requests(
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a timeout or HTTP error while observing full request admission.
+///
+/// # Panics
+///
+/// Panics if excess work is accepted or authentication and execution counts change.
 async fn capacity(fixture: &Fixture, running: &Running) -> TestResult<()> {
     timeout(Duration::from_secs(2), async {
         while fixture.state.verifies.load(Ordering::SeqCst) != 64 {
@@ -180,6 +205,13 @@ async fn capacity(fixture: &Fixture, running: &Running) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a frame exchange or JSON error, or an error if the recovery response is absent.
+///
+/// # Panics
+///
+/// Panics if the recovered request ID or execution result changes.
 async fn recovery(peer: &mut Peer, block: &[u8], stream: u32) -> TestResult<()> {
     let body = json!({"jsonrpc":"2.0","id":"recovered","method":"tools/call","params":{
         "name":"execute","arguments":{"operation":"logs.read.v1","input":{}},"_meta":{
@@ -198,6 +230,18 @@ async fn recovery(peer: &mut Peer, block: &[u8], stream: u32) -> TestResult<()> 
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a serialization error or an error if required telemetry is absent.
+///
+/// # Panics
+///
+/// Panics if request totals, deadline and throttle outcomes, or privacy checks fail.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn observations(fixture: &Fixture) -> TestResult<()> {
     let snapshot = fixture.telemetry.snapshot().ok_or("missing observations")?;
     let requests = snapshot
@@ -226,6 +270,10 @@ fn observations(fixture: &Fixture) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, admission, request expiry, PING handling, same-connection
+/// recovery, telemetry privacy or runtime drain fails.
 async fn unfinished_http2_bodies_expire_despite_ping_and_body_progress_and_capacity_recovers() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut running = Running::start(fixture.router.clone())
@@ -275,6 +323,14 @@ async fn unfinished_http2_bodies_expire_despite_ping_and_body_progress_and_capac
     running.wait().await.expect("runtime drain");
 }
 
+/// # Errors
+///
+/// Returns a frame read, write, status or count error, or an error if DATA or an
+/// unexpected frame arrives while stream capacity is withheld.
+///
+/// # Panics
+///
+/// Panics if PING size, stream IDs, header flags, response counts or reset ordering changes.
 async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
     let mut headers = BTreeSet::new();
     let mut resets = BTreeSet::new();
@@ -292,7 +348,7 @@ async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
                 pings == 3
             }
             1 => {
-                assert!(frame.stream > 0 && frame.stream < 128 && frame.stream % 2 == 1);
+                assert!(frame.stream > 0 && frame.stream < 128 && !frame.stream.is_multiple_of(2));
                 assert_eq!(frame.flags & 5, 4);
                 status(&frame.payload, 401)?;
                 assert!(headers.insert(frame.stream));
@@ -317,6 +373,14 @@ async fn withheld_window(peer: &mut Peer) -> TestResult<usize> {
     Err(io::Error::other("control frame count exceeds test bound").into())
 }
 
+/// # Errors
+///
+/// Returns a timeout or an error if the required retention telemetry is absent.
+///
+/// # Panics
+///
+/// Panics if unauthenticated challenges start upstream work or retained-response
+/// counts, format or timing state changes.
 async fn prepared_challenges(fixture: &Fixture) -> TestResult<()> {
     super::runtime::wait_until(Duration::from_secs(2), Duration::from_millis(5), || {
         stage_finished(fixture, Stage::RequestPrepared, 65)
@@ -351,6 +415,14 @@ async fn prepared_challenges(fixture: &Fixture) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a timeout, serialization error or an error if retention telemetry is absent.
+///
+/// # Panics
+///
+/// Panics if responses remain retained, deadline and cancellation totals change,
+/// updates are dropped, or telemetry contains private markers.
 async fn closed_retention(fixture: &Fixture) -> TestResult<()> {
     let snapshot = timeout(Duration::from_secs(2), retained_snapshot(fixture)).await??;
     let retained = snapshot
@@ -391,6 +463,9 @@ fn stage_finished(fixture: &Fixture, selected: Stage, finished: u64) -> bool {
     })
 }
 
+/// # Errors
+///
+/// This observer returns no errors; its caller supplies the observation timeout.
 async fn retained_snapshot(fixture: &Fixture) -> TestResult<logbrew_mcp::telemetry::Snapshot> {
     loop {
         let snapshot = fixture.telemetry.snapshot().filter(|snapshot| {
@@ -407,6 +482,10 @@ async fn retained_snapshot(fixture: &Fixture) -> TestResult<logbrew_mcp::telemet
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, retained challenge admission, PING handling, bounded delivery
+/// cancellation, released capacity or runtime drain fails.
 async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_ping() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut running = Running::start(fixture.router.clone())
@@ -465,6 +544,10 @@ async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_pi
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, completed delivery, observation beyond its old deadline,
+/// same-connection reuse, execution counts or runtime drain fails.
 async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadline() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut running = Running::start(fixture.router.clone())
@@ -498,6 +581,14 @@ async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadli
     running.wait().await.expect("runtime drain");
 }
 
+/// # Errors
+///
+/// Returns a frame read, write or count error, or an error if the peer closes or
+/// sends an unexpected control frame before three PINGs.
+///
+/// # Panics
+///
+/// Panics if a PING payload does not contain eight bytes.
 async fn three_pings(peer: &mut Peer) -> TestResult<()> {
     let mut pings = 0_i32;
     for _ in 0_i32..32_i32 {

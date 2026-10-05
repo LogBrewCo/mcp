@@ -21,6 +21,9 @@ fn body() -> Value {
             "io.modelcontextprotocol/clientCapabilities":{}}}})
 }
 
+/// # Errors
+///
+/// Returns an HTTP request construction error.
 fn request(value: &Value) -> Result<Request<Body>, axum::http::Error> {
     Request::builder()
         .method("POST")
@@ -35,6 +38,9 @@ fn request(value: &Value) -> Result<Request<Body>, axum::http::Error> {
         .body(Body::from(value.to_string()))
 }
 
+/// # Errors
+///
+/// Returns a router or bounded response-body read error.
 async fn response(
     fixture: &Fixture,
     request: Request<Body>,
@@ -48,6 +54,10 @@ async fn response(
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if unsupported versions change their negotiation status, code, requested
+/// or supported versions, or start execution.
 async fn unsupported_versions_return_modern_negotiation_errors() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut value = body();
@@ -79,6 +89,10 @@ async fn unsupported_versions_return_modern_negotiation_errors() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if missing, conflicting or duplicate routing headers change their error
+/// contract or start execution.
 async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution() {
     let fixture = Fixture::new().await.expect("fixture");
     for (name, value, append) in [
@@ -105,6 +119,19 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, JSON, request, header, router or body-read error.
+///
+/// # Panics
+///
+/// Panics if header mismatch loses exact correlation, reflects rejected values,
+/// starts execution, or prevents valid-request recovery.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fields()
 -> TestResult<()> {
     let fixture = Fixture::new().await?;
@@ -132,6 +159,13 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a request, header, router or body-read error, or an error if the fixture ID is absent.
+///
+/// # Panics
+///
+/// Panics if mismatched routing headers change their status, error code or exact ID.
 async fn reflected_headers(
     fixture: &Fixture,
     id: &Value,
@@ -159,6 +193,9 @@ async fn reflected_headers(
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if incomplete required client metadata changes its rejection contract or starts execution.
 async fn every_current_request_requires_complete_client_metadata() {
     let fixture = Fixture::new().await.expect("fixture");
     for field in [
@@ -183,6 +220,9 @@ async fn every_current_request_requires_complete_client_metadata() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if omission of optional client identity prevents an authorized execution.
 async fn optional_client_identity_is_not_required_for_authorized_execution() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut value = body();
@@ -205,6 +245,9 @@ async fn optional_client_identity_is_not_required_for_authorized_execution() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if unknown methods change their status or error code, or start execution.
 async fn unknown_methods_return_a_modern_error_without_extra_capabilities() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut value = body();
@@ -221,6 +264,9 @@ async fn unknown_methods_return_a_modern_error_without_extra_capabilities() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if invalid media or Accept fields change their rejection status or start execution.
 async fn invalid_media_types_and_accept_values_do_not_reach_execution() {
     let fixture = Fixture::new().await.expect("fixture");
     for (name, value, expected) in [
@@ -310,6 +356,9 @@ async fn invalid_media_types_and_accept_values_do_not_reach_execution() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if absent or duplicate Content-Type, or absent Accept, is accepted or starts execution.
 async fn absent_or_duplicate_content_type_and_absent_accept_are_rejected() {
     let fixture = Fixture::new().await.expect("fixture");
     for (name, duplicate, expected) in [
@@ -332,6 +381,10 @@ async fn absent_or_duplicate_content_type_and_absent_accept_are_rejected() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if legacy methods are accepted, the allowed method changes, session state
+/// is returned, rejected legacy values leak, or a stateless execution fails.
 async fn current_transport_ignores_legacy_session_and_resume_headers() {
     let fixture = Fixture::new().await.expect("fixture");
     for method in ["GET", "DELETE"] {
@@ -361,6 +414,9 @@ async fn current_transport_ignores_legacy_session_and_resume_headers() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if encoded tool-name validation changes its status, error code or execution total.
 async fn encoded_tool_names_are_decoded_before_matching_the_body() {
     let fixture = Fixture::new().await.expect("fixture");
     for (name, expected) in [
@@ -383,6 +439,9 @@ async fn encoded_tool_names_are_decoded_before_matching_the_body() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if malformed message shapes are accepted, disclose private values or start execution.
 async fn malformed_message_shapes_never_reach_execution_or_echo_private_values() {
     let fixture = Fixture::new().await.expect("fixture");
     for value in [
@@ -411,6 +470,9 @@ async fn malformed_message_shapes_never_reach_execution_or_echo_private_values()
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if valid media casing, parameters or separate Accept fields prevent execution.
 async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() {
     let fixture = Fixture::new().await.expect("fixture");
     for (content_type, accepts) in [
@@ -461,6 +523,9 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 7);
 }
 
+/// # Errors
+///
+/// Returns a header-value parse error when inserting or appending a value.
 fn modify_header(
     request: &mut Request<Body>,
     name: &'static str,
@@ -481,12 +546,18 @@ fn modify_header(
     Ok(())
 }
 
+/// # Panics
+///
+/// Panics if a client-error response has a different routing-header error code.
 fn assert_header_result(status: StatusCode, value: &Value) {
     if status.is_client_error() {
         assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
     }
 }
 
+/// # Errors
+///
+/// Returns a header-value parse error when appending a field.
 fn append_values(headers: &mut HeaderMap, name: &'static str, values: Vec<&str>) -> TestResult<()> {
     for value in values {
         let _: bool = headers.append(name, value.parse()?);
@@ -495,6 +566,9 @@ fn append_values(headers: &mut HeaderMap, name: &'static str, values: Vec<&str>)
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if invalid protocol fields are accepted, echoed in the response or start execution.
 async fn invalid_protocol_fields_do_not_echo_rejected_private_values() {
     let fixture = Fixture::new().await.expect("fixture");
     for path in [

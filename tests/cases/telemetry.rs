@@ -62,6 +62,18 @@ fn complete(snapshot: &Snapshot) -> bool {
     })
 }
 
+/// # Errors
+///
+/// Returns an error if catalog or unobserved operation records are absent.
+///
+/// # Panics
+///
+/// Panics if snapshot format, stages, initial timing or operation inventory changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'static str> {
     assert_eq!(snapshot.format_version, 3);
     assert_eq!(snapshot.stages.len(), 6);
@@ -90,6 +102,18 @@ fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'
     Ok(catalog)
 }
 
+/// # Errors
+///
+/// Returns an error if catalog or operation observations are absent.
+///
+/// # Panics
+///
+/// Panics if catalog digest, operation inventory, completed counts, timing or outcomes change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_known_execution(snapshot: &Snapshot, digest: &str) -> Result<(), &'static str> {
     let operations = snapshot.operations.as_ref().ok_or("catalog inventory")?;
     assert_eq!(operations.definition_sha256, digest);
@@ -118,6 +142,18 @@ fn assert_known_execution(snapshot: &Snapshot, digest: &str) -> Result<(), &'sta
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if the cancelled operation observation is absent.
+///
+/// # Panics
+///
+/// Panics if cancellation increments, pending work, dropped updates or prior success totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_cancelled_operation(
     snapshot: &Snapshot,
     before: &StageSnapshot,
@@ -148,6 +184,10 @@ fn assert_cancelled_operation(
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if request and tool outcomes, catalog provenance, completed observations,
+/// authentication and host denials, or telemetry privacy checks fail.
 async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
     let fixture = Fixture::new().await.expect("fixture");
     let empty = fixture.telemetry.snapshot().expect("empty snapshot");
@@ -230,6 +270,10 @@ async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if HTTPS cancellation fails to retire work, record every started stage
+/// and operation, preserve prior success totals, or complete timing observations.
 async fn cancelling_https_work_records_each_started_stage_without_a_success() {
     let fixture = Fixture::new().await.expect("fixture");
     fixture.state.pause.store(true, Ordering::SeqCst);

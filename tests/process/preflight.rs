@@ -4,6 +4,10 @@ use std::{ffi::OsStr, io::ErrorKind};
 
 use super::*;
 
+/// Spawn the configuration check with one supplied path.
+///
+/// # Errors
+/// Returns an error if the test executable cannot be started.
 fn check(config: &Path) -> std::io::Result<Process> {
     Process::command()
         .arg("--check-config")
@@ -12,6 +16,11 @@ fn check(config: &Path) -> std::io::Result<Process> {
         .map(Process)
 }
 
+/// Check configuration without disturbing a running service or contacting upstreams.
+///
+/// # Panics
+/// Panics if fixture setup fails, the check changes listener or upstream state,
+/// or either process fails to exit with the expected status.
 #[tokio::test]
 async fn configuration_check_leaves_the_running_service_and_upstreams_untouched() {
     let fixture = Fixture::new().expect("fixture");
@@ -60,6 +69,11 @@ async fn configuration_check_leaves_the_running_service_and_upstreams_untouched(
     assert!(running.wait().await.expect("clean shutdown").success());
 }
 
+/// Reject invalid startup material before opening the service listener.
+///
+/// # Panics
+/// Panics if fixture setup fails, an invalid check succeeds or fails to exit,
+/// or the configured address remains bound after the check.
 #[tokio::test]
 async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
     for invalid in ["configuration", "catalog", "key", "policy", "secret"] {
@@ -75,6 +89,10 @@ async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
     }
 }
 
+/// Replace one fixture input with an invalid configuration, file or permission.
+///
+/// # Errors
+/// Returns an error if certificate generation, a file write or permission change fails.
 fn invalid_material(fixture: &Fixture, invalid: &str) -> TestResult<()> {
     match invalid {
         "configuration" => fs::write(&fixture.config, br#"{"secret":"SYNTHETIC_PRIVATE_VALUE"}"#)?,
@@ -98,6 +116,11 @@ fn invalid_material(fixture: &Fixture, invalid: &str) -> TestResult<()> {
     Ok(())
 }
 
+/// Reject missing paths, unknown options and extra configuration-check arguments.
+///
+/// # Panics
+/// Panics if fixture setup or process execution fails, rejected arguments return
+/// the wrong status, or a rejected invocation leaves the address bound.
 #[tokio::test]
 async fn configuration_check_requires_one_path_and_rejects_extra_arguments() {
     let fixture = Fixture::new().expect("fixture");

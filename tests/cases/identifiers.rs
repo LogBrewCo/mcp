@@ -16,6 +16,9 @@ use super::{
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// # Errors
+///
+/// Returns a JSON parse error if the supplied request ID is invalid.
 fn payload(id: &str, method: &str) -> TestResult<Value> {
     let id: Value = serde_json::from_str(id)?;
     let meta = json!({
@@ -29,6 +32,9 @@ fn payload(id: &str, method: &str) -> TestResult<Value> {
     Ok(json!({"jsonrpc":"2.0","id":id,"method":method,"params":params}))
 }
 
+/// # Errors
+///
+/// Returns a request or header construction error, or an error if the method is absent.
 fn request(value: &Value) -> TestResult<Request<Body>> {
     let method = value
         .get("method")
@@ -49,6 +55,13 @@ fn request(value: &Value) -> TestResult<Request<Body>> {
     Ok(request)
 }
 
+/// # Errors
+///
+/// Returns a router, bounded body-read or JSON error.
+///
+/// # Panics
+///
+/// Panics if the cache policy changes or response bytes disclose the bearer token.
 async fn reply(fixture: &Fixture, request: Request<Body>) -> TestResult<(StatusCode, Value)> {
     let response = fixture.router.clone().oneshot(request).await?;
     let status = response.status();
@@ -64,6 +77,13 @@ async fn reply(fixture: &Fixture, request: Request<Body>) -> TestResult<(StatusC
     Ok((status, serde_json::from_slice(&bytes)?))
 }
 
+/// # Errors
+///
+/// Returns a request construction or response exchange error.
+///
+/// # Panics
+///
+/// Panics if the response status, exact request ID, result type or execution data changes.
 async fn succeeds(fixture: &Fixture, raw: &str, method: &str) -> TestResult<()> {
     let body = payload(raw, method)?;
     let (status, response) = reply(fixture, request(&body)?).await?;
@@ -83,6 +103,18 @@ async fn succeeds(fixture: &Fixture, raw: &str, method: &str) -> TestResult<()> 
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or exchange error.
+///
+/// # Panics
+///
+/// Panics if signed integers or string IDs change type or value, or call totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -102,6 +134,19 @@ async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestR
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or exchange error.
+///
+/// # Panics
+///
+/// Panics if large integer IDs fail exact discovery or execution correlation,
+/// or authentication and execution totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let maximum = format!("1{}", "0".repeat(255));
@@ -123,6 +168,18 @@ async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestR
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or exchange error.
+///
+/// # Panics
+///
+/// Panics if exact integral decimal or exponent IDs change, or execution totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -142,6 +199,18 @@ async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> 
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, header, request or exchange error, or an error if protocol metadata is absent.
+///
+/// # Panics
+///
+/// Panics if protocol errors change status or code, lose exact IDs, or start execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -174,6 +243,18 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or exchange error.
+///
+/// # Panics
+///
+/// Panics if fractional IDs are accepted, rounded or echoed, or upstream counts change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -194,6 +275,14 @@ async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> T
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an HTTP, body-read or JSON error.
+///
+/// # Panics
+///
+/// Panics if HTTP version, cache or session policy, privacy, exact ID correlation
+/// or execution data changes.
 async fn wire_reply(
     client: &reqwest::Client,
     resource: &str,
@@ -233,6 +322,19 @@ async fn wire_reply(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a listener, fixture, runtime, HTTP exchange, execution observation or drain error.
+///
+/// # Panics
+///
+/// Panics if concurrent HTTP/1 and HTTP/2 responses lose independent exact IDs,
+/// change upstream totals or leave executions active.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids() -> TestResult<()>
 {
     let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
@@ -284,13 +386,31 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, checked size calculation, response setup, request, JSON or
+/// output-budget error, or an error if structured or text output is absent.
+///
+/// # Panics
+///
+/// Panics if encoded output length, exact ID correlation, text and structured
+/// equivalence, or execution totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let empty = json!({"blob":"","count":3_i32}).to_string();
     for size in [logbrew_mcp::OUTPUT_BYTES, logbrew_mcp::OUTPUT_BYTES + 1] {
-        let remaining = size - empty.len();
-        let mut blob = "\"".repeat(remaining / 2);
-        blob.extend(std::iter::repeat_n('x', remaining % 2));
+        let remaining = size
+            .checked_sub(empty.len())
+            .ok_or("fixture output budget smaller than JSON envelope")?;
+        let escaped = remaining.checked_div(2).ok_or("fixture divisor is zero")?;
+        let unescaped = remaining.checked_rem(2).ok_or("fixture divisor is zero")?;
+        let mut blob = "\"".repeat(escaped);
+        blob.extend(std::iter::repeat_n('x', unescaped));
         let body = json!({"blob":blob,"count":3_i32}).to_string();
         assert_eq!(body.len(), size);
         fixture.reply(StatusCode::OK, body, HeaderMap::new())?;

@@ -9,6 +9,10 @@ use serde_json::json;
 use super::http::{Fixture, RESOURCE, TOKEN};
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if fixture construction or introspection fails, invalid authority has
+/// the wrong rejection status, or any rejected claim reaches execution.
 async fn invalid_authority_claims_fail_closed_before_execution() {
     let clients = ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)
         .expect("trusted client policy");
@@ -72,6 +76,10 @@ async fn invalid_authority_claims_fail_closed_before_execution() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, missing or unavailable authority permits execution,
+/// introspection counts change, or a private upstream marker is returned.
 async fn missing_or_unavailable_introspection_cannot_authorize_execution() {
     let fixture = Fixture::new().await.expect("fixture");
     let base = fixture.authority().expect("synthetic authority");
@@ -127,6 +135,10 @@ async fn missing_or_unavailable_introspection_cannot_authorize_execution() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, valid audience and scope claims are rejected, or the
+/// authorized result and execution count differ from the expected contract.
 async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut claims = fixture.authority().expect("synthetic authority");
@@ -161,6 +173,10 @@ async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if fixture construction fails, invalid introspection size, headers or
+/// media type is accepted, or the rejected authority starts execution.
 async fn introspection_payload_headers_and_media_type_are_bounded_before_authorization() {
     let fixture = Fixture::new().await.expect("fixture");
     let authority = fixture.authority().expect("valid authority");
@@ -185,6 +201,10 @@ async fn introspection_payload_headers_and_media_type_are_bounded_before_authori
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
 }
 
+/// # Errors
+///
+/// Returns an error if the fixture has no claim object or a synthetic response
+/// header cannot be constructed.
 fn invalid_authority_response(
     authority: &serde_json::Value,
     mode: i32,

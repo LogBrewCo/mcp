@@ -20,6 +20,19 @@ use super::{
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// # Errors
+///
+/// Returns a TLS, HTTP/2 handshake, request, body-read or timeout error, or an
+/// error if the connection ends before its response.
+///
+/// # Panics
+///
+/// Panics if the response cache policy differs from no-store.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
+)]
 async fn http2(running: &Running, request: Request<Body>) -> TestResult<(StatusCode, Vec<u8>)> {
     let stream = running.tls(Some(b"h2")).await?;
     let (mut sender, connection) = timeout(
@@ -53,6 +66,19 @@ async fn http2(running: &Running, request: Request<Body>) -> TestResult<(StatusC
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction, TLS exchange, JSON or shutdown error.
+///
+/// # Panics
+///
+/// Panics if conflicting hosts are accepted or start upstream work, default-port
+/// recovery fails, execution counts change, or private markers are returned.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_auth() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
@@ -101,6 +127,9 @@ async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_aut
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a TLS, write, read or timeout error during the bounded HTTP/1 exchange.
 async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
     let mut stream = running.tls(Some(b"http/1.1")).await?;
     stream.write_all(request).await?;
@@ -114,6 +143,19 @@ async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, TLS exchange or shutdown error.
+///
+/// # Panics
+///
+/// Panics if malformed Host rejection or default-port metadata recovery changes,
+/// or public metadata starts introspection or execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn tls_http1_metadata_rejects_malformed_host_and_recovers_with_default_port() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;

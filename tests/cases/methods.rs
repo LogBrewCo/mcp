@@ -41,6 +41,9 @@ fn malformed() -> Vec<(&'static str, Value)> {
     ]
 }
 
+/// # Errors
+///
+/// Returns a request, body-read or JSON error, or an error if the fixture message is not an object.
 async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<Body>> {
     let mut request = request_message(0, method, params, TOKEN)?;
     let bytes = to_bytes(std::mem::take(request.body_mut()), 4096).await?;
@@ -55,6 +58,18 @@ async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<B
     Ok(request)
 }
 
+/// # Errors
+///
+/// Returns a JSON error if the response body is invalid.
+///
+/// # Panics
+///
+/// Panics if error status, exact ID, code, privacy or omitted result and data fields change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_error(status: StatusCode, bytes: &[u8], id: &Value, code: i32) -> TestResult<()> {
     let expected = if code == -32_601_i32 {
         StatusCode::NOT_FOUND
@@ -72,6 +87,18 @@ fn assert_error(status: StatusCode, bytes: &[u8], id: &Value, code: i32) -> Test
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request, router, body-read or error-contract failure.
+///
+/// # Panics
+///
+/// Panics if unknown-method errors disclose rejected values, lose exact IDs or start execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for id in [
@@ -93,6 +120,18 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request, router, body-read or error-contract failure.
+///
+/// # Panics
+///
+/// Panics if malformed parameters change their private error contract or start execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn malformed_known_methods_return_invalid_params_without_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (method, params) in malformed() {
@@ -110,6 +149,19 @@ async fn malformed_known_methods_return_invalid_params_without_execution() -> Te
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request, router, body-read, JSON or inventory error.
+///
+/// # Panics
+///
+/// Panics if omitted cursors or discovery extensions are rejected, private fields
+/// are echoed, response IDs or tool inventory change, or execution starts.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (method, params) in [
@@ -136,6 +188,18 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if the tools/list inventory is absent or is not an array.
+///
+/// # Panics
+///
+/// Panics if the inventory differs from the ordered search and execute tools.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
     if method == "tools/list" {
         let tools = result
@@ -155,6 +219,14 @@ fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a listener, fixture, runtime, request, HTTP, JSON or drain error.
+///
+/// # Panics
+///
+/// Panics if method errors change HTTP version, cache or private error contracts,
+/// start execution, or prevent a subsequent valid execution.
 async fn wire(http2: bool) -> TestResult<()> {
     let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
     let authority = format!("localhost:{}", address.port());
@@ -204,6 +276,9 @@ async fn wire(http2: bool) -> TestResult<()> {
     running.wait().await
 }
 
+/// # Errors
+///
+/// Returns an authority-header, body-read or HTTP request error.
 async fn send(
     client: &reqwest::Client,
     running: &Running,
@@ -225,11 +300,25 @@ async fn send(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a TLS HTTP/1 fixture, exchange, response-contract or drain error.
+///
+/// # Panics
+///
+/// Panics if HTTP/1 method-error privacy, ID correlation or execution recovery fails.
 async fn tls_http1_method_errors_are_private_and_execution_recovers() -> TestResult<()> {
     wire(false).await
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a TLS HTTP/2 fixture, exchange, response-contract or drain error.
+///
+/// # Panics
+///
+/// Panics if HTTP/2 method-error privacy, ID correlation or execution recovery fails.
 async fn tls_http2_method_errors_are_private_and_execution_recovers() -> TestResult<()> {
     wire(true).await
 }

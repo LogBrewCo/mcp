@@ -35,11 +35,20 @@ impl Drop for Running {
 }
 
 impl Running {
+    /// Start the production serving function at a temporary loopback address.
+    ///
+    /// # Errors
+    /// Returns an error if address selection, TLS setup or readiness fails.
     pub async fn start(router: Router) -> TestResult<Self> {
         let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
         Self::at(address, router, "resource.example").await
     }
 
+    /// Start an isolated HTTPS service and wait for its resource metadata.
+    ///
+    /// # Errors
+    /// Returns an error if certificate generation, TLS or client construction,
+    /// or the bounded readiness check fails.
     pub async fn at(address: SocketAddr, router: Router, authority: &str) -> TestResult<Self> {
         let certificate = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])?;
         let pem = certificate.cert.pem();
@@ -81,6 +90,10 @@ impl Running {
         self.client.clone()
     }
 
+    /// Connect with fixture certificate trust and the selected ALPN protocol.
+    ///
+    /// # Errors
+    /// Returns an error if trust setup, the TCP connection or TLS negotiation fails.
     pub async fn tls(
         &self,
         protocol: Option<&[u8]>,
@@ -88,6 +101,10 @@ impl Running {
         super::peer::tls(self.address, &self.certificate, protocol).await
     }
 
+    /// Build an HTTP/2 client with fixture certificate trust and a request deadline.
+    ///
+    /// # Errors
+    /// Returns an error if the certificate cannot be parsed or client setup fails.
     pub fn http2_client(&self) -> TestResult<reqwest::Client> {
         Ok(reqwest::Client::builder()
             .no_proxy()
@@ -98,6 +115,11 @@ impl Running {
             .build()?)
     }
 
+    /// Execute the synthetic read through the production HTTPS service.
+    ///
+    /// # Errors
+    /// Returns an error if the request fails, its HTTP status is unsuccessful,
+    /// or its response body cannot be read as JSON.
     pub async fn execute(&self) -> TestResult<Value> {
         Ok(self
             .client
@@ -122,6 +144,11 @@ impl Running {
             .await?)
     }
 
+    /// Wait up to three seconds for successful serving-task completion.
+    ///
+    /// # Errors
+    /// Returns an error if the wait expires, the task fails to join,
+    /// or the serving function returns a failure.
     pub async fn wait(&mut self) -> TestResult<()> {
         timeout(Duration::from_secs(3), &mut self.task).await???;
         Ok(())
@@ -132,6 +159,11 @@ impl Running {
     }
 }
 
+/// Poll resource metadata until the service answers or readiness fails.
+///
+/// # Errors
+/// Returns an error if the deadline cannot be represented, the serving task
+/// finishes before readiness, or no successful response arrives before the deadline.
 async fn ready(running: &Running, authority: &str) -> TestResult<()> {
     let end = Instant::now()
         .checked_add(Duration::from_secs(3))
@@ -157,6 +189,10 @@ async fn ready(running: &Running, authority: &str) -> TestResult<()> {
     }
 }
 
+/// Poll a condition at the supplied interval within a bounded wait.
+///
+/// # Errors
+/// Returns an elapsed error if the condition is not met before the wait expires.
 pub async fn wait_until(
     limit: Duration,
     interval: Duration,
@@ -165,6 +201,10 @@ pub async fn wait_until(
     timeout(limit, poll_until(interval, ready)).await
 }
 
+/// Wait until the fixture has exactly the expected active execution count.
+///
+/// # Errors
+/// Returns an elapsed error if the expected count is not observed within the limit.
 pub async fn wait_executions(
     fixture: &Fixture,
     expected: usize,

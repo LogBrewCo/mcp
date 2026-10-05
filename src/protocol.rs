@@ -124,6 +124,10 @@ impl ServerHandler for Tools {
         std::future::ready(Err(error))
     }
 
+    #[expect(
+        clippy::integer_division_remainder_used,
+        reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
+    )]
     async fn call_tool(
         &self,
         request: CallToolRequestParams,

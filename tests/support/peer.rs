@@ -11,6 +11,11 @@ use tokio::{
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 type Stream = tokio_rustls::client::TlsStream<tokio::net::TcpStream>;
 
+/// Connect with the fixture certificate and optional ALPN protocol.
+///
+/// # Errors
+/// Propagates certificate, root-store, TLS configuration, TCP connection,
+/// server-name and TLS negotiation failures, including the negotiation timeout.
 pub async fn tls(address: SocketAddr, pem: &[u8], protocol: Option<&[u8]>) -> TestResult<Stream> {
     let certificate = rustls::pki_types::CertificateDer::from_pem_slice(pem)?;
     let mut roots = rustls::RootCertStore::empty();
@@ -41,6 +46,11 @@ pub struct Frame {
 pub struct Peer<S = Stream>(S);
 
 impl Peer {
+    /// Send the HTTP/2 preface and optionally exchange fixture SETTINGS.
+    ///
+    /// # Errors
+    /// Rejects missing HTTP/2 ALPN or the expected server SETTINGS and propagates
+    /// bounded preface/frame transport failures or deadlines.
     pub async fn connect(mut stream: Stream, settings: bool) -> TestResult<Self> {
         if stream.get_ref().1.alpn_protocol() != Some(b"h2") {
             return Err(io::Error::other("HTTP/2 ALPN not negotiated").into());
@@ -70,6 +80,11 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
         Self(stream)
     }
 
+    /// Send one frame under the fixture payload, stream-ID and write bounds.
+    ///
+    /// # Errors
+    /// Rejects an oversized payload or stream ID and propagates length conversion,
+    /// write, flush and two-second deadline failures.
     pub async fn send(
         &mut self,
         stream: u32,
@@ -93,6 +108,11 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
         Ok(())
     }
 
+    /// Read one bounded frame, treating a closed or reset peer as the end of input.
+    ///
+    /// # Errors
+    /// Rejects a payload length above 16 KiB and propagates other header or
+    /// payload read failures.
     pub async fn next(&mut self) -> TestResult<Option<Frame>> {
         let mut header = [0; 9];
         match self.0.read_exact(&mut header).await {
@@ -125,12 +145,21 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
         }))
     }
 
+    /// Send the fixture PING and wait for its matching acknowledgement.
+    ///
+    /// # Errors
+    /// Propagates send, frame-read, premature closure and frame-count failures.
     pub async fn probe(&mut self) -> TestResult<()> {
         self.send(0, 6, 0, b"TESTPING").await?;
         probe_frames(self).await
     }
 }
 
+/// Find the fixture PING acknowledgement within sixteen control frames.
+///
+/// # Errors
+/// Propagates frame-read failures and rejects premature closure or an unmatched
+/// acknowledgement beyond the frame-count bound.
 async fn probe_frames<S: AsyncRead + AsyncWrite + Unpin + Send>(
     peer: &mut Peer<S>,
 ) -> TestResult<()> {

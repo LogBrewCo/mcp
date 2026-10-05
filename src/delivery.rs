@@ -66,6 +66,10 @@ impl Drop for Delivery {
     }
 }
 
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
+)]
 async fn retain_until_finished(
     connection: Connection,
     permit: Arc<OwnedSemaphorePermit>,

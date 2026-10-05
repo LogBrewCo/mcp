@@ -11,6 +11,14 @@ use super::{
     Fixture, Process, TestResult, backend, client_with_timeout, configure, envelope, request,
 };
 
+/// # Errors
+///
+/// Returns a fixture, file, process, request, task join, timeout or shutdown error.
+///
+/// # Panics
+///
+/// Panics if authorization or execution exceeds its deadline without rejection,
+/// pending work remains, recovery changes or the executable exits unsuccessfully.
 async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -77,6 +85,13 @@ async fn contracts(http2: bool, stage: PendingStage) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 verification fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if the verification deadline or recovery fails its assertions.
 async fn normal_linux_http1_verification_deadline_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -86,6 +101,13 @@ async fn normal_linux_http1_verification_deadline_and_recovery() -> TestResult<(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 verification fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if the verification deadline or recovery fails its assertions.
 async fn normal_linux_http2_verification_deadline_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -95,6 +117,13 @@ async fn normal_linux_http2_verification_deadline_and_recovery() -> TestResult<(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 execution fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if the execution deadline or recovery fails its assertions.
 async fn normal_linux_http1_request_deadline_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(30),
@@ -104,6 +133,13 @@ async fn normal_linux_http1_request_deadline_and_recovery() -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 execution fixture error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if the execution deadline or recovery fails its assertions.
 async fn normal_linux_http2_request_deadline_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(30),

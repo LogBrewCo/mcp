@@ -16,6 +16,15 @@ use super::runtime::Running;
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// # Errors
+///
+/// Returns a request construction or bounded body-read error, or an error if a
+/// required authentication challenge is missing or invalid header text.
+///
+/// # Panics
+///
+/// Panics if cache, session or challenge contracts change, or the response
+/// contains the bearer token or a synthetic private marker.
 async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<StatusCode> {
     let mut request = request_message(
         1,
@@ -57,6 +66,19 @@ async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<St
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, header construction or request error.
+///
+/// # Panics
+///
+/// Panics if valid scheme case or spacing is rejected, response privacy changes,
+/// or introspection and execution counts differ from three.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for value in [
@@ -75,6 +97,19 @@ async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResul
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, header construction or request error.
+///
+/// # Panics
+///
+/// Panics if an invalid bearer character is accepted, upstream work starts, or
+/// response privacy and authentication challenge contracts change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn malformed_token_characters_never_reach_introspection_or_execution() -> TestResult<()> {
     for suffix in [
         ":", ";", "!", "@", "#", "$", "%", "&", "'", "(", ")", "*", ",", "?", "[", "]", "\\", "\"",
@@ -97,6 +132,19 @@ async fn malformed_token_characters_never_reach_introspection_or_execution() -> 
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, header, request or telemetry snapshot/serialization error.
+///
+/// # Panics
+///
+/// Panics if malformed or duplicate credentials start upstream work, recovery
+/// fails, response contracts change, or credentials enter telemetry.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
@@ -154,6 +202,19 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, header construction or request error.
+///
+/// # Panics
+///
+/// Panics if a legal opaque token changes or is rejected, upstream work counts
+/// differ from one, or response privacy and challenge contracts change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> TestResult<()> {
     for token in ["AZaz09-._~+/=", "A", "A===", ".~", &"A".repeat(8192)] {
         let fixture = Fixture::with_token(token).await?;
@@ -172,6 +233,20 @@ async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> Te
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, queue, timeout, serialization, missing-claim or request
+/// error, or an error if rejected work unexpectedly returns a result.
+///
+/// # Panics
+///
+/// Panics if malformed bearer rejection changes or starts network work, or valid
+/// credential references and client identifiers fail without execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_rules()
 -> TestResult<()> {
     let raw = Raw::new()?;
@@ -235,6 +310,19 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a listener, fixture, HTTP client, TLS exchange or shutdown error.
+///
+/// # Panics
+///
+/// Panics if HTTP/1 or HTTP/2 bearer grammar, revocation or recovery changes,
+/// response privacy fails, or upstream work counts differ from the expected runs.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery() -> TestResult<()>
 {
     let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
@@ -259,6 +347,15 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a request or body-read error, or an error if a required wire
+/// authentication challenge is missing or invalid header text.
+///
+/// # Panics
+///
+/// Panics if the HTTP version, authorization status or challenge differs from
+/// the expected case, or the response contains the bearer token.
 async fn wire_authorization_cases(
     fixture: &Fixture,
     client: &reqwest::Client,

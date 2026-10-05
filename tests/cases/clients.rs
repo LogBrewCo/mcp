@@ -41,6 +41,10 @@ fn no_operation_work(snapshot: &Snapshot) -> bool {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or requests fail, default denial or explicit-policy recovery
+/// changes, revocation fails, or telemetry counts, outcomes or privacy change.
 async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recovers() {
     let fixture = Fixture::without_clients()
         .await
@@ -128,6 +132,19 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
     }
 }
 
+/// # Errors
+///
+/// Returns an error if either required denial outcome is absent from telemetry.
+///
+/// # Panics
+///
+/// Panics if permission-denied or unauthorized counts differ from the expected
+/// four client denials and one revoked credential.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_denial_outcomes(
     stats: &logbrew_mcp::telemetry::StageSnapshot,
 ) -> Result<(), &'static str> {
@@ -146,6 +163,10 @@ fn assert_denial_outcomes(
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, unlisted clients bypass denial or start execution,
+/// approved clients fail recovery, or telemetry counts, outcomes or privacy change.
 async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() {
     let clients = ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)
         .expect("trusted policy");
@@ -234,6 +255,10 @@ async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() 
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, empty, wildcard or inexact client policies grant access,
+/// a denial returns data, or upstream work counts change.
 async fn client_allowlist_uses_exact_ids_and_never_interprets_wildcards() {
     for policy in [
         br#"{"version":"1","clients":[]}"#.as_slice(),

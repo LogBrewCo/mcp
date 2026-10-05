@@ -26,6 +26,13 @@ impl Drop for Connection {
 }
 
 impl Connection {
+    /// # Errors
+    ///
+    /// Returns a TLS, HTTP/2 handshake or timeout error.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the connection does not negotiate HTTP/2.
     pub async fn open(fixture: &Fixture) -> TestResult<Self> {
         let tls = fixture.tls_protocol(Some(b"h2")).await?;
         assert_eq!(tls.get_ref().1.alpn_protocol(), Some(b"h2".as_slice()));
@@ -40,6 +47,15 @@ impl Connection {
         })
     }
 
+    /// # Errors
+    ///
+    /// Returns an authority, request, JSON, HTTP/2 exchange, body-read, response
+    /// decoding or timeout error.
+    ///
+    /// # Panics
+    ///
+    /// Panics if response transport, cache policy, session isolation, rejection
+    /// body or private-field redaction changes.
     pub async fn execute(
         &self,
         resource: &str,
@@ -80,6 +96,9 @@ impl Connection {
         .await?
     }
 
+    /// # Errors
+    ///
+    /// Returns a driver timeout, unexpected task join or HTTP/2 connection error.
     pub async fn close(&mut self) -> TestResult<()> {
         self.driver.abort();
         match timeout(Duration::from_secs(2), &mut self.driver).await? {

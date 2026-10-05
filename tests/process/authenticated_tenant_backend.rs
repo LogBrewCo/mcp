@@ -97,6 +97,9 @@ impl Drop for Backend {
 }
 
 impl Backend {
+    /// # Errors
+    ///
+    /// Returns a listener, certificate, TLS configuration or startup timeout error.
     pub async fn start(resource: String) -> TestResult<Self> {
         let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
@@ -140,6 +143,9 @@ impl Backend {
         })
     }
 
+    /// # Errors
+    ///
+    /// Returns a shutdown timeout, task join or listener service error.
     pub async fn finish(&mut self) -> TestResult<()> {
         self.handle.shutdown();
         timeout(Duration::from_secs(3), &mut self.task).await???;
@@ -151,6 +157,14 @@ const fn identities() -> [Identity; 3] {
     [Identity::Alpha, Identity::Beta, Identity::Rejected]
 }
 
+/// # Errors
+///
+/// Returns bad request for an unknown token or missing identity counter, or
+/// internal server error if the system clock precedes the Unix epoch.
+///
+/// # Panics
+///
+/// Panics if machine authentication or the verification call limit fails.
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -194,6 +208,14 @@ async fn introspect(
     })))
 }
 
+/// # Errors
+///
+/// Returns forbidden if JSON, identity, its counter or project access is invalid.
+///
+/// # Panics
+///
+/// Panics if machine authentication, delegated identity, operation or the
+/// execution call limit differs from the fixture.
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,

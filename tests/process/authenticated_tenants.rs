@@ -12,6 +12,9 @@ use super::{
     tenant_backend::{Backend, Identity, Observations},
 };
 
+/// # Errors
+///
+/// Returns a configuration, file, JSON, digest-formatting or missing-field error.
 fn configure_projects(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
     configure(fixture, endpoint)?;
     drop(fixture.directory.write(
@@ -66,6 +69,14 @@ struct Execution<'a> {
 }
 
 impl Execution<'_> {
+    /// # Errors
+    ///
+    /// Returns a request, HTTP/2 exchange, body-read, decoding or timeout error.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the response transport, cache policy, session isolation,
+    /// rejection body or private-field redaction changes.
     async fn run(
         &self,
         identity: Identity,
@@ -100,6 +111,19 @@ impl Execution<'_> {
     }
 }
 
+/// # Errors
+///
+/// Returns an error if the tool envelope lacks required fields or has invalid JSON.
+///
+/// # Panics
+///
+/// Panics if the result differs from the selected project or its tool envelope
+/// violates the error, text, structured content or provenance contract.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn result(reply: &Value, project: &str) -> TestResult<()> {
     assert_eq!(
         envelope(reply, None)?.get("data"),
@@ -108,6 +132,20 @@ fn result(reply: &Value, project: &str) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a request, envelope or timeout error, or an error if the alpha request
+/// completes before verification is released.
+///
+/// # Panics
+///
+/// Panics if beta access, cross-project denial, alpha isolation or its eventual
+/// successful response changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
+)]
 async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> TestResult<()> {
     let alpha = execution.run(Identity::Alpha, "alpha");
     tokio::pin!(alpha);
@@ -145,6 +183,15 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a fixture, file, configuration, process, connection, request, timeout,
+/// envelope or shutdown error.
+///
+/// # Panics
+///
+/// Panics if overlapping identities, project denial, revocation, client rejection,
+/// recovery, call counts or executable shutdown changes.
 async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -212,16 +259,37 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 tenant isolation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if identity isolation, access control or recovery assertions fail.
 async fn normal_linux_http1_concurrent_identity_isolation_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), isolation_and_recovery(Mode::Http1)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 tenant isolation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if identity isolation, access control or recovery assertions fail.
 async fn normal_linux_http2_concurrent_identity_isolation_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), isolation_and_recovery(Mode::Http2)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a shared HTTP/2 tenant isolation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if identity isolation, access control or recovery assertions fail.
 async fn normal_linux_one_http2_connection_isolates_identities_and_recovers() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),

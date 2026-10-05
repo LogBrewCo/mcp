@@ -2,6 +2,11 @@
 
 use super::*;
 
+/// Reproduce p99 from retained distribution buckets and preserve the slow maximum.
+///
+/// # Panics
+/// Panics if counts, outcomes, pending work, p99, maximum or replay coverage differ
+/// from the controlled distribution.
 #[test]
 fn p99_replays_a_mergeable_distribution_and_keeps_the_slow_tail() {
     let mut stats = Stats::EMPTY;
@@ -29,6 +34,10 @@ fn p99_replays_a_mergeable_distribution_and_keeps_the_slow_tail() {
     assert_eq!(percentile(&snapshot.latency_buckets, 99), None);
 }
 
+/// Bound latency buckets at zero, power-of-two edges and the integer maximum.
+///
+/// # Panics
+/// Panics if bucket bounds, exact maxima, sample counts or saturation are incorrect.
 #[test]
 fn latency_buckets_bound_zero_power_edges_and_the_full_integer_range() {
     for (duration, expected) in [
@@ -59,6 +68,11 @@ fn latency_buckets_bound_zero_power_edges_and_the_full_integer_range() {
     }
 }
 
+/// Suppress percentiles for pending, lost or saturated measurements.
+///
+/// # Panics
+/// Panics if incomplete measurements produce p99 or overflow retains a known
+/// pending count or fails to mark saturation.
 #[test]
 fn pending_dropped_and_overflowed_measurements_cannot_produce_a_p99() {
     let mut stats = Stats::EMPTY;
@@ -88,6 +102,11 @@ fn pending_dropped_and_overflowed_measurements_cannot_produce_a_p99() {
     assert_eq!(overflow.p99_upper_ns, None);
 }
 
+/// Preserve unavailable clock timing without creating a zero-latency sample.
+///
+/// # Panics
+/// Panics if controlled clock setup fails, completion/timing counts are wrong,
+/// or unknown timing produces buckets, percentiles or maximum durations.
 #[test]
 fn unavailable_clock_timing_is_not_recorded_as_zero_latency() {
     let mut stats = Stats::EMPTY;
@@ -106,6 +125,11 @@ fn unavailable_clock_timing_is_not_recorded_as_zero_latency() {
     assert_eq!(elapsed_since(future), None);
 }
 
+/// Drop contended measurement updates and retain their loss after lock recovery.
+///
+/// # Panics
+/// Panics if controlled locks or recovered snapshots fail, measurement counts
+/// or loss change, or incomplete distributions produce p99.
 #[test]
 fn contention_drops_measurements_without_waiting_and_recovery_keeps_the_loss() {
     let telemetry = Telemetry::default();
@@ -141,6 +165,11 @@ fn contention_drops_measurements_without_waiting_and_recovery_keeps_the_loss() {
     assert_eq!(execute.p99_upper_ns, None);
 }
 
+/// Expose pending work and record cancellation when a measurement is dropped.
+///
+/// # Panics
+/// Panics if snapshots or expected stages/outcomes are absent, or pending,
+/// completion and cancellation counts differ from the controlled lifecycle.
 #[test]
 fn dropped_work_is_cancelled_and_visible_while_pending() {
     let telemetry = Telemetry::default();

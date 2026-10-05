@@ -38,6 +38,10 @@ mod tests {
         pending::<()>().await;
     }
 
+    /// Accept work completed before its representable deadline.
+    ///
+    /// # Panics
+    /// Panics if a promptly completed future is rejected or its result changes.
     #[tokio::test]
     async fn accepts_completion_before_deadline() {
         assert_eq!(
@@ -46,6 +50,10 @@ mod tests {
         );
     }
 
+    /// Reject a result whose poll completes after the deadline.
+    ///
+    /// # Panics
+    /// Panics if the late completed result is accepted.
     #[tokio::test]
     async fn rejects_ready_completion_after_deadline() {
         assert_eq!(
@@ -54,7 +62,19 @@ mod tests {
         );
     }
 
+    /// Drop expired pending work and recover its semaphore capacity.
+    ///
+    /// # Errors
+    /// Returns an error if the initial or recovered semaphore permit is unavailable.
+    ///
+    /// # Panics
+    /// Panics if pending work is not polled or rejected, or timely recovery fails.
     #[tokio::test]
+    // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "Test assertions must retain their failure and comparison diagnostics."
+    )]
     async fn expiry_drops_pending_work_and_allows_recovery()
     -> Result<(), Box<dyn std::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
@@ -70,7 +90,19 @@ mod tests {
         Ok(())
     }
 
+    /// Reject an unrepresentable deadline before polling work and release its permit.
+    ///
+    /// # Errors
+    /// Returns an error if the initial or recovered semaphore permit is unavailable.
+    ///
+    /// # Panics
+    /// Panics if invalid-budget work is polled or accepted, or timely recovery fails.
     #[tokio::test]
+    // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+    #[expect(
+        clippy::panic_in_result_fn,
+        reason = "Test assertions must retain their failure and comparison diagnostics."
+    )]
     async fn unrepresentable_deadline_drops_work_without_polling_and_recovers()
     -> Result<(), Box<dyn std::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));

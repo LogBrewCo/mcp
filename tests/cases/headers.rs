@@ -18,6 +18,9 @@ use super::{
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const LIMIT: usize = 16 << 10;
 
+/// # Errors
+///
+/// Returns a TLS, write, read or timeout error during the bounded HTTP/1 exchange.
 async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
     let mut stream = running.tls(Some(b"http/1.1")).await?;
     stream.write_all(request).await?;
@@ -30,11 +33,22 @@ async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
     Ok(response)
 }
 
+/// # Panics
+///
+/// Panics if a rejected request starts introspection or execution.
 fn no_backend_work(fixture: &Fixture) {
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
 }
 
+/// # Errors
+///
+/// Returns an execution or runtime shutdown error during valid-request recovery.
+///
+/// # Panics
+///
+/// Panics if the recovered result or introspection and execution counts differ
+/// from one successful request.
 async fn recovery(fixture: &Fixture, running: &mut Running) -> TestResult<()> {
     assert_eq!(
         running
@@ -51,6 +65,10 @@ async fn recovery(fixture: &Fixture, running: &mut Running) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or wire exchanges fail, HTTP/1 header byte or count limits
+/// change, rejected requests start upstream work, or recovery and drain fail.
 async fn http1_header_bytes_and_count_reject_before_authorization_and_recover() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut running = Running::start(fixture.router.clone())
@@ -114,6 +132,9 @@ async fn http1_header_bytes_and_count_reject_before_authorization_and_recover() 
         .expect("recovery and drain");
 }
 
+/// # Errors
+///
+/// Returns a header encoding error while constructing the synthetic POST block.
 fn post() -> TestResult<Vec<u8>> {
     // Static indices 3 (:method POST) and 7 (:scheme https).
     let mut block = vec![0x83, 0x87];
@@ -128,6 +149,14 @@ fn post() -> TestResult<Vec<u8>> {
     Ok(block)
 }
 
+/// # Errors
+///
+/// Returns a peer write, read or connection-probe error, or an error if the
+/// rejection is missing or exceeds the response frame bound.
+///
+/// # Panics
+///
+/// Panics if the rejection is not a complete empty response with status 431.
 async fn rejected(peer: &mut Peer, block: &[u8]) -> TestResult<()> {
     // Split a large literal block into HEADERS and CONTINUATION frames. Send no DATA.
     let chunks = block.chunks(LIMIT);
@@ -165,6 +194,15 @@ async fn rejected(peer: &mut Peer, block: &[u8]) -> TestResult<()> {
     Err(io::Error::other("response frame count exceeds test bound").into())
 }
 
+/// # Errors
+///
+/// Returns a header encoding, peer I/O or JSON error, or an error for an
+/// unexpected frame, missing peer response or exceeded frame bound.
+///
+/// # Panics
+///
+/// Panics if encoded metadata exceeds its header limit, the response status or
+/// resource is incorrect, or body bytes exceed the recovery bound.
 async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
     let mut block = vec![0x82, 0x87]; // GET, https
     literal(&mut block, b":authority", b"resource.example", false)?;
@@ -223,6 +261,10 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or wire exchanges fail, literal or compressed header limits
+/// change, rejection starts upstream work, or decoder recovery and drain fail.
 async fn http2_literal_and_compressed_header_limits_reject_before_authorization_and_recover() {
     let fixture = Fixture::new().await.expect("fixture");
     let mut running = Running::start(fixture.router.clone())

@@ -83,6 +83,13 @@ mod tests {
 
     type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+    /// Verify that an unrelated response retains its status, headers and body bytes.
+    ///
+    /// # Errors
+    /// Returns an error if response construction or bounded body reading fails.
+    ///
+    /// # Panics
+    /// Panics if the status, content headers or exact body bytes change.
     async fn assert_unchanged(
         status: StatusCode,
         media_type: &str,
@@ -113,6 +120,13 @@ mod tests {
         Ok(())
     }
 
+    /// Verify that a rejected error body produces the fixed unavailable response.
+    ///
+    /// # Errors
+    /// Returns an error if response construction or bounded body reading fails.
+    ///
+    /// # Panics
+    /// Panics if the status, media type or fixed body differs from the contract.
     async fn assert_unavailable(body: Body) -> TestResult<()> {
         let response = Response::builder()
             .status(StatusCode::BAD_REQUEST)
@@ -134,6 +148,13 @@ mod tests {
         Ok(())
     }
 
+    /// Check unrelated JSON, plain-text and malformed replies for exact preservation.
+    ///
+    /// # Errors
+    /// Returns an error if fixture response construction or body reading fails.
+    ///
+    /// # Panics
+    /// Panics if an unrelated reply's status, content headers or body changes.
     async fn unchanged_replies() -> TestResult<()> {
         for (status, media_type, bytes) in [
             (
@@ -163,6 +184,13 @@ mod tests {
         Ok(())
     }
 
+    /// Preserve unrelated response bytes, including exact large JSON numbers.
+    ///
+    /// # Errors
+    /// Returns an error if fixture response construction or body reading fails.
+    ///
+    /// # Panics
+    /// Panics if an unrelated reply's status, content headers or body changes.
     #[tokio::test]
     async fn unrelated_replies_remain_byte_exact() -> TestResult<()> {
         unchanged_replies().await
@@ -184,6 +212,13 @@ mod tests {
         }
     }
 
+    /// Replace oversized and failed SDK error bodies with fixed private-safe errors.
+    ///
+    /// # Errors
+    /// Returns an error if fixture response construction or body reading fails.
+    ///
+    /// # Panics
+    /// Panics if either rejection changes the fixed status, media type or error body.
     #[tokio::test]
     async fn oversized_and_failed_error_bodies_are_fixed() -> TestResult<()> {
         let failed = Body::new(FailedBody);

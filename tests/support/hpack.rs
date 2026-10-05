@@ -4,7 +4,10 @@ use std::io;
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
-// RFC 7541 sections 5.1 and 5.2: a non-Huffman string with a seven-bit length.
+/// Encode a non-Huffman string with a seven-bit length under RFC 7541 sections 5.1 and 5.2.
+///
+/// # Errors
+/// Rejects fields above 16 KiB and any length subtraction or byte conversion failure.
 fn string(block: &mut Vec<u8>, value: &[u8]) -> TestResult<()> {
     if value.len() > 16 << 10_i32 {
         return Err(io::Error::other("fixture field exceeds byte bound").into());
@@ -27,6 +30,10 @@ fn string(block: &mut Vec<u8>, value: &[u8]) -> TestResult<()> {
     Ok(())
 }
 
+/// Encode a literal fixture header with the requested indexing flag.
+///
+/// # Errors
+/// Propagates name or value length rejection from the bounded string encoder.
 pub fn literal(block: &mut Vec<u8>, name: &[u8], value: &[u8], indexed: bool) -> TestResult<()> {
     block.push(if indexed { 0x40 } else { 0 });
     string(block, name)?;

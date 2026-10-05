@@ -99,16 +99,28 @@ impl Drop for Fixture {
 }
 
 impl Fixture {
+    /// Start the default synthetic HTTPS backend and authenticated request router.
+    ///
+    /// # Errors
+    /// Propagates synthetic client-policy decoding or HTTPS fixture construction failures.
     pub async fn new() -> TestResult<Self> {
         Self::for_resource(RESOURCE.to_owned()).await
     }
 
+    /// Start the fixture with the supplied resource identity and default client policy.
+    ///
+    /// # Errors
+    /// Propagates client-policy decoding, invalid resource or HTTPS fixture setup failures.
     pub async fn for_resource(resource: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
         Self::build(resource, Some(clients), "mcp:read".to_owned(), None, TOKEN).await
     }
 
+    /// Start the fixture with no authorized client policy.
+    ///
+    /// # Errors
+    /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn without_clients() -> TestResult<Self> {
         Self::build(
             RESOURCE.to_owned(),
@@ -120,6 +132,10 @@ impl Fixture {
         .await
     }
 
+    /// Start the fixture with the supplied client allowlist.
+    ///
+    /// # Errors
+    /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn with_clients(clients: ClientAllowlist) -> TestResult<Self> {
         Self::build(
             RESOURCE.to_owned(),
@@ -131,12 +147,20 @@ impl Fixture {
         .await
     }
 
+    /// Start the fixture with the supplied required scope and default client policy.
+    ///
+    /// # Errors
+    /// Propagates client-policy decoding, invalid scope or HTTPS fixture setup failures.
     pub async fn with_scope(scope: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
         Self::build(RESOURCE.to_owned(), Some(clients), scope, None, TOKEN).await
     }
 
+    /// Start the fixture with the supplied catalog bytes and their computed checksum.
+    ///
+    /// # Errors
+    /// Propagates catalog rejection, client-policy decoding or HTTPS fixture setup failures.
     pub async fn with_catalog(artifact: Vec<u8>) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
@@ -150,6 +174,10 @@ impl Fixture {
         .await
     }
 
+    /// Start the fixture expecting the supplied synthetic delegated credential.
+    ///
+    /// # Errors
+    /// Propagates client-policy decoding or HTTPS fixture construction failures.
     pub async fn with_token(token: &str) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
@@ -163,6 +191,12 @@ impl Fixture {
         .await
     }
 
+    /// Assemble the synthetic backend, fixture certificate trust, catalog and protocol router.
+    ///
+    /// # Errors
+    /// Propagates loopback listener, certificate, TLS, machine credential, upstream,
+    /// catalog or router configuration failures. Rejects missing listener readiness
+    /// or expiry of the three-second startup wait.
     async fn build(
         resource: String,
         clients: Option<ClientAllowlist>,
@@ -252,6 +286,10 @@ impl Fixture {
         Ok(fixture)
     }
 
+    /// Set the execution response to the supplied fixture response.
+    ///
+    /// # Errors
+    /// Returns an error if the execution response slot is poisoned.
     pub fn reply(&self, status: StatusCode, body: String, headers: HeaderMap) -> TestResult<()> {
         set_reply(
             &self.state.reply,
@@ -263,6 +301,10 @@ impl Fixture {
         )
     }
 
+    /// Set the introspection response to the supplied fixture response.
+    ///
+    /// # Errors
+    /// Returns an error if the introspection response slot is poisoned.
     pub fn introspection_reply(
         &self,
         status: StatusCode,
@@ -279,11 +321,23 @@ impl Fixture {
         )
     }
 
+    /// Build current synthetic introspection claims without exposing the clock error.
+    ///
+    /// # Errors
+    /// Returns an error if the system clock precedes the Unix epoch.
     pub fn authority(&self) -> TestResult<Value> {
         claims(&self.state)
             .map_err(|_| std::io::Error::other("fixture authority unavailable").into())
     }
 
+    /// Send one authenticated protocol request and inspect its bounded response.
+    ///
+    /// # Errors
+    /// Propagates request construction, router dispatch or bounded body-read failures.
+    ///
+    /// # Panics
+    /// Fails if cache control differs from `no-store`, a session ID appears or the
+    /// response repeats the default synthetic delegated credential.
     pub async fn request(
         &self,
         method: &str,
@@ -308,6 +362,10 @@ impl Fixture {
     }
 }
 
+/// Build a self-contained protocol request with current fixture metadata and headers.
+///
+/// # Errors
+/// Rejects non-object parameters and propagates invalid request-header construction.
 pub fn request_message(
     id: u64,
     method: &str,
@@ -345,6 +403,10 @@ pub fn request_message(
         ))?)
 }
 
+/// Store a synthetic response in the selected shared fixture slot.
+///
+/// # Errors
+/// Returns an error if the response slot's mutex is poisoned.
 fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
     *slot
         .lock()
@@ -352,6 +414,15 @@ fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
     Ok(())
 }
 
+/// Check introspection request credentials and return the configured or current claims.
+///
+/// # Errors
+/// Returns an internal error for a poisoned response slot or service unavailable
+/// when the system clock precedes the Unix epoch.
+///
+/// # Panics
+/// Fails if machine authorization, form content type or encoded delegated
+/// credential and token-type hint differ from the expected fixture request.
 async fn introspect(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,
@@ -386,6 +457,10 @@ async fn introspect(
     Ok(axum::Json(claims(&state)?).into_response())
 }
 
+/// Produce current synthetic introspection claims from the fixture authority state.
+///
+/// # Errors
+/// Returns service unavailable if the system clock precedes the Unix epoch.
 fn claims(state: &StateData) -> Result<Value, StatusCode> {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -398,6 +473,14 @@ fn claims(state: &StateData) -> Result<Value, StatusCode> {
     )
 }
 
+/// Check execution identity, track active work and return the configured fixture result.
+///
+/// # Errors
+/// Returns bad request for invalid JSON and an internal error for a poisoned response slot.
+///
+/// # Panics
+/// Fails if machine authorization, content type, delegated credential, credential
+/// reference, client identity or supplied context differs from the fixture contract.
 async fn execute(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,
@@ -452,6 +535,18 @@ async fn execute(
     ))
 }
 
+/// Check the maximum-size result and over-budget failure envelopes.
+///
+/// # Errors
+/// Returns an error if a maximum-size result omits its data.
+///
+/// # Panics
+/// Fails if encoded data size, data/error exclusivity or the rejected result's
+/// error category differs from the expected envelope.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 pub fn assert_output_budget(content: &Value, size: usize) -> TestResult<()> {
     if size == logbrew_mcp::OUTPUT_BYTES {
         assert_eq!(

@@ -27,6 +27,10 @@ type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const METADATA: &str = "https://resource.example/.well-known/oauth-protected-resource/mcp";
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if initial challenges or public metadata advertise a different scope,
+/// start upstream work, exceed fixture bounds, or accept `offline_access`.
 async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_scope() {
     for scope in [
         "mcp:read".to_owned(),
@@ -84,6 +88,10 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if insufficient scope changes its status or challenge, starts execution,
+/// fails recovery, changes upstream totals or leaks private telemetry.
 async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery() {
     let fixture = Fixture::new().await.expect("fixture");
     let base = fixture.authority().expect("issuer claims");
@@ -159,6 +167,18 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
     scope_observations(&fixture).expect("complete private observations");
 }
 
+/// # Errors
+///
+/// Returns a serialization error or an error if required stage and outcome observations are absent.
+///
+/// # Panics
+///
+/// Panics if stage totals, pending work, scope-denial counts or telemetry privacy changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn scope_observations(fixture: &Fixture) -> TestResult<()> {
     let snapshot = fixture.telemetry.snapshot().ok_or("missing observations")?;
     for stage in [Stage::RequestPrepared, Stage::Introspection] {
@@ -187,6 +207,10 @@ fn scope_observations(fixture: &Fixture) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if missing scope overrides credential or client-policy denials, changes
+/// their challenge and body contracts, or permits execution.
 async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denials() {
     let policy = ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)
         .expect("policy");
@@ -257,6 +281,14 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a raw fixture, clock, JSON, queued exchange, token verification,
+/// observation timeout or fixture shutdown error.
+///
+/// # Panics
+///
+/// Panics if allowed client identity, denied scope classification or retry guidance changes.
 async fn direct_token_verification_classifies_scope_denial_and_recovers() -> TestResult<()> {
     let mut raw = Raw::new()?;
     let base = json!({"active":true,"exp":SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 300,
@@ -276,6 +308,19 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if the invalid-token challenge is absent or contains invalid header text.
+///
+/// # Panics
+///
+/// Panics if credential denial advertises insufficient scope or omits `invalid_token`,
+/// or if a client-policy denial includes an authentication challenge.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_token_or_client_challenge(headers: &HeaderMap, status: StatusCode) -> TestResult<()> {
     if status == StatusCode::UNAUTHORIZED {
         let challenge = headers
@@ -290,6 +335,18 @@ fn assert_token_or_client_challenge(headers: &HeaderMap, status: StatusCode) -> 
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a verification failure for the allowed scope or an error if a denied scope succeeds.
+///
+/// # Panics
+///
+/// Panics if allowed client identity, denied scope classification or retry guidance changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_verified_scope(
     scope: &str,
     result: Result<logbrew_mcp::upstream::Principal, logbrew_mcp::Failure>,

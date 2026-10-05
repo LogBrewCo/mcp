@@ -22,6 +22,10 @@ impl Drop for Stop {
 /// # Errors
 /// Returns a fixed failure for listener errors, shutdown-source failure or
 /// incomplete connection drain. Cancelling this future stops admitted connections.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
+)]
 pub async fn serve(
     service: Service,
     shutdown: impl Future<Output = Result<(), Failure>>,

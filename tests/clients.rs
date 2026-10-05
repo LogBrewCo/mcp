@@ -32,6 +32,10 @@ fn client_policy_rejects_invalid_and_ambiguous_documents() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if a synthetic policy cannot be encoded, an entry, identifier or
+/// document bound changes, or debug output reveals a client identifier.
 fn client_policy_has_exact_entry_id_and_document_bounds() {
     let encode = |clients| serde_json::to_vec(&json!({"version":"1","clients":clients}));
     for count in [0_i32, 1_i32, 64_i32, 65_i32] {
@@ -59,6 +63,10 @@ fn client_policy_has_exact_entry_id_and_document_bounds() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if the synthetic client cannot be constructed or a missing or empty
+/// allowlist does not deny execution before contacting the unavailable service.
 async fn direct_execution_cannot_bypass_missing_or_empty_client_policy() {
     let credential = || {
         MachineCredential::new(

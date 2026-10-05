@@ -24,6 +24,13 @@ enum Sender {
 }
 
 impl Sender {
+    /// # Errors
+    ///
+    /// Returns an HTTP request or response error.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the response version, cache policy or absence of session state changes.
     async fn send(&mut self, request: Request<Body>) -> TestResult<Response<Body>> {
         let (response, version) = match self {
             Self::Http1(sender) => (sender.send_request(request).await?, Version::HTTP_11),
@@ -43,6 +50,9 @@ fn arguments() -> Value {
     json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}})
 }
 
+/// # Errors
+///
+/// Returns a request or JSON error, or an error if fixture parameters or the message are invalid.
 fn candidate(id: Option<Value>) -> TestResult<Request<Body>> {
     let mut request = request_message(0, "tools/call", arguments(), TOKEN)?;
     let mut params = arguments();
@@ -72,6 +82,13 @@ fn candidate(id: Option<Value>) -> TestResult<Request<Body>> {
     Ok(request)
 }
 
+/// # Errors
+///
+/// Returns a request, response, body-read or JSON error.
+///
+/// # Panics
+///
+/// Panics if valid execution status, exact ID, data, privacy or call increment changes.
 async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<()> {
     let before = fixture.state.calls.load(Ordering::SeqCst);
     let response = sender
@@ -93,6 +110,14 @@ async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a request, response, body-read, JSON or control-ID overflow error.
+///
+/// # Panics
+///
+/// Panics if notification acceptance, invalid-ID rejection, authentication,
+/// privacy, upstream isolation or valid-request recovery changes.
 async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
     let cases = [
         None,
@@ -151,6 +176,15 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
     control(sender, fixture, control_id).await
 }
 
+/// # Errors
+///
+/// Returns a fixture, runtime, TLS, handshake, timeout, exchange or drain error,
+/// or an error if the connection ends before the exchanges finish.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
+)]
 async fn verify(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let mut running = Running::start(fixture.router.clone()).await?;
@@ -187,11 +221,25 @@ async fn verify(http2: bool) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 fixture, connection, exchange or drain error.
+///
+/// # Panics
+///
+/// Panics if HTTP/1 notification isolation, invalid-ID rejection or recovery fails.
 async fn tls_http1_notifications_and_invalid_ids_never_execute_and_recover() -> TestResult<()> {
     verify(false).await
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 fixture, connection, exchange or drain error.
+///
+/// # Panics
+///
+/// Panics if HTTP/2 notification isolation, invalid-ID rejection or recovery fails.
 async fn tls_http2_notifications_and_invalid_ids_never_execute_and_recover() -> TestResult<()> {
     verify(true).await
 }

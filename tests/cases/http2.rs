@@ -29,6 +29,10 @@ fn request(client: &reqwest::Client, resource: &str) -> reqwest::RequestBuilder 
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, authenticated requests finish before backend release,
+/// response version, correlation or data changes, or work counts and drain fail.
 async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_http2_work() {
     let address = TcpListener::bind("127.0.0.1:0")
         .expect("frontend address")
@@ -85,6 +89,10 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, HTTP/2 result, authority or routing checks change,
+/// cancellation fails to stop execution, or work counts and drain fail.
 async fn real_http2_preserves_authority_checks_and_cancels_authenticated_execution() {
     let address = TcpListener::bind("127.0.0.1:0")
         .expect("frontend address")

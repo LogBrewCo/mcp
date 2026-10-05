@@ -19,11 +19,27 @@ use super::*;
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// Parse the exact numeric identifier used by correlation-restoration fixtures.
+///
+/// # Errors
+/// Returns an error if the controlled numeric fixture cannot be parsed as JSON.
 fn original() -> TestResult<Value> {
     Ok(serde_json::from_str("18446744073709551616")?)
 }
 
+/// Restore correlation while preserving exact result and error payload bytes.
+///
+/// # Errors
+/// Returns an error if identifier parsing, restoration or UTF-8 decoding fails.
+///
+/// # Panics
+/// Panics if restoring correlation changes the result or error payload.
 #[test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn restoration_preserves_result_and_error_json_verbatim() -> TestResult<()> {
     let id = original()?;
     for field in ["result", "error"] {
@@ -39,7 +55,19 @@ fn restoration_preserves_result_and_error_json_verbatim() -> TestResult<()> {
     Ok(())
 }
 
+/// Reject malformed, ambiguous or unrelated replies before correlation restoration.
+///
+/// # Errors
+/// Returns an error if the controlled numeric identifier cannot be parsed.
+///
+/// # Panics
+/// Panics if any rejected reply is reassigned to the original request.
 #[test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn malformed_or_uncorrelated_replies_cannot_be_reassigned() -> TestResult<()> {
     let id = original()?;
     for fields in [
@@ -67,7 +95,19 @@ fn malformed_or_uncorrelated_replies_cannot_be_reassigned() -> TestResult<()> {
     Ok(())
 }
 
+/// Recover a missing identifier only for the request-scoped SDK parse error.
+///
+/// # Errors
+/// Returns an error if identifier parsing, restoration or response parsing fails.
+///
+/// # Panics
+/// Panics if the recovered identifier or parse-error code is incorrect.
 #[test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn a_request_scoped_sdk_parse_error_can_recover_its_missing_id() -> TestResult<()> {
     let id = original()?;
     let bytes = restore(
@@ -81,6 +121,10 @@ fn a_request_scoped_sdk_parse_error_can_recover_its_missing_id() -> TestResult<(
     Ok(())
 }
 
+/// Wrap a fixture body with JSON media type and deliberately stale length metadata.
+///
+/// # Errors
+/// Returns an error if the fixture HTTP response cannot be constructed.
 fn response(body: Body) -> TestResult<Response> {
     Ok(Response::builder()
         .status(StatusCode::OK)
@@ -90,7 +134,19 @@ fn response(body: Body) -> TestResult<Response> {
         .body(body)?)
 }
 
+/// Remove stale length metadata after restoration while preserving other headers.
+///
+/// # Errors
+/// Returns an error if fixture construction, body reading or JSON parsing fails.
+///
+/// # Panics
+/// Panics if the status, restored identifier or retained/removed headers are wrong.
 #[tokio::test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> TestResult<()> {
     let id = original()?;
     let bytes = format!(r#"{{"jsonrpc":"2.0","id":"{INTERNAL_ID}","result":{{}}}}"#);
@@ -109,7 +165,19 @@ async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> T
     Ok(())
 }
 
+/// Preserve bodies and headers when correlation restoration does not apply.
+///
+/// # Errors
+/// Returns an error if fixture construction, identifier parsing or body reading fails.
+///
+/// # Panics
+/// Panics if unchanged replies lose their status, original body or length metadata.
 #[tokio::test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn untouched_ids_and_plain_http_errors_keep_their_original_body() -> TestResult<()> {
     let id = original()?;
     let bytes = "SYNTHETIC_BODY";
@@ -157,7 +225,20 @@ impl http_body::Body for Probe {
     }
 }
 
+/// Drop rejected bodies and return a correlated error without their private bytes.
+///
+/// # Errors
+/// Returns an error if fixture construction, body reading or JSON parsing fails.
+///
+/// # Panics
+/// Panics if rejected bytes leak, correlation or the fixed error changes,
+/// or a rejected body remains owned.
 #[tokio::test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> TestResult<()> {
     let id = original()?;
     for frame in [
@@ -183,7 +264,19 @@ async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> T
     Ok(())
 }
 
+/// Drop a pending response body when correlation restoration is cancelled.
+///
+/// # Errors
+/// Returns an error if identifier parsing or fixture response construction fails.
+///
+/// # Panics
+/// Panics if restoration unexpectedly completes or cancellation retains the body.
 #[tokio::test]
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn cancelling_restoration_drops_the_pending_body() -> TestResult<()> {
     let dropped = Arc::new(AtomicBool::new(false));
     let body = Body::new(Probe {

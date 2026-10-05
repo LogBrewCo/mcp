@@ -56,6 +56,10 @@ pub fn valid(token: &str) -> bool {
 mod tests {
     use super::valid;
 
+    /// Accept the token68 alphabet and trailing padding without accepting other bytes.
+    ///
+    /// # Panics
+    /// Panics if any accepted or rejected credential form differs from the contract.
     #[test]
     fn token68_accepts_opaque_alphabet_and_trailing_padding_only() {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~+/";
@@ -71,6 +75,10 @@ mod tests {
         }
     }
 
+    /// Apply the encoded token-size limit to payload and padding together.
+    ///
+    /// # Panics
+    /// Panics if boundary-size tokens or valid short opaque tokens are misclassified.
     #[test]
     fn token_size_includes_padding_without_base64_decoding() {
         assert!(valid(&"A".repeat(8192)));

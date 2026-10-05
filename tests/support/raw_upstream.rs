@@ -72,22 +72,43 @@ impl Drop for Raw {
 }
 
 impl Raw {
+    /// Create an HTTP/1 fixture with matching certificate trust and hostname.
+    ///
+    /// # Errors
+    /// Returns an error if listener, certificate, TLS or upstream setup fails.
     pub fn new() -> TestResult<Self> {
         Self::build(Trust::Matching, b"http/1.1")
     }
 
+    /// Create an HTTP/2 fixture with matching certificate trust and hostname.
+    ///
+    /// # Errors
+    /// Returns an error if listener, certificate, TLS or upstream setup fails.
     pub fn http2() -> TestResult<Self> {
         Self::build(Trust::Matching, b"h2")
     }
 
+    /// Create an HTTP/1 fixture whose certificate is absent from client trust.
+    ///
+    /// # Errors
+    /// Returns an error if listener, certificate, TLS or upstream setup fails.
     pub fn untrusted_certificate() -> TestResult<Self> {
         Self::build(Trust::Untrusted, b"http/1.1")
     }
 
+    /// Create an HTTP/1 fixture with a trusted certificate for a different hostname.
+    ///
+    /// # Errors
+    /// Returns an error if listener, certificate, TLS or upstream setup fails.
     pub fn mismatched_hostname() -> TestResult<Self> {
         Self::build(Trust::Mismatched, b"http/1.1")
     }
 
+    /// Build a loopback fixture with the selected certificate trust and ALPN.
+    ///
+    /// # Errors
+    /// Returns an error if listener configuration, certificate generation or
+    /// parsing, TLS configuration, credentials or upstream validation fails.
     fn build(trust: Trust, protocol: &'static [u8]) -> TestResult<Self> {
         let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
@@ -153,6 +174,11 @@ impl Raw {
         })
     }
 
+    /// Queue one HTTP/1 response, optionally withholding its body.
+    ///
+    /// # Errors
+    /// Returns an error if headers exceed 600 KiB, a supplied body exceeds
+    /// 64 KiB, or the fixture has stopped accepting exchanges.
     pub async fn queue(
         &self,
         path: &'static str,
@@ -180,6 +206,10 @@ impl Raw {
         Ok(receipt)
     }
 
+    /// Queue a TLS handshake stall with start and connection-closure receipts.
+    ///
+    /// # Errors
+    /// Returns an error if the fixture has stopped accepting exchanges.
     pub async fn stall_handshake(&self) -> TestResult<StalledHandshake> {
         let (started, observed) = oneshot::channel();
         let (done, closed) = oneshot::channel();
@@ -197,6 +227,11 @@ impl Raw {
         })
     }
 
+    /// Queue one HTTP/2 field block, optionally withholding its body.
+    ///
+    /// # Errors
+    /// Returns an error if headers are empty, headers or a supplied body exceed
+    /// 64 KiB, or the fixture has stopped accepting exchanges.
     pub async fn queue_http2(
         &self,
         headers: Vec<u8>,
@@ -220,6 +255,11 @@ impl Raw {
         Ok(receipt)
     }
 
+    /// Close the exchange queue and wait up to two seconds for fixture completion.
+    ///
+    /// # Errors
+    /// Returns an error if the wait expires, the task fails to join,
+    /// or an exchange result cannot be delivered to its observer.
     pub async fn finish(&mut self) -> TestResult<()> {
         drop(self.sender.take());
         timeout(Duration::from_secs(2), &mut self.task).await???;
@@ -227,6 +267,11 @@ impl Raw {
     }
 }
 
+/// Run queued exchanges and deliver each bounded exchange result to its observer.
+///
+/// # Errors
+/// Returns an error if an exchange observer is dropped before result delivery.
+/// Connection, protocol and deadline failures are delivered as exchange results.
 async fn run_plans(
     listener: tokio::net::TcpListener,
     acceptor: tokio_rustls::TlsAcceptor,
@@ -266,6 +311,11 @@ async fn run_plans(
     Ok(())
 }
 
+/// Run one scripted TLS, HTTP/1 or HTTP/2 exchange.
+///
+/// # Errors
+/// Returns an error if connection I/O, TLS negotiation, the negotiated protocol,
+/// request validation or the selected response or handshake plan fails.
 async fn run_exchange(
     plan: Plan,
     stream: tokio::net::TcpStream,
@@ -309,6 +359,11 @@ async fn run_exchange(
     }
 }
 
+/// Read a bounded HTTP/2 request and return its completed stream identifier.
+///
+/// # Errors
+/// Returns an error if peer I/O fails or closes, a frame or setting is invalid,
+/// or the request violates its stream, header, byte or frame-count bounds.
 async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
     let mut stream = None;
     let mut bounded_headers = false;
@@ -334,6 +389,10 @@ async fn http2_request(peer: &mut Peer<Stream>) -> TestResult<u32> {
     Err(io::Error::other("HTTP/2 request frame count exceeds bound").into())
 }
 
+/// Check a SETTINGS payload for the fixture's 16 KiB header-list bound.
+///
+/// # Errors
+/// Returns an error if the payload contains an incomplete six-byte setting.
 fn bounded_header_setting(payload: &[u8]) -> TestResult<bool> {
     let (settings, remainder) = payload.as_chunks::<6>();
     if !remainder.is_empty() {
@@ -342,6 +401,11 @@ fn bounded_header_setting(payload: &[u8]) -> TestResult<bool> {
     Ok(settings.contains(&[0, 6, 0, 0, 0x40, 0]))
 }
 
+/// Track one request stream and its remaining byte and header-setting bounds.
+///
+/// # Errors
+/// Returns an error for a duplicate or invalid stream, a stream mismatch,
+/// exhausted byte capacity or completion without the required header-list setting.
 fn request_data(
     frame: &Frame,
     stream: &mut Option<u32>,
@@ -369,6 +433,11 @@ fn request_data(
     Ok(None)
 }
 
+/// Send scripted HTTP/2 headers and body, or wait for rejection of withheld data.
+///
+/// # Errors
+/// Returns an error if peer I/O or header/body chunk selection fails,
+/// or rejection frames are invalid or exceed their count bound.
 async fn http2_reply(
     peer: &mut Peer<Stream>,
     stream: u32,
@@ -421,6 +490,10 @@ async fn http2_reply(
     Err(io::Error::other("HTTP/2 rejection frame count exceeds bound").into())
 }
 
+/// Send body chunks and mark the final HTTP/2 DATA frame as complete.
+///
+/// # Errors
+/// Returns an error if body chunk selection or frame transmission fails.
 async fn http2_body(peer: &mut Peer<Stream>, stream: u32, body: &[u8]) -> TestResult<()> {
     if body.is_empty() {
         peer.send(stream, 0, 1, &[]).await?;
@@ -437,6 +510,11 @@ async fn http2_body(peer: &mut Peer<Stream>, stream: u32, body: &[u8]) -> TestRe
     Ok(())
 }
 
+/// Observe a bounded `ClientHello`, withhold negotiation and wait for peer closure.
+///
+/// # Errors
+/// Returns an error for invalid handshake data, a dropped start observer,
+/// excess pending bytes or I/O failures other than an accepted connection reset.
 async fn stalled_handshake(
     mut stream: tokio::net::TcpStream,
     started: oneshot::Sender<()>,
@@ -478,6 +556,11 @@ async fn stalled_handshake(
     }
 }
 
+/// Read one complete HTTP/1 fixture request within its 8 KiB bound.
+///
+/// # Errors
+/// Returns an error if I/O fails or closes, the request exceeds its byte bound,
+/// or its header, endpoint or declared body length is invalid.
 async fn request(stream: &mut Stream, path: &str) -> TestResult<()> {
     let mut bytes = Vec::new();
     let mut buffer = [0; 1024];
@@ -505,6 +588,11 @@ async fn request(stream: &mut Stream, path: &str) -> TestResult<()> {
     }
 }
 
+/// Validate the HTTP/1 request head and compute its bounded total byte length.
+///
+/// # Errors
+/// Returns an error for an invalid header boundary or UTF-8, a mismatched
+/// endpoint, a missing or invalid content length, or a length above 8 KiB.
 fn request_length(bytes: &[u8], path: &str, end: usize) -> TestResult<usize> {
     let head = std::str::from_utf8(
         bytes
@@ -538,6 +626,11 @@ fn closed(error: &io::Error) -> bool {
     )
 }
 
+/// Write response bytes or withhold the body until header rejection closes the peer.
+///
+/// # Errors
+/// Returns an error if response I/O fails outside accepted header rejection,
+/// or the peer sends unexpected bytes after the completed request.
 async fn reply(stream: &mut Stream, headers: &[u8], body: Option<&[u8]>) -> TestResult<()> {
     if let Err(error) = stream.write_all(headers).await {
         return header_failure(error, body.is_none());
@@ -556,6 +649,10 @@ async fn reply(stream: &mut Stream, headers: &[u8], body: Option<&[u8]>) -> Test
     }
 }
 
+/// Accept early peer closure when a withheld body tests header rejection.
+///
+/// # Errors
+/// Returns the write error unless the withheld-body plan permits its closure kind.
 fn header_failure(error: io::Error, withheld: bool) -> TestResult<()> {
     if withheld && closed(&error) {
         Ok(())

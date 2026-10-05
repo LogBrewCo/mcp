@@ -14,6 +14,10 @@ fn artifact(schema: &Value) -> Vec<u8> {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if strict parsing accepts a duplicate key, invalid UTF-8, a trailing
+/// document or a non-object root, or rejects the valid Unicode fixture.
 fn decoded_duplicates_utf8_and_trailing_documents_are_rejected() {
     for bytes in [
         b"{\"a\":1,\"a\":2}".as_slice(),
@@ -33,6 +37,10 @@ fn decoded_duplicates_utf8_and_trailing_documents_are_rejected() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if the fixture cannot be parsed or ordinary object keys lose their
+/// values because they match serializer control names.
 fn ordinary_object_keys_do_not_become_serializer_control_records() {
     let raw = br#"{"data":{"$serde_json::private::Number":"123","context":"preserved"},"raw":{"$serde_json::private::RawValue":"null"}}"#;
     let value = json::object(raw, 1024).expect("ordinary object keys");
@@ -48,6 +56,10 @@ fn ordinary_object_keys_do_not_become_serializer_control_records() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if fixture construction fails or schema validation and discovery do
+/// not preserve ordinary property names that match serializer control names.
 fn ordinary_property_names_keep_their_schema_contracts_in_catalog_loading() {
     for name in [
         "$serde_json::private::Number",
@@ -87,6 +99,10 @@ fn ordinary_property_names_keep_their_schema_contracts_in_catalog_loading() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if fixture construction fails, malformed catalog fields are accepted,
+/// a rejection has the wrong kind, or an error reveals the private marker.
 fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields() {
     let base = json::object(&artifact(&json!({"type":"object"})), 8 << 20).expect("artifact");
     for case in 0_i32..8_i32 {
@@ -154,6 +170,10 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if a valid HTTPS identifier is rejected or an unsafe scheme,
+/// credential-bearing URL, query or fragment is accepted.
 fn authority_identifier_strings_keep_the_existing_root_url_form() {
     for value in [
         "https://issuer.example",
@@ -173,6 +193,10 @@ fn authority_identifier_strings_keep_the_existing_root_url_form() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if exact integer or decimal values change, byte, numeric or nesting
+/// limits accept invalid input, or the maximum supported nesting is rejected.
 fn exact_numbers_and_resource_limits_are_preserved() {
     let bytes = b"{\"integer\":9007199254740993,\"decimal\":0.12345678901234567890123456789,\"large\":1e1024}";
     let value = json::object(bytes, bytes.len()).expect("bounded exact values");
@@ -196,6 +220,10 @@ fn exact_numbers_and_resource_limits_are_preserved() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if the trusted fixture cannot be loaded or validated, or catalog
+/// integrity, external schema isolation, format or operation checks fail.
 fn catalog_integrity_schema_isolation_and_format_assertions_are_required() {
     let schema = json!({"type":"object","required":["email"],"additionalProperties":false,
         "properties":{"email":{"type":"string","format":"email"}}});
@@ -222,6 +250,10 @@ fn catalog_integrity_schema_isolation_and_format_assertions_are_required() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if fixture loading or search fails, the selected summary or contract
+/// changes, or search accepts an invalid query field, limit or cursor.
 fn search_is_small_deterministic_and_does_not_grant_access() {
     let bytes = artifact(&json!({"type":"object"}));
     let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("catalog");
@@ -250,6 +282,10 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if fixture encoding fails or configuration defaults, secret-reference
+/// handling, debug privacy, versions or invalid-field rejection change.
 fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
     let fields = json!({"version":"1","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
         "issuer":"https://issuer.example/","required_scope":"mcp:read","introspection_endpoint":"https://issuer.example/introspect",

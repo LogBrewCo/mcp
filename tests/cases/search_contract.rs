@@ -9,6 +9,13 @@ use super::http::{Fixture, TOKEN};
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// # Errors
+///
+/// Returns a fixture request or schema compilation error, or an error if the advertised schema is absent.
+///
+/// # Panics
+///
+/// Panics if tool inventory discovery does not succeed.
 async fn schema(fixture: &Fixture) -> TestResult<jsonschema::Validator> {
     let (status, reply) = fixture.request("tools/list", json!({}), TOKEN).await?;
     assert_eq!(status, StatusCode::OK);
@@ -28,6 +35,13 @@ async fn schema(fixture: &Fixture) -> TestResult<jsonschema::Validator> {
         .build(schema)?)
 }
 
+/// # Errors
+///
+/// Returns a fixture request error or an error if successful search data is absent.
+///
+/// # Panics
+///
+/// Panics if search status, privacy, result data, invalid-input code or recovery guidance changes.
 async fn search(fixture: &Fixture, arguments: Value, valid: bool) -> TestResult<Value> {
     let description = arguments.to_string();
     let (status, reply) = fixture
@@ -68,6 +82,19 @@ async fn search(fixture: &Fixture, arguments: Value, valid: bool) -> TestResult<
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, advertised schema or search error.
+///
+/// # Panics
+///
+/// Panics if Unicode character limits disagree with the schema or search result,
+/// or if authentication and execution totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -100,6 +127,19 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, advertised schema or search error, or an error if operations are absent.
+///
+/// # Panics
+///
+/// Panics if valid whitespace or control characters change their matching meaning,
+/// disagree with the schema, or start execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
@@ -138,6 +178,19 @@ async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, advertised schema, JSON or search error.
+///
+/// # Panics
+///
+/// Panics if exact integral limits disagree with the advertised schema or result count,
+/// or if upstream totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn exact_integral_limit_representations_match_the_advertised_schema() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -170,6 +223,19 @@ async fn exact_integral_limit_representations_match_the_advertised_schema() -> T
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, advertised schema, JSON or search error.
+///
+/// # Panics
+///
+/// Panics if fractional, out-of-range or nonnumeric limits are accepted by the
+/// schema or search contract, or if upstream totals change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -207,10 +273,13 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a JSON serialization error for the synthetic operation catalog.
 fn catalog() -> TestResult<Vec<u8>> {
     let operations: Vec<_> = (1_i32..=23_i32)
         .map(|version| {
-            let summary = if version % 2_i32 == 1_i32 {
+            let summary = if version.checked_rem(2_i32) == Some(1_i32) {
                 "Read selected \u{63}\u{61}\u{66}\u{e9} logs"
             } else {
                 "Read unrelated traces"
@@ -227,12 +296,25 @@ fn catalog() -> TestResult<Vec<u8>> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a catalog, fixture, advertised schema, JSON or page collection error.
+///
+/// # Panics
+///
+/// Panics if matching contracts are missing, duplicated or reordered, page bounds
+/// and cursors change, or search starts execution.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit() -> TestResult<()>
 {
     let fixture = Fixture::with_catalog(catalog()?).await?;
     let validator = schema(&fixture).await?;
     let mut expected: Vec<_> = (1_i32..=23_i32)
-        .filter(|version| version % 2_i32 == 1_i32)
+        .filter(|version| version.checked_rem(2_i32) == Some(1_i32))
         .map(|version| format!("signals.read.v{version}"))
         .collect();
     expected.sort_unstable();
@@ -251,6 +333,14 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a search error or an error if a page, operation ID or cursor is absent.
+///
+/// # Panics
+///
+/// Panics if query validity, nonempty bounded pages, omitted schemas, cursor
+/// progression or final completion differs from the search contract.
 async fn collected_pages(
     fixture: &Fixture,
     validator: &jsonschema::Validator,

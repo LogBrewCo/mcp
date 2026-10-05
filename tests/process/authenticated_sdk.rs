@@ -32,6 +32,14 @@ struct Connected {
     sdk: Client,
 }
 
+/// # Errors
+///
+/// Returns a fixture, configuration, process, client, SDK discovery or missing
+/// peer-information error.
+///
+/// # Panics
+///
+/// Panics if the stock SDK discovers a different protocol version.
 async fn connect(http2: bool) -> TestResult<Connected> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -72,6 +80,14 @@ async fn connect(http2: bool) -> TestResult<Connected> {
 }
 
 impl Connected {
+    /// # Errors
+    ///
+    /// Returns an SDK cancellation, process signal, wait, port-bind or upstream
+    /// shutdown error.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the normal executable exits unsuccessfully.
     async fn finish(self) -> TestResult<()> {
         let Self {
             fixture,
@@ -88,6 +104,9 @@ impl Connected {
     }
 }
 
+/// # Errors
+///
+/// Returns an error if the tool arguments are not a JSON object.
 fn tool(name: &'static str, arguments: Value) -> TestResult<CallToolRequestParams> {
     let Value::Object(arguments) = arguments else {
         return Err(io::Error::other("expected tool arguments").into());
@@ -95,12 +114,34 @@ fn tool(name: &'static str, arguments: Value) -> TestResult<CallToolRequestParam
     Ok(CallToolRequestParams::new(name).with_arguments(arguments))
 }
 
+/// # Errors
+///
+/// Returns an error if the tool envelope lacks required fields or has invalid JSON.
+///
+/// # Panics
+///
+/// Panics if the result exposes a synthetic private marker or its error, text,
+/// structured content or provenance contract changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn result(reply: &CallToolResult, error: Option<&str>) -> TestResult<Value> {
     let reply = json!({"result":reply});
     assert!(!reply.to_string().contains("SYNTHETIC"));
     envelope(&reply, error)
 }
 
+/// # Errors
+///
+/// Returns a connection, SDK request, tool argument, envelope, revocation or
+/// shutdown error.
+///
+/// # Panics
+///
+/// Panics if tool discovery, search, execution, input rejection, revocation,
+/// private-field redaction or recovery changes.
 async fn contracts(http2: bool) -> TestResult<()> {
     let connected = connect(http2).await?;
     let inventory = connected.sdk.list_tools(None).await?;
@@ -180,6 +221,15 @@ async fn contracts(http2: bool) -> TestResult<()> {
     connected.finish().await
 }
 
+/// # Errors
+///
+/// Returns a connection, SDK request, cancellation, timeout, envelope or shutdown
+/// error.
+///
+/// # Panics
+///
+/// Panics if cancellation leaves upstream work, recovery returns the wrong result
+/// or verification and execution counts change.
 async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
     let connected = connect(http2).await?;
     connected.upstream.observations.set_pause(stage, true);
@@ -247,16 +297,37 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 SDK contract error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if stock SDK discovery, execution, privacy or recovery assertions fail.
 async fn normal_linux_stock_sdk_http1_contracts() -> TestResult<()> {
     timeout(Duration::from_secs(20), contracts(false)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 SDK contract error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if stock SDK discovery, execution, privacy or recovery assertions fail.
 async fn normal_linux_stock_sdk_http2_contracts() -> TestResult<()> {
     timeout(Duration::from_secs(20), contracts(true)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 SDK cancellation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if execution cancellation or recovery assertions fail.
 async fn normal_linux_stock_sdk_http1_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -266,6 +337,13 @@ async fn normal_linux_stock_sdk_http1_cancellation_and_recovery() -> TestResult<
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 SDK cancellation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if execution cancellation or recovery assertions fail.
 async fn normal_linux_stock_sdk_http2_cancellation_and_recovery() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -275,6 +353,13 @@ async fn normal_linux_stock_sdk_http2_cancellation_and_recovery() -> TestResult<
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 SDK verification cancellation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if pending verification cancellation or recovery assertions fail.
 async fn normal_linux_stock_sdk_http1_pending_verification_cancellation() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),
@@ -284,6 +369,13 @@ async fn normal_linux_stock_sdk_http1_pending_verification_cancellation() -> Tes
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 SDK verification cancellation error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if pending verification cancellation or recovery assertions fail.
 async fn normal_linux_stock_sdk_http2_pending_verification_cancellation() -> TestResult<()> {
     timeout(
         Duration::from_secs(20),

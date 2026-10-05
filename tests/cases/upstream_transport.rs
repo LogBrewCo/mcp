@@ -20,6 +20,9 @@ use super::{hpack::literal, http::TOKEN, raw_upstream::Raw};
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_RESPONSE_MARKER";
 
+/// # Errors
+///
+/// Returns a formatting error or an error if the requested fixture header count is too small.
 fn headers(status: u16, body_length: usize, count: usize, filler: usize) -> TestResult<Vec<u8>> {
     let mut text = format!(
         "HTTP/1.1 {status} Fixture\r\nContent-Type: application/json\r\nContent-Length: {body_length}\r\nConnection: close\r\n"
@@ -31,6 +34,13 @@ fn headers(status: u16, body_length: usize, count: usize, filler: usize) -> Test
     Ok(text.into_bytes())
 }
 
+/// # Errors
+///
+/// Returns the token verification or constrained execution failure.
+///
+/// # Panics
+///
+/// Panics if successful execution data or verified credential and client identity changes.
 async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
     if execute {
         let principal = Principal {
@@ -49,6 +59,9 @@ async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a clock error or an error if the synthetic token expiry overflows.
 fn body(execute: bool) -> TestResult<Vec<u8>> {
     Ok(if execute {
         json!({"count":3})
@@ -64,6 +77,15 @@ fn body(execute: bool) -> TestResult<Vec<u8>> {
     .into_bytes())
 }
 
+/// # Errors
+///
+/// Returns a raw fixture, clock, header, queue, timeout, operation, observation or
+/// shutdown error, or an error if oversized headers are accepted.
+///
+/// # Panics
+///
+/// Panics if header boundaries, stable failure classification, privacy,
+/// subsequent recovery or upstream observations change.
 async fn exercise(execute: bool) -> TestResult<()> {
     let mut raw = Raw::new()?;
     let path = if execute { "/execute" } else { "/introspect" };
@@ -113,6 +135,9 @@ async fn exercise(execute: bool) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if HTTP/1 introspection header limits, rejection privacy or recovery fails.
 async fn introspection_http1_headers_fail_before_body_read_and_recover() {
     exercise(false)
         .await
@@ -120,12 +145,29 @@ async fn introspection_http1_headers_fail_before_body_read_and_recover() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if HTTP/1 execution header limits, rejection privacy or recovery fails.
 async fn execution_http1_headers_fail_before_body_read_and_recover() {
     exercise(true)
         .await
         .expect("execution header boundaries and recovery");
 }
 
+/// # Errors
+///
+/// Returns an HPACK error or an error if decoded size, field overhead, payload
+/// size or repeated-field count is invalid.
+///
+/// # Panics
+///
+/// Panics if compressed repeated headers fail to exceed the decoded budget or
+/// exceed the fixture's compressed-size bound.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> {
     // Static index 8 is :status 200. Field sizes include the RFC 9113 overhead.
     let mut block = vec![0x88];
@@ -170,6 +212,15 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
     Ok(block)
 }
 
+/// # Errors
+///
+/// Returns a raw fixture, body, header, queue, timeout, operation, observation or
+/// shutdown error, or an error if oversized decoded headers are accepted.
+///
+/// # Panics
+///
+/// Panics if HTTP/2 header rejection, stable failure classification, privacy,
+/// recovery, handshake totals or request totals change.
 async fn http2_header_limits(execute: bool) -> TestResult<()> {
     let mut raw = Raw::http2()?;
     let body = body(execute)?;
@@ -213,6 +264,18 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
     raw.finish().await
 }
 
+/// # Errors
+///
+/// Returns a serialization error or an error if observations are absent or fixture totals are invalid.
+///
+/// # Panics
+///
+/// Panics if stage totals, pending work, timing, outcomes or telemetry privacy changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn header_observations(
     upstream: &Upstream,
     execute: bool,
@@ -266,12 +329,18 @@ fn header_observations(
     Ok(())
 }
 
+/// # Panics
+///
+/// Panics if the text contains a prohibited private marker.
 fn assert_private(text: &str, prohibited: &[&str]) {
     for word in prohibited {
         assert!(!text.contains(word));
     }
 }
 
+/// # Panics
+///
+/// Panics if an unavailable failure changes its kind or retry guidance, or leaks private markers.
 fn assert_unavailable(failure: &Failure) {
     assert_eq!(failure.kind, Kind::Unavailable);
     assert_eq!(failure.retry_after_ms, None);
@@ -282,6 +351,9 @@ fn assert_unavailable(failure: &Failure) {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if HTTP/2 introspection decoded-header bounds, rejection privacy or recovery fails.
 async fn introspection_http2_headers_enforce_decoded_limits_and_recover() {
     http2_header_limits(false)
         .await
@@ -289,6 +361,9 @@ async fn introspection_http2_headers_enforce_decoded_limits_and_recover() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if HTTP/2 execution decoded-header bounds, rejection privacy or recovery fails.
 async fn execution_http2_headers_enforce_decoded_limits_and_recover() {
     http2_header_limits(true)
         .await
@@ -296,6 +371,10 @@ async fn execution_http2_headers_enforce_decoded_limits_and_recover() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if untrusted or mismatched TLS peers reach HTTP, private failure
+/// observations change, or subsequent trusted exchanges fail.
 async fn upstream_tls_rejects_untrusted_and_mismatched_peers_before_http_and_recovers() {
     for mut raw in [
         Raw::untrusted_certificate().expect("untrusted TLS peer"),
@@ -314,6 +393,15 @@ async fn upstream_tls_rejects_untrusted_and_mismatched_peers_before_http_and_rec
     raw.finish().await.expect("healthy peer stopped");
 }
 
+/// # Errors
+///
+/// Returns a body, header, queue, timeout, observation, JSON or shutdown error,
+/// or an error if an unapproved TLS peer is accepted.
+///
+/// # Panics
+///
+/// Panics if a rejected TLS handshake completes, starts HTTP, changes unavailable
+/// observations or discloses private markers.
 async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
     for execute in [false, true] {
         let path = if execute { "/execute" } else { "/introspect" };
@@ -364,6 +452,9 @@ async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
     raw.finish().await
 }
 
+/// # Errors
+///
+/// Returns a body, header, queued exchange, timeout or upstream operation error.
 async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
     let path = if execute { "/execute" } else { "/introspect" };
     let body = body(execute)?;
@@ -375,6 +466,20 @@ async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a raw fixture, handshake observation, timeout, operation, telemetry or
+/// shutdown error, or an error if an operation completes before stalled TLS is observed.
+///
+/// # Panics
+///
+/// Panics if pending TLS completes without a response, cancellation or connect
+/// expiry fails to retire the socket, or recovery and observations change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::integer_division_remainder_used,
+    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
+)]
 async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
     let mut raw = Raw::new()?;
     for execute in [false, true] {
@@ -452,6 +557,18 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
     raw.finish().await
 }
 
+/// # Errors
+///
+/// Returns a serialization error or an error if the snapshot or outbound stage is absent.
+///
+/// # Panics
+///
+/// Panics if TLS stage totals, pending work, timing, outcomes or telemetry privacy changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn tls_observations(
     upstream: &Upstream,
     selected: Stage,
@@ -497,6 +614,9 @@ fn tls_observations(
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if TLS cancellation fails to close the pending socket, record cancellation or recover.
 async fn outbound_tls_cancellation_closes_pending_socket_and_records_cancellation() {
     tls_lifecycle(true)
         .await
@@ -504,6 +624,9 @@ async fn outbound_tls_cancellation_closes_pending_socket_and_records_cancellatio
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if the TLS connect deadline fails to close the pending socket, record failure or recover.
 async fn outbound_tls_connect_deadline_closes_pending_socket_and_records_failure() {
     tls_lifecycle(false)
         .await
@@ -511,6 +634,10 @@ async fn outbound_tls_connect_deadline_closes_pending_socket_and_records_failure
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if upstream JSON media parsing changes accepted case and parameters,
+/// rejects ambiguous fields incorrectly, or fails subsequent recovery.
 async fn upstream_json_types_accept_case_and_parameters_and_reject_ambiguous_fields() {
     for execute in [false, true] {
         json_media_types(execute)
@@ -519,6 +646,14 @@ async fn upstream_json_types_accept_case_and_parameters_and_reject_ambiguous_fie
     }
 }
 
+/// # Errors
+///
+/// Returns a raw fixture, body, formatting, queue, timeout, operation or shutdown
+/// error, or an error if an invalid or ambiguous media type is accepted.
+///
+/// # Panics
+///
+/// Panics if invalid upstream media types change their unavailable classification.
 async fn json_media_types(execute: bool) -> TestResult<()> {
     let mut raw = Raw::new()?;
     let path = if execute { "/execute" } else { "/introspect" };

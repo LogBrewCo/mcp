@@ -5,6 +5,10 @@ use sha2::{Digest as _, Sha256};
 
 use super::*;
 
+/// Build a verified synthetic catalog from the supplied operation identifiers.
+///
+/// # Panics
+/// Panics if controlled JSON encoding or catalog verification fails.
 fn catalog(ids: &[String]) -> std::sync::Arc<Catalog> {
     let operations: Vec<_> = ids
         .iter()
@@ -34,6 +38,10 @@ fn observer() -> Telemetry {
     telemetry
 }
 
+/// Select one catalog operation's execution snapshot.
+///
+/// # Panics
+/// Panics if the requested operation is absent from the supplied snapshot.
 fn execution<'a>(snapshot: &'a CatalogSnapshot, id: &str) -> &'a StageSnapshot {
     &snapshot
         .executions
@@ -43,6 +51,11 @@ fn execution<'a>(snapshot: &'a CatalogSnapshot, id: &str) -> &'a StageSnapshot {
         .execution
 }
 
+/// Freeze measurement labels to the verified catalog and reject private identifiers.
+///
+/// # Panics
+/// Panics if fixture setup fails, labels or provenance change, unknown operations
+/// acquire measurements, or private/replacement identifiers appear in the snapshot.
 #[test]
 fn labels_are_frozen_to_the_verified_bounded_inventory() {
     let telemetry = Telemetry::default();
@@ -98,6 +111,11 @@ fn labels_are_frozen_to_the_verified_bounded_inventory() {
     assert!(!encoded.contains("logs.replacement.v1"));
 }
 
+/// Preserve a slow operation's distribution when aggregate p99 hides its latency.
+///
+/// # Panics
+/// Panics if fixture state is unavailable, per-operation values or outcomes change,
+/// or retained latency/outcome counts fail to reconcile with completion counts.
 #[test]
 fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
     let telemetry = observer();
@@ -164,6 +182,11 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
     }
 }
 
+/// Retain operation-specific measurement loss across contention and recovery.
+///
+/// # Panics
+/// Panics if fixture state is unavailable, contention changes availability,
+/// or recovered counts, pending work, loss or unsupported percentiles are wrong.
 #[test]
 fn contention_is_nonblocking_and_loss_stays_with_the_selected_operation() {
     let telemetry = observer();
@@ -200,6 +223,11 @@ fn contention_is_nonblocking_and_loss_stays_with_the_selected_operation() {
     assert_eq!(execution(&operations, "logs.unused.v1").dropped_updates, 0);
 }
 
+/// Start operation timing at handler entry and record cancellation on drop.
+///
+/// # Panics
+/// Panics if fixture state or controlled clock setup fails, timing starts late,
+/// or pending, cancellation, completion or maximum-duration values are incorrect.
 #[test]
 fn operation_timing_starts_at_handler_entry_and_drop_records_cancellation() {
     let telemetry = observer();
@@ -236,6 +264,11 @@ fn operation_timing_starts_at_handler_entry_and_drop_records_cancellation() {
     );
 }
 
+/// Keep unavailable operation timing distinct from measured zero latency.
+///
+/// # Panics
+/// Panics if fixture state or controlled clock setup fails, unavailable timing
+/// produces percentiles or duration values, or retained completion counts change.
 #[test]
 fn an_unknown_duration_suppresses_operation_percentiles() {
     let telemetry = observer();

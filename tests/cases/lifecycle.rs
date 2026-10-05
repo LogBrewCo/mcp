@@ -11,6 +11,10 @@ use super::{
 };
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, execution admission, listener closure before drain, the
+/// drained response, runtime completion or execution totals fail.
 async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_first() {
     let fixture = Fixture::new().await.expect("fixture");
     fixture.state.pause.store(true, Ordering::SeqCst);
@@ -52,6 +56,10 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, serving-future cancellation, request or backend retirement,
+/// listener release or execution totals fail.
 async fn cancelling_the_serving_future_closes_active_requests_and_the_listener() {
     let fixture = Fixture::new().await.expect("fixture");
     fixture.state.pause.store(true, Ordering::SeqCst);
@@ -81,6 +89,10 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if full admission, excess-work rejection, request cancellation,
+/// released backend capacity or recovered admission fails.
 async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancellation() {
     let fixture = Arc::new(Fixture::new().await.expect("fixture"));
     fixture.state.pause.store(true, Ordering::SeqCst);
@@ -118,6 +130,9 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
 }
 
+/// # Errors
+///
+/// Returns the authenticated fixture request or response-read error.
 async fn execute(
     fixture: Arc<Fixture>,
 ) -> Result<(axum::http::StatusCode, serde_json::Value), Box<dyn std::error::Error + Send + Sync>> {
@@ -131,6 +146,19 @@ async fn execute(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an error if required retention observations are absent.
+///
+/// # Panics
+///
+/// Panics if setup, body retention and clone ownership, capacity rejection or
+/// recovery, request totals or retention observations change.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(), &'static str> {
     let fixture = Fixture::new().await.expect("fixture");
     let mut responses = Vec::new();
@@ -213,6 +241,19 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if the retention snapshot, stage or expected outcome is absent.
+///
+/// # Panics
+///
+/// Panics if started, pending, finished or released totals, dropped updates or
+/// timing availability differs from the expected retention state.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn retention(
     fixture: &Fixture,
     started: u64,

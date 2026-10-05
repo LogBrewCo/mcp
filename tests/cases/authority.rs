@@ -13,6 +13,9 @@ use super::http::{Fixture, TOKEN, request_message};
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
+/// # Errors
+///
+/// Returns a request construction, URI or header error for invalid fixture input.
 fn execution(uri: &str, host: Option<&[u8]>, origin: Option<&[u8]>) -> TestResult<Request<Body>> {
     let mut request = request_message(
         1,
@@ -39,6 +42,14 @@ fn execution(uri: &str, host: Option<&[u8]>, origin: Option<&[u8]>) -> TestResul
     Ok(request)
 }
 
+/// # Errors
+///
+/// Returns a request, bounded body-read or successful-response JSON error.
+///
+/// # Panics
+///
+/// Panics if the status, cache policy or execution result differs from the
+/// expected contract, or the response contains a synthetic private marker.
 async fn check(fixture: &Fixture, request: Request<Body>, expected: StatusCode) -> TestResult<()> {
     let response = fixture.router.clone().oneshot(request).await?;
     assert_eq!(response.status(), expected);
@@ -58,12 +69,23 @@ async fn check(fixture: &Fixture, request: Request<Body>, expected: StatusCode) 
     Ok(())
 }
 
+/// # Panics
+///
+/// Panics if introspection or execution counts differ from the expected work.
 fn backend_work(fixture: &Fixture, count: usize) {
     assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), count);
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), count);
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if equivalent default HTTPS authorities are rejected, response privacy
+/// changes, or introspection and execution counts differ from five.
 async fn explicit_default_https_ports_match_the_configured_authority() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (uri, host, origin) in [
@@ -96,6 +118,14 @@ async fn explicit_default_https_ports_match_the_configured_authority() -> TestRe
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if malformed hosts are accepted or start upstream work, valid URI
+/// authority recovery fails, or response privacy and execution counts change.
 async fn malformed_host_cannot_hide_behind_a_valid_uri_authority() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for host in [
@@ -132,6 +162,14 @@ async fn malformed_host_cannot_hide_behind_a_valid_uri_authority() -> TestResult
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if mismatched, missing or duplicate authorities are accepted or start
+/// upstream work, valid recovery fails, or response privacy changes.
 async fn uri_and_host_must_each_match_without_accepting_a_foreign_port() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (uri, host) in [
@@ -180,6 +218,14 @@ async fn uri_and_host_must_each_match_without_accepting_a_foreign_port() -> Test
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if malformed or duplicate origins are accepted or start upstream work,
+/// equivalent HTTPS recovery fails, or response privacy changes.
 async fn origin_equivalence_preserves_strict_syntax_and_https_scope() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for origin in [
@@ -232,6 +278,14 @@ async fn origin_equivalence_preserves_strict_syntax_and_https_scope() -> TestRes
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if an omitted or different nondefault port is accepted or starts
+/// upstream work, exact port recovery fails, or response privacy changes.
 async fn nondefault_ports_remain_required_for_host_and_origin() -> TestResult<()> {
     let fixture = Fixture::for_resource("https://resource.example:8443/mcp".to_owned()).await?;
     for (host, origin) in [
@@ -275,6 +329,14 @@ async fn nondefault_ports_remain_required_for_host_and_origin() -> TestResult<()
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, request construction or response-read error.
+///
+/// # Panics
+///
+/// Panics if equivalent default IPv6 authorities are rejected, a different port
+/// is accepted, response privacy changes, or execution counts differ from one.
 async fn bracketed_ipv6_authorities_preserve_default_port_equivalence() -> TestResult<()> {
     let fixture = Fixture::for_resource("https://[2001:db8::1]/mcp".to_owned()).await?;
     check(

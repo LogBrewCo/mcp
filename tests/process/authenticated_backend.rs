@@ -77,6 +77,9 @@ impl Observations {
         active
     }
 
+    /// # Errors
+    ///
+    /// Returns a timeout if the pending request count does not reach `count`.
     pub async fn wait_for_pending(&self, stage: PendingStage, count: usize) -> TestResult<()> {
         timeout(Duration::from_secs(2), pending_count(self, stage, count)).await?;
         Ok(())
@@ -105,6 +108,9 @@ impl Drop for Backend {
 }
 
 impl Backend {
+    /// # Errors
+    ///
+    /// Returns a listener, certificate, TLS configuration or startup timeout error.
     pub async fn start(resource: String) -> TestResult<Self> {
         let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
@@ -150,6 +156,9 @@ impl Backend {
         })
     }
 
+    /// # Errors
+    ///
+    /// Returns a shutdown timeout, task join or listener service error.
     pub async fn finish(&mut self) -> TestResult<()> {
         self.handle.shutdown();
         timeout(Duration::from_secs(3), &mut self.task).await???;
@@ -157,6 +166,9 @@ impl Backend {
     }
 }
 
+/// # Panics
+///
+/// Panics if the machine credential or content type differs from the fixture.
 pub(super) fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
     let expected = format!(
         "Basic {}",
@@ -176,6 +188,13 @@ pub(super) fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
     );
 }
 
+/// # Errors
+///
+/// Returns service unavailable if the system clock precedes the Unix epoch.
+///
+/// # Panics
+///
+/// Panics if machine authentication, the introspection body or its call limit fails.
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -205,6 +224,14 @@ async fn introspect(
     ))
 }
 
+/// # Errors
+///
+/// Returns bad request if the execution body is not valid JSON.
+///
+/// # Panics
+///
+/// Panics if machine authentication, delegated identity, operation, input or
+/// the execution call limit differs from the fixture.
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,

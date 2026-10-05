@@ -32,6 +32,9 @@ use tokio::time::timeout;
 
 use super::{Fixture, Process, TestResult};
 
+/// # Errors
+///
+/// Returns a configuration file, JSON or missing-authority-field error.
 fn configure(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
     let mut config: Value = serde_json::from_slice(&fs::read(&fixture.config)?)?;
     for (field, suffix) in [
@@ -53,10 +56,16 @@ fn configure(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a fixture certificate or HTTP client construction error.
 fn client(fixture: &Fixture, http2: bool) -> TestResult<reqwest::Client> {
     client_with_timeout(fixture, http2, Duration::from_secs(3))
 }
 
+/// # Errors
+///
+/// Returns a fixture certificate or HTTP client construction error.
 fn client_with_timeout(
     fixture: &Fixture,
     http2: bool,
@@ -78,6 +87,14 @@ fn client_with_timeout(
     .build()?)
 }
 
+/// # Errors
+///
+/// Returns a request, parameters, body-read or response decoding error.
+///
+/// # Panics
+///
+/// Panics if response transport, cache policy, session isolation, rejection body
+/// or private-field redaction changes.
 async fn request(
     http: &reqwest::Client,
     resource: &str,
@@ -88,6 +105,14 @@ async fn request(
     request_with_token(http, resource, method, params, http2, backend::TOKEN).await
 }
 
+/// # Errors
+///
+/// Returns a request, parameters, body-read or response decoding error.
+///
+/// # Panics
+///
+/// Panics if response transport, cache policy, session isolation, rejection body
+/// or private-field redaction changes.
 async fn request_with_token(
     http: &reqwest::Client,
     resource: &str,
@@ -124,6 +149,9 @@ async fn request_with_token(
     Ok((status, decode_response(status, &headers, &bytes)?))
 }
 
+/// # Errors
+///
+/// Returns an error if request parameters are not a JSON object.
 fn message(method: &str, mut params: Value) -> TestResult<Value> {
     drop(
         params
@@ -140,6 +168,19 @@ fn message(method: &str, mut params: Value) -> TestResult<Value> {
     Ok(json!({"jsonrpc":"2.0","id":1_i32,"method":method,"params":params}))
 }
 
+/// # Errors
+///
+/// Returns a JSON parsing error for a response that requires a JSON body.
+///
+/// # Panics
+///
+/// Panics if cache policy, session isolation, authentication challenge, rejection
+/// body or private-field redaction changes.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn decode_response(
     status: reqwest::StatusCode,
     headers: &reqwest::header::HeaderMap,
@@ -179,6 +220,19 @@ fn decode_response(
     Ok(value)
 }
 
+/// # Errors
+///
+/// Returns an error if tool result fields are missing or its text has invalid JSON.
+///
+/// # Panics
+///
+/// Panics if error status, structured content, text or provenance disagrees with
+/// the tool result contract.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn envelope(reply: &Value, error: Option<&str>) -> TestResult<Value> {
     let result = reply
         .get("result")
@@ -208,6 +262,15 @@ fn envelope(reply: &Value, error: Option<&str>) -> TestResult<Value> {
     Ok(value.clone())
 }
 
+/// # Errors
+///
+/// Returns a fixture, configuration, process, client, request, envelope or
+/// shutdown error.
+///
+/// # Panics
+///
+/// Panics if discovery, tool inventory, search, execution, revocation, invalid
+/// input rejection, call counts or executable shutdown changes.
 async fn contracts(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -270,6 +333,14 @@ async fn contracts(http2: bool) -> TestResult<()> {
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a request, body-read, response decoding or envelope error.
+///
+/// # Panics
+///
+/// Panics if active, revoked or recovered credentials produce the wrong status,
+/// result or verification and execution counts.
 async fn revocation(
     upstream: &backend::Backend,
     http: &reqwest::Client,
@@ -304,11 +375,25 @@ async fn revocation(
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/1 authentication contract error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if authentication, revocation or recovery assertions fail.
 async fn normal_linux_http1_authentication_revocation_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), contracts(false)).await?
 }
 
 #[tokio::test]
+/// # Errors
+///
+/// Returns an HTTP/2 authentication contract error or an outer timeout.
+///
+/// # Panics
+///
+/// Panics if authentication, revocation or recovery assertions fail.
 async fn normal_linux_http2_authentication_revocation_and_recovery() -> TestResult<()> {
     timeout(Duration::from_secs(20), contracts(true)).await?
 }

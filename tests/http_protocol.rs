@@ -59,6 +59,10 @@ use http::{Fixture, RESOURCE, TOKEN};
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if fixture setup or discovery fails, the advertised capabilities or
+/// completion state changes, or the inventory differs from search and execute.
 async fn discovery_and_tool_inventory_are_self_contained() {
     let fixture = Fixture::new().await.expect("fixture");
     let (status, response) = fixture
@@ -92,6 +96,10 @@ async fn discovery_and_tool_inventory_are_self_contained() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or execution fails, content forms disagree, or revocation
+/// does not reject the next request without another execution.
 async fn execution_carries_verified_identity_and_rechecks_revocation() {
     let fixture = Fixture::new().await.expect("fixture");
     let arguments = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
@@ -129,6 +137,10 @@ async fn execution_carries_verified_identity_and_rechecks_revocation() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or a request fails, invalid operations or inputs reach
+/// execution, error classification changes, or the private marker is returned.
 async fn invalid_operations_and_inputs_never_reach_execution() {
     let fixture = Fixture::new().await.expect("fixture");
     for (operation, input, expected) in [
@@ -163,6 +175,10 @@ async fn invalid_operations_and_inputs_never_reach_execution() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or request construction fails, host, origin or credential
+/// rejection changes, or a rejected request starts upstream work.
 async fn host_origin_and_credential_boundaries_reject_before_introspection() {
     let fixture = Fixture::new().await.expect("fixture");
     for (host, origins, authorization, expected) in [
@@ -228,6 +244,10 @@ async fn host_origin_and_credential_boundaries_reject_before_introspection() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or metadata requests fail, the public metadata contract or
+/// supported method changes, or metadata starts credential introspection.
 async fn metadata_is_public_and_has_an_explicit_read_only_method() {
     let fixture = Fixture::new().await.expect("fixture");
     for (method, path, expected) in [
@@ -267,6 +287,10 @@ async fn metadata_is_public_and_has_an_explicit_read_only_method() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or execution fails, ordinary object keys lose their meaning,
+/// or the request does not execute exactly once.
 async fn operation_object_keys_keep_their_meaning_through_the_sdk() {
     let fixture = Fixture::new().await.expect("fixture");
     let arguments = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{
@@ -284,6 +308,10 @@ async fn operation_object_keys_keep_their_meaning_through_the_sdk() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup, reply construction or execution fails, content forms
+/// disagree, or exact output limits and execution counts change.
 async fn maximum_output_survives_both_content_forms_and_one_more_byte_is_rejected() {
     let fixture = Fixture::new().await.expect("fixture");
     let empty = json!({"blob":"","count":3_i32}).to_string();
@@ -318,6 +346,10 @@ async fn maximum_output_survives_both_content_forms_and_one_more_byte_is_rejecte
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or execution fails, invalid output has the wrong error, or
+/// rejected data or the private marker is returned.
 async fn invalid_upstream_json_and_output_contracts_return_no_rejected_data() {
     let fixture = Fixture::new().await.expect("fixture");
     for body in [
@@ -349,6 +381,10 @@ async fn invalid_upstream_json_and_output_contracts_return_no_rejected_data() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or execution fails, error and retry metadata changes, an
+/// operation is retried, or the upstream private marker is returned.
 async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
     let fixture = Fixture::new().await.expect("fixture");
     for (status, delay, code, expected) in [
@@ -407,6 +443,10 @@ async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup or inventory fails, a tool has no output contract, or its
+/// contract accepts inconsistent or unbounded metadata.
 async fn advertised_output_contract_rejects_inconsistent_or_unbounded_metadata() {
     let fixture = Fixture::new().await.expect("fixture");
     let (_, response) = fixture
@@ -422,6 +462,10 @@ async fn advertised_output_contract_rejects_inconsistent_or_unbounded_metadata()
     }
 }
 
+/// # Errors
+///
+/// Returns the request builder error for an invalid supplied host, origin or
+/// authorization header.
 fn boundary_request(
     host: &str,
     origins: &[&str],
@@ -440,6 +484,20 @@ fn boundary_request(
     Ok(request.body(Body::from("{}"))?)
 }
 
+/// # Errors
+///
+/// Returns an error if the cache policy or required authentication challenge is
+/// missing, or the challenge is not valid header text.
+///
+/// # Panics
+///
+/// Panics if the status, cache policy or resource metadata challenge differs
+/// from the expected authentication rejection.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_auth_boundary(
     response: &axum::response::Response,
     expected: StatusCode,
@@ -465,6 +523,15 @@ fn assert_auth_boundary(
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns a body-read, size-limit or JSON error while reading successful
+/// resource metadata.
+///
+/// # Panics
+///
+/// Panics if the status, resource identifier or bearer method differs from the
+/// expected metadata contract.
 async fn assert_resource_metadata(
     response: axum::response::Response,
     expected: StatusCode,
@@ -482,6 +549,19 @@ async fn assert_resource_metadata(
     Ok(())
 }
 
+/// # Errors
+///
+/// Returns an error if the output schema is missing or cannot be compiled.
+///
+/// # Panics
+///
+/// Panics if the schema rejects valid envelopes or accepts inconsistent data,
+/// provenance, errors or retry metadata.
+// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn assert_output_contract(tool: &Value) -> TestResult<()> {
     let schema = tool.get("outputSchema").ok_or("output contract")?;
     let validator = jsonschema::validator_for(schema)?;
@@ -502,6 +582,10 @@ fn assert_output_contract(tool: &Value) -> TestResult<()> {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if setup fails, execution does not reach the backend, disconnection
+/// fails to cancel upstream work, or the operation runs more than once.
 async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
     let fixture = Arc::new(Fixture::new().await.expect("fixture"));
     fixture.state.pause.store(true, Ordering::SeqCst);
@@ -533,6 +617,10 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
 }
 
 #[tokio::test]
+/// # Panics
+///
+/// Panics if fixture or header setup fails, execution fails, or oversized
+/// upstream headers are accepted or returned to the caller.
 async fn oversized_upstream_headers_are_rejected_on_success_and_error_statuses() {
     let fixture = Fixture::new().await.expect("fixture");
     for status in [StatusCode::OK, StatusCode::FORBIDDEN] {

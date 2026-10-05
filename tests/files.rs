@@ -14,6 +14,10 @@ static NEXT: AtomicUsize = AtomicUsize::new(0);
 struct Directory(PathBuf);
 
 impl Directory {
+    /// # Errors
+    ///
+    /// Returns the filesystem error if the private disposable directory cannot
+    /// be created.
     fn new() -> std::io::Result<Self> {
         let path = std::env::temp_dir().join(format!(
             "logbrew-mcp-files-{}-{}",
@@ -32,6 +36,10 @@ impl Drop for Directory {
 }
 
 #[test]
+/// # Panics
+///
+/// Panics if fixture setup fails, file bytes change, or file identity, permission,
+/// path or exact byte limits do not reject the corresponding invalid input.
 fn file_identity_permissions_and_exact_byte_limits_are_enforced() {
     let directory = Directory::new().expect("disposable directory");
     let file = directory.0.join("secret");

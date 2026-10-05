@@ -4,6 +4,10 @@ use logbrew_mcp::{Failure, catalog::Catalog, error::Kind};
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
+/// Build a synthetic catalog with the supplied schema and expected checksum.
+///
+/// # Errors
+/// Propagates rejection of the synthetic catalog or supplied schema contract.
 fn load(schema: &Value) -> Result<std::sync::Arc<Catalog>, Failure> {
     let bytes = json!({"format_version":1_i32,"operations":[{
         "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"logs:read",
@@ -16,6 +20,17 @@ fn load(schema: &Value) -> Result<std::sync::Arc<Catalog>, Failure> {
     Catalog::load(&bytes, &Sha256::digest(&bytes).into())
 }
 
+/// Check accepted tuples and rejection categories through both operation contracts.
+///
+/// # Errors
+/// Propagates rejection of the expected valid tuple by either contract.
+///
+/// # Panics
+/// Fails when an invalid tuple has the wrong input or output rejection category.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
 fn check_tuple(catalog: &Catalog) -> Result<(), Failure> {
     let allowed = json!({"values":["preserved"]});
     catalog.input("logs.read.v1", &allowed)?;
@@ -44,6 +59,11 @@ fn check_tuple(catalog: &Catalog) -> Result<(), Failure> {
     Ok(())
 }
 
+/// Check legacy tuple validation and exact discovery schema preservation.
+///
+/// # Panics
+/// Fails when a supported dialect cannot load, validates an unexpected tuple
+/// or changes the schema returned by discovery.
 #[test]
 fn declared_legacy_dialects_preserve_input_and_output_tuple_contracts() {
     for dialect in [
@@ -66,6 +86,10 @@ fn declared_legacy_dialects_preserve_input_and_output_tuple_contracts() {
     }
 }
 
+/// Check implicit and explicit 2020-12 prefix-item validation.
+///
+/// # Panics
+/// Fails when a supported schema cannot load or tuple validation changes.
 #[test]
 fn absent_and_explicit_2020_dialects_preserve_prefix_item_contracts() {
     let base = json!({"type":"object","required":["values"],"additionalProperties":false,
@@ -90,6 +114,11 @@ fn absent_and_explicit_2020_dialects_preserve_prefix_item_contracts() {
     }
 }
 
+/// Check malformed declarations and embedded dialects fail without disclosure.
+///
+/// # Panics
+/// Fails when a declaration loads, returns the wrong failure category
+/// or repeats the synthetic private marker.
 #[test]
 fn unknown_or_malformed_dialects_fail_without_repeating_the_declaration() {
     for dialect in [
@@ -118,6 +147,11 @@ fn unknown_or_malformed_dialects_fail_without_repeating_the_declaration() {
     assert!(!failure.to_string().contains("SYNTHETIC_PRIVATE_DIALECT"));
 }
 
+/// Check `$schema` properties and annotations remain ordinary instance data.
+///
+/// # Panics
+/// Fails when the schema cannot load, rejects the valid instance
+/// or accepts an instance that violates its constant value.
 #[test]
 fn ordinary_schema_keys_and_annotations_remain_instance_data() {
     let data = json!({"$schema":"https://schemas.invalid/SYNTHETIC_PRIVATE_DIALECT"});

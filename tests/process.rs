@@ -39,6 +39,10 @@ static NEXT: AtomicUsize = AtomicUsize::new(0);
 struct Directory(PathBuf);
 
 impl Directory {
+    /// Create a private temporary directory for this executable fixture.
+    ///
+    /// # Errors
+    /// Returns an error if the fixture directory cannot be created.
     fn new() -> std::io::Result<Self> {
         let path = std::env::temp_dir().join(format!(
             "logbrew-mcp-process-{}-{}",
@@ -49,6 +53,10 @@ impl Directory {
         Ok(Self(path))
     }
 
+    /// Write a fixture file and apply its supplied permission mode.
+    ///
+    /// # Errors
+    /// Returns an error if the file write or permission change fails.
     fn write(&self, name: &str, bytes: &[u8], mode: u32) -> std::io::Result<PathBuf> {
         let path = self.0.join(name);
         fs::write(&path, bytes)?;
@@ -71,6 +79,11 @@ struct Fixture {
 }
 
 impl Fixture {
+    /// Prepare synthetic configuration, credentials, TLS material and a read catalog.
+    ///
+    /// # Errors
+    /// Returns an error if directory or address selection, certificate generation,
+    /// file writes, catalog/configuration encoding or digest formatting fails.
     fn new() -> TestResult<Self> {
         let directory = Directory::new()?;
         let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
@@ -114,6 +127,10 @@ impl Fixture {
         })
     }
 
+    /// Build a bounded HTTP/1 client with fixture certificate trust.
+    ///
+    /// # Errors
+    /// Returns an error if certificate parsing or client construction fails.
     fn client(&self) -> TestResult<reqwest::Client> {
         Ok(reqwest::Client::builder()
             .no_proxy()
@@ -124,14 +141,30 @@ impl Fixture {
             .build()?)
     }
 
+    /// Wait for the executable's protected-resource metadata.
+    ///
+    /// # Errors
+    /// Returns an error if client setup, process inspection, response parsing
+    /// or the bounded readiness check fails.
+    ///
+    /// # Panics
+    /// Panics if the metadata response has an unexpected status or resource.
     async fn ready(&self, process: &mut Process) -> TestResult<()> {
         readiness(self, process).await
     }
 
+    /// Connect to the executable with fixture certificate trust and no ALPN request.
+    ///
+    /// # Errors
+    /// Returns an error if trust setup, TCP connection or TLS negotiation fails.
     async fn tls(&self) -> TestResult<tokio_rustls::client::TlsStream<tokio::net::TcpStream>> {
         self.tls_protocol(None).await
     }
 
+    /// Connect to the executable with fixture trust and the selected ALPN protocol.
+    ///
+    /// # Errors
+    /// Returns an error if trust setup, TCP connection or TLS negotiation fails.
     async fn tls_protocol(
         &self,
         protocol: Option<&[u8]>,
@@ -153,10 +186,18 @@ impl Process {
         command
     }
 
+    /// Spawn the executable with its configuration and cleared environment.
+    ///
+    /// # Errors
+    /// Returns an error if the test executable cannot be started.
     fn start(config: &Path) -> std::io::Result<Self> {
         Self::start_with_roots(config, None)
     }
 
+    /// Spawn the executable with an optional fixture certificate trust file.
+    ///
+    /// # Errors
+    /// Returns an error if the test executable cannot be started.
     fn start_with_roots(config: &Path, roots: Option<&Path>) -> std::io::Result<Self> {
         let mut command = Self::command();
         let _: &mut Command = command.arg(config);
@@ -166,6 +207,11 @@ impl Process {
         command.spawn().map(Self)
     }
 
+    /// Send the supplied signal to the fixture process.
+    ///
+    /// # Errors
+    /// Returns an error if the process identifier cannot be represented or
+    /// validated, or the operating system rejects the signal.
     fn signal(&self, signal: Signal) -> TestResult<()> {
         let pid = Pid::from_raw(i32::try_from(self.0.id())?)
             .ok_or_else(|| std::io::Error::other("invalid child PID"))?;
@@ -173,6 +219,13 @@ impl Process {
         Ok(())
     }
 
+    /// Wait for process exit and check its bounded diagnostic output.
+    ///
+    /// # Errors
+    /// Returns an error if process inspection, its exit deadline or output reading fails.
+    ///
+    /// # Panics
+    /// Panics if the executable writes any stdout or stderr diagnostics.
     async fn wait(&mut self) -> TestResult<ExitStatus> {
         let status = process_exit(&mut self.0).await?;
         let mut output = Vec::new();
@@ -190,6 +243,14 @@ impl Process {
     }
 }
 
+/// Poll metadata until the executable is ready within five seconds.
+///
+/// # Errors
+/// Returns an error if client setup, process inspection, deadline construction
+/// or response parsing fails, the process exits early, or readiness expires.
+///
+/// # Panics
+/// Panics if a received metadata response has an unexpected status or resource.
 async fn readiness(fixture: &Fixture, process: &mut Process) -> TestResult<()> {
     let client = fixture.client()?;
     let url = format!(
@@ -222,6 +283,11 @@ async fn readiness(fixture: &Fixture, process: &mut Process) -> TestResult<()> {
     }
 }
 
+/// Poll for the fixture process's exit within eight seconds.
+///
+/// # Errors
+/// Returns an error if the deadline cannot be represented, process inspection
+/// fails, or the process remains running beyond the deadline.
 async fn process_exit(child: &mut Child) -> TestResult<ExitStatus> {
     let end = Instant::now()
         .checked_add(Duration::from_secs(8))
@@ -244,6 +310,11 @@ impl Drop for Process {
     }
 }
 
+/// Stop the native HTTPS process with each supported shutdown signal.
+///
+/// # Panics
+/// Panics if fixture setup, readiness or signaling fails, the process does not
+/// exit successfully within its bound, or its listener remains occupied.
 #[tokio::test]
 async fn interrupt_and_terminate_stop_the_native_https_process_and_release_its_port() {
     for signal in [Signal::INT, Signal::TERM] {
@@ -259,6 +330,11 @@ async fn interrupt_and_terminate_stop_the_native_https_process_and_release_its_p
     }
 }
 
+/// Complete bounded shutdown while a peer withholds its TLS handshake.
+///
+/// # Panics
+/// Panics if setup or signaling fails, shutdown misses its bound or success
+/// status, or the service listener is not released.
 #[tokio::test]
 async fn stalled_tls_handshake_does_not_prevent_bounded_shutdown() {
     let fixture = Fixture::new().expect("fixture");
@@ -273,6 +349,11 @@ async fn stalled_tls_handshake_does_not_prevent_bounded_shutdown() {
     drop(TcpListener::bind(fixture.address).expect("listener released"));
 }
 
+/// Close a verified TLS peer that withholds complete HTTP headers.
+///
+/// # Panics
+/// Panics if setup or I/O fails, the peer remains open beyond its deadline,
+/// or the process does not exit successfully after the shutdown signal.
 #[tokio::test]
 async fn incomplete_http_headers_expire_on_a_verified_tls_connection() {
     let fixture = Fixture::new().expect("fixture");
@@ -291,6 +372,11 @@ async fn incomplete_http_headers_expire_on_a_verified_tls_connection() {
     assert!(process.wait().await.expect("exit").success());
 }
 
+/// Expire occupied protocol-prefix slots and recover listener capacity.
+///
+/// # Panics
+/// Panics if setup fails, excess peers are admitted, occupied slots fail to
+/// close within the bound, or listener recovery or clean shutdown fails.
 #[tokio::test]
 async fn idle_and_partial_protocol_prefixes_expire_and_the_listener_recovers() {
     let fixture = Fixture::new().expect("fixture");
@@ -321,6 +407,10 @@ async fn idle_and_partial_protocol_prefixes_expire_and_the_listener_recovers() {
     drop(TcpListener::bind(fixture.address).expect("listener released"));
 }
 
+/// Occupy 64 verified TLS connections with idle or partial protocol prefixes.
+///
+/// # Errors
+/// Returns an error if a fixture TLS connection or protocol-prefix write fails.
 async fn occupied_prefixes(fixture: &Fixture) -> TestResult<Vec<TlsStream>> {
     let mut peers = Vec::new();
     for prefix in [b"".as_slice(), b"P", b"PRI * HTTP/2.0\r\n\r\nSM\r\n\r"]
@@ -335,6 +425,10 @@ async fn occupied_prefixes(fixture: &Fixture) -> TestResult<Vec<TlsStream>> {
     Ok(peers)
 }
 
+/// Check that every occupied protocol-prefix peer has closed.
+///
+/// # Panics
+/// Panics if a peer supplies bytes instead of closing or returning a read error.
 async fn closed_prefixes(peers: Vec<TlsStream>) {
     for mut peer in peers {
         let mut bytes = [0; 1];
@@ -342,6 +436,11 @@ async fn closed_prefixes(peers: Vec<TlsStream>) {
     }
 }
 
+/// Reject invalid configuration and mismatched TLS material before listening.
+///
+/// # Panics
+/// Panics if fixture setup or process execution fails, invalid startup returns
+/// an unexpected status, or the configured service address remains occupied.
 #[tokio::test]
 async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() {
     let fixture = Fixture::new().expect("fixture");
@@ -371,6 +470,11 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
     drop(TcpListener::bind(fixture.address).expect("no listener on invalid startup"));
 }
 
+/// Reject invalid client-policy files and recover with a valid deny-all policy.
+///
+/// # Panics
+/// Panics if fixture setup or policy replacement fails, invalid policies start
+/// listening or return the wrong status, or valid recovery and shutdown fail.
 #[tokio::test]
 async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() {
     let fixture = Fixture::new().expect("fixture");
@@ -433,6 +537,11 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
     drop(TcpListener::bind(fixture.address).expect("listener released"));
 }
 
+/// Close excess connections before TLS and recover after admitted peers leave.
+///
+/// # Panics
+/// Panics if setup fails, excess peers are admitted, existing peers are closed
+/// early, or listener recovery and clean shutdown fail.
 #[tokio::test]
 async fn connections_above_capacity_are_closed_before_tls_and_capacity_recovers() {
     let fixture = Fixture::new().expect("fixture");
@@ -471,6 +580,11 @@ async fn connections_above_capacity_are_closed_before_tls_and_capacity_recovers(
     assert!(process.wait().await.expect("exit").success());
 }
 
+/// Preserve an existing listener when valid startup cannot bind its address.
+///
+/// # Panics
+/// Panics if setup or process execution fails, the bind failure returns the
+/// wrong status, or the existing listener's address changes.
 #[tokio::test]
 async fn valid_configuration_does_not_replace_an_existing_listener() {
     let fixture = Fixture::new().expect("fixture");

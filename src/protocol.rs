@@ -395,6 +395,14 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next) -> Respon
 async fn prepared_request(mut request: Request, next: Next) -> Response {
     let mut original_id = None;
     if request.method() == axum::http::Method::POST {
+        if !crate::media::unencoded(request.headers()) {
+            return (
+                StatusCode::UNSUPPORTED_MEDIA_TYPE,
+                [(header::ACCEPT_ENCODING, "identity")],
+                "unsupported content encoding",
+            )
+                .into_response();
+        }
         let (mut parts, body) = request.into_parts();
         let Ok(bytes) = to_bytes(body, REQUEST_BYTES).await else {
             return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();

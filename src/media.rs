@@ -1,4 +1,4 @@
-//! Recognize one JSON Content-Type using HTTP token and parameter syntax.
+//! Recognize JSON media types and unencoded content using HTTP field syntax.
 
 use axum::http::{HeaderMap, header};
 
@@ -8,6 +8,23 @@ pub fn json(headers: &HeaderMap) -> bool {
         return false;
     };
     values.next().is_none() && json_value(ows(value.as_bytes())).is_some()
+}
+
+pub fn unencoded(headers: &HeaderMap) -> bool {
+    headers
+        .get_all(header::CONTENT_ENCODING)
+        .iter()
+        .flat_map(|value| value.as_bytes().split(|byte| *byte == b','))
+        .all(unencoded_coding)
+}
+
+fn unencoded_coding(coding: &[u8]) -> bool {
+    let coding = ows(coding);
+    // RFC 9110 section 5.6.1 requires ignoring empty list members.
+    coding.is_empty()
+        || token(coding).is_some_and(|(name, rest)| {
+            name.eq_ignore_ascii_case(b"identity") && ows(rest).is_empty()
+        })
 }
 
 fn json_value(value: &[u8]) -> Option<()> {

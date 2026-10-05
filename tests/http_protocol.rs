@@ -32,6 +32,8 @@ mod notifications;
 mod peer;
 #[path = "support/raw_upstream.rs"]
 mod raw_upstream;
+#[path = "cases/request_encoding.rs"]
+mod request_encoding;
 #[path = "support/runtime.rs"]
 mod runtime;
 #[path = "cases/scopes.rs"]

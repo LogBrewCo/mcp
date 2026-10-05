@@ -7,6 +7,8 @@ mod authenticated;
 mod hpack;
 #[path = "process/http2.rs"]
 mod http2;
+#[path = "process/launch.rs"]
+mod launch;
 #[path = "support/peer.rs"]
 mod peer;
 #[path = "process/preflight.rs"]
@@ -178,16 +180,23 @@ struct Process(Child);
 impl Process {
     /// Use the selected package executable, or Cargo's binary when no path is supplied.
     /// A supplied path never falls back to the source binary after a startup failure.
-    fn command() -> Command {
+    ///
+    /// # Errors
+    /// Rejects an incomplete or invalid Linux runtime-loader selection.
+    fn command() -> std::io::Result<Command> {
         let executable: std::ffi::OsString = std::env::var_os("LOGBREW_MCP_PACKAGE_EXECUTABLE")
             .unwrap_or_else(|| env!("CARGO_BIN_EXE_logbrew-mcp").into());
-        let mut command = Command::new(executable);
+        let mut command = launch::command(
+            executable,
+            std::env::var_os("LOGBREW_MCP_PACKAGE_LOADER"),
+            std::env::var_os("LOGBREW_MCP_PACKAGE_LIBRARY_PATH"),
+        )?;
         let _: &mut Command = command
             .env_clear()
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
-        command
+        Ok(command)
     }
 
     /// Spawn the executable with its configuration and cleared environment.
@@ -203,7 +212,7 @@ impl Process {
     /// # Errors
     /// Returns an error if the test executable cannot be started.
     fn start_with_roots(config: &Path, roots: Option<&Path>) -> std::io::Result<Self> {
-        let mut command = Self::command();
+        let mut command = Self::command()?;
         let _: &mut Command = command.arg(config);
         if let Some(roots) = roots {
             let _: &mut Command = command.env("SSL_CERT_FILE", roots);

@@ -193,3 +193,23 @@ environment and keeps the source tests' assertions. An empty or unusable supplie
 path fails without selecting Cargo's binary. With the variable unset, ordinary
 source tests use Cargo's binary. These tests prove only the exercised local
 development executable behavior; they do not prove hosted or real-client access.
+
+On Linux, an operator-verified GNU runtime fixture can supply its loader and
+one absolute library directory. Keep the executable byte-identical to the
+extracted archive:
+
+```sh
+LOGBREW_MCP_PACKAGE_EXECUTABLE=/absolute/path/to/extracted/bin/logbrew-mcp \
+LOGBREW_MCP_PACKAGE_LOADER=/absolute/path/to/runtime/ld-linux-aarch64.so.1 \
+LOGBREW_MCP_PACKAGE_LIBRARY_PATH=/absolute/path/to/runtime/libraries \
+cargo test --locked --offline --test process -- --test-threads=2
+```
+
+Both loader options must be present. Relative paths, empty values, library search
+lists and loader options on other hosts fail before launch. The harness clears
+the child environment, disables the loader cache and keeps the existing process
+assertions. A loader failure never falls back to Cargo's executable. The loader
+and libraries are trusted test inputs; this option does not isolate the process
+from host files or prove which libraries it loads. Verify the loaded library
+closure independently before claiming runtime compatibility. One runtime fixture
+does not establish support for an entire operating-system version.

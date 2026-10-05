@@ -19,7 +19,7 @@ use super::*;
 async fn version_reports_the_package_without_loading_configuration() -> TestResult<()> {
     let directory = Directory::new()?;
     let mut process = Process(
-        Process::command()
+        Process::command()?
             .arg("--version")
             .current_dir(&directory.0)
             .env("LOGBREW_MCP_CONFIG", "SYNTHETIC_PRIVATE_VALUE")
@@ -67,7 +67,7 @@ async fn version_rejects_extra_arguments_without_disclosing_them() -> TestResult
         vec![flag, OsStr::new("SYNTHETIC_PRIVATE_VALUE")],
         vec![flag, OsStr::new("--check-config"), path],
     ] {
-        let mut process = Process(Process::command().args(arguments).spawn()?);
+        let mut process = Process(Process::command()?.args(arguments).spawn()?);
         assert_eq!(process.wait().await?.code(), Some(1_i32));
         drop(TcpListener::bind(fixture.address)?);
     }
@@ -90,7 +90,7 @@ async fn version_output_failure_exits_unsuccessfully_without_diagnostics() -> Te
     let (reader, writer): (std::io::PipeReader, std::io::PipeWriter) = std::io::pipe()?;
     drop(reader);
     let mut process = Process(
-        Process::command()
+        Process::command()?
             .arg("--version")
             .stdout(Stdio::from(writer))
             .spawn()?,
@@ -104,7 +104,7 @@ async fn version_output_failure_exits_unsuccessfully_without_diagnostics() -> Te
 /// # Errors
 /// Returns an error if the test executable cannot be started.
 fn check(config: &Path) -> std::io::Result<Process> {
-    Process::command()
+    Process::command()?
         .arg("--check-config")
         .arg(config)
         .spawn()
@@ -229,6 +229,7 @@ async fn configuration_check_requires_one_path_and_rejects_extra_arguments() {
         vec![OsStr::new("--unknown-option"), path],
     ] {
         let mut process = Process::command()
+            .expect("test launch configuration")
             .args(arguments)
             .spawn()
             .map(Process)

@@ -115,7 +115,9 @@ async fn exercise(execute: bool) -> TestResult<()> {
         let done = raw.queue(path, bytes, None).await?;
         let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
             .await
-            .map_err(|_| std::io::Error::other(format!("header rejection deadline: {case}")))?
+            .map_err(|error| {
+                std::io::Error::other(format!("header rejection deadline: {case}: {error}"))
+            })?
             .err()
             .ok_or("oversized headers accepted")?;
         assert_eq!(failure.kind, Kind::Unavailable);
@@ -242,7 +244,9 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
         let done = raw.queue_http2(headers, None).await?;
         let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
             .await
-            .map_err(|_| std::io::Error::other(format!("HTTP/2 rejection deadline: {case}")))?
+            .map_err(|error| {
+                std::io::Error::other(format!("HTTP/2 rejection deadline: {case}: {error}"))
+            })?
             .err()
             .ok_or("oversized HTTP/2 headers accepted")?;
         assert_eq!(failure.kind, Kind::Unavailable);

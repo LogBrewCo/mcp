@@ -263,13 +263,13 @@ impl Upstream {
                 .into_bytes(),
             )
             .await
-            .map_err(|_| Failure::from(Kind::Unavailable))?;
+            .map_err(Failure::redact(Kind::Unavailable))?;
         if !bounded_headers(&response) || response.status() != 200 {
             return Err(Kind::Unavailable.into());
         }
         let bytes = bounded_response(response, CLAIM_BYTES).await?;
-        let value = strict_json::object(&bytes, CLAIM_BYTES)
-            .map_err(|_| Failure::from(Kind::Unavailable))?;
+        let value =
+            strict_json::object(&bytes, CLAIM_BYTES).map_err(Failure::redact(Kind::Unavailable))?;
         let verified = claims(&value, &self.options)?;
         self.authorize_client(&verified.principal)?;
         if !verified.scope_allowed {
@@ -320,7 +320,7 @@ impl Upstream {
             return Err(Kind::Unavailable.into());
         }
         self.authorize_client(principal)?;
-        let bytes = serde_json::to_vec(input).map_err(|_| Failure::from(Kind::InvalidInput))?;
+        let bytes = serde_json::to_vec(input).map_err(Failure::redact(Kind::InvalidInput))?;
         drop(strict_json::object(&bytes, INPUT_BYTES)?);
         let credential = &self.options.execution_credential;
         let response = self
@@ -333,10 +333,10 @@ impl Upstream {
                     &json!({"token":token,"credential_id":principal.credential_id,
                     "client_id":principal.client_id,"request":{"operation":operation,"input":input}}),
                 )
-                .map_err(|_| Failure::from(Kind::Unavailable))?,
+                .map_err(Failure::redact(Kind::Unavailable))?,
             )
             .await
-            .map_err(|_| Failure::from(Kind::Unavailable))?;
+            .map_err(Failure::redact(Kind::Unavailable))?;
         if !bounded_headers(&response) {
             return Err(Kind::Unavailable.into());
         }
@@ -344,7 +344,7 @@ impl Upstream {
             return Err(response_failure(&response));
         }
         let bytes = bounded_response(response, OUTPUT_BYTES).await?;
-        strict_json::object(&bytes, OUTPUT_BYTES).map_err(|_| Kind::InvalidOutput.into())
+        strict_json::object(&bytes, OUTPUT_BYTES).map_err(Failure::redact(Kind::InvalidOutput))
     }
 }
 
@@ -369,7 +369,7 @@ fn valid_scope(value: &str) -> bool {
 /// # Errors
 /// Rejects unsupported, ambiguous, or oversized service locations.
 pub fn canonical_https(value: &str) -> Result<Url, Failure> {
-    let url = Url::parse(value).map_err(|_| Failure::from(Kind::Configuration))?;
+    let url = Url::parse(value).map_err(Failure::redact(Kind::Configuration))?;
     let root_identifier = url.path() == "/" && url.as_str().strip_suffix('/') == Some(value);
     if value.len() > 2048
         || url.scheme() != "https"
@@ -403,7 +403,7 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
     }
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map_err(|_| Failure::from(Kind::Unavailable))?
+        .map_err(Failure::redact(Kind::Unavailable))?
         .as_secs();
     let text = |key| {
         value
@@ -485,7 +485,7 @@ async fn bounded_response(mut response: Response, limit: usize) -> Result<Vec<u8
     }
     let mut bytes = Vec::new();
     while let Some(frame) = response.body_mut().frame().await {
-        let frame = frame.map_err(|_| Failure::from(Kind::Unavailable))?;
+        let frame = frame.map_err(Failure::redact(Kind::Unavailable))?;
         let Ok(chunk) = frame.into_data() else {
             continue;
         };
@@ -556,7 +556,7 @@ fn authorization(credential: &MachineCredential) -> Result<HeaderValue, Failure>
     let encoded = Zeroizing::new(STANDARD.encode(components.as_bytes()));
     let header = Zeroizing::new(format!("Basic {}", encoded.as_str()));
     let mut value =
-        HeaderValue::from_str(header.as_str()).map_err(|_| Failure::from(Kind::Unavailable))?;
+        HeaderValue::from_str(header.as_str()).map_err(Failure::redact(Kind::Unavailable))?;
     value.set_sensitive(true);
     Ok(value)
 }

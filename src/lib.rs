@@ -36,6 +36,20 @@ pub struct Failure {
     pub retry_after_ms: Option<u64>,
 }
 
+impl Failure {
+    /// Convert an internal cause into a fixed public category.
+    ///
+    /// Causes can contain paths, credentials or payloads. This boundary drops
+    /// the cause and retains only the selected category, with an unknown retry
+    /// delay. `Display`, `Debug` and `Error::source` cannot expose the discarded cause.
+    pub(crate) fn redact<E>(kind: error::Kind) -> impl FnOnce(E) -> Self {
+        move |cause| {
+            drop(cause);
+            Self::from(kind)
+        }
+    }
+}
+
 impl From<error::Kind> for Failure {
     fn from(kind: error::Kind) -> Self {
         Self {
@@ -52,3 +66,33 @@ impl std::fmt::Display for Failure {
 }
 
 impl std::error::Error for Failure {}
+
+#[cfg(test)]
+mod tests {
+    use std::{error::Error as _, io, sync::Arc};
+
+    use super::{Failure, error::Kind};
+
+    /// Reject retained sensitive causes and preserve the fixed failure contract.
+    ///
+    /// # Panics
+    /// Fails if redaction retains a cause, changes its category or retry delay,
+    /// or exposes the discarded value through a diagnostic or source chain.
+    #[test]
+    fn redaction_drops_sensitive_cause_and_preserves_public_failure() {
+        let cause = Arc::new(io::Error::other(
+            "SYNTHETIC_PRIVATE_PATH SYNTHETIC_BEARER_SECRET SYNTHETIC_UPSTREAM_PAYLOAD",
+        ));
+        let observed = Arc::downgrade(&cause);
+        let failure = Failure::redact::<io::Error>(Kind::Unavailable)(io::Error::other(cause));
+        assert!(observed.upgrade().is_none());
+        assert_eq!(failure.kind, Kind::Unavailable);
+        assert_eq!(failure.retry_after_ms, None);
+        assert_eq!(failure.to_string(), "unavailable");
+        assert_eq!(
+            format!("{failure:?}"),
+            "Failure { kind: Unavailable, retry_after_ms: None }"
+        );
+        assert!(failure.source().is_none());
+    }
+}

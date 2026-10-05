@@ -251,7 +251,7 @@ pub fn router(
         upstream.required_scope()
     );
     let value = |text: &str| {
-        header::HeaderValue::from_str(text).map_err(|_| Failure::from(Kind::Configuration))
+        header::HeaderValue::from_str(text).map_err(Failure::redact(Kind::Configuration))
     };
     let invalid_token_challenge = value(&format!("{challenge}, error=\"invalid_token\""))?;
     let invalid_request_challenge = value(&format!("{challenge}, error=\"invalid_request\""))?;

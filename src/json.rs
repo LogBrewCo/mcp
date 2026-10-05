@@ -106,7 +106,7 @@ pub fn object(bytes: &[u8], limit: usize) -> Result<Value, Failure> {
         return Err(Kind::InvalidInput.into());
     }
     let raw: Box<RawValue> =
-        serde_json::from_slice(bytes).map_err(|_| Failure::from(Kind::InvalidInput))?;
+        serde_json::from_slice(bytes).map_err(Failure::redact(Kind::InvalidInput))?;
     if !raw.get().starts_with('{') {
         return Err(Kind::InvalidInput.into());
     }
@@ -124,7 +124,7 @@ fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
     match raw.as_bytes().first() {
         Some(b'{') => {
             let fields: UniqueObject =
-                serde_json::from_str(raw).map_err(|_| Failure::from(Kind::InvalidInput))?;
+                serde_json::from_str(raw).map_err(Failure::redact(Kind::InvalidInput))?;
             let mut object = serde_json::Map::new();
             for (key, value) in fields.0 {
                 drop(object.insert(key, decode(value.get(), depth.saturating_add(1))?));
@@ -133,7 +133,7 @@ fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
         }
         Some(b'[') => {
             let elements: Vec<Box<RawValue>> =
-                serde_json::from_str(raw).map_err(|_| Failure::from(Kind::InvalidInput))?;
+                serde_json::from_str(raw).map_err(Failure::redact(Kind::InvalidInput))?;
             let values = elements
                 .iter()
                 .map(|value| decode(value.get(), depth.saturating_add(1)))
@@ -143,10 +143,10 @@ fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
         Some(b'-' | b'0'..=b'9') => {
             number(raw)?;
             let value = serde_json::from_str::<serde_json::Number>(raw)
-                .map_err(|_| Failure::from(Kind::InvalidInput))?;
+                .map_err(Failure::redact(Kind::InvalidInput))?;
             Ok(Value::Number(value))
         }
-        _ => serde_json::from_str(raw).map_err(|_| Kind::InvalidInput.into()),
+        _ => serde_json::from_str(raw).map_err(Failure::redact(Kind::InvalidInput)),
     }
 }
 
@@ -161,7 +161,7 @@ fn number(raw: &str) -> Result<(), Failure> {
     if let Some((_, exponent)) = raw.split_once(['e', 'E']) {
         let value = exponent
             .parse::<i64>()
-            .map_err(|_| Failure::from(Kind::InvalidInput))?;
+            .map_err(Failure::redact(Kind::InvalidInput))?;
         if !(-EXPONENT..=EXPONENT).contains(&value) {
             return Err(Kind::InvalidInput.into());
         }

@@ -76,7 +76,7 @@ impl Config {
     /// Loading version 1 without this file authorizes no client.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let value =
-            strict_json::object(bytes, 16 << 10).map_err(|_| Failure::from(Kind::Configuration))?;
+            strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
         if value.as_object().is_none_or(|fields| {
             fields
                 .values()
@@ -85,7 +85,7 @@ impl Config {
             return Err(Kind::Configuration.into());
         }
         let config: Self =
-            serde_json::from_value(value).map_err(|_| Failure::from(Kind::Configuration))?;
+            serde_json::from_value(value).map_err(Failure::redact(Kind::Configuration))?;
         if !matches!(config.version.as_str(), "1" | "2")
             || (config.version == "2" && config.client_allowlist_file.is_none())
         {
@@ -102,7 +102,7 @@ impl Config {
         let address: SocketAddr = self
             .listen
             .parse()
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         if address.port() == 0 || self.listen.contains('%') || self.catalog_sha256.len() != 64 {
             return Err(Kind::Configuration.into());
         }
@@ -111,9 +111,8 @@ impl Config {
             .iter_mut()
             .zip(self.catalog_sha256.as_bytes().as_chunks::<2>().0)
         {
-            let text = std::str::from_utf8(pair).map_err(|_| Failure::from(Kind::Configuration))?;
-            *target =
-                u8::from_str_radix(text, 16).map_err(|_| Failure::from(Kind::Configuration))?;
+            let text = std::str::from_utf8(pair).map_err(Failure::redact(Kind::Configuration))?;
+            *target = u8::from_str_radix(text, 16).map_err(Failure::redact(Kind::Configuration))?;
         }
         Ok((address, digest))
     }
@@ -128,7 +127,7 @@ pub fn read_file(path: &Path, limit: u64, allowed: u32) -> Result<Zeroizing<Vec<
     if !path.is_absolute() || limit == 0 || limit == u64::MAX {
         return Err(Kind::Configuration.into());
     }
-    let original = fs::symlink_metadata(path).map_err(|_| Failure::from(Kind::Configuration))?;
+    let original = fs::symlink_metadata(path).map_err(Failure::redact(Kind::Configuration))?;
     check_file(&original, limit, allowed)?;
     let fd = rustix::fs::open(
         path,
@@ -138,11 +137,11 @@ pub fn read_file(path: &Path, limit: u64, allowed: u32) -> Result<Zeroizing<Vec<
             | rustix::fs::OFlags::CLOEXEC,
         rustix::fs::Mode::empty(),
     )
-    .map_err(|_| Failure::from(Kind::Configuration))?;
+    .map_err(Failure::redact(Kind::Configuration))?;
     let file = File::from(fd);
     let opened = file
         .metadata()
-        .map_err(|_| Failure::from(Kind::Configuration))?;
+        .map_err(Failure::redact(Kind::Configuration))?;
     check_file(&opened, limit, allowed)?;
     if original.dev() != opened.dev() || original.ino() != opened.ino() {
         return Err(Kind::Configuration.into());
@@ -151,7 +150,7 @@ pub fn read_file(path: &Path, limit: u64, allowed: u32) -> Result<Zeroizing<Vec<
     let _: usize = file
         .take(limit.saturating_add(1))
         .read_to_end(&mut bytes)
-        .map_err(|_| Failure::from(Kind::Configuration))?;
+        .map_err(Failure::redact(Kind::Configuration))?;
     if u64::try_from(bytes.len()).unwrap_or(u64::MAX) > limit {
         return Err(Kind::Configuration.into());
     }
@@ -214,16 +213,16 @@ impl Service {
         let key = read_file(Path::new(&config.private_key_file), 64 << 10, 0o600)?;
         let certificates = rustls::pki_types::CertificateDer::pem_slice_iter(&certificate)
             .collect::<Result<Vec<_>, _>>()
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         let private_key = rustls::pki_types::PrivateKeyDer::from_pem_slice(&key)
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         let provider = std::sync::Arc::new(rustls::crypto::aws_lc_rs::default_provider());
         let mut configuration = rustls::ServerConfig::builder_with_provider(provider)
             .with_safe_default_protocol_versions()
-            .map_err(|_| Failure::from(Kind::Configuration))?
+            .map_err(Failure::redact(Kind::Configuration))?
             .with_no_client_auth()
             .with_single_cert(certificates, private_key)
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         configuration.alpn_protocols = vec![b"h2".to_vec(), b"http/1.1".to_vec()];
         let tls =
             axum_server::tls_rustls::RustlsConfig::from_config(std::sync::Arc::new(configuration));
@@ -241,6 +240,6 @@ impl Service {
 /// Rejects unsafe or unreadable files, invalid UTF-8 and invalid credentials.
 fn credential(id: &str, path: &str) -> Result<MachineCredential, Failure> {
     let bytes = read_file(Path::new(path), 8 << 10, 0o600)?;
-    let secret = std::str::from_utf8(&bytes).map_err(|_| Failure::from(Kind::Configuration))?;
+    let secret = std::str::from_utf8(&bytes).map_err(Failure::redact(Kind::Configuration))?;
     MachineCredential::new(id.to_owned(), Zeroizing::new(secret.to_owned()))
 }

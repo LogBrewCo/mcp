@@ -272,6 +272,10 @@ impl Raw {
 /// # Errors
 /// Returns an error if an exchange observer is dropped before result delivery.
 /// Connection, protocol and deadline failures are delivered as exchange results.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "An abandoned exchange observer may return private fixture response details; transport privacy regressions require the fixed observer error. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn run_plans(
     listener: tokio::net::TcpListener,
     acceptor: tokio_rustls::TlsAcceptor,

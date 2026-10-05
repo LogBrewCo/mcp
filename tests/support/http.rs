@@ -326,8 +326,9 @@ impl Fixture {
     /// # Errors
     /// Returns an error if the system clock precedes the Unix epoch.
     pub fn authority(&self) -> TestResult<Value> {
-        claims(&self.state)
-            .map_err(|_| std::io::Error::other("fixture authority unavailable").into())
+        claims(&self.state).map_err(|status| {
+            std::io::Error::other(format!("fixture authority unavailable: {status}")).into()
+        })
     }
 
     /// Send one authenticated protocol request and inspect its bounded response.
@@ -407,6 +408,10 @@ pub fn request_message(
 ///
 /// # Errors
 /// Returns an error if the response slot's mutex is poisoned.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Poisoned fixture reply slots return a fixed error without retaining a guard that may contain sensitive response data; HTTP privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
     *slot
         .lock()
@@ -423,6 +428,10 @@ fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
 /// # Panics
 /// Fails if machine authorization, form content type or encoded delegated
 /// credential and token-type hint differ from the expected fixture request.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Synthetic introspection failures return status-only responses; authorization and credential privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn introspect(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,
@@ -461,6 +470,10 @@ async fn introspect(
 ///
 /// # Errors
 /// Returns service unavailable if the system clock precedes the Unix epoch.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "The synthetic authority returns a status-only clock failure; authorization regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 fn claims(state: &StateData) -> Result<Value, StatusCode> {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -481,6 +494,10 @@ fn claims(state: &StateData) -> Result<Value, StatusCode> {
 /// # Panics
 /// Fails if machine authorization, content type, delegated credential, credential
 /// reference, client identity or supplied context differs from the fixture contract.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Synthetic execution failures return status-only responses without retaining request or reply diagnostics; HTTP privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn execute(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,

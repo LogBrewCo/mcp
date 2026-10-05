@@ -55,11 +55,11 @@ pub async fn serve(
     let future = server.serve(service.router.into_make_service());
     tokio::pin!(future);
     tokio::select! {
-        result = &mut future => result.map_err(|_| Kind::Unavailable.into()),
+        result = &mut future => result.map_err(Failure::redact(Kind::Unavailable)),
         result = shutdown => {
             result?;
             handle.graceful_shutdown(Some(Duration::from_secs(12)));
-            future.await.map_err(|_| Failure::from(Kind::Unavailable))?;
+            future.await.map_err(Failure::redact(Kind::Unavailable))?;
             if handle.connection_count() != 0 {
                 return Err(Kind::Unavailable.into());
             }

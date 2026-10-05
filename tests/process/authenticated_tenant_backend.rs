@@ -165,6 +165,10 @@ const fn identities() -> [Identity; 3] {
 /// # Panics
 ///
 /// Panics if machine authentication or the verification call limit fails.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "The synthetic authority returns a status-only clock failure; executable tenant regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -216,6 +220,10 @@ async fn introspect(
 ///
 /// Panics if machine authentication, delegated identity, operation or the
 /// execution call limit differs from the fixture.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Synthetic invalid JSON returns a fixed denial without retaining credential diagnostics; executable tenant regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,

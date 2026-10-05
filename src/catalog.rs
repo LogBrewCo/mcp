@@ -67,15 +67,15 @@ impl Catalog {
             return Err(Kind::Configuration.into());
         }
         let value = strict_json::object(bytes, CATALOG_BYTES)
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         let entries = compile_entries(decode_operations(&value)?)?;
         let definitions: Vec<&Operation> = entries.values().map(|entry| &entry.operation).collect();
         let encoded = serde_json::to_vec(&json!({"operations":definitions,"format_version":1_u32}))
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         let mut digest = String::with_capacity(64);
         for byte in Sha256::digest(encoded) {
             use std::fmt::Write as _;
-            write!(digest, "{byte:02x}").map_err(|_| Failure::from(Kind::Configuration))?;
+            write!(digest, "{byte:02x}").map_err(Failure::redact(Kind::Configuration))?;
         }
         Ok(Arc::new(Self { entries, digest }))
     }
@@ -109,7 +109,8 @@ impl Catalog {
                 .and_then(Value::as_str)
                 .ok_or(Kind::InvalidInput)?;
             let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
-            return serde_json::to_value(&entry.operation).map_err(|_| Kind::Unavailable.into());
+            return serde_json::to_value(&entry.operation)
+                .map_err(Failure::redact(Kind::Unavailable));
         }
         if fields
             .keys()
@@ -139,7 +140,7 @@ impl Catalog {
         });
         let operations: Vec<Value> = matches
             .by_ref()
-            .take(usize::try_from(limit).map_err(|_| Failure::from(Kind::InvalidInput))?)
+            .take(usize::try_from(limit).map_err(Failure::redact(Kind::InvalidInput))?)
             .map(|entry| json!({"id":entry.operation.id,"info":entry.operation.info}))
             .collect();
         let cursor = if matches.next().is_some() {
@@ -160,7 +161,7 @@ impl Catalog {
     /// Rejects unknown operations or input outside the declared contract and budget.
     pub fn input(&self, id: &str, value: &Value) -> Result<(), Failure> {
         let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
-        validate(&entry.input, value, INPUT_BYTES).map_err(|_| Kind::InvalidInput.into())
+        validate(&entry.input, value, INPUT_BYTES).map_err(Failure::redact(Kind::InvalidInput))
     }
 
     /// Validate output before returning evidence to the caller.
@@ -169,7 +170,7 @@ impl Catalog {
     /// Rejects absent operations or invalid, oversized output.
     pub fn output(&self, id: &str, value: &Value) -> Result<(), Failure> {
         let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
-        validate(&entry.output, value, OUTPUT_BYTES).map_err(|_| Kind::InvalidOutput.into())
+        validate(&entry.output, value, OUTPUT_BYTES).map_err(Failure::redact(Kind::InvalidOutput))
     }
 }
 
@@ -226,7 +227,7 @@ fn decode_operations(value: &Value) -> Result<Vec<Operation>, Failure> {
                 info: serde_json::from_value(
                     fields.get("info").ok_or(Kind::Configuration)?.clone(),
                 )
-                .map_err(|_| Failure::from(Kind::Configuration))?,
+                .map_err(Failure::redact(Kind::Configuration))?,
                 input_schema: fields
                     .get("input_schema")
                     .ok_or(Kind::Configuration)?
@@ -255,7 +256,7 @@ fn optional_text(value: Option<&Value>) -> Result<&str, Failure> {
 /// # Errors
 /// Rejects encoding errors, invalid or out-of-budget JSON and schema violations.
 fn validate(schema: &jsonschema::Validator, value: &Value, limit: usize) -> Result<(), Failure> {
-    let bytes = serde_json::to_vec(value).map_err(|_| Failure::from(Kind::InvalidInput))?;
+    let bytes = serde_json::to_vec(value).map_err(Failure::redact(Kind::InvalidInput))?;
     drop(strict_json::object(&bytes, limit)?);
     if !schema.is_valid(value) {
         return Err(Kind::InvalidInput.into());
@@ -269,17 +270,14 @@ fn validate(schema: &jsonschema::Validator, value: &Value, limit: usize) -> Resu
 /// Rejects encoding or JSON limits, unsupported dialects and invalid schemas,
 /// including references that require external retrieval.
 fn compile(value: &Value) -> Result<jsonschema::Validator, Failure> {
-    let bytes = serde_json::to_vec(value).map_err(|_| Failure::from(Kind::Configuration))?;
-    drop(
-        strict_json::object(&bytes, SCHEMA_BYTES)
-            .map_err(|_| Failure::from(Kind::Configuration))?,
-    );
+    let bytes = serde_json::to_vec(value).map_err(Failure::redact(Kind::Configuration))?;
+    drop(strict_json::object(&bytes, SCHEMA_BYTES).map_err(Failure::redact(Kind::Configuration))?);
     validate_dialects(value, jsonschema::Draft::Draft202012)?;
     jsonschema::options()
         .with_retriever(DenyRetrieval)
         .should_validate_formats(true)
         .build(value)
-        .map_err(|_| Kind::Configuration.into())
+        .map_err(Failure::redact(Kind::Configuration))
 }
 
 /// Check dialects recursively at schema locations.
@@ -337,7 +335,7 @@ fn validate_operation(operation: &Operation) -> Result<(), Failure> {
         return Err(Kind::Configuration.into());
     }
     let mut url =
-        url::Url::parse(&info.documentation).map_err(|_| Failure::from(Kind::Configuration))?;
+        url::Url::parse(&info.documentation).map_err(Failure::redact(Kind::Configuration))?;
     url.set_fragment(None);
     drop(crate::upstream::canonical_https(url.as_str())?);
     Ok(())

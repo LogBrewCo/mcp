@@ -77,11 +77,11 @@ impl Outbound {
                     )
                 },
             )
-            .map_err(|_| Failure::from(Kind::Configuration))?;
+            .map_err(Failure::redact(Kind::Configuration))?;
         // The platform verifier retains system trust and checks names and signatures.
         let tls = rustls::ClientConfig::builder_with_provider(provider)
             .with_safe_default_protocol_versions()
-            .map_err(|_| Failure::from(Kind::Configuration))?
+            .map_err(Failure::redact(Kind::Configuration))?
             .dangerous()
             .with_custom_certificate_verifier(Arc::new(verifier))
             .with_no_client_auth();
@@ -126,10 +126,10 @@ impl Outbound {
             .header(header::ACCEPT, "application/json")
             .header(header::CACHE_CONTROL, "no-store")
             .body(Full::new(Bytes::from(bytes)))
-            .map_err(|_| Failure::from(Kind::Unavailable))?;
+            .map_err(Failure::redact(Kind::Unavailable))?;
         self.client
             .request(request)
             .await
-            .map_err(|_| Failure::from(Kind::Unavailable))
+            .map_err(Failure::redact(Kind::Unavailable))
     }
 }

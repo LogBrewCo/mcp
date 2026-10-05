@@ -25,10 +25,9 @@ impl ClientAllowlist {
     /// Rejects duplicate fields or IDs, unknown fields, invalid IDs, more than
     /// 64 entries, IDs above 2048 bytes, and documents above 16 KiB.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
-        let value =
-            json::object(bytes, 16 << 10).map_err(|_| Failure::from(Kind::Configuration))?;
+        let value = json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
         let document: Document =
-            serde_json::from_value(value).map_err(|_| Failure::from(Kind::Configuration))?;
+            serde_json::from_value(value).map_err(Failure::redact(Kind::Configuration))?;
         if document.version != "1" || document.clients.len() > 64 {
             return Err(Kind::Configuration.into());
         }

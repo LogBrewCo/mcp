@@ -22,6 +22,10 @@ async fn main() -> ExitCode {
 /// # Errors
 /// Rejects missing or extra arguments, version-output failure, invalid startup
 /// material and serving or shutdown failures without exposing diagnostic values.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "The command returns fixed public errors without retaining output diagnostics; process tests cover failed output and private startup material. Reviewed 2026-10-05; review by 2026-11-05 or on contract change."
+)]
 async fn run() -> Result<(), Failure> {
     let (path, check_only) = {
         let mut arguments = std::env::args_os().skip(1);
@@ -64,6 +68,10 @@ async fn run() -> Result<(), Failure> {
 #[expect(
     clippy::integer_division_remainder_used,
     reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
+)]
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Signal setup returns a fixed public category without retaining OS diagnostics; process regressions cover shutdown through both signals. Reviewed 2026-10-05; review by 2026-11-05 or on contract change."
 )]
 async fn shutdown() -> Result<(), Failure> {
     use tokio::signal::unix::{SignalKind, signal};

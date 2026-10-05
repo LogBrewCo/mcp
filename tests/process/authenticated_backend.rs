@@ -195,6 +195,10 @@ pub(super) fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
 /// # Panics
 ///
 /// Panics if machine authentication, the introspection body or its call limit fails.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "The synthetic authority returns a status-only clock failure; executable authorization regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -232,6 +236,10 @@ async fn introspect(
 ///
 /// Panics if machine authentication, delegated identity, operation, input or
 /// the execution call limit differs from the fixture.
+#[expect(
+    clippy::map_err_ignore,
+    reason = "Synthetic invalid JSON returns a status-only response without retaining credential diagnostics; executable privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
+)]
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,

@@ -213,7 +213,7 @@ allow = ["arbitrary-precision"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "libc@0.2.189"
+crate = "libc@0.2.190"
 allow = ["default", "std"]
 reason = "Reviewed features for this exact locked dependency version"
 

@@ -1,0 +1,9 @@
+// Copyright 2020-2021 The OpenSSL Project Authors. All Rights Reserved.
+// Copyright (c) 2020-2021, Intel Corporation. All Rights Reserved.
+//
+// Originally written by Sergey Kirillov and Andrey Matyukov. Special
+// thanks to Ilya Albrekht for his valuable hints.
+//
+// Intel Corporation
+//
+// SPDX-License-Identifier: Apache-2.0

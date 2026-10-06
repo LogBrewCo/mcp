@@ -61,7 +61,7 @@ impl Default for Limits {
             entries: 100_000,
             path_bytes: 16 << 20,
             notice_bytes: NOTICE_BYTES,
-            total_notice_bytes: 8 << 20,
+            total_notice_bytes: 16 << 20,
         }
     }
 }

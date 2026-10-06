@@ -1,0 +1,2 @@
+// Copyright (c) 2022, Robert Nagy <robert@openbsd.org>
+// SPDX-License-Identifier: ISC

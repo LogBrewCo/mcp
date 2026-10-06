@@ -4715,6 +4715,3525 @@
       "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
       "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jscalarmul_alt.S",
       "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-sha-sha3.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "9beece3a0f29e8a124bc5cf3176a06accae2218c014f01667edaf9ebf296e38d",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/sha3.c",
+        "bytes": 15646,
+        "sha256": "b55966ed435b9ab3ba90c3b2c1878d8e36f9c7b286190ff4500be65152207279",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/sha3.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/common.h",
+        "bytes": 11714,
+        "sha256": "340e0a7c22f807ba020362d3cca7babadec0214c59329ea88c1f6e307686af84",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/common.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly.c",
+        "bytes": 38490,
+        "sha256": "3bfb1b8f3c2e9fe1f00ca37d0fc64c57f70d0c3f845504989f39e9014799bdc3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly_kl.c",
+        "bytes": 33421,
+        "sha256": "2073e8e6230957f39feabc5d204f8055ae25e60dedb161eff3f3e4894832abe5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly_kl.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/cbmc.h",
+        "bytes": 9903,
+        "sha256": "355704060689792c1ef7307844b486ac54bd397db5474a912cdf1d5ee4e0d2e7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/cbmc.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/context.h",
+        "bytes": 6675,
+        "sha256": "c75d2d0f6555230e5fa6ea9147d523d5375fba247b314fe080d0454f89267719",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/context.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/mldsa_native_bcm.c",
+        "bytes": 19558,
+        "sha256": "00848e250a1a9859b379d2dc10704bbc9e63b7a28b4ebab9d64e26d44f254247",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/mldsa_native_bcm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/aarch64_zetas.c",
+        "bytes": 15463,
+        "sha256": "afe51c739e24487d4b5f3c9021ff246fb375717d48b9e55be17ea94cfada8ed1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/aarch64_zetas.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/polyz_unpack_table.c",
+        "bytes": 2083,
+        "sha256": "09f85b0ebce82d274b0a01dd7d4dca940c363702f59e2cec025289fe0455d366",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/polyz_unpack_table.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/rej_uniform_eta_table.c",
+        "bytes": 27811,
+        "sha256": "282765dc029fec5444b93978959a582aaa3cf1bb86ebacbaf7ccd29a71397351",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/rej_uniform_eta_table.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/rej_uniform_table.c",
+        "bytes": 2459,
+        "sha256": "a70b3888a426cb7fc1abf8faaba72bb1f8fd46bad8b650a0c9b0e8b682e18e64",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/rej_uniform_table.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/packing.c",
+        "bytes": 7167,
+        "sha256": "bc410982aca199135550eebdae4da4533d9c76e1a8ea0b8e0b02df9dccdd7632",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/packing.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/packing.h",
+        "bytes": 10377,
+        "sha256": "d095e2960591186bb7ae843381dbce5e407d41b62ceef2e46ce494f90348ccf1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/packing.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/params.h",
+        "bytes": 5378,
+        "sha256": "fd15d4b12747bffc17a78dd7e361fff7973e4455e3d3a162e83237f2d3029941",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/params.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly.h",
+        "bytes": 18396,
+        "sha256": "f753c1efdf41252198b2681a5e1f04252ed5707aa325e50c17f2846a2c12f18e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly_kl.h",
+        "bytes": 14480,
+        "sha256": "c2a52797f36d676c4f2c889986cddae06cbbd1004e23e09064353137e4cf2a44",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/poly_kl.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec.c",
+        "bytes": 18322,
+        "sha256": "bdca075b7f0d7741c649d59350e6eb94884b7160e0baefc5e50be492c1b2070a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec.h",
+        "bytes": 17305,
+        "sha256": "707341d7ea21f599dacad64845a7afbf4f78ce8f49b2b24986c7e5cc95813e4d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec_lazy.c",
+        "bytes": 11562,
+        "sha256": "5bc5b115b16393ca79f44540f5561da544496bda5b5514e1552015a0b83f0a73",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec_lazy.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec_lazy.h",
+        "bytes": 27230,
+        "sha256": "08d8f9fda9bc3f27cbbae40ff861f623576c0a2b520b991d666db0d20c3dce52",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/polyvec_lazy.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/randombytes.h",
+        "bytes": 730,
+        "sha256": "b8ccb9a34818d8e1cd0cfea9b24829ab9949cb88c20ed0648459c5c7d36aa492",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/randombytes.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/reduce.h",
+        "bytes": 4196,
+        "sha256": "c726a493163756a9746c71c247e8d8dfdfc96ce5ba85be4bcc0acdebf689e010",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/reduce.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/rounding.h",
+        "bytes": 9568,
+        "sha256": "2fc8dd6f1ce513104287255e35a6087b2d17d2d8a9327eb1791e874c86f5a206",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/rounding.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sign.c",
+        "bytes": 64647,
+        "sha256": "b4fddbdd7c0e6acb50683dc96319ef9a77c34d7fc6ea24c7ec40bf1a567afe66",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sign.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sign.h",
+        "bytes": 40695,
+        "sha256": "5392dd11d538563c8e89ae449e02fd78eb7c909393bc0596477e21e36e1b7abd",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sign.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/symmetric.h",
+        "bytes": 2635,
+        "sha256": "4ed2df211b960a747e29aec04055100470def1ae8c481feb203c27fbc61a0b70",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/symmetric.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/zetas.inc",
+        "bytes": 3094,
+        "sha256": "f27b371b78b05875d22e9b98f541f265c5f9358c3ece72dc91137114556d45ee",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/zetas.inc",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/ct.c",
+        "bytes": 660,
+        "sha256": "5d5641f89ee92f8d33f4489b7746ca20d4226cf6ecfcc9895bf644d4bc8871e5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/ct.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/ct.h",
+        "bytes": 11144,
+        "sha256": "706be081c657b742247b25588b6eb75f399f73b84b33ef20179ceeb721731078",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/ct.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/debug.c",
+        "bytes": 1799,
+        "sha256": "0200f23feaebfd12d35b39232c2ae566f7322d86993f981a705ddc6355a42edc",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/debug.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/debug.h",
+        "bytes": 4866,
+        "sha256": "4effd0eef9b63bdf434369b69ec5d14293ad7d22031b4f5ba237c69ce2fda383",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/debug.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/meta.h",
+        "bytes": 11447,
+        "sha256": "e6f2b058efcbf841e52c0ad4462506fad08c80e684f90868966a63230e6319cd",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/meta.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/arith_native_aarch64.h",
+        "bytes": 17050,
+        "sha256": "0b5ef0f298404840b8ed38fc3728184a9905f44e6f1868be93b8d779e5640364",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/arith_native_aarch64.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/api.h",
+        "bytes": 27541,
+        "sha256": "c9d8dd51c3041fd029b3112a18ab18f632574af5b628d86dde9f460c8ad19be4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/api.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-ct.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b87675bfb8082b0412dabf47aadc2a09c4116d7e9e22f460fcb800a8b2b2c495",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sys.h",
+        "bytes": 10585,
+        "sha256": "a3bbf630c21751783547d21126af6e8162e6e0687d96e2d0f1aa14fd2c60d38f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/sys.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/cbmc.h",
+        "bytes": 9102,
+        "sha256": "180bf239c5d7b84fa451727546d4fbc9595008382cfc86d4ae5791e0e5a6b910",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/cbmc.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/common.h",
+        "bytes": 11239,
+        "sha256": "833c4d8e52822d5a209fdc72ef655f6eb7801fd712c515805d2c5360e58bdaab",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/common.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/compress.c",
+        "bytes": 25503,
+        "sha256": "a13d44b3a96962ae982722fba8b1ff6744f16e7b3b760883edfe762061cb26b5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/compress.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/compress.h",
+        "bytes": 21003,
+        "sha256": "746ce7e55d088f75220ca0a5b08fc515c033167cbcacfd74be127e14f1f5e128",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/compress.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/context.h",
+        "bytes": 2153,
+        "sha256": "e6788b29f4883f57752fd8327a80dfc978eb21ad72a0055cbbaaa7b433637edf",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/context.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/debug.c",
+        "bytes": 1605,
+        "sha256": "263ac19f2b2bf5c784cbf04fd4c968762abedc6961d44f507c8953b52a38827e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/debug.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/debug.h",
+        "bytes": 4740,
+        "sha256": "d1fab329b439fc6dd9c4234f3fe053e74b000d416e0f4e4464542813667f3750",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/debug.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/indcpa.c",
+        "bytes": 24799,
+        "sha256": "526505cbf09ab80e9644563eb808373c502aad2270a0b53c8370510ea4c0b70d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/indcpa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/indcpa.h",
+        "bytes": 7299,
+        "sha256": "ac6f47c959fdc97aa1882bca5f78ecfcee595ff21769f937866f2c1d1bf29109",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/indcpa.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/kem.c",
+        "bytes": 15010,
+        "sha256": "3922156826521429eb250ccb3d54d7beacce14adce26bb3be6d1ef7864342dd3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/kem.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/kem.h",
+        "bytes": 15390,
+        "sha256": "ba22bd6de66141138329aaf53aedc73350c4ceaa241a341d0e5136c5df493dbd",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/kem.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/mlkem_native_bcm.c",
+        "bytes": 14212,
+        "sha256": "dfac4c6d9ec898ef57e893e291716e2817a605ac272bd59d8b9bc0fdce72ac19",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/mlkem_native_bcm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/meta.h",
+        "bytes": 5533,
+        "sha256": "a6d7b09d6a8f26766e5ebd40256027980960b567b6f3ce5ebe23099cf21ef547",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/meta.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/aarch64_zetas.c",
+        "bytes": 11518,
+        "sha256": "539342d2158c33cb852b80a2dca9323c76b78e1bfce4512461d07eb41dce83a8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/aarch64_zetas.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/arith_native_aarch64.h",
+        "bytes": 8634,
+        "sha256": "b23dcb1a34f01ae2a90631c3f3d468e55593850dd31bb916dc81aff9a797fd44",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/arith_native_aarch64.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/rej_uniform_table.c",
+        "bytes": 27620,
+        "sha256": "0f4e7024475acf7cc84adc8c013356fd650e312b9ea8855da32fa1531f4af7f7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/rej_uniform_table.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/api.h",
+        "bytes": 29185,
+        "sha256": "320b8cb7fd40caa77294a6bca54421b103c9c058df4ef8d0d88610ee978c7781",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/api.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/params.h",
+        "bytes": 2566,
+        "sha256": "450fe3e0e50496921920473ae4321660f178c23d51f1453f3c537ee63c4158cb",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/params.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly.c",
+        "bytes": 18872,
+        "sha256": "f0e0643a2c3743181b7927a9d47af0930ce7870a9d79671f64e6089fe028982e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly.h",
+        "bytes": 10420,
+        "sha256": "86224c6d1e7ec5a4c0dcd829ae90c0cb43b4855d84dd719973d47e71b8e962d4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly_k.c",
+        "bytes": 19079,
+        "sha256": "56130249963b5b62e97dc6413adeed21f4e542da6531e34cf640baca161fa5ff",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly_k.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly_k.h",
+        "bytes": 24455,
+        "sha256": "839852fd9c8d155f37a7a07dc1116c2ea18fade754b1d882f73c4affef5e62d3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/poly_k.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/randombytes.h",
+        "bytes": 1649,
+        "sha256": "137eb6e5854b8e58c2caec6eea86530c8e7495706f6f5b3e007e25a9875e164f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/randombytes.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/sampling.c",
+        "bytes": 13197,
+        "sha256": "9263037c401d0cc4130a6f0dba76299d170b498c330f5d5c32b5ae5921bacd5f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/sampling.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/sampling.h",
+        "bytes": 4137,
+        "sha256": "d25df90afc96a02a794dcb737236b2cb42cbd2db411ccaf274cf5ea3bf5e3c87",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/sampling.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/symmetric.h",
+        "bytes": 2596,
+        "sha256": "168d0ec3bf50bd45cb0a103d7984e9ccf52f78697718b7e85efdf1beda7abc95",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/symmetric.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/sys.h",
+        "bytes": 10230,
+        "sha256": "0ead27bb8c8879b62b29b9bb86c36aeaac270598d42ee2f2258a478eed8efa5c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/sys.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/verify.c",
+        "bytes": 622,
+        "sha256": "f8f89f1b8c8e5811ce134c0d90fb7828027336afeed231dc3ccb7ee6b73b9335",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/verify.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/verify.h",
+        "bytes": 14891,
+        "sha256": "76fd0af32577f9118d1ea90a66ff77e18cdf99d08dcf1c9df137833041e8492f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/verify.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/zetas.inc",
+        "bytes": 1337,
+        "sha256": "303d1abccc4757d49a5c8df5f88080fefef617b7360056db5311bd94354096d4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/zetas.inc",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-third_party-fiat-curve25519_64.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "5d39712f23009e4c564fb5a377e1ac20b2042f113981ad40293445a8ac214e25",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/fiat/curve25519_64.h",
+        "bytes": 29457,
+        "sha256": "a21ad14f6f0f31e45d6c4b2284e0d145ddebc7992b402ae20f1862a0b3a9a294",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/fiat/curve25519_64.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-third_party-fiat-p256_64.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "4c965dec067e0623fd0ebfec7fae4462873e6aa7c36e49b56b59717ca1f1bb9a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/fiat/p256_64.h",
+        "bytes": 65422,
+        "sha256": "cbc276f83db08fa672b9e5abfe92d334ce3c879910cbe79b05f8be01ed3e4001",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/fiat/p256_64.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-asm-x86_64-gcc.c-notice-encoded.json",
+      "file_encoding": {
+        "bytes": 2213,
+        "format": "json_string",
+        "sha256": "1117e6248a2a67625cf4d6bfe56bbbe1d41364474e997480d4763c5912a97b94"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "207588bc0f292934a679b52cf3d4b10fc40b860444d96f1cd547b84705c0636a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/asm/x86_64-gcc.c",
+        "bytes": 15880,
+        "sha256": "74ce827415fcb770c9cb9d3309d207c9b97216900d746e26b49cc0246bd02fa7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/asm/x86_64-gcc.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-obj-obj_dat.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "98f845414cc3f0e988588c376a2dbec75c7c44f70fb9ff3a40a7a00047b36d7f",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/pem.h",
+        "bytes": 26255,
+        "sha256": "fe31bb71881a9369e1a64efc77e322586d8b84c14f80f6b4610e7c80c1e30ef0",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/pem.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ex_data.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "870e92b5935823689f6ad39aa9485b6abd77e4d571b57780707b56177fe1f5e5",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/gcd.c",
+        "bytes": 7365,
+        "sha256": "7ebb35b113d29f804567efef43204725224c8d806b59fdab679eb1c9cb00691e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/gcd.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ex_data.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "870e92b5935823689f6ad39aa9485b6abd77e4d571b57780707b56177fe1f5e5",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/prime.c",
+        "bytes": 32657,
+        "sha256": "4bc6d5f3cf12119920118713fc835953922609df75c0e596dcaa6b101acdb198",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/prime.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ex_data.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "870e92b5935823689f6ad39aa9485b6abd77e4d571b57780707b56177fe1f5e5",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/random.c",
+        "bytes": 8466,
+        "sha256": "37291038bdc50a6c38f795a5e52699fcc4a3f77a94cdbac5df845961344feff9",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/random.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-exponentiation.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "29ae1c95f279245890485f3cb57ef7ac8ef21adc823a8825b0d4ccbcd4b872ba",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/exponentiation.c",
+        "bytes": 36217,
+        "sha256": "a858ca843eeabed2102e8686cc55aaffb6854176eb39f5322cd8d0278434a86e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/exponentiation.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young-openssl.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "3e65b9bf9ab5e7e58cf6e45a0f462c78ef0ac16c1367d85874fdc6a9de0e80f5",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/montgomery.c",
+        "bytes": 16600,
+        "sha256": "073cba671b1c22ebf57dea832835a4b9e179a153326de60d8a2a0ab05753a1fc",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/montgomery.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/add.c",
+        "bytes": 4455,
+        "sha256": "4c8d571b6b3b59c6e669b6565300c4c1fcdc1f609f046d225a4a46101b799da3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/add.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/bn.c",
+        "bytes": 9325,
+        "sha256": "d1dcac7dbabd174fc6413a4b20de7169a4d8908ac67a2d745d71bcfd8c5dfae8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/bn.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/bytes.c",
+        "bytes": 7965,
+        "sha256": "dc96b981cd49f7cbfd7af490c00442b7416956b2a60db1e7458f2ab698595e32",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/bytes.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/cmp.c",
+        "bytes": 3679,
+        "sha256": "3b27a6b34055a693e30686b787b1aeac031a029480eb4ca6e286906557b6d8f8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/cmp.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/div.c",
+        "bytes": 23605,
+        "sha256": "3495bea2555d55146382be704a51d6f1c460ba9face738dfd3fac73a02402b17",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/div.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/generic.c",
+        "bytes": 14548,
+        "sha256": "6bb830f2bcb207fbf3dc81605766618a581307fbe310725ca2041fa82798d39c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/generic.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/mul.c",
+        "bytes": 20633,
+        "sha256": "d3fcdd64dad4605092646bc372c041e39ab501a7120620b615f6254733aeb390",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/mul.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/shift.c",
+        "bytes": 7211,
+        "sha256": "95a250bab4fed4e3380381765deac07cc47869aae926091a3ca9b7745fa742d9",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/shift.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cipher/cipher.c",
+        "bytes": 18930,
+        "sha256": "b40e79909b53a7e0eb6533e73ac328d099699fa4ea26fc18a859c6000b2754e7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cipher/cipher.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_intel.c",
+        "bytes": 9992,
+        "sha256": "c48e87873debc9c15e159e4af280dcb5785942edf0bd1a8e39006799072e3ee3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_intel.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/dh/check.c",
+        "bytes": 3988,
+        "sha256": "c0b31d421a29d4f980762b12e4a76084112ba3b54fcf960110e37ceae50f4e19",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/dh/check.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/dh/dh.c",
+        "bytes": 21455,
+        "sha256": "e85b4e42f28cdd3c39d62afe08ab7b3b3cac6289ff3618ef94299fc7c1f18ce7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/dh/dh.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/digest/digest.c",
+        "bytes": 8865,
+        "sha256": "134c47c5d99c307934cfefc9321c4318b8dcb190eb28c35c31ad464667ed0ce6",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/digest/digest.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/digest/digests.c",
+        "bytes": 14846,
+        "sha256": "3196814e58e9fb9d5f67f7b7af5158d57d4d0f287800bf1aed1521454b62e21d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/digest/digests.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/evp.c",
+        "bytes": 25901,
+        "sha256": "a6ccd8283916a58af0ae2ec8585fc3d9ddf1c214d3b64bfb88adc9ad26baf419",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/evp.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/evp_ctx.c",
+        "bytes": 18996,
+        "sha256": "f1f84cc4acf72e70b3dcca07e50696d3be72326e8395b3c96e7eab2eaed1ccd4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/evp_ctx.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/hmac/hmac.c",
+        "bytes": 25917,
+        "sha256": "014b175870b63c31ab0ecf956f2e743a4725530d8ce0e77e87829f4426654265",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/hmac/hmac.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/md5/md5.c",
+        "bytes": 8106,
+        "sha256": "95e047e61fd61f14792f9546a1978b9d115c360c833a5fda33c16aaacde0b2c4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/md5/md5.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rsa/rsa.c",
+        "bytes": 44004,
+        "sha256": "a178c7ee4471af684a685fb2515d983762e58802a7355e42b8b70f0fdccaccd4",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rsa/rsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rsa/rsa_impl.c",
+        "bytes": 41023,
+        "sha256": "a123af42f18090e89d3f0c5699c88b4e2ddd1e2bde8a3376e097cf824a9b323d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rsa/rsa_impl.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/sha1-altivec.c",
+        "bytes": 11412,
+        "sha256": "651b0eb75a90c21e269691c807e9e2d680a22a14a5b29f5d71b6e9b1f5b335d2",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/sha1-altivec.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/sha1.c",
+        "bytes": 14402,
+        "sha256": "90d57bd61b98329355ac1be56c744f39fa0bf4ce0ac6898070d4497bd3b7a375",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/sha1.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/sha256.c",
+        "bytes": 12147,
+        "sha256": "91e6748c95bf0ec51ab91301087a5f28a83829125d00189be363fc0c1cc88adc",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/sha256.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/sha512.c",
+        "bytes": 22018,
+        "sha256": "5e3673d2ba3b7fca106cfe5ed95f94ccce076a1ca5bec39cf913036600b6130c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/sha512.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-jacobi.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fea267380f563d65b3d117a79dc8637894ddf4eaf77c313e4be8a0c85495a265",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/jacobi.c",
+        "bytes": 2098,
+        "sha256": "a305089f3aaccd684fa90d2ba02bcd25d7a947196ae8b1d194cc169cfdde3392",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/jacobi.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ecdsa_extra-ecdsa_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "6fcf64a93139339e5b5238dd72db62d94472e795f31d02e003b2f6976a096d4c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ecdsa/ecdsa.c",
+        "bytes": 13690,
+        "sha256": "b04467a4d6e462ab52bc512b85aefffe2b8e7773f4352a3c005e94e407dfd8c0",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ecdsa/ecdsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-rsa-blinding.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "3a3397b2d4c02ffcae7bc361fc98302615bf583c51eb2bf62f708064fbf5e708",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rsa/blinding.c",
+        "bytes": 4125,
+        "sha256": "c2e56aa0e49e2c1c690c3435a67cee7590c13674804b864d6a6d42f02e6c4796",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rsa/blinding.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-tls-kdf.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f980a641a8aa56a524698d45f192448bef10c54727f36bb3c9c1e6920cfaaa17",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/tls/kdf.c",
+        "bytes": 7409,
+        "sha256": "e0654bbd7eb57f195c1d0a710a5fc0c8b1214e425688a92447be2f84414eb6f1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/tls/kdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-aes-key_wrap.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "89c5e1108efa60a4f1a6242b1e6bc923e0269e7af304ce0a321ea0d97e95630f",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/key_wrap.c",
+        "bytes": 5800,
+        "sha256": "9a61ee985baf091f886fedf3a301d5585dffae5e406c79e2f723a8a8335356a7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/key_wrap.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-aes-key_wrap.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "89c5e1108efa60a4f1a6242b1e6bc923e0269e7af304ce0a321ea0d97e95630f",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cipher/e_aes.c",
+        "bytes": 51540,
+        "sha256": "ae925ac31790e9811442749dba0998c98839038af30e962262cf7fceed3c6836",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cipher/e_aes.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-include-openssl-aes.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "4d0ad658b70043364c3e3c2354bb321ab6b0894a0ccac7b1a9c47a252530423a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/mode_wrappers.c",
+        "bytes": 6255,
+        "sha256": "affd4248af4f78fc4d5d54e71173efce9f11cfba170980951bd73e38a2c3f9cf",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/mode_wrappers.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-aes-aes.c-notice-encoded.json",
+      "file_encoding": {
+        "bytes": 143,
+        "format": "json_string",
+        "sha256": "a93ff10421d7ddb886eb9fead56d5ef777c2a31e957a7222576e47de6ce0ecc6"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "1dadc4bbfaf2b23679c60939e7b3157ad85fa71d23830117291e385ca7254c81",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/aes.c",
+        "bytes": 1862,
+        "sha256": "314c8c17a77052e01e31c588c385ce92c349efc764c52334aa4ebe4c6587349d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/aes.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cipher/e_aesccm.c",
+        "bytes": 24157,
+        "sha256": "0ee85939b98062bfa0148a717154ea3c7ef732d9d42fb3649657940eaee045a5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cipher/e_aesccm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/cbc.c",
+        "bytes": 2938,
+        "sha256": "ad625ad4fdf3e423ce34b8ba3e9aa1d37196d0594a0986a81f63fa766ea794af",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/cbc.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/cfb.c",
+        "bytes": 4347,
+        "sha256": "fbfdced0a3a8c9e8b11bd7a7410a5b7e73f1c5c4e2a7e53518ed154b4b69b79c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/cfb.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/ctr.c",
+        "bytes": 4150,
+        "sha256": "e50ea0c07176649982f2a956f8338650b608cd13a3263aef0c21a751d934daea",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/ctr.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/gcm.c",
+        "bytes": 24487,
+        "sha256": "5de24c8ba8287c0aaa1a8fef6703ee81731a5619344695a496f2b4f751955776",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/gcm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8af7633b667a7cd2c11ef8a5139b574c1040571b5c5a96d8c819abfa0d5dd3f1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/ofb.c",
+        "bytes": 1011,
+        "sha256": "add2c5b34efa35bbc25a3260f820f2337512686a09ed4239998a75e8295c5721",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/ofb.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-cmac-cmac.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "30aae776a88446ffdecffc4554f2f85c4f999345ae48aa3179ef6cc1c71a40f2",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cmac/cmac.c",
+        "bytes": 7826,
+        "sha256": "e31536bc9041a2d780e7815772e3b4817b2f62e09c1787d001206933456dec9f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cmac/cmac.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-modes-xts.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b48232b4e26b28a88e6184a05abf616c505d1ad65d836c7069d5475ebb959e33",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/xts.c",
+        "bytes": 3410,
+        "sha256": "b16619fc13c352bf891734fe37e263b6b917e76a7b2421c343a989463e187ca1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/xts.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2014.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e18394f240a7ab4a80b96b758e5ee193adcb3e554acbd636fe874df3677a1619",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cipher/aead.c",
+        "bytes": 13768,
+        "sha256": "7c800d9241cc036ba699606625e39000c02c12debdc6c4deadfb2776568ee097",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cipher/aead.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2014.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e18394f240a7ab4a80b96b758e5ee193adcb3e554acbd636fe874df3677a1619",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/hkdf/hkdf.c",
+        "bytes": 4580,
+        "sha256": "f47cf81d43a0097e4ffcb20408c48c66144e8501c55f8ee32b0199ca6a51f914",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/hkdf/hkdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2014.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e18394f240a7ab4a80b96b758e5ee193adcb3e554acbd636fe874df3677a1619",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/hkdf.h",
+        "bytes": 2246,
+        "sha256": "cab2f8ee5f7e9174d331c8614bc3ab4f36482d06ac9a3422a0664ae6b37d5bf5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/hkdf.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-bn_extra-bn_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "010ec5208fa6a5ea9cc367404d414301739427d0052da2672a657f1761034769",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p224-64.c",
+        "bytes": 42830,
+        "sha256": "ab3ea7d17787f35a6236e66cdf82fe445f220cf778af49efe0486eaca05c3f21",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p224-64.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-bn_extra-bn_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "010ec5208fa6a5ea9cc367404d414301739427d0052da2672a657f1761034769",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/util.c",
+        "bytes": 10708,
+        "sha256": "1fe34cbd8c7d0f696f42752eab48b587ae2025e686efe290fe1826095766744d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/util.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-bn_extra-bn_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "010ec5208fa6a5ea9cc367404d414301739427d0052da2672a657f1761034769",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/internal.h",
+        "bytes": 2448,
+        "sha256": "99156b5182e59aa67a33315060dbc901756d11672697f42c2e3f34978fe970a5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-bn_extra-bn_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "010ec5208fa6a5ea9cc367404d414301739427d0052da2672a657f1761034769",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/cmac.h",
+        "bytes": 2629,
+        "sha256": "4a2d9f63214c304afa6809257116dc8f7e43cd3cbabc2cc3505ff78604faa964",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/cmac.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-poly1305-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b0db138947b6fa8c34fdad4be65ff10a7576eaefe499013c1c6f378fd84f892c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_linux.c",
+        "bytes": 3771,
+        "sha256": "2943796cf7dba39f43841674e43dc1af7efa30157081e6494d9daef269d17716",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_linux.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-poly1305-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b0db138947b6fa8c34fdad4be65ff10a7576eaefe499013c1c6f378fd84f892c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_arm_linux.c",
+        "bytes": 3573,
+        "sha256": "e65bd2c2523e6be158a408a53473885158c72201eda417c0582ba2b7028c85bb",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_arm_linux.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-poly1305-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b0db138947b6fa8c34fdad4be65ff10a7576eaefe499013c1c6f378fd84f892c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_ppc64le.c",
+        "bytes": 2938,
+        "sha256": "fa70b2639b9d0920c296f2b9d78976e1853b623f337a90c1dd0b8345ba28e8f6",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_ppc64le.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-poly1305-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b0db138947b6fa8c34fdad4be65ff10a7576eaefe499013c1c6f378fd84f892c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/polyval.c",
+        "bytes": 2238,
+        "sha256": "15f5bfdc192d0bdcda0a0759729ba047fb5f9e3fdd73ee42c2bcce618d890223",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/polyval.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/internal.h",
+        "bytes": 10087,
+        "sha256": "d6571f54ca015e15f06461c2a744b3d8707b7bdede6b627539528df9bf5bb5db",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bcm.c",
+        "bytes": 15737,
+        "sha256": "d28ef5bc9c77867c75d620a29d1f4979bf5a7ea2181ecbe3acfb1c451bb0f399",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bcm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/delocate.h",
+        "bytes": 3730,
+        "sha256": "49b97155b7100743a0304fabb16a1997564ac181e7336722a00317df8d041c8b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/delocate.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_ed25519.c",
+        "bytes": 2550,
+        "sha256": "ea2efd95cf23d9b43fc634515cdff6f550b8692fd65bd7d9bd69bdb2f7be5b5a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_ed25519.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_ed25519ph.c",
+        "bytes": 4704,
+        "sha256": "d5922060e1d73106c422680e78852a9eb0eaa1bfefee681d5a3a416553d44a27",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_ed25519ph.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/ctrdrbg.c",
+        "bytes": 6841,
+        "sha256": "a33b6c853c5d6279e7421409df585c9b93787a84f45df5aa30c86ad88305c69c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/ctrdrbg.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/self_check/fips.c",
+        "bytes": 806,
+        "sha256": "9e7db8ffec09848d11a486ef2e27817bec82c04241b051e5e5cbb087b1594a8c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/self_check/fips.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/self_check/self_check.c",
+        "bytes": 185527,
+        "sha256": "27fc18e9ff4ce063fe3b94474d62de6b1b989e56953e044f08f3c5755fbb5548",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/self_check/self_check.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-cpucap-cpu_aarch64_win.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "7a5353326b93b87e2b62e39733fed5fcaee2748ecde551fc94c86fcbcfe83b98",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_win.c",
+        "bytes": 932,
+        "sha256": "7a02bdedb4fb108d6cffb8e4184d848cdc7694c523e4212764e8a786c8c94dff",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_win.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/div_extra.c",
+        "bytes": 2495,
+        "sha256": "5854f58df73ef3731a97f578a2983c2f8c72fc03870ad9edea910a5bb8ad9008",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/div_extra.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/gcd_extra.c",
+        "bytes": 10949,
+        "sha256": "b3b168ba049cd4fded6f83382d44bdd8166cb799f7501e770cb188ff84abd700",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/gcd_extra.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/felem.c",
+        "bytes": 3000,
+        "sha256": "e204a41cc99b074acda85de261fb16e75b595611b336d2a3e945a4bc9ec47c52",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/felem.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/scalar.c",
+        "bytes": 5894,
+        "sha256": "c80c94a92d3633b53b20ecf270d340a0e0c8679062ef54e8be35e35fc8587d07",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/scalar.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/simple_mul.c",
+        "bytes": 9920,
+        "sha256": "7301f6e919be1a43ca7927f1d2ac86db7d0b5903308dd3d7cb400250235f31cd",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/simple_mul.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/md5/internal.h",
+        "bytes": 1953,
+        "sha256": "5ac8fad68dfbab6b1b0774a57e18d26a3cda697739e3f8dc7adb0f87ea5ebf31",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/md5/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_x25519.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c6e1b15396f2b06cc3469cfff1f79a1b82d03707d4095bfab15619d98c977440",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/aes_nohw.c",
+        "bytes": 50738,
+        "sha256": "510fc98fa0b00a81155271a88f1266053d42bcbc81790fb4b150bcd54b08ecd5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/aes_nohw.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_x25519.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c6e1b15396f2b06cc3469cfff1f79a1b82d03707d4095bfab15619d98c977440",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/gcm_nohw.c",
+        "bytes": 10455,
+        "sha256": "c83da390bf5afd68aeaf0afb1f81bcc4a9b5aa3660031e8b6470d21f5b05e4c1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/gcm_nohw.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-dsa-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/curve25519/curve25519.c",
+        "bytes": 22753,
+        "sha256": "9520aaac960b96f38dc2f3698b2f22d7c2982df59918a5cee65562728c5d49d1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/curve25519/curve25519.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-dsa-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/curve25519/curve25519_nohw.c",
+        "bytes": 55456,
+        "sha256": "8b2a989419e0dc810bf9fb2bdba1db0599e20f826a6be2e87a99c83454c1d86e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/curve25519/curve25519_nohw.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-dsa-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/curve25519/curve25519_tables.h",
+        "bytes": 275400,
+        "sha256": "3c3e5be8fb0ed8fe43890fdf1659af42c580da69b9de45b51a780a99bcd671ca",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/curve25519/curve25519_tables.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-dsa-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/curve25519/internal.h",
+        "bytes": 11195,
+        "sha256": "76849e726ccce734dceed5934d9039f43142ebdc623f587fa3db91ec2d17009e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/curve25519/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-dsa-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p256.c",
+        "bytes": 12551,
+        "sha256": "27979bc4bd5d766c78f6e6f64220c4d43a90cb7987ea4d38da772c8a5825cccc",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p256.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-include-openssl-blake2.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f7010c1d16918707dcb3dbed5b9b3b51fdccbc9e640a576c94661053e830e603",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_apple.c",
+        "bytes": 3664,
+        "sha256": "96f41efe48b7d3c4b77bcf7f47316f9bf1c72093c616ba46921ec7d2bedd1548",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_apple.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-include-openssl-blake2.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f7010c1d16918707dcb3dbed5b9b3b51fdccbc9e640a576c94661053e830e603",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ecdsa/internal.h",
+        "bytes": 2222,
+        "sha256": "7daeabbf3b7935959c48646c2e29056a466f7c031d859e46e9b23c2ab540fbd3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ecdsa/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-dh-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0d3b86c089ecb8c4b619a181b69cdb8a9917fc539ab24c534c8fdc7bec3cab8c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_freebsd.c",
+        "bytes": 1463,
+        "sha256": "63590becdc4d9609cac5cc7b456fc9e32fc1601d007b075d34d3bb5795b6dc92",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_freebsd.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-dh-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0d3b86c089ecb8c4b619a181b69cdb8a9917fc539ab24c534c8fdc7bec3cab8c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_arm_freebsd.c",
+        "bytes": 1185,
+        "sha256": "e9416024979a21a9247b2236ca8027038b28124d829cefe5a5b80c940f4049c5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_arm_freebsd.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-dh-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0d3b86c089ecb8c4b619a181b69cdb8a9917fc539ab24c534c8fdc7bec3cab8c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_hkdf.c",
+        "bytes": 9202,
+        "sha256": "e1855a6c15f0e7b5c1f47540a15cc27c759858683d4f1d19f55d25b2dcecc959",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_hkdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-dh-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0d3b86c089ecb8c4b619a181b69cdb8a9917fc539ab24c534c8fdc7bec3cab8c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/kdf.h",
+        "bytes": 9745,
+        "sha256": "19f15e7616ca8ddb081b017f8d4bdecca29ff71159e8d587342af5af454f6632",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/kdf.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-cpucap-cpu_aarch64_openbsd.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0b18fe0f7e216e9297bdf5fa375aa31021f6ddcb56e55128fc41087019852f24",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_openbsd.c",
+        "bytes": 1280,
+        "sha256": "e0347b274ee840941820b71bb9260e6cba8e4b4bfab14451b2293e2b8726b66b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_openbsd.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2023.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b6b60851dac8c4349f5d238731959e3adceabcf64266715c3cedfd37017acbcd",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_sysreg.c",
+        "bytes": 2017,
+        "sha256": "5363f39123b48764fd1d0fe3ad603e73db3404f075cb1cb5cf6ec10c53d31b5b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_sysreg.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-include-openssl-ecdh.h-notice-encoded.json",
+      "file_encoding": {
+        "bytes": 458,
+        "format": "json_string",
+        "sha256": "dfd5cae7aa9e750f0eec7b4e735a31a5b9089d6b752c25d495407abbfbf5d543"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "a018c87bafd79b58e271833b6b65b0da4d53da99090b2f525da12832098ee42e",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ecdh/ecdh.c",
+        "bytes": 3511,
+        "sha256": "031e24e980825968d893652becb013923ea7b3b4cc6a70ef9da698799d7d90b7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ecdh/ecdh.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-rsaz_exp.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "5f4b8d50901631caec01efab4a620997a0de311fbb963b5b4097117f0684497a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/rsaz_exp.c",
+        "bytes": 4651,
+        "sha256": "4fce3109fc34aff004afa33caf1706d74e1a4792a496b08e9f78e5a03d01644c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/rsaz_exp.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-rsaz_exp.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "5f4b8d50901631caec01efab4a620997a0de311fbb963b5b4097117f0684497a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/rsaz_exp.h",
+        "bytes": 13400,
+        "sha256": "249ad96c47dfb038a7e4b81a1d9565ca15893cc66aa21a8ae4c309cc48f459d3",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/rsaz_exp.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-p256-nistz.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "87a2caee8eb851db4d14ec908761f2e5e6210be1155d71ef63c690b161e307a0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p256-nistz.c",
+        "bytes": 25318,
+        "sha256": "b0da7b17fb4b7d3c350e7aaaa4cdfb4158fcb0594b4ce9a1990833db76add43a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p256-nistz.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-p256-nistz.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "87a2caee8eb851db4d14ec908761f2e5e6210be1155d71ef63c690b161e307a0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p256-nistz.h",
+        "bytes": 5075,
+        "sha256": "14d5fba009e6aac71930552f1dead9f31b0d599d0ee214366ed68916d8318294",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p256-nistz.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-p256-nistz-table.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c987221e66cec9b54b28b874213304cce521c311ccb0fdf78bda4a47e4b7a3f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p256-nistz-table.h",
+        "bytes": 642833,
+        "sha256": "6cef07bcefb38a051abaa8921fa6ea57e3be8d4e46e6473136d8cfbc0b25d8fe",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p256-nistz-table.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-montgomery_inv.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b8b013ef60e92a6c4a80d4713f6c497e36d67af6ffc5ea90662b4d1a96b66292",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/montgomery_inv.c",
+        "bytes": 8312,
+        "sha256": "d01c2cdd0e721596c7aef20f251815953ca816757712994e3aca0839f242ab18",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/montgomery_inv.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-sha-keccak1600.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "24a6762dcca1a3431a37278f358f5a7e1000aef8e38df1445742ad621596dad4",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/keccak1600.c",
+        "bytes": 18725,
+        "sha256": "22bb64417abf123cac863707d6195e9396d715f8fb625eb5e1adf582a347e305",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/keccak1600.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-sshkdf-sshkdf.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "d63616b4fb842e3e44bcc57e9ecb64c5e4208a17959fd3e0eaeae541944e62eb",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sshkdf/sshkdf.c",
+        "bytes": 2572,
+        "sha256": "393a7dbc486c723514dea8c13a1c6a6d4385a9121dc1cf1eb71eef6af7f13348",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sshkdf/sshkdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-sshkdf-sshkdf.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "d63616b4fb842e3e44bcc57e9ecb64c5e4208a17959fd3e0eaeae541944e62eb",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/sshkdf.h",
+        "bytes": 1769,
+        "sha256": "f96dbe232be5fd747c849be9d88f6ead14887fa919b21d30a5df2b73b2886441",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/sshkdf.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-rsaz_exp_x2.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "5998f2cd8d099968a14d9120324b2c2b928aabe95f065f99a648ee870881812f",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/rsaz_exp_x2.c",
+        "bytes": 21840,
+        "sha256": "129a3e482b7cd8ad43108619a45d39f58b119627fe65222c27489a3c17c3e71b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/rsaz_exp_x2.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/ec_nistp.c",
+        "bytes": 34476,
+        "sha256": "4c6d3e938a8d418ce7392e203fc1331e9d408776f2684dc3e9e78a5545de922f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/ec_nistp.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p256_table.h",
+        "bytes": 86482,
+        "sha256": "af40920bba1203aa6ffd3a5da819bbefc66aadc8f98fbba19c553dbc4183abca",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p256_table.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p384.c",
+        "bytes": 33673,
+        "sha256": "d1be635fc615b5f84968a53fa4a91cc77eda2ff996f4c32190f7230e7d4738e5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p384.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p384_table.h",
+        "bytes": 190045,
+        "sha256": "d3e60fb216ca5225947ff61c86db8b5d84ec7a2c264ba12468a6920d439295e2",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p384_table.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p521.c",
+        "bytes": 18143,
+        "sha256": "7e7479039a0a503ddccfb83b79925a73fc06a5061efa2335e2019c300a9d7c76",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p521.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/p521_table.h",
+        "bytes": 573792,
+        "sha256": "8291ca4bb5407314ced1b92c613addbdb4f6bdd5365c32818973b83b5a36cb67",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/p521_table.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_kem.c",
+        "bytes": 16664,
+        "sha256": "ce660418c2c61326c792f31a3f8e9c1713014e2d234ba7c6032fc512e2d0c908",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_kem.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/kem/kem.c",
+        "bytes": 12146,
+        "sha256": "802e9fe5718c5a71c3599ffa6507e0b4b15d6544822d1cf031901ccf36a31e5a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/kem/kem.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/entropy/entropy_sources.c",
+        "bytes": 7433,
+        "sha256": "a9bbbb26cf3ebef1c4a3bb458f0586746fe18736e07af4341789f18a768c2b08",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/entropy/entropy_sources.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/entropy/internal.h",
+        "bytes": 6937,
+        "sha256": "2826f55009a1687fbb7310c8c12660adae33c8e3da8fa9c6e263c8189456b034",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/entropy/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/entropy/tree_drbg_jitter_entropy.c",
+        "bytes": 20583,
+        "sha256": "c3909def1e12cebd8e1e999cc250c672b161e805b5181096ff7e34983452bc69",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/entropy/tree_drbg_jitter_entropy.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/rand.c",
+        "bytes": 26777,
+        "sha256": "ab1f2639fa022a4ebbaf027bf932369d0d61f1e5cb139ba55cdb926ad3ab1166",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/rand.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_kem_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "0139276830288a3d6e88866ef4cbec8e19223272b01a841f25799203612ba9a8",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/experimental/kem_deterministic_api.h",
+        "bytes": 3253,
+        "sha256": "dbee5c4a86125205351dd44f483e1e9c00c96b06a7eb7b1cc41ad3790f55334e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/experimental/kem_deterministic_api.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec_nistp.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "d047203126fa304cb6d8c369cb1ab16b2f60841ecc20f63c41fa2ec052d1ea88",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/ec_nistp.h",
+        "bytes": 6421,
+        "sha256": "7d0c60ad4c42c83b3dc8fa18c6b96f5fb56622455cacdbc1ad91372dabf88fcf",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/ec_nistp.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-pqdsa-pqdsa.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "4f0172e1b4959efe3145d090e353b00e927902722c73a794a06292edb2d3cff3",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/pqdsa/pqdsa.c",
+        "bytes": 11117,
+        "sha256": "b1036d77bf752356e2ed304d37f90d2fe99cd968beedbd84e6f73b61bd921b05",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/pqdsa/pqdsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/console/internal.h",
+        "bytes": 1356,
+        "sha256": "4cc2a9cac40af83ea02982d3030b3a9bce1b153fbd2b331a7bdd60ff480d1b9e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/console/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64.c",
+        "bytes": 3631,
+        "sha256": "038455923f8851e8bfa8083b669cc1445288117262a8a8e637668d38fa358c1f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64.h",
+        "bytes": 805,
+        "sha256": "1bb061b73ca61fc20d0870227cdf06fce5a817c5ab0cb58b35c331f3b7c67ed8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_netbsd.c",
+        "bytes": 4451,
+        "sha256": "2a601fdede7e5e680564848c61517b7220394ba90922a7cc5212c6d25cc58efa",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/cpucap/cpu_aarch64_netbsd.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/curve25519/curve25519_s2n_bignum_asm.c",
+        "bytes": 5478,
+        "sha256": "e685219f3987834e5022c78190864765f574e52945d6aecadf77ddd6b19d635b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/curve25519/curve25519_s2n_bignum_asm.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_pqdsa.c",
+        "bytes": 14090,
+        "sha256": "46a05649f08121fe162d980ecc7c179b72ed6e902104b6ccbdaf64ce165e65d1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_pqdsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/hmac/internal.h",
+        "bytes": 1030,
+        "sha256": "bdbdf8e8c3491aa1798346c0ac401a6bf8424606b03366ca187e77d6ed60188d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/hmac/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/kdf/internal.h",
+        "bytes": 1030,
+        "sha256": "09c1f08b8e5e472b7a03674d94356665def0da8d5398ef5a8568ab5299c0b816",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/kdf/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/kdf/kbkdf.c",
+        "bytes": 3037,
+        "sha256": "a2164a6dbef96fdacaafe0d1496d1f913d4387f7cdedcaa5a75d47346aee93f8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/kdf/kbkdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/kdf/sskdf.c",
+        "bytes": 10352,
+        "sha256": "939b0ec80f57fa35c35e9237a7530f41032797ebf9d320fe286537304a042423",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/kdf/sskdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/fips202_glue.h",
+        "bytes": 4012,
+        "sha256": "b4124d859df641dd4b09697fd8c1c29ffbbf6b85db9c4dbd9c57fc2449b57a0f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/fips202_glue.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/fips202x4_glue.h",
+        "bytes": 3747,
+        "sha256": "79a9771028aba7cfa3e25acac6ee4901eaf7133c0998d86781179e0954fcbc16",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/fips202x4_glue.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/ml_dsa.c",
+        "bytes": 28484,
+        "sha256": "079e691496d7570c584ee4e9472fc506b10dab27e5f55832d2535d27d2c99141",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/ml_dsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa_native_backend.h",
+        "bytes": 535,
+        "sha256": "fc92953605c90f54a5d9e99342e20b0d80cb5285b8d2831ab545cf1a2818fbd1",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa_native_backend.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa_native_config.h",
+        "bytes": 4012,
+        "sha256": "61d4a7e88cd834c3544809e667c1d6ba0e452cd74aedbec996dac7652893ffe6",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa_native_config.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/fips202_glue.h",
+        "bytes": 2025,
+        "sha256": "a26a84044b181d13ec192692c381767d8c0d03b1bc621f8d988a3276101b7a74",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/fips202_glue.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/fips202x4_glue.h",
+        "bytes": 1872,
+        "sha256": "deddcbfdf4a73fdbc41c0452ec7c1089ffef3b0936ad0ddfa60e8e1f9443a028",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/fips202x4_glue.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/ml_kem.c",
+        "bytes": 23566,
+        "sha256": "1f337efafea404d319900a043ffb2cb33ebd2e8998e99d15e6018ee7847c66ec",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/ml_kem.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/ml_kem.h",
+        "bytes": 12120,
+        "sha256": "0709c8738f69680c9c108cc96e2dfea9410bfa95f0ff8b9cdd43d1a3829deb1b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/ml_kem.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem_native_backend.h",
+        "bytes": 615,
+        "sha256": "7fd60dc8b4380e7c73cf5310deb9b182c2e7cf08e6f8a6aaa655e297c81a44af",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem_native_backend.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem_native_config.h",
+        "bytes": 4015,
+        "sha256": "671e5e7137733b2144c15445cdc1b30a4a39b167925f67c761944d86ba7a2fca",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem_native_config.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/service_indicator/internal.h",
+        "bytes": 6551,
+        "sha256": "a06c72fc51cd4cc21e2b54446b59c6e02ce43b2ef45245fa37387ff4895ee0e7",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/service_indicator/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/service_indicator/service_indicator.c",
+        "bytes": 24317,
+        "sha256": "ae65274353f1186625b695e91bdb771a895720facd54537036eccdd45177df16",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/service_indicator/service_indicator.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-ec_extra-ec_brainpool.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/pem/internal.h",
+        "bytes": 650,
+        "sha256": "4e40f2575af3a69920d2c3fedbf6d886a0cb9e285241fa6ba92cd635dc5eac6c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/pem/internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec_montgomery.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "4929b42dc2708dc050b3e1775c3866530f6a85cab592121b36df4b3c8e3e01b3",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/ec_montgomery.c",
+        "bytes": 16209,
+        "sha256": "ea61a6526abc1f1dc16dc5c2ae42f7059728d10f668a29881c891523af887f03",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/ec_montgomery.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "8481bbf88cfbda8dca65007edd8ce555acd76ae8e33d9afb0857c78fd8bfbd05",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/oct.c",
+        "bytes": 10150,
+        "sha256": "9f53dd456f821da8a7cb8010b242f1b8c5663d19210165f3b7164b426b026b26",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/oct.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec_key.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "663e204ce2fbb2111e4927d4c0e20057c760ee6ba7de6bae0f08dfb18d6d6432",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/ec_key.c",
+        "bytes": 16895,
+        "sha256": "324f47e0d67617dc68fe5d80a561c9224094a5555d635077366bb64bfe9a0c92",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/ec_key.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec_key.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "663e204ce2fbb2111e4927d4c0e20057c760ee6ba7de6bae0f08dfb18d6d6432",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/simple.c",
+        "bytes": 10167,
+        "sha256": "a945ab61ea2232e6c9ebc9554557820d34bc284e09f9248a77c854a48fc72be9",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/simple.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec_key.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "663e204ce2fbb2111e4927d4c0e20057c760ee6ba7de6bae0f08dfb18d6d6432",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/wnaf.c",
+        "bytes": 6797,
+        "sha256": "eb8fada0f7569f6afb68fd8c0a14f884b135287b98f0bbceb727d6551548870c",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/wnaf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ec-ec.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "78e837c94593547952381ea909e1fef59bbd6933fdea66fe2affd944fabf0bca",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/ec.c",
+        "bytes": 37152,
+        "sha256": "ddeed7b75ef72c64e2c57f4817b34dbe2d442ce69337268f2a4980a1b9d7146b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/ec.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-pbkdf-pbkdf.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "daa8c73721d979afa96f99f7a90649e06b349f1f773dae120f6c579176be1d49",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/pbkdf/pbkdf.c",
+        "bytes": 3295,
+        "sha256": "2b3b4d20d02f8bd4f767f4b7c6fea848bc71d3601d9c7e7d55bb5a4c48d8b84b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/pbkdf/pbkdf.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-rsa-padding.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "96379934f20d911a96d7f1d66b4f21403ce54fb7cb0e5725946762c988239d39",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rsa/padding.c",
+        "bytes": 9886,
+        "sha256": "a2e241acc3cb29c7f0ebf5b988e07e71999955187ab0cfe5cc602a025e28a399",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rsa/padding.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-asn1-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "1f3da733d701f02140264992cacf9ae5cd233442c282c0b94818541d449feefb",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_ec.c",
+        "bytes": 7816,
+        "sha256": "4d703bc34795f72d8e83055ee450dc0c8a827f5fc0ecda1da65cd216acbe9b34",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_ec.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-asn1-internal.h-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "1f3da733d701f02140264992cacf9ae5cd233442c282c0b94818541d449feefb",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_rsa.c",
+        "bytes": 26475,
+        "sha256": "e57cc6f2bce8bc99f0abd18647c964e6e9c99f7ba97a80f7d804196956bfea59",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_rsa.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-evp-digestsign.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "7243c7537668a85d7af7ba8ab90284c20612f0c7595585818d0926ba36ecdf71",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/digestsign.c",
+        "bytes": 9830,
+        "sha256": "221027c46868e49db6020fdf80d1d952c03fc50a7cbe791bf3afdbbf207c469d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/digestsign.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-evp_extra-p_hmac_asn1.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "91f9941aab0dcff04795c9f325e5391bca4cfc505a2cc868423c49c431219047",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/evp/p_hmac.c",
+        "bytes": 4336,
+        "sha256": "2937ac10e3111b1a0df90c056b2ca7bdb21339a2b257183908c4346ab84cb6f6",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/evp/p_hmac.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-sqrt.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bea32589a6973248616c5c7835a358794b08d7d1231d50a4d6a2897ac149a574",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/sqrt.c",
+        "bytes": 10282,
+        "sha256": "2a48e92570b1df1e1a4ba9500f1f9b292782fc927c3c7aa2c5ed700ec1ea7d4e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/sqrt.c",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-bn-ctx.c-notice.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "cc2cb6f03fd0c21a184d69e4d48be071f72151bffb8017be185674edd8874f8b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/ctx.c",
+        "bytes": 4655,
+        "sha256": "108768c96480fd3b8ad85d08e8975f9dd6ba1f3d91756f9e717f82fd28487f46",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/ctx.c",
+      "version": "0.45.0"
     }
   ]
 }

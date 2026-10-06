@@ -24,7 +24,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         .and_then(Value::as_array_mut)
         .ok_or("missing notices")?;
     let template = notices.get(2).ok_or("missing whole notice")?.clone();
-    for index in 3_usize..512_usize {
+    for index in 3_usize..1024_usize {
         let mut notice = template.clone();
         let path = format!("NOTICE-{index}");
         *notice.get_mut("upstream_path").ok_or("missing path")? = json!(path);
@@ -48,7 +48,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         .pointer("/packages/example 1.0.0/supplemental_notices")
         .and_then(Value::as_array)
         .ok_or("missing generated records")?;
-    assert_eq!(records.len(), 512);
+    assert_eq!(records.len(), 1024);
     assert_eq!(
         inventory
             .get("texts")

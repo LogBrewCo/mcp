@@ -59,7 +59,7 @@ that contains the locked `.crate` archives:
 cargo run --locked --offline -- /absolute/path/to/metadata.json ../../Cargo.lock /absolute/path/to/registry/cache ../../licenses/sources.json /absolute/path/to/notices.json
 ```
 
-The supplement manifest is limited to 512 KiB and 512 notice references. Each
+The supplement manifest is limited to 512 KiB and 1024 notice references. Each
 reference must pass the existing archive, revision, URL and text checks.
 
 The output covers named license and attribution files from the entire lockfile,
@@ -69,7 +69,7 @@ prefixes. A supplement may provide a `source_prefix` object with `archive_path`,
 exact nonempty prefix of that file in the verified published archive. The archived
 `path_in_vcs` must map the archive path to the recorded upstream path. Metadata
 and named notice files cannot be prefix selections. Each selected source file is
-limited to 1 MiB; selected files and named notices share an 8 MiB per-archive
+limited to 1 MiB; selected files and named notices share a 16 MiB per-archive
 budget. The output records the full-file binding, prefix length and
 `checked_published_archive_source_prefix` provenance. Shared text appears once,
 with a separate reference for each source file. Whole upstream supplements retain

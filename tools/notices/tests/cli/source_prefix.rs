@@ -11,6 +11,9 @@ mod encoded;
 #[path = "source_prefix/count.rs"]
 mod count;
 
+#[path = "source_prefix/budget.rs"]
+mod budget;
+
 const NOTICE: &[u8] = b"// Copyright synthetic author\r\n// Permission synthetic notice\r\n";
 const SOURCE: &[u8] =
     b"// Copyright synthetic author\r\n// Permission synthetic notice\r\nfn original() {}\n";

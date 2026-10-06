@@ -1,0 +1,9 @@
+// Originally written by Bodo Moeller for the OpenSSL project.
+// Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.
+// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+//
+// The elliptic curve binary polynomial software is originally written by
+// Sheueling Chang Shantz and Douglas Stebila of Sun Microsystems
+// Laboratory
+//
+// SPDX-License-Identifier: Apache-2.0

@@ -453,7 +453,7 @@ allow = ["default", "std"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "uuid@1.26.1"
+crate = "uuid@1.27.0"
 allow = ["default", "rng", "std", "v4"]
 reason = "Reviewed features for this exact locked dependency version"
 

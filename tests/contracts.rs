@@ -1,5 +1,7 @@
 //! Adversarial contract and startup regressions use synthetic data only.
 
+use std::sync::Arc;
+
 use logbrew_mcp::{catalog::Catalog, json, startup::Config};
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
@@ -11,6 +13,72 @@ fn artifact(schema: &Value) -> Vec<u8> {
         "input_schema":schema,"output_schema":{"type":"object","additionalProperties":false,
             "required":["count"],"properties":{"count":{"type":"integer"}}}
     }]}).to_string().into_bytes()
+}
+
+/// Build a catalog with the same pattern on both validation boundaries.
+///
+/// # Errors
+/// Returns an error if synthetic catalog decoding or validation fails.
+fn pattern_catalog(pattern: &str) -> Result<Arc<Catalog>, logbrew_mcp::Failure> {
+    let schema = json!({"type":"object","required":["text"],"additionalProperties":false,
+        "properties":{"text":{"type":"string","pattern":pattern}}});
+    let mut document = json::object(&artifact(&schema), 8 << 20)?;
+    *document
+        .pointer_mut("/operations/0/output_schema")
+        .ok_or(logbrew_mcp::error::Kind::Configuration)? = schema;
+    let bytes = document.to_string().into_bytes();
+    Catalog::load(&bytes, &Sha256::digest(&bytes).into())
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if contract patterns reject ECMAScript whitespace or accept characters
+/// outside that set on either the input or output boundary.
+fn unicode_whitespace_patterns_preserve_input_and_output_contracts() {
+    let catalog = pattern_catalog(r"^\s+$").expect("whitespace contract");
+    for accepted in [
+        "\t", "\n", "\u{b}", "\u{c}", "\r", " ", "\u{a0}", "\u{1680}", "\u{2000}", "\u{2001}",
+        "\u{2002}", "\u{2003}", "\u{2004}", "\u{2005}", "\u{2006}", "\u{2007}", "\u{2008}",
+        "\u{2009}", "\u{200a}", "\u{2028}", "\u{2029}", "\u{202f}", "\u{205f}", "\u{3000}",
+        "\u{feff}",
+    ] {
+        let value = json!({"text":accepted});
+        catalog
+            .input("logs.read.v1", &value)
+            .expect("permitted input");
+        catalog
+            .output("logs.read.v1", &value)
+            .expect("permitted output");
+    }
+    for rejected in ["", "A", "\u{85}", "\u{200b}"] {
+        let value = json!({"text":rejected});
+        assert!(catalog.input("logs.read.v1", &value).is_err());
+        assert!(catalog.output("logs.read.v1", &value).is_err());
+    }
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if literal characters in contract patterns become Rust set operators
+/// or characters outside the declared class pass either validation boundary.
+fn character_class_literals_preserve_input_and_output_contracts() {
+    let catalog = pattern_catalog("^[a&&b~~c]+$").expect("literal character contract");
+    for accepted in ["a", "&", "b", "~", "c", "a&b~c", "a&&b~~c"] {
+        let value = json!({"text":accepted});
+        catalog
+            .input("logs.read.v1", &value)
+            .expect("permitted input");
+        catalog
+            .output("logs.read.v1", &value)
+            .expect("permitted output");
+    }
+    for rejected in ["", "d", "a-d", "\n"] {
+        let value = json!({"text":rejected});
+        assert!(catalog.input("logs.read.v1", &value).is_err());
+        assert!(catalog.output("logs.read.v1", &value).is_err());
+    }
 }
 
 #[test]

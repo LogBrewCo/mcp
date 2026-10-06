@@ -203,12 +203,12 @@ allow = ["default", "std", "unsafe-eval"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "jsonschema-value@0.58.5"
+crate = "jsonschema-value@0.58.6"
 allow = ["arbitrary-precision", "default", "serde_json"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "jsonschema@0.58.5"
+crate = "jsonschema@0.58.6"
 allow = ["arbitrary-precision"]
 reason = "Reviewed features for this exact locked dependency version"
 
@@ -293,7 +293,7 @@ allow = ["default", "userspace"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "referencing@0.58.5"
+crate = "referencing@0.58.6"
 allow = ["default"]
 reason = "Reviewed features for this exact locked dependency version"
 

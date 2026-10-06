@@ -881,6 +881,278 @@
       "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
       "upstream_path": "aws-lc-sys/generated-include/openssl/boringssl_prefix_symbols_asm.h",
       "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-base.h",
+        "bytes": 1110,
+        "sha256": "4ee17ce30f47a0f61dc99faf892c35dfeaeb4676b48d7ca8102f815769262103",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-base.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-gcd.h",
+        "bytes": 1444,
+        "sha256": "d9ed11fbe7c4b1915a0057b02e59ca26c6af36fdfd68fb5ab99fdba95aa229df",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-gcd.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-health.h",
+        "bytes": 2123,
+        "sha256": "69ec792a79413de83c642c58ef64f129fd0f61f4976219dd913fec2be58850bb",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-health.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-noise.h",
+        "bytes": 1321,
+        "sha256": "080068d6d164a3329023ec4a0148bcc8710d81af9331d057b5dd843a7d3336dd",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-noise.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-sha3.h",
+        "bytes": 1956,
+        "sha256": "fe4c0ec88e9e01d5eff56c3d865fe40fa6b56a3d7ffc420a0f609ec426c1985f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-sha3.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2021-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fa6d1b70fd80f4c30e7608b2f6ce63b85d3395564276bb5332e859b4e602582b",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-timer.h",
+        "bytes": 2531,
+        "sha256": "5b0ad58ead034ae284509d309686146216b16c0d46ceff7045834657ae8c83ce",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-timer.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2013-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e809e086748c73a61e7cc11bc889e7814ce5ff9bb4d1d5163a22a036c973a967",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/jitterentropy-base-user.h",
+        "bytes": 13221,
+        "sha256": "884102244d27c0a313aad3c77e94a01a04cd2dc26c4254227014d6ca11804896",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/jitterentropy-base-user.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2014-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "30d757428bdcdc68c0645298390c88b1dcf9350621ff9fb026b12fd0d188e42c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/jitterentropy.h",
+        "bytes": 20995,
+        "sha256": "064ef5cf5d8920d538f9b2afbfadc14f388077a8f369bf551efa9fdceaa04f2e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/jitterentropy.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-jitterentropy-header-2014-2025.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "30d757428bdcdc68c0645298390c88b1dcf9350621ff9fb026b12fd0d188e42c",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-internal.h",
+        "bytes": 2556,
+        "sha256": "20e42748ed6746c1fa5c64aaf1764cdeec7845100cceff1b09a1097737abbbcf",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/third_party/jitterentropy/jitterentropy-library/src/jitterentropy-internal.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young-openssl.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "3e65b9bf9ab5e7e58cf6e45a0f462c78ef0ac16c1367d85874fdc6a9de0e80f5",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/err.h",
+        "bytes": 16069,
+        "sha256": "42d057eedd1e2f68db1762ea9bd6e7f1b9fe15a5c7131afd3f04238e12db9449",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/err.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/mem.h",
+        "bytes": 10660,
+        "sha256": "b92d6404e2b12ff3b79fa525eb01885cf1706906ad14e146a3db136c8a6085af",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/mem.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/sha.h",
+        "bytes": 9319,
+        "sha256": "28618598b98652484826bb69c84fd2adba4d190e2bce6497fa614d58519cf200",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/sha.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-eric-young.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "74aa1f6d8863c55721d299d58d94cec95ffc3ea2cc7aaf42405aed86424036db",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/thread.h",
+        "bytes": 6254,
+        "sha256": "7004fa9036da9678b59b793b7c18090de6ad415062cb75db73fdba53b187a893",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/thread.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-openssl-1998-2001.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "1b0697f3d60691271c7bf0448e4af58d41bfd8e12073a71369e130ee0dca4134",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/base.h",
+        "bytes": 23250,
+        "sha256": "438ba003642b929846563b43a5dc7e1e9decdeaf03bfbcdd3b5e3f2c98949152",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/base.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2014.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e18394f240a7ab4a80b96b758e5ee193adcb3e554acbd636fe874df3677a1619",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/crypto.h",
+        "bytes": 8092,
+        "sha256": "abbadb56732493014b49ea33d4d36bc4d1d8ee0b7574107fd9bb8570bccaac2d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/crypto.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2014.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e18394f240a7ab4a80b96b758e5ee193adcb3e554acbd636fe874df3677a1619",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/opensslconf.h",
+        "bytes": 1904,
+        "sha256": "ee4c57773a48433c56870175841f7fd13893ff28776a0f6cf87c469b14a2143b",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/opensslconf.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2017.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "bb42c55f8e200a362e1e7b114e0b12f455ce6c77f7c95193e38a6a0a148f44f0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/is_awslc.h",
+        "bytes": 157,
+        "sha256": "a854bfe72a62eb1e901642e9b9732eedc78d84dde3d94bf957c71751ece4a250",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/is_awslc.h",
+      "version": "0.45.0"
     }
   ]
 }

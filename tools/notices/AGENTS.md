@@ -59,6 +59,9 @@ that contains the locked `.crate` archives:
 cargo run --locked --offline -- /absolute/path/to/metadata.json ../../Cargo.lock /absolute/path/to/registry/cache ../../licenses/sources.json /absolute/path/to/notices.json
 ```
 
+The supplement manifest is limited to 64 KiB and 128 notice references. Each
+reference must pass the existing archive, revision, URL and text checks.
+
 The output covers named license and attribution files from the entire lockfile,
 including inactive and development dependencies, plus explicitly bound source-file
 prefixes. A supplement may provide a `source_prefix` object with `archive_path`,

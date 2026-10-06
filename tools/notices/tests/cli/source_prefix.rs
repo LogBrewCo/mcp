@@ -8,6 +8,9 @@ use super::{Fixture, Result, digest, write_json};
 #[path = "source_prefix/encoded.rs"]
 mod encoded;
 
+#[path = "source_prefix/count.rs"]
+mod count;
+
 const NOTICE: &[u8] = b"// Copyright synthetic author\r\n// Permission synthetic notice\r\n";
 const SOURCE: &[u8] =
     b"// Copyright synthetic author\r\n// Permission synthetic notice\r\nfn original() {}\n";

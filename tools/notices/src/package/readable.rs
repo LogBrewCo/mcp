@@ -76,6 +76,39 @@ fn reference(
 }
 
 /// # Errors
+/// Rejects missing or inconsistent full-file bindings for source prefixes.
+fn supplement_description(record: &Value) -> Result<&'static [u8]> {
+    if record.get("source_kind").and_then(Value::as_str)
+        != Some("checked_published_archive_source_prefix")
+    {
+        return Ok(b"    Supplemental upstream source; see JSON inventory for provenance.\n");
+    }
+    let prefix = record
+        .get("source_prefix")
+        .ok_or_else(|| error("missing source prefix binding"))?;
+    let _path: &Path = relative_path(string(prefix, "archive_path")?)?;
+    let digest = string(prefix, "sha256")?;
+    let bytes = record
+        .get("bytes")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| error("missing prefix length"))?;
+    if bytes == 0
+        || prefix.get("prefix_bytes").and_then(Value::as_u64) != Some(bytes)
+        || prefix
+            .get("bytes")
+            .and_then(Value::as_u64)
+            .is_none_or(|size| size < bytes || size > 1_u64 << 20_u32)
+        || digest.len() != 64
+        || !digest
+            .bytes()
+            .all(|byte| byte.is_ascii_hexdigit() && !byte.is_ascii_uppercase())
+    {
+        return Err(error("invalid source prefix binding"));
+    }
+    Ok(b"    Verified prefix of published source file; see JSON inventory for full-file binding.\n")
+}
+
+/// # Errors
 /// Rejects malformed JSON, missing or excessive package or text records,
 /// invalid notice maps or bindings, excess references, unreferenced text,
 /// and bounded-output write failures.
@@ -120,9 +153,7 @@ fn dependencies(bytes: &[u8]) -> Result<Vec<u8>> {
         for record in supplements.into_iter().flatten() {
             let path = string(record, "upstream_path")?;
             reference(&mut output, texts, &mut seen, path, record)?;
-            output.write_all(
-                b"    Supplemental upstream source; see JSON inventory for provenance.\n",
-            )?;
+            output.write_all(supplement_description(record)?)?;
         }
     }
     if seen.iter().ne(texts.keys()) {

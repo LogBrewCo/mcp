@@ -17,6 +17,34 @@ pub struct Collected {
     pub notices: BTreeMap<String, String>,
 }
 
+pub struct Prefix {
+    pub bytes: u64,
+    pub sha256: String,
+    pub text: Vec<u8>,
+}
+
+impl Prefix {
+    /// # Errors
+    /// Rejects a changed complete source file or a mismatched notice prefix.
+    fn verify(&self, entry: impl io::Read, limits: Limits, total_bytes: &mut usize) -> Result<()> {
+        let source = bounded(entry, limits.notice_bytes)?;
+        if u64::try_from(source.len())? != self.bytes
+            || checksum(&source)? != self.sha256
+            || self.text.is_empty()
+            || !source.starts_with(&self.text)
+        {
+            return Err(error("source notice prefix binding mismatch"));
+        }
+        *total_bytes = total_bytes
+            .checked_add(source.len())
+            .ok_or_else(|| error("source size overflow"))?;
+        if *total_bytes > limits.total_notice_bytes {
+            return Err(error("source notice budget exceeded"));
+        }
+        Ok(())
+    }
+}
+
 #[derive(Clone, Copy)]
 pub struct Limits {
     pub expanded_bytes: u64,
@@ -114,6 +142,54 @@ fn add_notice(
 /// budgets, and incomplete or corrupt tar/gzip data. Reader and decoder errors
 /// propagate.
 pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) -> Result<Collected> {
+    collect_with_prefixes(package, bytes, expected, limits, &BTreeMap::new())
+}
+
+/// # Errors
+/// Rejects unsafe source paths and metadata or named-notice selections.
+fn validate_prefixes(prefixes: &BTreeMap<String, Prefix>) -> Result<()> {
+    for path in prefixes.keys() {
+        let filename = relative_path(path)?
+            .file_name()
+            .and_then(|name| name.to_str())
+            .ok_or_else(|| error("missing source filename"))?;
+        if matches!(path.as_str(), "Cargo.toml" | ".cargo_vcs_info.json")
+            || category(filename).is_some()
+        {
+            return Err(error("source prefix must select a source file"));
+        }
+    }
+    Ok(())
+}
+
+/// # Errors
+/// Rejects an absent package manifest or identity, license or repository drift.
+fn verify_manifest(manifest: Option<&toml::Table>, package: &Value) -> Result<()> {
+    let declared = manifest
+        .and_then(|value| value.get("package"))
+        .ok_or_else(|| error("missing archive manifest"))?;
+    for key in ["name", "version", "license", "repository"] {
+        if declared.get(key).and_then(toml::Value::as_str)
+            != package.get(key).and_then(Value::as_str)
+        {
+            return Err(error("archive manifest disagrees with metadata"));
+        }
+    }
+    Ok(())
+}
+
+/// # Errors
+/// Applies the archive checks from `collect` and rejects unsafe or missing
+/// source paths, metadata/notice-file selections, changed source bindings,
+/// mismatched prefixes, and exceeded source-text budgets.
+pub fn collect_with_prefixes(
+    package: &Value,
+    bytes: &[u8],
+    expected: &str,
+    limits: Limits,
+    prefixes: &BTreeMap<String, Prefix>,
+) -> Result<Collected> {
+    validate_prefixes(prefixes)?;
     if u64::try_from(bytes.len())? > ARCHIVE_BYTES || checksum(bytes)? != expected {
         return Err(error("registry archive checksum or size mismatch"));
     }
@@ -133,6 +209,7 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
     let mut notice_bytes = 0_usize;
     let mut manifest = None;
     let mut vcs = None;
+    let mut matched_prefixes = 0_usize;
     for (index, entry) in archive.entries()?.enumerate() {
         if index >= limits.entries {
             return Err(error("archive entry limit reached"));
@@ -180,6 +257,12 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
             )?)?);
             continue;
         }
+        if let Some(source_prefix) = prefixes.get(relative) {
+            source_prefix.verify(&mut entry, limits, &mut notice_bytes)?;
+            matched_prefixes = matched_prefixes
+                .checked_add(1)
+                .ok_or_else(|| error("source count overflow"))?;
+        }
         if category(filename).is_some() {
             add_notice(
                 &mut entry,
@@ -196,16 +279,9 @@ pub fn collect(package: &Value, bytes: &[u8], expected: &str, limits: Limits) ->
     if expanded.limit() == 0 {
         return Err(error("expanded archive exceeds limit"));
     }
-    let declared = manifest
-        .as_ref()
-        .and_then(|m| m.get("package"))
-        .ok_or_else(|| error("missing archive manifest"))?;
-    for key in ["name", "version", "license", "repository"] {
-        if declared.get(key).and_then(toml::Value::as_str)
-            != package.get(key).and_then(Value::as_str)
-        {
-            return Err(error("archive manifest disagrees with metadata"));
-        }
+    if matched_prefixes != prefixes.len() {
+        return Err(error("source notice file missing from archive"));
     }
+    verify_manifest(manifest.as_ref(), package)?;
     Ok(Collected { vcs, notices })
 }

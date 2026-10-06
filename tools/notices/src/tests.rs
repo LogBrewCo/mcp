@@ -344,6 +344,7 @@ fn rejects_duplicate_unknown_and_unused_supplement_records() -> Result<()> {
                 &mut BTreeMap::new(),
                 &mut Texts::default(),
                 bytes,
+                Path::new("."),
                 Path::new(".")
             )
             .is_err()
@@ -359,6 +360,7 @@ fn rejects_duplicate_unknown_and_unused_supplement_records() -> Result<()> {
             &mut BTreeMap::new(),
             &mut Texts::default(),
             &bytes,
+            Path::new("."),
             Path::new(".")
         )
         .is_err()
@@ -397,4 +399,194 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         let _error: Box<dyn std::error::Error> =
             relative_path(path).expect_err("input must be rejected");
     }
+}
+
+#[test]
+/// # Errors
+/// Propagates archive encoding, checksums, or valid source collection errors.
+///
+/// # Panics
+/// Panics if a changed source, missing selection, or exceeded budget is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
+)]
+fn source_prefix_checks_the_complete_file() -> Result<()> {
+    let source = b"// synthetic notice\nfn original() {}\n";
+    let bytes = fixture(&[("example-1.0.0/src/lib.rs", source, tar::EntryType::Regular)])?;
+    let selected = BTreeMap::from([(
+        "src/lib.rs".to_owned(),
+        archive::Prefix {
+            bytes: u64::try_from(source.len())?,
+            sha256: checksum(source)?,
+            text: b"// synthetic notice\n".to_vec(),
+        },
+    )]);
+    let _collected: archive::Collected = archive::collect_with_prefixes(
+        &package(),
+        &bytes,
+        &checksum(&bytes)?,
+        Limits::default(),
+        &selected,
+    )?;
+    let changed = fixture(&[(
+        "example-1.0.0/src/lib.rs",
+        b"// synthetic notice\nfn modified() {}\n",
+        tar::EntryType::Regular,
+    )])?;
+    assert!(
+        archive::collect_with_prefixes(
+            &package(),
+            &changed,
+            &checksum(&changed)?,
+            Limits::default(),
+            &selected,
+        )
+        .is_err()
+    );
+    Ok(())
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture encoding, checksum or byte conversion errors.
+///
+/// # Panics
+/// Panics if missing, unsafe or inconsistent source selections are accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
+)]
+fn source_prefix_rejects_invalid_selections() -> Result<()> {
+    let source = b"// synthetic notice\nfn original() {}\n";
+    let bytes = fixture(&[("example-1.0.0/src/lib.rs", source, tar::EntryType::Regular)])?;
+    for (path, text, size, hash) in [
+        (
+            "src/missing.rs",
+            b"// synthetic notice\n".as_slice(),
+            source.len(),
+            checksum(source)?,
+        ),
+        (
+            "src/lib.rs",
+            b"changed".as_slice(),
+            source.len(),
+            checksum(source)?,
+        ),
+        (
+            "src/lib.rs",
+            b"".as_slice(),
+            source.len(),
+            checksum(source)?,
+        ),
+        (
+            "src/lib.rs",
+            b"// synthetic notice\n".as_slice(),
+            1,
+            checksum(source)?,
+        ),
+        (
+            "src/lib.rs",
+            b"// synthetic notice\n".as_slice(),
+            source.len(),
+            "0".repeat(64),
+        ),
+        ("../src/lib.rs", b"notice".as_slice(), 1, checksum(source)?),
+        ("Cargo.toml", b"notice".as_slice(), 1, checksum(source)?),
+        (
+            ".cargo_vcs_info.json",
+            b"notice".as_slice(),
+            1,
+            checksum(source)?,
+        ),
+        ("LICENSE", b"notice".as_slice(), 1, checksum(source)?),
+    ] {
+        let invalid = BTreeMap::from([(
+            path.to_owned(),
+            archive::Prefix {
+                bytes: u64::try_from(size)?,
+                sha256: hash,
+                text: text.to_vec(),
+            },
+        )]);
+        assert!(
+            archive::collect_with_prefixes(
+                &package(),
+                &bytes,
+                &checksum(&bytes)?,
+                Limits::default(),
+                &invalid,
+            )
+            .is_err(),
+            "{path}"
+        );
+    }
+    Ok(())
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture encoding, checksum or byte conversion errors.
+///
+/// # Panics
+/// Panics if a source-text or archive budget overrun is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
+)]
+fn source_prefix_enforces_archive_and_source_budgets() -> Result<()> {
+    let source = b"// synthetic notice\nfn original() {}\n";
+    let bytes = fixture(&[("example-1.0.0/src/lib.rs", source, tar::EntryType::Regular)])?;
+    let selected = BTreeMap::from([(
+        "src/lib.rs".to_owned(),
+        archive::Prefix {
+            bytes: u64::try_from(source.len())?,
+            sha256: checksum(source)?,
+            text: b"// synthetic notice\n".to_vec(),
+        },
+    )]);
+    for limits in [
+        Limits {
+            notice_bytes: 1,
+            ..Limits::default()
+        },
+        Limits {
+            total_notice_bytes: 1,
+            ..Limits::default()
+        },
+        Limits {
+            entries: 1,
+            ..Limits::default()
+        },
+        Limits {
+            expanded_bytes: 1,
+            ..Limits::default()
+        },
+        Limits {
+            path_bytes: 1,
+            ..Limits::default()
+        },
+    ] {
+        assert!(
+            archive::collect_with_prefixes(
+                &package(),
+                &bytes,
+                &checksum(&bytes)?,
+                limits,
+                &selected,
+            )
+            .is_err()
+        );
+    }
+    assert!(
+        archive::collect_with_prefixes(
+            &package(),
+            &bytes,
+            &"0".repeat(64),
+            Limits::default(),
+            &selected,
+        )
+        .is_err()
+    );
+    Ok(())
 }

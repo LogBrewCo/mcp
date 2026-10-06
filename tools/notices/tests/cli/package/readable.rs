@@ -77,7 +77,15 @@ fn readable_fixture() -> Result<Fixture> {
         json!({
         "synthetic-a 1.0.0":{"name":"synthetic-a","version":"1.0.0",
             "files":{"LICENSE":record(SHARED)?},"supplemental_notices":[{
-                "upstream_path":"NOTICE","bytes":SUPPLEMENT.len(),"sha256":supplement}]},
+                "upstream_path":"NOTICE","bytes":SUPPLEMENT.len(),"sha256":supplement},
+                {"upstream_path":"src/one.rs","bytes":SUPPLEMENT.len(),"sha256":supplement,
+                    "source_kind":"checked_published_archive_source_prefix",
+                    "source_prefix":{"archive_path":"src/one.rs","bytes":SUPPLEMENT.len(),
+                        "prefix_bytes":SUPPLEMENT.len(),"sha256":supplement}},
+                {"upstream_path":"src/two.rs","bytes":SUPPLEMENT.len(),"sha256":supplement,
+                    "source_kind":"checked_published_archive_source_prefix",
+                    "source_prefix":{"archive_path":"src/two.rs","bytes":SUPPLEMENT.len(),
+                        "prefix_bytes":SUPPLEMENT.len(),"sha256":supplement}}]},
         "synthetic-b 2.0.0":{"name":"synthetic-b","version":"2.0.0",
             "files":{"COPYING":record(SHARED)?}}}),
     )?;
@@ -145,7 +153,17 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
     )?;
     assert!(dependency.contains("synthetic-a 1.0.0\n  LICENSE\n"));
     assert!(dependency.contains("synthetic-b 2.0.0\n  COPYING\n"));
-    assert!(dependency.contains("  NOTICE\n"));
+    assert!(
+        ["  NOTICE\n", "  src/one.rs\n", "  src/two.rs\n"]
+            .iter()
+            .all(|path| dependency.contains(path))
+    );
+    assert_eq!(
+        dependency
+            .matches("Verified prefix of published source file")
+            .count(),
+        2
+    );
     assert_eq!(dependency.matches(SHARED).count(), 1);
     assert_eq!(dependency.matches(SUPPLEMENT).count(), 1);
     let linked_text = std::str::from_utf8(
@@ -226,6 +244,26 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
             json!("../NOTICE"),
         ),
         ("/texts", json!({})),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix",
+            json!({}),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix/prefix_bytes",
+            json!(1_u32),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix/bytes",
+            json!(1_u32),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix/sha256",
+            json!("Z".repeat(64)),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix/archive_path",
+            json!("../src/one.rs"),
+        ),
     ] {
         let mut changed = dependency_inventory.clone();
         *changed

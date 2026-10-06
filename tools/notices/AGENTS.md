@@ -60,7 +60,17 @@ cargo run --locked --offline -- /absolute/path/to/metadata.json ../../Cargo.lock
 ```
 
 The output covers named license and attribution files from the entire lockfile,
-including inactive and development dependencies. Permission policy, final binary
+including inactive and development dependencies, plus explicitly bound source-file
+prefixes. A supplement may provide a `source_prefix` object with `archive_path`,
+`bytes`, and `sha256` for the complete source file. Its notice text must be an
+exact nonempty prefix of that file in the verified published archive. The archived
+`path_in_vcs` must map the archive path to the recorded upstream path. Metadata
+and named notice files cannot be prefix selections. Each selected source file is
+limited to 1 MiB; selected files and named notices share an 8 MiB per-archive
+budget. The output records the full-file binding, prefix length and
+`checked_published_archive_source_prefix` provenance. Shared text appears once,
+with a separate reference for each source file. Whole upstream supplements retain
+their existing provenance. Permission policy, final binary
 and toolchain notices, release provenance, and tool timing require separate proof.
 Never claim a completed release from successful inventory generation.
 

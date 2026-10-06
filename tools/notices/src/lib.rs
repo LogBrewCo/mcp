@@ -308,6 +308,7 @@ fn generate(
         &mut texts,
         supplemental_bytes,
         supplemental_root,
+        cache,
     )?;
     for package in packages.values() {
         let files = package
@@ -324,7 +325,7 @@ fn generate(
         }
     }
     let output = json!({"format_version":1_u32,"scope":"all_locked_packages_including_inactive_and_development",
-        "inventory_kind":"named_source_license_and_attribution_files","binary_and_toolchain_coverage":"not_evaluated",
+        "inventory_kind":"named_source_license_and_attribution_files_with_verified_source_prefixes","binary_and_toolchain_coverage":"not_evaluated",
         "license_permission_check":"separate_cargo_deny_gate_required","cargo_lock_sha256":checksum(lock_bytes)?,
         "supplement_manifest_sha256":checksum(supplemental_bytes)?,"packages":packages,"texts":texts.values});
     let mut bytes = serde_json::to_vec_pretty(&output)?;

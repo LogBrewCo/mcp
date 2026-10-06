@@ -16,6 +16,9 @@ use sha2::{Digest as _, Sha256};
 #[path = "cli/package.rs"]
 mod package;
 
+#[path = "cli/source_prefix.rs"]
+mod source_prefix;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 

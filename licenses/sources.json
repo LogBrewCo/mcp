@@ -130,6 +130,96 @@
       "source_url": "https://raw.githubusercontent.com/Nugine/simd/d74c030d9dc4f3cae02146d1f497ff62726ef09a/LICENSE",
       "upstream_path": "LICENSE",
       "version": "0.8.0"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-crl.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "9ef9c18e5cee19599fa2cd605674497ec7c7a702ebbb8310903cb60c540d5c39",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/crl/mod.rs",
+        "bytes": 15110,
+        "sha256": "6b59ca00ed53c0883ce13a36880636a1c41053013c9ced732859b0c1b3d60ff3"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/crl/mod.rs",
+      "upstream_path": "src/crl/mod.rs",
+      "version": "0.103.15"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-end-entity.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "baf9e2a528dd5202334bb6cd06c145b3c7c7c91f3fab874f39c9321d2e51ae07",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/end_entity.rs",
+        "bytes": 10509,
+        "sha256": "dcd6176df075627bbd38881bb1b729462721ecb53e7968d56b116a8532043c42"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/end_entity.rs",
+      "upstream_path": "src/end_entity.rs",
+      "version": "0.103.15"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-dns-ip.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "901ceddbd2aef755f41bd82c512e3cf9382d912a70342f77eff003df2dec67b5",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/subject_name/dns_name.rs",
+        "bytes": 41051,
+        "sha256": "c5989e0e46973d8d6a3e94608aad7964089f25599c1f326a6ac30f85204c8328"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/subject_name/dns_name.rs",
+      "upstream_path": "src/subject_name/dns_name.rs",
+      "version": "0.103.15"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-dns-ip.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "901ceddbd2aef755f41bd82c512e3cf9382d912a70342f77eff003df2dec67b5",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/subject_name/ip_address.rs",
+        "bytes": 27536,
+        "sha256": "e76e24bfb15d367732fccd4cc0ebae3bb3970d4a209b7c30a67263ab14200185"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/subject_name/ip_address.rs",
+      "upstream_path": "src/subject_name/ip_address.rs",
+      "version": "0.103.15"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-subject-name.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "46d267f8d09e95af7e4bdcdcc501458474e5ca4115a4de94c0db8083dff1f17a",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/subject_name/mod.rs",
+        "bytes": 17253,
+        "sha256": "4415187af1bb98ac076d5a0e8b5f224f173bae006629bd35bb465cd0f11e7130"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/subject_name/mod.rs",
+      "upstream_path": "src/subject_name/mod.rs",
+      "version": "0.103.15"
+    },
+    {
+      "file": "rustls-webpki-0.103.15-time.txt",
+      "package": "rustls-webpki",
+      "published_package_sha256": "f3c3cf1d8b1e7d4927e2d154c3fcb02979afb9939629c62cd9048d4f07b60ac2",
+      "sha256": "7abd9b6960dcf7d4d0a48606a5b71bfe37d472db68d70637f3a58a56785f1621",
+      "source_commit": "c14836d8de33c0ad0ac7dcb28fe9aade20831a4d",
+      "source_prefix": {
+        "archive_path": "src/time.rs",
+        "bytes": 9622,
+        "sha256": "e92721be14ac2f99b4a9a28125947307bbb1f87136b64e2b51ea07644fafa7a6"
+      },
+      "source_url": "https://raw.githubusercontent.com/rustls/webpki/c14836d8de33c0ad0ac7dcb28fe9aade20831a4d/src/time.rs",
+      "upstream_path": "src/time.rs",
+      "version": "0.103.15"
     }
   ]
 }

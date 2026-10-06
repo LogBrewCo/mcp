@@ -81,6 +81,17 @@ claim the revision of a vendored submodule. The JSON inventory records the URL
 kind, and readable archives label the notice as a verified archive-member prefix.
 An omitted URL kind keeps the existing repository-file URL check.
 
+When upstream text contains trailing spaces or other bytes that a plain text
+asset cannot preserve through source checks, store a single JSON string in a
+sibling file. Set `file_encoding` to an object with `format: "json_string"`,
+`bytes`, and `sha256` for that encoded file. The notice's existing `sha256`
+continues to bind the decoded upstream text. Both encoded input and decoded
+text are limited to 1 MiB. The generator verifies both bindings, preserves the
+decoded bytes exactly, and records the encoding binding in the inventory.
+It rejects other formats, malformed strings, trailing documents and empty text.
+Source-prefix checks apply to decoded text. Do not normalize upstream whitespace
+or change the source checks to accommodate it.
+
 Permission policy, final binary
 and toolchain notices, release provenance, and tool timing require separate proof.
 Never claim a completed release from successful inventory generation.

@@ -444,6 +444,363 @@
       "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
       "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/sha3/sha3_keccak_f1600_alt.S",
       "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-chacha-armv8.json",
+      "file_encoding": {
+        "bytes": 1137,
+        "format": "json_string",
+        "sha256": "bb0a633140ae633101d151ffc59e60441c9697905d37708fa08e67dbeb0cdb76"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "68316c61176bb4bd7c2b9f1d350bd23337db1ae5d9a1ec306db5ffa496cb9ff7",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/chacha/asm/chacha-armv8.pl",
+        "bytes": 28972,
+        "sha256": "884dd678c67a6c6947507d42ba057140a4ca076593d470151f957edeeb04063f",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/chacha/asm/chacha-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-chacha20_poly1305_armv8.json",
+      "file_encoding": {
+        "bytes": 579,
+        "format": "json_string",
+        "sha256": "945f906409d8f9dcdb62d9a79860ca884792459dc3d8e410fbb6b7acad2be784"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "fd7d4720fae110bfc9b32c9a4634bc8ee7913167197974eaf19de0f0d50f6d4e",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/cipher_extra/asm/chacha20_poly1305_armv8.pl",
+        "bytes": 43804,
+        "sha256": "5fb8668595d8f1eb8951381413adb3da0c219629d3136828fed4c4ddf4fbda30",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/cipher_extra/asm/chacha20_poly1305_armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-aesv8-armx.json",
+      "file_encoding": {
+        "bytes": 1554,
+        "format": "json_string",
+        "sha256": "15b4fc5b4f57feea27af0a1cb3c4f32ea212f72092f212ebe330780b5f605f7f"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "20b410d9aeca05151970f6f9d94d83ce5fe7ad0f0b20c2e07d8eee02719ba66a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/asm/aesv8-armx.pl",
+        "bytes": 26884,
+        "sha256": "31122e337460efe1ad2c1cc6d5aa3778e8223ca9b717a055192f453c6697d331",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/asm/aesv8-armx.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-vpaes-armv8.json",
+      "file_encoding": {
+        "bytes": 1499,
+        "format": "json_string",
+        "sha256": "4c5e258223c8d975392d36a2fc7556c0377263d988127f40d3c7174d540f5f4c"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f55db5d70b3bec2e0236cce8eaa5a78b8939ebd70f68fa51d8545b0f1c17b0c1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/aes/asm/vpaes-armv8.pl",
+        "bytes": 48019,
+        "sha256": "baf4add73e95f68d4f00666f446d6e5eb028f7a20d695f6c63f8c1fe11ef588a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/aes/asm/vpaes-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-armv8-mont.json",
+      "file_encoding": {
+        "bytes": 1825,
+        "format": "json_string",
+        "sha256": "0e415922f88603331b2a0393f228de5070d0b40fcafcb6db1f447a95c3e43255"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "7d6d3283a6ae4f1ccf88c94b51e38da6d3414bf4e1c03afc1452a632b3634a8e",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/asm/armv8-mont.pl",
+        "bytes": 38676,
+        "sha256": "f1b84fceebcfd32d1f5e106ad3123204c7f3b0d0b226265d87dd819e43ec46b8",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/asm/armv8-mont.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-bn-armv8.json",
+      "file_encoding": {
+        "bytes": 100,
+        "format": "json_string",
+        "sha256": "36d7dbecb97db7b4ded8d0e0533aaaf865f46b2453fc6d196e0a68b718732395"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "dd08aed8966a247f529af9d61c9618afdf18ce0ca8258e56b9401015d4c9beae",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/bn/asm/bn-armv8.pl",
+        "bytes": 2681,
+        "sha256": "374957c1621d6692b109185d08cf35adce86c538effc705c8faacd30f8b03eb6",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/bn/asm/bn-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-p256-armv8-asm.json",
+      "file_encoding": {
+        "bytes": 961,
+        "format": "json_string",
+        "sha256": "531c0127b63066e91b78e25f771ca326e9deaa7afc0acccde6f7a28221d4d203"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "05849e731dc8afc02e0efab071784780c94460468b2934e2f41e4e7988779f94",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/asm/p256-armv8-asm.pl",
+        "bytes": 43243,
+        "sha256": "786515dbcd41b1eacc0302c5b95da33c1b1670002dcd1d0fdea59cf43517bf58",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/asm/p256-armv8-asm.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-p256_beeu-armv8-asm.json",
+      "file_encoding": {
+        "bytes": 290,
+        "format": "json_string",
+        "sha256": "7cc688025a87911a9d7ca79ca72a3d7aa31eedf5620a661d52604badba80241a"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e9bfffd8b5809ee459d0ee54c4021846b68998013009246a04373efd2362234a",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/ec/asm/p256_beeu-armv8-asm.pl",
+        "bytes": 13635,
+        "sha256": "c02c6f628cdd2419aa824e06731f79b2ff910fefbf7fb8f29f11a70273b7b983",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ec/asm/p256_beeu-armv8-asm.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-md5-armv8.json",
+      "file_encoding": {
+        "bytes": 174,
+        "format": "json_string",
+        "sha256": "1c3196fa7f923b26e239c84c3de665e139b88efddf3562ed83e892e14fd271b8"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f98028765fe3f491d2131a8fe30f5d4175f01803ce4ec05d079dc0c338ebb6e1",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/md5/asm/md5-armv8.pl",
+        "bytes": 49522,
+        "sha256": "a6f861fbcfbcbe289675b474cb582708bb5b9d4617d10d1e5de3953522db7f62",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/md5/asm/md5-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-aesv8-gcm-armv8-unroll8.json",
+      "file_encoding": {
+        "bytes": 7291,
+        "format": "json_string",
+        "sha256": "814844e884841c13465d03467d4d9575cf4e9c9c1cc24b13db205ad81a324f40"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "4deda45f0509aaf60f425712a9359fe41cf01c5dfba929bb2556b9354c6487fe",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/asm/aesv8-gcm-armv8-unroll8.pl",
+        "bytes": 317188,
+        "sha256": "51e2827d584d7ea4d5c04ebfb87ae599e72684b39102483fc2d0af59fc731b65",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/asm/aesv8-gcm-armv8-unroll8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-aesv8-gcm-armv8.json",
+      "file_encoding": {
+        "bytes": 7440,
+        "format": "json_string",
+        "sha256": "d924537de47fb39c9445619585c6bdb7c489b5aeb9965833cce538249d28b176"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e484e1a9e32ddbdbbccb5806434c05d980e3bcd389cf42135c14796604318273",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/asm/aesv8-gcm-armv8.pl",
+        "bytes": 102038,
+        "sha256": "c0a4ce2f578726e042d8a68939ad79c95633cda49990d48ca98f628b981604da",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/asm/aesv8-gcm-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-ghash-neon-armv8.json",
+      "file_encoding": {
+        "bytes": 1989,
+        "format": "json_string",
+        "sha256": "76f758a7d395cf669ac2447b75dcbdda3bc2c5b7a9ab20162b618e1be8e31859"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "122809cde9901d5ba5f91f89c12c78e3db3aabf0c10b71a6b790ea720a52b199",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/asm/ghash-neon-armv8.pl",
+        "bytes": 9751,
+        "sha256": "88fac2af25f80d7e64a686e096ff1f2d69a115c06f66112eff7f46dc8edecd8a",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/asm/ghash-neon-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-ghashv8-armx.json",
+      "file_encoding": {
+        "bytes": 1479,
+        "format": "json_string",
+        "sha256": "c728e39acbc18600d096ed9ae8035a2e9441e0887ca2f01c29553d069f626df0"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "29c1e07e296772a4aa855778243921fc26dec60b04c0f3af0d0550ec02465454",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/modes/asm/ghashv8-armx.pl",
+        "bytes": 21829,
+        "sha256": "abefb6f9fcbc84bedd670eb186e9bf40c455e1df71493757633c7a09b27bac45",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/modes/asm/ghashv8-armx.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-rndr-armv8.json",
+      "file_encoding": {
+        "bytes": 392,
+        "format": "json_string",
+        "sha256": "9f2ef62ec3ea7289ec151808b71700141b5f94a69002682402b3fd146ae7fe6a"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "e1f6d28c81918773797c9cdebdea8fb51e20541506d7faa906c9ce812d1dab27",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/rand/asm/rndr-armv8.pl",
+        "bytes": 1909,
+        "sha256": "73ab5210de3b676e9356a17b2d2233a577da200e31ee43ce48e31c93fab0ca40",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/rand/asm/rndr-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-keccak1600-armv8.json",
+      "file_encoding": {
+        "bytes": 2622,
+        "format": "json_string",
+        "sha256": "8bb5e4a8d0e330ac1e72cdd97618d5d04158584ef8514ce4aac5027f20caa0cb"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f6689bb95248308306ed538449d101d6dd3bf892cd1c5752b1c4914ba99126a7",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/asm/keccak1600-armv8.pl",
+        "bytes": 10991,
+        "sha256": "c60c7afaacdabf21f99b0dc516f235eabc56862bc76cdd64f23b9c7b1d391da0",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/asm/keccak1600-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-sha1-armv8.json",
+      "file_encoding": {
+        "bytes": 981,
+        "format": "json_string",
+        "sha256": "554ead36933bc04d03026a61b1e53646d369f50f4f515e80d35b354433fa2afa"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "d80eb1a892268c66d8cb9c1ebe4bdf240c10f458f79ff93c7f13d86d29e456d0",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/asm/sha1-armv8.pl",
+        "bytes": 8069,
+        "sha256": "dfb823762e5ceb70c598bcd13777117438cae2e9332dbd34144d83c5557411a5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/asm/sha1-armv8.pl",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-generator-sha512-armv8.json",
+      "file_encoding": {
+        "bytes": 1402,
+        "format": "json_string",
+        "sha256": "d3c94fb33f68c5ac9161a6ff3b7bea725c7dba4125cd1e5b50298d64b1d41576"
+      },
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "5c0b67098ad800b665ed833e44d4e40b28fda628ec83f8a5ce43fe308f222750",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/crypto/fipsmodule/sha/asm/sha512-armv8.pl",
+        "bytes": 15874,
+        "sha256": "70809dbd80b711cafe83aad89204371a173669ec26e7a8a52cdca1c1ff1728f5",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/asm/sha512-armv8.pl",
+      "version": "0.45.0"
     }
   ]
 }

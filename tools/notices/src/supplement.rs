@@ -3,7 +3,7 @@ use std::{
     path::Path,
 };
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
 
 use crate::{Result, Texts, archive, checksum, error, relative_path, string};
@@ -26,7 +26,22 @@ struct Notice {
     source_url: String,
     file: String,
     sha256: String,
+    file_encoding: Option<FileEncoding>,
     source_prefix: Option<SourcePrefix>,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct FileEncoding {
+    format: EncodingFormat,
+    bytes: u64,
+    sha256: String,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum EncodingFormat {
+    JsonString,
 }
 
 #[derive(Deserialize)]
@@ -60,13 +75,26 @@ fn verified_package(package: &Value, notice: &Notice) -> Result<()> {
 
 /// # Errors
 /// Rejects unsafe sibling paths, failed bounded reads, changed checksums,
-/// empty text, or invalid UTF-8.
+/// invalid encoding bindings, malformed JSON strings, empty text, or invalid UTF-8.
 fn notice_text(notice: &Notice, root: &Path) -> Result<Vec<u8>> {
     let file = relative_path(&notice.file)?;
     if file.components().count() != 1 {
         return Err(error("supplement must be a sibling file"));
     }
     let bytes = crate::input::read(&root.join(file), archive::NOTICE_BYTES)?;
+    let bytes = if let Some(encoding) = &notice.file_encoding {
+        if encoding.bytes != u64::try_from(bytes.len())? || checksum(&bytes)? != encoding.sha256 {
+            return Err(error("supplemental encoded file mismatch"));
+        }
+        match encoding.format {
+            EncodingFormat::JsonString => serde_json::from_slice::<String>(&bytes)?.into_bytes(),
+        }
+    } else {
+        bytes
+    };
+    if u64::try_from(bytes.len())? > archive::NOTICE_BYTES {
+        return Err(error("supplemental decoded text exceeds limit"));
+    }
     if checksum(&bytes)? != notice.sha256 {
         return Err(error("supplemental text checksum mismatch"));
     }
@@ -280,6 +308,13 @@ pub fn apply(
         let mut record = json!({"file":notice.file,"sha256":digest,"bytes":text_bytes.len(),"source_url":notice.source_url,
             "source_commit":notice.source_commit,"upstream_path":notice.upstream_path,
             "source_kind":"checked_upstream_file_omitted_from_published_archive"});
+        if let Some(encoding) = notice.file_encoding {
+            let fields = record
+                .as_object_mut()
+                .ok_or_else(|| error("invalid notice record"))?;
+            let _previous: Option<Value> =
+                fields.insert("file_encoding".to_owned(), json!(encoding));
+        }
         if let Some(prefix) = notice.source_prefix {
             let fields = record
                 .as_object_mut()

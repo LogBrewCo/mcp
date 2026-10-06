@@ -3475,6 +3475,1366 @@
           },
           "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
           "upstream_path": "aws-lc-sys/aws-lc/crypto/ec_extra/ec_asn1.c"
+        },
+        {
+          "bytes": 160,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+          "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyz_unpack_17_aarch64_asm.S",
+            "bytes": 2897,
+            "prefix_bytes": 160,
+            "sha256": "0a9f32d0094612fd7ff252294abe1252b9e142a6899a1980fcfc1043ec48ff00",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyz_unpack_17_aarch64_asm.S"
+        },
+        {
+          "bytes": 160,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+          "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyz_unpack_19_aarch64_asm.S",
+            "bytes": 2794,
+            "prefix_bytes": 160,
+            "sha256": "67d1a64b4df7aef64b486ed2f949390c59cd411bf17cd45b6c17c6809d661392",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyz_unpack_19_aarch64_asm.S"
+        },
+        {
+          "bytes": 160,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+          "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_aarch64_asm.S",
+            "bytes": 6456,
+            "prefix_bytes": 160,
+            "sha256": "8b259c1f41e3f56ac4418c613df0eb3f28ce7bb53283fe157c58d44ccacb8bd9",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_aarch64_asm.S"
+        },
+        {
+          "bytes": 160,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+          "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_eta2_aarch64_asm.S",
+            "bytes": 4884,
+            "prefix_bytes": 160,
+            "sha256": "549e39739c5dfd713939ec866909782eec8db76fb9d616f6cf50cfafc5a7e5a7",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_eta2_aarch64_asm.S"
+        },
+        {
+          "bytes": 160,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_polyz_unpack_17_aarch64_asm.S-notice.txt",
+          "sha256": "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_eta4_aarch64_asm.S",
+            "bytes": 4642,
+            "prefix_bytes": 160,
+            "sha256": "122ed0273fe036ad87a3a6b2b610438270ef4b3246d56395bd81d34655cf9672",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_rej_uniform_eta4_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_caddq_aarch64_asm.S",
+            "bytes": 1845,
+            "prefix_bytes": 110,
+            "sha256": "b6b0d414d23cecc36d3a2d435b9fa9af31f8add3cc9be3a8f531c1386f0744c4",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_caddq_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_chknorm_aarch64_asm.S",
+            "bytes": 2093,
+            "prefix_bytes": 110,
+            "sha256": "2843ac7c06dbd7fb48691af9ae9cbcb9b36dd3176e00412b24fe5757e433bb4e",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_chknorm_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_decompose_32_aarch64_asm.S",
+            "bytes": 3105,
+            "prefix_bytes": 110,
+            "sha256": "87a1ac949a22c13ede9f96a5ce4e45b950a2a45c6996bff10bad3c6f89461854",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_decompose_32_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_decompose_88_aarch64_asm.S",
+            "bytes": 3105,
+            "prefix_bytes": 110,
+            "sha256": "75c9bec9018d584754c1abe8b175c250abf2f193d4b63b4531711d41d36ac751",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_decompose_88_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_use_hint_32_aarch64_asm.S",
+            "bytes": 3625,
+            "prefix_bytes": 110,
+            "sha256": "90bef79e573e00d149f2e765e2ddb0e75caa986ebebda183f280fa160d533722",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_use_hint_32_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_poly_caddq_aarch64_asm.S-notice.txt",
+          "sha256": "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_use_hint_88_aarch64_asm.S",
+            "bytes": 3914,
+            "prefix_bytes": 110,
+            "sha256": "2a2ec31f4a2f42da07bc3b2d4ac6f91da1345f9aeee698be424bf43a6b077ff3",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_poly_use_hint_88_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_mulcache_compute_aarch64_asm.S",
+            "bytes": 3863,
+            "prefix_bytes": 110,
+            "sha256": "f401641b42352723a668cfb20df2d15e46a40e88f8d950b00af689cd2d459d07",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_mulcache_compute_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_reduce_aarch64_asm.S",
+            "bytes": 4739,
+            "prefix_bytes": 110,
+            "sha256": "7d6b27473386ee1c25ff4d35922b58f0878a59518f9a7d1de3de19d80696405f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_reduce_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_tobytes_aarch64_asm.S",
+            "bytes": 3477,
+            "prefix_bytes": 110,
+            "sha256": "9664d41d48cd686afb0b4d88bb05f0deacc8df402625440da08b823ebc62aef1",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_tobytes_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_tomont_aarch64_asm.S",
+            "bytes": 2849,
+            "prefix_bytes": 110,
+            "sha256": "24bf6734b2d16fdefbfecff6f93c5babf4272a5c2d308bf176d7136ac2b7350d",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_poly_tomont_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k2_aarch64_asm.S",
+            "bytes": 8540,
+            "prefix_bytes": 110,
+            "sha256": "d9581130029d0f629d4da2db9ab38738ef176e82d25f14792bef0b0551dd571f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k2_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k3_aarch64_asm.S",
+            "bytes": 10384,
+            "prefix_bytes": 110,
+            "sha256": "bca4ffde69ef8508b280cf4e8e056a66e996ed73d7aa3dc7a3edf0f37e484517",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k3_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k4_aarch64_asm.S",
+            "bytes": 12235,
+            "prefix_bytes": 110,
+            "sha256": "89f119001118c0ae3ffde5465763f532d14af5bc8147ab59e41cd88e4f6b1dd6",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_polyvec_basemul_acc_montgomery_cached_k4_aarch64_asm.S"
+        },
+        {
+          "bytes": 110,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_kem-mlkem-native-aarch64-src-mlkem_poly_mulcache_compute_aarch64_asm.S-notice.txt",
+          "sha256": "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_rej_uniform_aarch64_asm.S",
+            "bytes": 6561,
+            "prefix_bytes": 110,
+            "sha256": "e5da2deed83391c3fab116c88f1c3f571656751062a088f931e709612e8f313f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_kem/mlkem/native/aarch64/src/mlkem_rej_uniform_aarch64_asm.S"
+        },
+        {
+          "bytes": 107,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_pointwise_montgomery_aarch64_asm.S-notice.txt",
+          "sha256": "b9cc1365d2ed4b98c11964239793cdbe579b09f1128ee95917ef01622582ee5c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_pointwise_montgomery_aarch64_asm.S",
+            "bytes": 3170,
+            "prefix_bytes": 107,
+            "sha256": "d9c477e6a7cc7752af1b356ffa1bc76f135f6b1558f04f71bb46f621a8432807",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_pointwise_montgomery_aarch64_asm.S"
+        },
+        {
+          "bytes": 107,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_pointwise_montgomery_aarch64_asm.S-notice.txt",
+          "sha256": "b9cc1365d2ed4b98c11964239793cdbe579b09f1128ee95917ef01622582ee5c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l4_aarch64_asm.S",
+            "bytes": 5132,
+            "prefix_bytes": 107,
+            "sha256": "60de5761366824b07915dd8dbbb10d14395689878141564f2251afbc9e01c2f7",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l4_aarch64_asm.S"
+        },
+        {
+          "bytes": 107,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_pointwise_montgomery_aarch64_asm.S-notice.txt",
+          "sha256": "b9cc1365d2ed4b98c11964239793cdbe579b09f1128ee95917ef01622582ee5c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l5_aarch64_asm.S",
+            "bytes": 5672,
+            "prefix_bytes": 107,
+            "sha256": "51159edaf539528ff5269b28dc68df96e61fc4c9625473d15ccf973241809829",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l5_aarch64_asm.S"
+        },
+        {
+          "bytes": 107,
+          "file": "aws-lc-sys-0.45.0-crypto-fipsmodule-ml_dsa-mldsa-native-aarch64-src-mldsa_pointwise_montgomery_aarch64_asm.S-notice.txt",
+          "sha256": "b9cc1365d2ed4b98c11964239793cdbe579b09f1128ee95917ef01622582ee5c",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l7_aarch64_asm.S",
+            "bytes": 6768,
+            "prefix_bytes": 107,
+            "sha256": "522ce28652df2ae3140291fe8de2cc7b11d87deaa5fd6d106d11f30230abd449",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/ml_dsa/mldsa/native/aarch64/src/mldsa_polyvecl_pointwise_acc_montgomery_l7_aarch64_asm.S"
+        },
+        {
+          "bytes": 114,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-_internal_s2n_bignum_arm.h-notice.txt",
+          "sha256": "0e0fcd42a3b091e638b0cc9f6570eae735e62fac54443ae42b3a25eb7070b5ad",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/include/_internal_s2n_bignum_arm.h",
+            "bytes": 3193,
+            "prefix_bytes": 114,
+            "sha256": "2623f71e8b4e60858b66062b7605328acbffa6aeb7641791f16e762d3602bee6",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/include/_internal_s2n_bignum_arm.h"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_madd_n25519.S",
+            "bytes": 10079,
+            "prefix_bytes": 125,
+            "sha256": "0430534c63b676186fa8df2166dcec56c10f834a72b6cc992f5380296eaf8d11",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_madd_n25519.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_madd_n25519_alt.S",
+            "bytes": 7979,
+            "prefix_bytes": 125,
+            "sha256": "50ff7a43a49bb7b8c54c7a59a6122e424979d8fd80f1a605b69e0cc3e43bd31e",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_madd_n25519_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_mod_n25519.S",
+            "bytes": 5382,
+            "prefix_bytes": 125,
+            "sha256": "71dc366f0259bba6683086fa0b2a3b40baadbc097224f78b5360e8717653a2b0",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_mod_n25519.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_neg_p25519.S",
+            "bytes": 1837,
+            "prefix_bytes": 125,
+            "sha256": "592ae93ebd2113c0277ab9725507869ae048ad290061b0f0c844d1667939baf1",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/bignum_neg_p25519.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519_byte.S",
+            "bytes": 97344,
+            "prefix_bytes": 125,
+            "sha256": "c99e77052afa785252e5364db4235f89b574610989ab8299aa21b7aca2bc0fdf",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519_byte.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519_byte_alt.S",
+            "bytes": 63250,
+            "prefix_bytes": 125,
+            "sha256": "c44b7a1af90de5c413ef707d67da439e995ec23fd5801f7bf20956b2ec9e3339",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519_byte_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519base_byte.S",
+            "bytes": 299696,
+            "prefix_bytes": 125,
+            "sha256": "7a4d61f740fa6d6809a8982af28a2dafd1dcdf51da4ecc0be84e341fedac356f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519base_byte.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519base_byte_alt.S",
+            "bytes": 291404,
+            "prefix_bytes": 125,
+            "sha256": "f8c555ba9989f4cf2c5376db26b48c302ee0df695d2960a83933e96dbcfa1db7",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/curve25519_x25519base_byte_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_decode.S",
+            "bytes": 21039,
+            "prefix_bytes": 125,
+            "sha256": "ef17d9b7490bca9c85efcd760c4f83b3bdb39aa86cfd42fc9f7fce14171b1d7f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_decode.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_decode_alt.S",
+            "bytes": 17027,
+            "prefix_bytes": 125,
+            "sha256": "a890081773f5a48194f6891b4a7555c7c6289d528c90b5057d225b783051c35f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_decode_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_encode.S",
+            "bytes": 4122,
+            "prefix_bytes": 125,
+            "sha256": "a71a6c3e21175bd2d122ed61a92d32f2a30f44c594715270568cd3fb281987d5",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_encode.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmulbase.S",
+            "bytes": 296849,
+            "prefix_bytes": 125,
+            "sha256": "2f274bb1cf7e233c4734ec336e11d0592e2c3acdf556bf13182ddf56e0492b68",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmulbase.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmulbase_alt.S",
+            "bytes": 288557,
+            "prefix_bytes": 125,
+            "sha256": "b55827ca7f0e9a2d977512db8d4ecbcb0499f7294e068a1f4b1131bc96e50e2a",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmulbase_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmuldouble.S",
+            "bytes": 108356,
+            "prefix_bytes": 125,
+            "sha256": "7c67541ef72653ce392f521f3fd4f905c303009a525c0694c687e7414ab16534",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmuldouble.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmuldouble_alt.S",
+            "bytes": 97112,
+            "prefix_bytes": 125,
+            "sha256": "d18ce8e5171301bb8693637ca829a143653450092f70509d12d7b7240f789db5",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/curve25519/edwards25519_scalarmuldouble_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_emontredc_8n.S",
+            "bytes": 27053,
+            "prefix_bytes": 125,
+            "sha256": "3857968d4ea098bc90f1a8d0148bb71715432a15bd5ff24f49b48dd7ed5f1c49",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_emontredc_8n.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_kmul_16_32.S",
+            "bytes": 23501,
+            "prefix_bytes": 125,
+            "sha256": "62dd8659d2fcb77adcfd17ab7830cf00cdf3299b153e17bfed6e059c537aeb68",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_kmul_16_32.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_kmul_32_64.S",
+            "bytes": 38341,
+            "prefix_bytes": 125,
+            "sha256": "a3b0e1e7f869277b0d085b7a13845db081ca6f06c8fe37096fcfbb660acc9a22",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_kmul_32_64.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_ksqr_16_32.S",
+            "bytes": 20319,
+            "prefix_bytes": 125,
+            "sha256": "7518abf0adca23d234de92ea39941dc6a05d88e5eab350fd99b6dc58ff31292d",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_ksqr_16_32.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_ksqr_32_64.S",
+            "bytes": 31451,
+            "prefix_bytes": 125,
+            "sha256": "5c54506e52a5318c1e64ea298127182a3922f85a6ebc3d2563cb083a427ef426",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/fastmul/bignum_ksqr_32_64.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table.S",
+            "bytes": 2415,
+            "prefix_bytes": 125,
+            "sha256": "ccc13ce3f9cc77076de3ddb406f042fa81c6f1967ed9597c9c998b00e24d1dd2",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_16.S",
+            "bytes": 3413,
+            "prefix_bytes": 125,
+            "sha256": "dbb865b21730cfd59711ce0ca9a5996e43a9e2736e2aec8af58619c3c90ddfe9",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_16.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_32.S",
+            "bytes": 4803,
+            "prefix_bytes": 125,
+            "sha256": "232635bcfd553c9363e27431b6171aac7ab921d0c388fe597c5ede36464d03db",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_32.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_8n.S",
+            "bytes": 3068,
+            "prefix_bytes": 125,
+            "sha256": "e59fd98e6dc7bcc8824f9a659b65afa010fef0008eca5808b676386ee3becc0b",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_copy_row_from_table_8n.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_ge.S",
+            "bytes": 2501,
+            "prefix_bytes": 125,
+            "sha256": "3ba83635319f3c75b02d99661b18286c6eb1b04691e2b40499bd5397a91eec79",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_ge.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_mul.S",
+            "bytes": 2993,
+            "prefix_bytes": 125,
+            "sha256": "1f57afe5dcf9a0bc4dcdf8089b58d78fe13892ad1f3b4b137014b7b899eff6ff",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_mul.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_optsub.S",
+            "bytes": 1963,
+            "prefix_bytes": 125,
+            "sha256": "883e2976d86b77a39615b768f93e2bd6cbd0c2eb156829718e98f7c60ff6c54c",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_optsub.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_sqr.S",
+            "bytes": 3520,
+            "prefix_bytes": 125,
+            "sha256": "59ad9e58c191801aa63ea7f09bcacbdccb801059399e2ee41b170008db720ccf",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/generic/bignum_sqr.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/bignum_montinv_p256.S",
+            "bytes": 67533,
+            "prefix_bytes": 125,
+            "sha256": "339a8276bb1aa3721c2dc9f76abbd28b3d597983446427a68c39393a589ec650",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/bignum_montinv_p256.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/p256_montjscalarmul.S",
+            "bytes": 149977,
+            "prefix_bytes": 125,
+            "sha256": "c3c11728f0be39460eac407c7839b888f23b039a2590266d1d848ec473ff32a0",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/p256_montjscalarmul.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/p256_montjscalarmul_alt.S",
+            "bytes": 100181,
+            "prefix_bytes": 125,
+            "sha256": "2316c10874d72567868d90ef8a86dff00f58abdeb150630fc5967b824c720704",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p256/p256_montjscalarmul_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_add_p384.S",
+            "bytes": 2605,
+            "prefix_bytes": 125,
+            "sha256": "8447286c9ae512d30bfd43db007fe9e46bb6c669f7bf5eef362f1b8b406f8e86",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_add_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_deamont_p384.S",
+            "bytes": 5538,
+            "prefix_bytes": 125,
+            "sha256": "07fc8fde902e9c595f9377c44a08f4c4e620d0d3964df5c2edd1a974abd28d8a",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_deamont_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_littleendian_6.S",
+            "bytes": 5369,
+            "prefix_bytes": 125,
+            "sha256": "4dd95dac2e3bf6916aa4ef6bee59c879735faf66045b1a8a7b6edbf811d4b3b5",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_littleendian_6.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montinv_p384.S",
+            "bytes": 73060,
+            "prefix_bytes": 125,
+            "sha256": "ad1b6d4c921d284e2b4819e4b83ee451571487fa52a558926b3ba9ce7a352a41",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montinv_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montmul_p384.S",
+            "bytes": 25286,
+            "prefix_bytes": 125,
+            "sha256": "bbbe66f0f71abf979086591a9463d05f48ffc4d0840c2a2ad4268dadf18cd12b",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montmul_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montmul_p384_alt.S",
+            "bytes": 9663,
+            "prefix_bytes": 125,
+            "sha256": "5b119f852fe2dc36f3eeaec1cfb4e056bd40b71739fac6a91bbf30200af3d7d8",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montmul_p384_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montsqr_p384.S",
+            "bytes": 19807,
+            "prefix_bytes": 125,
+            "sha256": "e151526b29b9a284ecbb374ad579f3aa9f9a9b8f64868e88d9f05f78e99367cc",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montsqr_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montsqr_p384_alt.S",
+            "bytes": 8017,
+            "prefix_bytes": 125,
+            "sha256": "303630570ee478bb568c76afd042284c6d5629a5235f0d0c430b173602d95caf",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_montsqr_p384_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_neg_p384.S",
+            "bytes": 2043,
+            "prefix_bytes": 125,
+            "sha256": "b9bdab83dba5a3ccf1cf88a7c816f539cb1bb3f2aa1a95563437909e3c92bcbf",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_neg_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_nonzero_6.S",
+            "bytes": 1377,
+            "prefix_bytes": 125,
+            "sha256": "b3595abd86597dff5ab80cb7afecf02f039b35845f46673f613146a1420b7530",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_nonzero_6.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_sub_p384.S",
+            "bytes": 2190,
+            "prefix_bytes": 125,
+            "sha256": "1076ebbe502f6ddff2d35b25f6584cca1f30b72bfae61b7faf02009c94e80ebe",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_sub_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_tomont_p384.S",
+            "bytes": 5627,
+            "prefix_bytes": 125,
+            "sha256": "b009848911f51a15d7dc3ea610e794d54bcfffe9a37b202d8958648cdbdc4476",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/bignum_tomont_p384.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjdouble.S",
+            "bytes": 83317,
+            "prefix_bytes": 125,
+            "sha256": "7342ae474cb7d92629b07d155ccb65b4e67957f74e597f99da827fe462411d94",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjdouble.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjdouble_alt.S",
+            "bytes": 45310,
+            "prefix_bytes": 125,
+            "sha256": "2c6a2405d21cee6227dd930281be6634dbdf64bf437f66e598c6771700f929f2",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjdouble_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjscalarmul.S",
+            "bytes": 314701,
+            "prefix_bytes": 125,
+            "sha256": "156beecff3c1291de42b0cd67e9c8897b6b9ad6f8feb872dbef55f42eafc237b",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjscalarmul.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjscalarmul_alt.S",
+            "bytes": 210203,
+            "prefix_bytes": 125,
+            "sha256": "6771e630aeeed57f543641c44dba60611acf3ed8a00ab1fa3c16132bc275aaae",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p384/p384_montjscalarmul_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_add_p521.S",
+            "bytes": 2711,
+            "prefix_bytes": 125,
+            "sha256": "f3866df7bec7f70fb30715eeb5622603671876c5d1978816c111557e96416e97",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_add_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_fromlebytes_p521.S",
+            "bytes": 5587,
+            "prefix_bytes": 125,
+            "sha256": "f3ec510fade748b469c320ea614e04a2818ba223fdbc3a81bf8fbeb8888f000f",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_fromlebytes_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_inv_p521.S",
+            "bytes": 75275,
+            "prefix_bytes": 125,
+            "sha256": "954cc29c9dc223cfce5085c8f1f7701b60e6fd85c94bf00275b3448243f3bcfb",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_inv_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_mul_p521.S",
+            "bytes": 40883,
+            "prefix_bytes": 125,
+            "sha256": "5a524305592ea101234ed2c8c2e01b888a071ec104bbc63c178931eef2e437f9",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_mul_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_mul_p521_alt.S",
+            "bytes": 13097,
+            "prefix_bytes": 125,
+            "sha256": "dd57d10846250d7b1faecdad370c94d1ea415509bddbdfd44fbeefef1844c9e5",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_mul_p521_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_neg_p521.S",
+            "bytes": 2320,
+            "prefix_bytes": 125,
+            "sha256": "77cdd367c549ec86a998a8070a6c09697dfcae9490e4a8efffc84c73a134be39",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_neg_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sqr_p521.S",
+            "bytes": 33860,
+            "prefix_bytes": 125,
+            "sha256": "52860eb1bbe618afa1f6f3333127d9876aa343be2958de241fc9c817d50a9fbe",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sqr_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sqr_p521_alt.S",
+            "bytes": 9303,
+            "prefix_bytes": 125,
+            "sha256": "6dd9677b86efc62980fd7071d487d1cd9bafe421dc1bcf8d73164874c6488da4",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sqr_p521_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sub_p521.S",
+            "bytes": 2473,
+            "prefix_bytes": 125,
+            "sha256": "1ec5441d692fcaad41b37854b824cffebb143da0c71d9aabcfd35918726487de",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_sub_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_tolebytes_p521.S",
+            "bytes": 5117,
+            "prefix_bytes": 125,
+            "sha256": "c8d25fc3532a445883dbcf9606f917ccc43d8b81b746c1e8babc782b0260c446",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/bignum_tolebytes_p521.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jdouble.S",
+            "bytes": 54392,
+            "prefix_bytes": 125,
+            "sha256": "4735fa62b0feb8928d7f9603bb8c30271106b5cc69ce18c9595fb3921c98294a",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jdouble.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jdouble_alt.S",
+            "bytes": 71880,
+            "prefix_bytes": 125,
+            "sha256": "e7c159200a167fca89fdcfb56e58d7cfe9f9cda02408c65bb4e6de0b2690743e",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jdouble_alt.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jscalarmul.S",
+            "bytes": 80148,
+            "prefix_bytes": 125,
+            "sha256": "9f6aae9013c269d86c4eb0039ae9a234fd2a9b1a8e0b4a86a96ee78aad0eff98",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jscalarmul.S"
+        },
+        {
+          "bytes": 125,
+          "file": "aws-lc-sys-0.45.0-third_party-s2n-bignum-s2n-bignum-imported-include-s2n-bignum.h-notice.txt",
+          "sha256": "b7920de828acf6be636c2e08727504a3aa0c5e5e50c66cd28e54e369baf962ac",
+          "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+          "source_kind": "checked_published_archive_source_prefix",
+          "source_prefix": {
+            "archive_path": "aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jscalarmul_alt.S",
+            "bytes": 65489,
+            "prefix_bytes": 125,
+            "sha256": "4e15b35d1883c5c7752c22c4c874b6aaf6da14ba96e08b87c11c8a2c414b6d74",
+            "source_url_kind": "published_archive"
+          },
+          "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+          "upstream_path": "aws-lc-sys/aws-lc/third_party/s2n-bignum/s2n-bignum-imported/arm/p521/p521_jscalarmul_alt.S"
         }
       ],
       "vcs": {
@@ -10549,7 +11909,7 @@
     }
   },
   "scope": "all_locked_packages_including_inactive_and_development",
-  "supplement_manifest_sha256": "54e8155c91f8590aedfddc29be5628f1c1a4eb2b839b6dfa553fe2da0a446be4",
+  "supplement_manifest_sha256": "586de1a531e8d339612dd17c968c3bfbaf19da71c2544ec53391514974ac039f",
   "texts": {
     "005fc765ddc5115da796cca915baa9557abae13ff35e0a47c47affc56f6c414d": "\n                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n\n   END OF TERMS AND CONDITIONS\n\n   APPENDIX: How to apply the Apache License to your work.\n\n      To apply the Apache License to your work, attach the following\n      boilerplate notice, with the fields enclosed by brackets \"[]\"\n      replaced with your own identifying information. (Don't include\n      the brackets!)  The text should be enclosed in the appropriate\n      comment syntax for the file format. We also recommend that a\n      file or class name and description of purpose be included on the\n      same \"printed page\" as the copyright notice for easier\n      identification within third-party archives.\n\n   Copyright [yyyy] [name of copyright owner]\n\n   Licensed under the Apache License, Version 2.0 (the \"License\");\n   you may not use this file except in compliance with the License.\n   You may obtain a copy of the License at\n\n       http://www.apache.org/licenses/LICENSE-2.0\n\n   Unless required by applicable law or agreed to in writing, software\n   distributed under the License is distributed on an \"AS IS\" BASIS,\n   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n   See the License for the specific language governing permissions and\n   limitations under the License.\n\n\nLicenses for support code\n-------------------------\n\nParts of the TLS test suite are under the Go license. This code is not included\nin BoringSSL (i.e. libcrypto and libssl) when compiled, however, so\ndistributing code linked against BoringSSL does not trigger this license:\n\nCopyright (c) 2009 The Go Authors. All rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are\nmet:\n\n   * Redistributions of source code must retain the above copyright\nnotice, this list of conditions and the following disclaimer.\n   * Redistributions in binary form must reproduce the above\ncopyright notice, this list of conditions and the following disclaimer\nin the documentation and/or other materials provided with the\ndistribution.\n   * Neither the name of Google Inc. nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\nLIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\nA PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\nOWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\nSPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\nLIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\nDATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\nTHEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n\nBoringSSL uses the Chromium test infrastructure to run a continuous build,\ntrybots etc. The scripts which manage this, and the script for generating build\nmetadata, are under the Chromium license. Distributing code linked against\nBoringSSL does not trigger this license.\n\nCopyright 2015 The Chromium Authors. All rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are\nmet:\n\n   * Redistributions of source code must retain the above copyright\nnotice, this list of conditions and the following disclaimer.\n   * Redistributions in binary form must reproduce the above\ncopyright notice, this list of conditions and the following disclaimer\nin the documentation and/or other materials provided with the\ndistribution.\n   * Neither the name of Google Inc. nor the names of its\ncontributors may be used to endorse or promote products derived from\nthis software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\nLIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\nA PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\nOWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\nSPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\nLIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\nDATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\nTHEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n",
     "008c87afcd2e626eaf564093250bed06dd7efb5732113264bba3dda8f1c556a1": "MIT License\n\nCopyright (c) 2019–2025 axum Contributors\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.",
@@ -10570,6 +11930,7 @@
     "0cec06e0e55fbc3dc5cee4fca9b607f66cb8f4e4dbcf3b3c013594dd156732e9": "\n                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n\n   END OF TERMS AND CONDITIONS",
     "0d3b86c089ecb8c4b619a181b69cdb8a9917fc539ab24c534c8fdc7bec3cab8c": "// Copyright (c) 2022, Google Inc.\n// SPDX-License-Identifier: ISC\n",
     "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594": "\n                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n\n   END OF TERMS AND CONDITIONS\n",
+    "0e0fcd42a3b091e638b0cc9f6570eae735e62fac54443ae42b3a25eb7070b5ad": "// Auto-added during import for AWS-LC symbol prefixing support\n#include <openssl/boringssl_prefix_symbols_asm.h>\n",
     "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f": "The MIT License (MIT)\n\nCopyright (c) 2015 Andrew Gallant\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.\n",
     "107920ddc1e84196f02e1ae690f97bb19052392507b55651a35048692e93bb4d": "// Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL project 1999\n// Copyright (c) 1999-2004 The OpenSSL Project.  All rights reserved.\n// SPDX-License-Identifier: Apache-2.0\n",
     "117829c3ca21efb132d81a44b55363d395ab8eea18526873bc828da4c0e5f038": "MIT License\n\nCopyright (c) 2020-2026 Dmitry Dygalo\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
@@ -10725,6 +12086,7 @@
     "a00511478c83ebb464ef19d840f061c7444adc4636bb561900e75c5808cfc6cc": "MIT License\n\nCopyright (c) 2022 Nugine\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
     "a018c87bafd79b58e271833b6b65b0da4d53da99090b2f525da12832098ee42e": "// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.\n//\n// The Elliptic Curve Public-Key Crypto Library (ECC Code) included\n// herein is developed by SUN MICROSYSTEMS, INC., and is contributed\n// to the OpenSSL project.\n// \n// The ECDH software is originally written by Douglas Stebila of\n// Sun Microsystems Laboratories.\n//\n// Copyright (c) 2000-2002 The OpenSSL Project.  All rights reserved.\n// SPDX-License-Identifier: Apache-2.0\n",
     "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499": "Creative Commons Legal Code\n\nCC0 1.0 Universal\n\n    CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE\n    LEGAL SERVICES. DISTRIBUTION OF THIS DOCUMENT DOES NOT CREATE AN\n    ATTORNEY-CLIENT RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS\n    INFORMATION ON AN \"AS-IS\" BASIS. CREATIVE COMMONS MAKES NO WARRANTIES\n    REGARDING THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS\n    PROVIDED HEREUNDER, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM\n    THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS PROVIDED\n    HEREUNDER.\n\nStatement of Purpose\n\nThe laws of most jurisdictions throughout the world automatically confer\nexclusive Copyright and Related Rights (defined below) upon the creator\nand subsequent owner(s) (each and all, an \"owner\") of an original work of\nauthorship and/or a database (each, a \"Work\").\n\nCertain owners wish to permanently relinquish those rights to a Work for\nthe purpose of contributing to a commons of creative, cultural and\nscientific works (\"Commons\") that the public can reliably and without fear\nof later claims of infringement build upon, modify, incorporate in other\nworks, reuse and redistribute as freely as possible in any form whatsoever\nand for any purposes, including without limitation commercial purposes.\nThese owners may contribute to the Commons to promote the ideal of a free\nculture and the further production of creative, cultural and scientific\nworks, or to gain reputation or greater distribution for their Work in\npart through the use and efforts of others.\n\nFor these and/or other purposes and motivations, and without any\nexpectation of additional consideration or compensation, the person\nassociating CC0 with a Work (the \"Affirmer\"), to the extent that he or she\nis an owner of Copyright and Related Rights in the Work, voluntarily\nelects to apply CC0 to the Work and publicly distribute the Work under its\nterms, with knowledge of his or her Copyright and Related Rights in the\nWork and the meaning and intended legal effect of CC0 on those rights.\n\n1. Copyright and Related Rights. A Work made available under CC0 may be\nprotected by copyright and related or neighboring rights (\"Copyright and\nRelated Rights\"). Copyright and Related Rights include, but are not\nlimited to, the following:\n\n  i. the right to reproduce, adapt, distribute, perform, display,\n     communicate, and translate a Work;\n ii. moral rights retained by the original author(s) and/or performer(s);\niii. publicity and privacy rights pertaining to a person's image or\n     likeness depicted in a Work;\n iv. rights protecting against unfair competition in regards to a Work,\n     subject to the limitations in paragraph 4(a), below;\n  v. rights protecting the extraction, dissemination, use and reuse of data\n     in a Work;\n vi. database rights (such as those arising under Directive 96/9/EC of the\n     European Parliament and of the Council of 11 March 1996 on the legal\n     protection of databases, and under any national implementation\n     thereof, including any amended or successor version of such\n     directive); and\nvii. other similar, equivalent or corresponding rights throughout the\n     world based on applicable law or treaty, and any national\n     implementations thereof.\n\n2. Waiver. To the greatest extent permitted by, but not in contravention\nof, applicable law, Affirmer hereby overtly, fully, permanently,\nirrevocably and unconditionally waives, abandons, and surrenders all of\nAffirmer's Copyright and Related Rights and associated claims and causes\nof action, whether now known or unknown (including existing as well as\nfuture claims and causes of action), in the Work (i) in all territories\nworldwide, (ii) for the maximum duration provided by applicable law or\ntreaty (including future time extensions), (iii) in any current or future\nmedium and for any number of copies, and (iv) for any purpose whatsoever,\nincluding without limitation commercial, advertising or promotional\npurposes (the \"Waiver\"). Affirmer makes the Waiver for the benefit of each\nmember of the public at large and to the detriment of Affirmer's heirs and\nsuccessors, fully intending that such Waiver shall not be subject to\nrevocation, rescission, cancellation, termination, or any other legal or\nequitable action to disrupt the quiet enjoyment of the Work by the public\nas contemplated by Affirmer's express Statement of Purpose.\n\n3. Public License Fallback. Should any part of the Waiver for any reason\nbe judged legally invalid or ineffective under applicable law, then the\nWaiver shall be preserved to the maximum extent permitted taking into\naccount Affirmer's express Statement of Purpose. In addition, to the\nextent the Waiver is so judged Affirmer hereby grants to each affected\nperson a royalty-free, non transferable, non sublicensable, non exclusive,\nirrevocable and unconditional license to exercise Affirmer's Copyright and\nRelated Rights in the Work (i) in all territories worldwide, (ii) for the\nmaximum duration provided by applicable law or treaty (including future\ntime extensions), (iii) in any current or future medium and for any number\nof copies, and (iv) for any purpose whatsoever, including without\nlimitation commercial, advertising or promotional purposes (the\n\"License\"). The License shall be deemed effective as of the date CC0 was\napplied by Affirmer to the Work. Should any part of the License for any\nreason be judged legally invalid or ineffective under applicable law, such\npartial invalidity or ineffectiveness shall not invalidate the remainder\nof the License, and in such case Affirmer hereby affirms that he or she\nwill not (i) exercise any of his or her remaining Copyright and Related\nRights in the Work or (ii) assert any associated claims and causes of\naction with respect to the Work, in either case contrary to Affirmer's\nexpress Statement of Purpose.\n\n4. Limitations and Disclaimers.\n\n a. No trademark or patent rights held by Affirmer are waived, abandoned,\n    surrendered, licensed or otherwise affected by this document.\n b. Affirmer offers the Work as-is and makes no representations or\n    warranties of any kind concerning the Work, express, implied,\n    statutory or otherwise, including without limitation warranties of\n    title, merchantability, fitness for a particular purpose, non\n    infringement, or the absence of latent or other defects, accuracy, or\n    the present or absence of errors, whether or not discoverable, all to\n    the greatest extent permissible under applicable law.\n c. Affirmer disclaims responsibility for clearing rights of other persons\n    that may apply to the Work or any use thereof, including without\n    limitation any person's Copyright and Related Rights in the Work.\n    Further, Affirmer disclaims responsibility for obtaining any necessary\n    consents, permissions or other rights required for any use of the\n    Work.\n d. Affirmer understands and acknowledges that Creative Commons is not a\n    party to this document and has no duty or obligation with respect to\n    this CC0 or use of the Work.\n",
+    "a4316b89c047ac252d13b821b19de60c5cfc1374a9da0480e46cb8b7752ac21a": "/*\n * Copyright (c) The mldsa-native project authors\n * SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT\n */\n",
     "a5c61b93b6ee1d104af9920cf020ff3c7efe818e31fe562c72261847a728f513": "Copyright (c) 2017 Pierre Chifflier\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n",
     "a5dea80c1f383cb5f80a6bb0da5e55a2beb9f24adb123ce6300af2cbaaa3bf65": "Copyright (c) 2017 The bytecount Developers\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
     "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2": "                              Apache License\n                        Version 2.0, January 2004\n                     http://www.apache.org/licenses/\n\nTERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n1. Definitions.\n\n   \"License\" shall mean the terms and conditions for use, reproduction,\n   and distribution as defined by Sections 1 through 9 of this document.\n\n   \"Licensor\" shall mean the copyright owner or entity authorized by\n   the copyright owner that is granting the License.\n\n   \"Legal Entity\" shall mean the union of the acting entity and all\n   other entities that control, are controlled by, or are under common\n   control with that entity. For the purposes of this definition,\n   \"control\" means (i) the power, direct or indirect, to cause the\n   direction or management of such entity, whether by contract or\n   otherwise, or (ii) ownership of fifty percent (50%) or more of the\n   outstanding shares, or (iii) beneficial ownership of such entity.\n\n   \"You\" (or \"Your\") shall mean an individual or Legal Entity\n   exercising permissions granted by this License.\n\n   \"Source\" form shall mean the preferred form for making modifications,\n   including but not limited to software source code, documentation\n   source, and configuration files.\n\n   \"Object\" form shall mean any form resulting from mechanical\n   transformation or translation of a Source form, including but\n   not limited to compiled object code, generated documentation,\n   and conversions to other media types.\n\n   \"Work\" shall mean the work of authorship, whether in Source or\n   Object form, made available under the License, as indicated by a\n   copyright notice that is included in or attached to the work\n   (an example is provided in the Appendix below).\n\n   \"Derivative Works\" shall mean any work, whether in Source or Object\n   form, that is based on (or derived from) the Work and for which the\n   editorial revisions, annotations, elaborations, or other modifications\n   represent, as a whole, an original work of authorship. For the purposes\n   of this License, Derivative Works shall not include works that remain\n   separable from, or merely link (or bind by name) to the interfaces of,\n   the Work and Derivative Works thereof.\n\n   \"Contribution\" shall mean any work of authorship, including\n   the original version of the Work and any modifications or additions\n   to that Work or Derivative Works thereof, that is intentionally\n   submitted to Licensor for inclusion in the Work by the copyright owner\n   or by an individual or Legal Entity authorized to submit on behalf of\n   the copyright owner. For the purposes of this definition, \"submitted\"\n   means any form of electronic, verbal, or written communication sent\n   to the Licensor or its representatives, including but not limited to\n   communication on electronic mailing lists, source code control systems,\n   and issue tracking systems that are managed by, or on behalf of, the\n   Licensor for the purpose of discussing and improving the Work, but\n   excluding communication that is conspicuously marked or otherwise\n   designated in writing by the copyright owner as \"Not a Contribution.\"\n\n   \"Contributor\" shall mean Licensor and any individual or Legal Entity\n   on behalf of whom a Contribution has been received by Licensor and\n   subsequently incorporated within the Work.\n\n2. Grant of Copyright License. Subject to the terms and conditions of\n   this License, each Contributor hereby grants to You a perpetual,\n   worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n   copyright license to reproduce, prepare Derivative Works of,\n   publicly display, publicly perform, sublicense, and distribute the\n   Work and such Derivative Works in Source or Object form.\n\n3. Grant of Patent License. Subject to the terms and conditions of\n   this License, each Contributor hereby grants to You a perpetual,\n   worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n   (except as stated in this section) patent license to make, have made,\n   use, offer to sell, sell, import, and otherwise transfer the Work,\n   where such license applies only to those patent claims licensable\n   by such Contributor that are necessarily infringed by their\n   Contribution(s) alone or by combination of their Contribution(s)\n   with the Work to which such Contribution(s) was submitted. If You\n   institute patent litigation against any entity (including a\n   cross-claim or counterclaim in a lawsuit) alleging that the Work\n   or a Contribution incorporated within the Work constitutes direct\n   or contributory patent infringement, then any patent licenses\n   granted to You under this License for that Work shall terminate\n   as of the date such litigation is filed.\n\n4. Redistribution. You may reproduce and distribute copies of the\n   Work or Derivative Works thereof in any medium, with or without\n   modifications, and in Source or Object form, provided that You\n   meet the following conditions:\n\n   (a) You must give any other recipients of the Work or\n       Derivative Works a copy of this License; and\n\n   (b) You must cause any modified files to carry prominent notices\n       stating that You changed the files; and\n\n   (c) You must retain, in the Source form of any Derivative Works\n       that You distribute, all copyright, patent, trademark, and\n       attribution notices from the Source form of the Work,\n       excluding those notices that do not pertain to any part of\n       the Derivative Works; and\n\n   (d) If the Work includes a \"NOTICE\" text file as part of its\n       distribution, then any Derivative Works that You distribute must\n       include a readable copy of the attribution notices contained\n       within such NOTICE file, excluding those notices that do not\n       pertain to any part of the Derivative Works, in at least one\n       of the following places: within a NOTICE text file distributed\n       as part of the Derivative Works; within the Source form or\n       documentation, if provided along with the Derivative Works; or,\n       within a display generated by the Derivative Works, if and\n       wherever such third-party notices normally appear. The contents\n       of the NOTICE file are for informational purposes only and\n       do not modify the License. You may add Your own attribution\n       notices within Derivative Works that You distribute, alongside\n       or as an addendum to the NOTICE text from the Work, provided\n       that such additional attribution notices cannot be construed\n       as modifying the License.\n\n   You may add Your own copyright statement to Your modifications and\n   may provide additional or different license terms and conditions\n   for use, reproduction, or distribution of Your modifications, or\n   for any such Derivative Works as a whole, provided Your use,\n   reproduction, and distribution of the Work otherwise complies with\n   the conditions stated in this License.\n\n5. Submission of Contributions. Unless You explicitly state otherwise,\n   any Contribution intentionally submitted for inclusion in the Work\n   by You to the Licensor shall be under the terms and conditions of\n   this License, without any additional terms or conditions.\n   Notwithstanding the above, nothing herein shall supersede or modify\n   the terms of any separate license agreement you may have executed\n   with Licensor regarding such Contributions.\n\n6. Trademarks. This License does not grant permission to use the trade\n   names, trademarks, service marks, or product names of the Licensor,\n   except as required for reasonable and customary use in describing the\n   origin of the Work and reproducing the content of the NOTICE file.\n\n7. Disclaimer of Warranty. Unless required by applicable law or\n   agreed to in writing, Licensor provides the Work (and each\n   Contributor provides its Contributions) on an \"AS IS\" BASIS,\n   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n   implied, including, without limitation, any warranties or conditions\n   of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n   PARTICULAR PURPOSE. You are solely responsible for determining the\n   appropriateness of using or redistributing the Work and assume any\n   risks associated with Your exercise of permissions under this License.\n\n8. Limitation of Liability. In no event and under no legal theory,\n   whether in tort (including negligence), contract, or otherwise,\n   unless required by applicable law (such as deliberate and grossly\n   negligent acts) or agreed to in writing, shall any Contributor be\n   liable to You for damages, including any direct, indirect, special,\n   incidental, or consequential damages of any character arising as a\n   result of this License or out of the use or inability to use the\n   Work (including but not limited to damages for loss of goodwill,\n   work stoppage, computer failure or malfunction, or any and all\n   other commercial damages or losses), even if such Contributor\n   has been advised of the possibility of such damages.\n\n9. Accepting Warranty or Additional Liability. While redistributing\n   the Work or Derivative Works thereof, You may choose to offer,\n   and charge a fee for, acceptance of support, warranty, indemnity,\n   or other liability obligations and/or rights consistent with this\n   License. However, in accepting such obligations, You may act only\n   on Your own behalf and on Your sole responsibility, not on behalf\n   of any other Contributor, and only if You agree to indemnify,\n   defend, and hold each Contributor harmless for any liability\n   incurred by, or claims asserted against, such Contributor by reason\n   of your accepting any such warranty or additional liability.\n\nEND OF TERMS AND CONDITIONS\n\nAPPENDIX: How to apply the Apache License to your work.\n\n   To apply the Apache License to your work, attach the following\n   boilerplate notice, with the fields enclosed by brackets \"[]\"\n   replaced with your own identifying information. (Don't include\n   the brackets!)  The text should be enclosed in the appropriate\n   comment syntax for the file format. We also recommend that a\n   file or class name and description of purpose be included on the\n   same \"printed page\" as the copyright notice for easier\n   identification within third-party archives.\n\nCopyright [yyyy] [name of copyright owner]\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n\thttp://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n",
@@ -10752,6 +12114,7 @@
     "b7c76ff4466a3aeb6a7d903e81b651335e97d64ecb857e2ee9812a36c6fd1acf": "The MIT License (MIT)\n\nCopyright (c) 2016 Jonathan Creekmore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
     "b7e650f3fce5c53249d1cdc608b54df156a97edd636cf9d23498d0cfe7aec63e": "The MIT License (MIT)\nCopyright (c) 2017-2018 Sergio Benitez\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
     "b8c6939380a400f53e11923d50fcc4dd2fa1ba8339fd9d04cda38a0251b6c9b0": "Copyright (c) 2019-2026 The RustCrypto Project Developers\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n",
+    "b9cc1365d2ed4b98c11964239793cdbe579b09f1128ee95917ef01622582ee5c": "/* Copyright (c) The mldsa-native project authors\n * SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT\n */\n",
     "b9eb266294324f672cbe945fe8f2e32f85024f0d61a1a7d14382cdde0ac44769": "Copyright (c) 2016 Anthony Ramine\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n",
     "baf9e2a528dd5202334bb6cd06c145b3c7c7c91f3fab874f39c9321d2e51ae07": "// Copyright 2015-2021 Brian Smith.\n//\n// Permission to use, copy, modify, and/or distribute this software for any\n// purpose with or without fee is hereby granted, provided that the above\n// copyright notice and this permission notice appear in all copies.\n//\n// THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHORS DISCLAIM ALL WARRANTIES\n// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF\n// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR\n// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\n// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\n// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\n// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n",
     "bb12b9df50a5fea7302dbec8a363defe10b40ec6c668787bac9cc22a4a5880b9": "// Copyright (c) 2020, Google Inc.\n// SPDX-License-Identifier: ISC\n",
@@ -10762,6 +12125,7 @@
     "c244630c98ac575330586597f349fc01855758b171cbae030dbc0ebf826bc315": "// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.\n// SPDX-License-Identifier: Apache-2.0 OR ISC\n",
     "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383": "    MIT License\n\n    Copyright (c) Microsoft Corporation.\n\n    Permission is hereby granted, free of charge, to any person obtaining a copy\n    of this software and associated documentation files (the \"Software\"), to deal\n    in the Software without restriction, including without limitation the rights\n    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n    copies of the Software, and to permit persons to whom the Software is\n    furnished to do so, subject to the following conditions:\n\n    The above copyright notice and this permission notice shall be included in all\n    copies or substantial portions of the Software.\n\n    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n    SOFTWARE\n",
     "c30152c94a6d75e021adbc52b3a52470366a46edb917e17deae3259251af244c": "Copyright Mozilla Foundation\n\nLicensed under the Apache License (Version 2.0), or the MIT license,\n(the \"Licenses\") at your option. You may not use this file except in\ncompliance with one of the Licenses. You may obtain copies of the\nLicenses at:\n\n   https://www.apache.org/licenses/LICENSE-2.0\n   https://opensource.org/licenses/MIT\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the Licenses is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the Licenses for the specific language governing permissions and\nlimitations under the Licenses.\n\n--\n\nTest code is dedicated to the Public Domain when so designated (see\nthe individual files for PD/CC0-dedicated sections).\n\n--\n\nThe implementation for Utf8CharIndices was adapted from the\nCharIndices implementation of the Rust standard library at revision\nab32548539ec38a939c1b58599249f3b54130026\n(https://github.com/rust-lang/rust/blob/ab32548539ec38a939c1b58599249f3b54130026/library/core/src/str/iter.rs).\n\nExcerpt from https://github.com/rust-lang/rust/blob/ab32548539ec38a939c1b58599249f3b54130026/COPYRIGHT ,\nwhich refers to\nhttps://github.com/rust-lang/rust/blob/ab32548539ec38a939c1b58599249f3b54130026/LICENSE-APACHE\nand\nhttps://github.com/rust-lang/rust/blob/ab32548539ec38a939c1b58599249f3b54130026/LICENSE-MIT\n:\n\nFor full authorship information, see the version control history or\nhttps://thanks.rust-lang.org\n\nExcept as otherwise noted (below and/or in individual files), Rust is\nlicensed under the Apache License, Version 2.0 <LICENSE-APACHE> or\n<http://www.apache.org/licenses/LICENSE-2.0> or the MIT license\n<LICENSE-MIT> or <http://opensource.org/licenses/MIT>, at your option.\n",
+    "c30608f4c0a5716d797956761bd7f6a0f5ebc92db32928ef5b1d99ef5e17c544": "/*\n * Copyright (c) The mldsa-native project authors\n * Copyright (c) The mlkem-native project authors\n * SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT\n */\n",
     "c541690df9baa537f97a8fcb35aef085a67e5c4b7d67019f434ce642404e7ab2": "// Copyright 2006-2019 The OpenSSL Project Authors. All Rights Reserved.\n// SPDX-License-Identifier: Apache-2.0\n",
     "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08": "                                 Apache License\n                           Version 2.0, January 2004\n                        http://www.apache.org/licenses/\n\n   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION\n\n   1. Definitions.\n\n      \"License\" shall mean the terms and conditions for use, reproduction,\n      and distribution as defined by Sections 1 through 9 of this document.\n\n      \"Licensor\" shall mean the copyright owner or entity authorized by\n      the copyright owner that is granting the License.\n\n      \"Legal Entity\" shall mean the union of the acting entity and all\n      other entities that control, are controlled by, or are under common\n      control with that entity. For the purposes of this definition,\n      \"control\" means (i) the power, direct or indirect, to cause the\n      direction or management of such entity, whether by contract or\n      otherwise, or (ii) ownership of fifty percent (50%) or more of the\n      outstanding shares, or (iii) beneficial ownership of such entity.\n\n      \"You\" (or \"Your\") shall mean an individual or Legal Entity\n      exercising permissions granted by this License.\n\n      \"Source\" form shall mean the preferred form for making modifications,\n      including but not limited to software source code, documentation\n      source, and configuration files.\n\n      \"Object\" form shall mean any form resulting from mechanical\n      transformation or translation of a Source form, including but\n      not limited to compiled object code, generated documentation,\n      and conversions to other media types.\n\n      \"Work\" shall mean the work of authorship, whether in Source or\n      Object form, made available under the License, as indicated by a\n      copyright notice that is included in or attached to the work\n      (an example is provided in the Appendix below).\n\n      \"Derivative Works\" shall mean any work, whether in Source or Object\n      form, that is based on (or derived from) the Work and for which the\n      editorial revisions, annotations, elaborations, or other modifications\n      represent, as a whole, an original work of authorship. For the purposes\n      of this License, Derivative Works shall not include works that remain\n      separable from, or merely link (or bind by name) to the interfaces of,\n      the Work and Derivative Works thereof.\n\n      \"Contribution\" shall mean any work of authorship, including\n      the original version of the Work and any modifications or additions\n      to that Work or Derivative Works thereof, that is intentionally\n      submitted to Licensor for inclusion in the Work by the copyright owner\n      or by an individual or Legal Entity authorized to submit on behalf of\n      the copyright owner. For the purposes of this definition, \"submitted\"\n      means any form of electronic, verbal, or written communication sent\n      to the Licensor or its representatives, including but not limited to\n      communication on electronic mailing lists, source code control systems,\n      and issue tracking systems that are managed by, or on behalf of, the\n      Licensor for the purpose of discussing and improving the Work, but\n      excluding communication that is conspicuously marked or otherwise\n      designated in writing by the copyright owner as \"Not a Contribution.\"\n\n      \"Contributor\" shall mean Licensor and any individual or Legal Entity\n      on behalf of whom a Contribution has been received by Licensor and\n      subsequently incorporated within the Work.\n\n   2. Grant of Copyright License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      copyright license to reproduce, prepare Derivative Works of,\n      publicly display, publicly perform, sublicense, and distribute the\n      Work and such Derivative Works in Source or Object form.\n\n   3. Grant of Patent License. Subject to the terms and conditions of\n      this License, each Contributor hereby grants to You a perpetual,\n      worldwide, non-exclusive, no-charge, royalty-free, irrevocable\n      (except as stated in this section) patent license to make, have made,\n      use, offer to sell, sell, import, and otherwise transfer the Work,\n      where such license applies only to those patent claims licensable\n      by such Contributor that are necessarily infringed by their\n      Contribution(s) alone or by combination of their Contribution(s)\n      with the Work to which such Contribution(s) was submitted. If You\n      institute patent litigation against any entity (including a\n      cross-claim or counterclaim in a lawsuit) alleging that the Work\n      or a Contribution incorporated within the Work constitutes direct\n      or contributory patent infringement, then any patent licenses\n      granted to You under this License for that Work shall terminate\n      as of the date such litigation is filed.\n\n   4. Redistribution. You may reproduce and distribute copies of the\n      Work or Derivative Works thereof in any medium, with or without\n      modifications, and in Source or Object form, provided that You\n      meet the following conditions:\n\n      (a) You must give any other recipients of the Work or\n          Derivative Works a copy of this License; and\n\n      (b) You must cause any modified files to carry prominent notices\n          stating that You changed the files; and\n\n      (c) You must retain, in the Source form of any Derivative Works\n          that You distribute, all copyright, patent, trademark, and\n          attribution notices from the Source form of the Work,\n          excluding those notices that do not pertain to any part of\n          the Derivative Works; and\n\n      (d) If the Work includes a \"NOTICE\" text file as part of its\n          distribution, then any Derivative Works that You distribute must\n          include a readable copy of the attribution notices contained\n          within such NOTICE file, excluding those notices that do not\n          pertain to any part of the Derivative Works, in at least one\n          of the following places: within a NOTICE text file distributed\n          as part of the Derivative Works; within the Source form or\n          documentation, if provided along with the Derivative Works; or,\n          within a display generated by the Derivative Works, if and\n          wherever such third-party notices normally appear. The contents\n          of the NOTICE file are for informational purposes only and\n          do not modify the License. You may add Your own attribution\n          notices within Derivative Works that You distribute, alongside\n          or as an addendum to the NOTICE text from the Work, provided\n          that such additional attribution notices cannot be construed\n          as modifying the License.\n\n      You may add Your own copyright statement to Your modifications and\n      may provide additional or different license terms and conditions\n      for use, reproduction, or distribution of Your modifications, or\n      for any such Derivative Works as a whole, provided Your use,\n      reproduction, and distribution of the Work otherwise complies with\n      the conditions stated in this License.\n\n   5. Submission of Contributions. Unless You explicitly state otherwise,\n      any Contribution intentionally submitted for inclusion in the Work\n      by You to the Licensor shall be under the terms and conditions of\n      this License, without any additional terms or conditions.\n      Notwithstanding the above, nothing herein shall supersede or modify\n      the terms of any separate license agreement you may have executed\n      with Licensor regarding such Contributions.\n\n   6. Trademarks. This License does not grant permission to use the trade\n      names, trademarks, service marks, or product names of the Licensor,\n      except as required for reasonable and customary use in describing the\n      origin of the Work and reproducing the content of the NOTICE file.\n\n   7. Disclaimer of Warranty. Unless required by applicable law or\n      agreed to in writing, Licensor provides the Work (and each\n      Contributor provides its Contributions) on an \"AS IS\" BASIS,\n      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n      implied, including, without limitation, any warranties or conditions\n      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A\n      PARTICULAR PURPOSE. You are solely responsible for determining the\n      appropriateness of using or redistributing the Work and assume any\n      risks associated with Your exercise of permissions under this License.\n\n   8. Limitation of Liability. In no event and under no legal theory,\n      whether in tort (including negligence), contract, or otherwise,\n      unless required by applicable law (such as deliberate and grossly\n      negligent acts) or agreed to in writing, shall any Contributor be\n      liable to You for damages, including any direct, indirect, special,\n      incidental, or consequential damages of any character arising as a\n      result of this License or out of the use or inability to use the\n      Work (including but not limited to damages for loss of goodwill,\n      work stoppage, computer failure or malfunction, or any and all\n      other commercial damages or losses), even if such Contributor\n      has been advised of the possibility of such damages.\n\n   9. Accepting Warranty or Additional Liability. While redistributing\n      the Work or Derivative Works thereof, You may choose to offer,\n      and charge a fee for, acceptance of support, warranty, indemnity,\n      or other liability obligations and/or rights consistent with this\n      License. However, in accepting such obligations, You may act only\n      on Your own behalf and on Your sole responsibility, not on behalf\n      of any other Contributor, and only if You agree to indemnify,\n      defend, and hold each Contributor harmless for any liability\n      incurred by, or claims asserted against, such Contributor by reason\n      of your accepting any such warranty or additional liability.\n\n   END OF TERMS AND CONDITIONS\n\n   APPENDIX: How to apply the Apache License to your work.\n\n      To apply the Apache License to your work, attach the following\n      boilerplate notice, with the fields enclosed by brackets \"{}\"\n      replaced with your own identifying information. (Don't include\n      the brackets!)  The text should be enclosed in the appropriate\n      comment syntax for the file format. We also recommend that a\n      file or class name and description of purpose be included on the\n      same \"printed page\" as the copyright notice for easier\n      identification within third-party archives.\n\n   Copyright {yyyy} {name of copyright owner}\n\n   Licensed under the Apache License, Version 2.0 (the \"License\");\n   you may not use this file except in compliance with the License.\n   You may obtain a copy of the License at\n\n       http://www.apache.org/licenses/LICENSE-2.0\n\n   Unless required by applicable law or agreed to in writing, software\n   distributed under the License is distributed on an \"AS IS\" BASIS,\n   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n   See the License for the specific language governing permissions and\n   limitations under the License.\n\n",
     "c66b3111c803b54b5a395da0da77b08d4fd06730e53ed3b84fcddc5a7baf1fa7": "// Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL project 2000\n// Copyright (c) 2000-2005 The OpenSSL Project.  All rights reserved.\n// SPDX-License-Identifier: Apache-2.0\n",
@@ -10797,6 +12161,7 @@
     "e2e245f2b566d0bfafb0f6a04c16b82d710c4e6e7d799e39bb4ef6e541b85b98": "Copyright (c) Jacob Pratt\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n",
     "e3b32aa2441bc5d9679b880d39de001295b8296549919da83eb363ae833af157": "// Copyright (c) 2011 The OpenSSL Project.  All rights reserved.\n// SPDX-License-Identifier: Apache-2.0\n \n#include <openssl/dh.h>\n",
     "e484e1a9e32ddbdbbccb5806434c05d980e3bcd389cf42135c14796604318273": "#! /usr/bin/env perl\n\n# Copyright (c) 2022, ARM Inc.\n#\n# Written by Fangming Fang <fangming.fang@arm.com> for the OpenSSL project,\n# derived from https://github.com/ARM-software/AArch64cryptolib, original\n# author Samuel Lee <Samuel.Lee@arm.com>.\n#\n# SPDX-License-Identifier: ISC\n\n# Approach - assume we don't want to reload constants, so reserve ~half of\n# vector register file for constants\n#\n# main loop to act on 4 16B blocks per iteration, and then do modulo of the\n# accumulated intermediate hashes from the 4 blocks\n#\n#  ____________________________________________________\n# |                                                    |\n# | PRE                                                |\n# |____________________________________________________|\n# |                |                |                  |\n# | CTR block 4k+8 | AES block 4k+4 | GHASH block 4k+0 |\n# |________________|________________|__________________|\n# |                |                |                  |\n# | CTR block 4k+9 | AES block 4k+5 | GHASH block 4k+1 |\n# |________________|________________|__________________|\n# |                |                |                  |\n# | CTR block 4k+10| AES block 4k+6 | GHASH block 4k+2 |\n# |________________|________________|__________________|\n# |                |                |                  |\n# | CTR block 4k+11| AES block 4k+7 | GHASH block 4k+3 |\n# |________________|____(mostly)____|__________________|\n# |                                                    |\n# | MODULO                                             |\n# |____________________________________________________|\n#\n# PRE: Ensure previous generated intermediate hash is aligned and merged with\n# result for GHASH 4k+0\n#\n# EXT low_acc, low_acc, low_acc, #8\n# EOR res_curr (4k+0), res_curr (4k+0), low_acc\n#\n# CTR block: Increment and byte reverse counter in scalar registers and transfer\n# to SIMD registers\n#\n# REV     ctr32, rev_ctr32\n# ORR     ctr64, constctr96_top32, ctr32, LSL #32\n# // Keeping this in scalar registers to free up space in SIMD RF\n# INS     ctr_next.d[0], constctr96_bottom64\n# INS     ctr_next.d[1], ctr64X\n# ADD     rev_ctr32, #1\n#\n# AES block:\n#\n# Do AES encryption/decryption on CTR block X and EOR it with input block X.\n# Take 256 bytes key below for example. Doing small trick here of loading input\n# in scalar registers, EORing with last key and then transferring Given we are\n# very constrained in our ASIMD registers this is quite important\n#\n#     Encrypt:\n# LDR     input_low, [ input_ptr  ], #8\n# LDR     input_high, [ input_ptr  ], #8\n# EOR     input_low, k14_low\n# EOR     input_high, k14_high\n# INS     res_curr.d[0], input_low\n# INS     res_curr.d[1], input_high\n# AESE    ctr_curr, k0; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k1; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k2; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k3; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k4; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k5; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k6; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k7; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k8; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k9; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k10; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k11; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k12; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k13\n# EOR     res_curr, res_curr, ctr_curr\n# ST1     { res_curr.16b  }, [ output_ptr  ], #16\n#\n#     Decrypt:\n# AESE    ctr_curr, k0; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k1; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k2; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k3; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k4; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k5; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k6; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k7; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k8; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k9; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k10; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k11; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k12; AESMC ctr_curr, ctr_curr\n# AESE    ctr_curr, k13\n# LDR     res_curr, [ input_ptr  ], #16\n# EOR     res_curr, res_curr, ctr_curr\n# MOV     output_low, res_curr.d[0]\n# MOV     output_high, res_curr.d[1]\n# EOR     output_low, k14_low\n# EOR     output_high, k14_high\n# STP     output_low, output_high, [ output_ptr  ], #16\n#\n# GHASH block X:\n#     Do 128b karatsuba polynomial multiplication on block. We only have\n#     64b->128b polynomial multipliers, naively that means we need to do 4 64b\n#     multiplies to generate a 128b.\n#\n# multiplication:\n#     Pmull(A,B) == (Pmull(Ah,Bh)<<128 | Pmull(Al,Bl)) ^\n#                   (Pmull(Ah,Bl) ^ Pmull(Al,Bh))<<64\n#\n#     The idea behind Karatsuba multiplication is that we can do just 3 64b\n#     multiplies:\n#     Pmull(A,B) == (Pmull(Ah,Bh)<<128 | Pmull(Al,Bl)) ^\n#                   (Pmull(Ah^Al,Bh^Bl) ^ Pmull(Ah,Bh) ^\n#                   Pmull(Al,Bl))<<64\n#\n#     There is some complication here because the bit order of GHASH's PMULL is\n#     reversed compared to elsewhere, so we are multiplying with \"twisted\"\n#     powers of H\n#\n# Note: We can PMULL directly into the acc_x in first GHASH of the loop\n#\n# Note: For scheduling big cores we want to split the processing to happen over\n#       two loop iterations - otherwise the critical path latency dominates the\n#       performance.\n#\n#       This has a knock on effect on register pressure, so we have to be a bit\n#       more clever with our temporary registers than indicated here\n#\n# REV64   res_curr, res_curr\n# INS     t_m.d[0], res_curr.d[1]\n# EOR     t_m.8B, t_m.8B, res_curr.8B\n# PMULL2  t_h, res_curr, HX\n# PMULL   t_l, res_curr, HX\n# PMULL   t_m, t_m, HX_k\n# EOR     acc_h, acc_h, t_h\n# EOR     acc_l, acc_l, t_l\n# EOR     acc_m, acc_m, t_m\n#\n# MODULO: take the partial accumulators (~representing sum of 256b\n#         multiplication results), from GHASH and do modulo reduction on them\n#         There is some complication here because the bit order of GHASH's\n#         PMULL is reversed compared to elsewhere, so we are doing modulo with\n#         a reversed constant\n#\n# EOR     acc_m, acc_m, acc_h\n# EOR     acc_m, acc_m, acc_l                // Finish off karatsuba processing\n# PMULL   t_mod, acc_h, mod_constant\n# EXT     acc_h, acc_h, acc_h, #8\n# EOR     acc_m, acc_m, acc_h\n# EOR     acc_m, acc_m, t_mod\n# PMULL   acc_h, acc_m, mod_constant\n# EXT     acc_m, acc_m, acc_m, #8\n# EOR     acc_l, acc_l, acc_h\n# EOR     acc_l, acc_l, acc_m\n#\n# This code was then modified to merge the AES-128-GCM, AES-192-GCM, and\n# AES-256-GCM implementations into a single function to reduce size. We move the\n# last two round keys into consistent registers across all sizes, as they're\n# treated special. Then, after rounds 0 through 8, we added some branches to\n# conditionally run rounds 9-10 (AES-192 + AES-256) and 11-12 (AES-256), before\n# merging back into code which finishes up the last two rounds.\n#\n# There is a mostly decision to be made around how much parallel work goes\n# before or after the conditional part. We attempted to preserve the original\n# scheduling where possible, but it's possible other schedulings are more\n# optimal with the current ordering.\n\n",
+    "e77362baa870d5907952b75e57f9191724391b309075caf2ecae6f0206e0b73c": "/*\n * Copyright (c) The mlkem-native project authors\n * SPDX-License-Identifier: Apache-2.0 OR ISC OR MIT\n */\n",
     "e809e086748c73a61e7cc11bc889e7814ce5ff9bb4d1d5163a22a036c973a967": "/*\n * Non-physical true random number generator based on timing jitter.\n *\n * Copyright Stephan Mueller <smueller@chronox.de>, 2013 - 2025\n *\n * License\n * =======\n *\n * Redistribution and use in source and binary forms, with or without\n * modification, are permitted provided that the following conditions\n * are met:\n * 1. Redistributions of source code must retain the above copyright\n *    notice, and the entire permission notice in its entirety,\n *    including the disclaimer of warranties.\n * 2. Redistributions in binary form must reproduce the above copyright\n *    notice, this list of conditions and the following disclaimer in the\n *    documentation and/or other materials provided with the distribution.\n * 3. The name of the author may not be used to endorse or promote\n *    products derived from this software without specific prior\n *    written permission.\n *\n * ALTERNATIVELY, this product may be distributed under the terms of\n * the GNU General Public License, in which case the provisions of the GPL are\n * required INSTEAD OF the above restrictions.  (This clause is\n * necessary due to a potential bad interaction between the GPL and\n * the restrictions contained in a BSD-style copyright.)\n *\n * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED\n * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES\n * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF\n * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE\n * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT\n * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR\n * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF\n * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE\n * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH\n * DAMAGE.\n */\n",
     "e9bfffd8b5809ee459d0ee54c4021846b68998013009246a04373efd2362234a": "# Copyright Amazon.com Inc. or its affiliates. All Rights Reserved.\n# SPDX-License-Identifier: Apache-2.0 OR ISC\n#\n# This code is based on p256_beeu-x86_64-asm.pl (which is based on BN_mod_inverse_odd).\n\n# The first two arguments should always be the flavour and output file path.\n",
     "ecc269ef87fd38a1d98e30bfac9ba964a9dbd9315c3770fed98d4d7cb5882055": "Copyright (c) 2016--2017\n\nPermission is hereby granted, free of charge, to any\nperson obtaining a copy of this software and associated\ndocumentation files (the \"Software\"), to deal in the\nSoftware without restriction, including without\nlimitation the rights to use, copy, modify, merge,\npublish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software\nis furnished to do so, subject to the following\nconditions:\n\nThe above copyright notice and this permission notice\nshall be included in all copies or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\nANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED\nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A\nPARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT\nSHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n",

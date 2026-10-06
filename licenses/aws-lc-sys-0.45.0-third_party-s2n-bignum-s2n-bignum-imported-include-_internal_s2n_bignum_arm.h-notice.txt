@@ -1,0 +1,2 @@
+// Auto-added during import for AWS-LC symbol prefixing support
+#include <openssl/boringssl_prefix_symbols_asm.h>

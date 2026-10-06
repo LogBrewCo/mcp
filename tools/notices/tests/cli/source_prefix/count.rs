@@ -24,7 +24,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         .and_then(Value::as_array_mut)
         .ok_or("missing notices")?;
     let template = notices.get(2).ok_or("missing whole notice")?.clone();
-    for index in 3_usize..128_usize {
+    for index in 3_usize..512_usize {
         let mut notice = template.clone();
         let path = format!("NOTICE-{index}");
         *notice.get_mut("upstream_path").ok_or("missing path")? = json!(path);
@@ -35,7 +35,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         notices.push(notice);
     }
     write_json(&root.join("sources.json"), &scenario.manifest)?;
-    assert!(fs::metadata(root.join("sources.json"))?.len() < 64_u64 << 10_u32);
+    assert!(fs::metadata(root.join("sources.json"))?.len() < 512_u64 << 10_u32);
     let generated = scenario.fixture.run()?;
     assert!(
         generated.status.success(),
@@ -48,7 +48,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         .pointer("/packages/example 1.0.0/supplemental_notices")
         .and_then(Value::as_array)
         .ok_or("missing generated records")?;
-    assert_eq!(records.len(), 128);
+    assert_eq!(records.len(), 512);
     assert_eq!(
         inventory
             .get("texts")
@@ -57,6 +57,17 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         Some(2)
     );
     assert!(scenario.fixture.run()?.status.success());
+    assert_eq!(fs::read(root.join("output.json"))?, previous);
+
+    let mut oversized = serde_json::to_vec(&scenario.manifest)?;
+    oversized.resize((512_usize << 10_u32) + 1_usize, b' ');
+    fs::write(root.join("sources.json"), oversized)?;
+    let oversized_result = scenario.fixture.run()?;
+    assert!(!oversized_result.status.success());
+    assert!(
+        String::from_utf8_lossy(&oversized_result.stderr)
+            .contains("notice input must be a bounded regular file")
+    );
     assert_eq!(fs::read(root.join("output.json"))?, previous);
 
     let mut overflow = template;
@@ -72,7 +83,7 @@ fn larger_supplements_preserve_all_references_and_reject_overflow() -> Result<()
         .ok_or("missing notices")?
         .push(overflow);
     write_json(&root.join("sources.json"), &scenario.manifest)?;
-    assert!(fs::metadata(root.join("sources.json"))?.len() < 64_u64 << 10_u32);
+    assert!(fs::metadata(root.join("sources.json"))?.len() < 512_u64 << 10_u32);
     let rejected = scenario.fixture.run()?;
     assert!(!rejected.status.success());
     assert!(String::from_utf8_lossy(&rejected.stderr).contains("invalid supplement manifest"));

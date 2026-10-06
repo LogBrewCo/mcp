@@ -1,0 +1,3 @@
+// Written by Nils Larsch for the OpenSSL project.
+// Copyright (c) 2000-2003 The OpenSSL Project.  All rights reserved.
+// SPDX-License-Identifier: Apache-2.0

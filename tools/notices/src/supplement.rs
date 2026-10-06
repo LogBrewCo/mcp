@@ -285,7 +285,7 @@ pub fn apply(
     cache: &Path,
 ) -> Result<()> {
     let manifest: Manifest = serde_json::from_slice(bytes)?;
-    if manifest.format_version != 1 || manifest.notices.len() > 128 {
+    if manifest.format_version != 1 || manifest.notices.len() > 512 {
         return Err(error("invalid supplement manifest"));
     }
     verify_prefixes(packages, &manifest, root, cache)?;

@@ -1,0 +1,2 @@
+// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+// SPDX-License-Identifier: Apache-2.0

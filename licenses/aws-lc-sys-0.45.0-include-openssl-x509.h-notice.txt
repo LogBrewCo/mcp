@@ -1,0 +1,7 @@
+// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+//
+// ECDH support in OpenSSL originally developed by
+// SUN MICROSYSTEMS, INC., and contributed to the OpenSSL project.
+//
+// SPDX-License-Identifier: Apache-2.0

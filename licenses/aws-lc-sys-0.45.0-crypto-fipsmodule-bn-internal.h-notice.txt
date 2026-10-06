@@ -1,0 +1,9 @@
+// Copyright (C) 1995-1997 Eric Young (eay@cryptsoft.com)
+// Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
+// Copyright 2002 Sun Microsystems, Inc. ALL RIGHTS RESERVED.
+//
+// The binary polynomial arithmetic software is originally written by
+// Sheueling Chang Shantz and Douglas Stebila of Sun Microsystems
+// Laboratories.
+//
+// SPDX-License-Identifier: Apache-2.0

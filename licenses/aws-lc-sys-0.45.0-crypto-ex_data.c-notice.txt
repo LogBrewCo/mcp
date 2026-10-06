@@ -1,0 +1,3 @@
+// Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+// Copyright (c) 1998-2001 The OpenSSL Project.  All rights reserved.
+// SPDX-License-Identifier: Apache-2.0

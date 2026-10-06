@@ -362,7 +362,7 @@ pub fn run(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
     }
     let metadata = serde_json::from_slice(&input::read(Path::new(&metadata_path), 16 << 20)?)?;
     let lock_bytes = input::read(Path::new(&lock_path), 1 << 20)?;
-    let supplemental_bytes = input::read(&supplemental_path, 64 << 10)?;
+    let supplemental_bytes = input::read(&supplemental_path, 512 << 10)?;
     let supplemental_root = supplemental_path
         .parent()
         .ok_or_else(|| error("invalid supplement directory"))?;

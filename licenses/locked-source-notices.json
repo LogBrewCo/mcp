@@ -1,6 +1,6 @@
 {
   "binary_and_toolchain_coverage": "not_evaluated",
-  "cargo_lock_sha256": "74a683fc763efe1a4e9cc4abd1200a276a5c77adaabf85636c317686d64b51b1",
+  "cargo_lock_sha256": "c58a282d81f1ff5fa65a295ffe086b10fb370779a59397856df8ede685063289",
   "format_version": 1,
   "inventory_kind": "named_source_license_and_attribution_files_with_verified_source_prefixes",
   "license_permission_check": "separate_cargo_deny_gate_required",
@@ -13609,7 +13609,7 @@
       },
       "version": "1.13.3"
     },
-    "tokio 1.53.1": {
+    "tokio 1.53.2": {
       "declared_license": "MIT",
       "files": {
         "LICENSE": {
@@ -13620,15 +13620,15 @@
       },
       "name": "tokio",
       "published_archive_verified": true,
-      "published_package_sha256": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed",
+      "published_package_sha256": "e95f91fcc7a621e8b030f6aa23c71fe9838ae2fb4d8118b75602a328f5144044",
       "repository": "https://github.com/tokio-rs/tokio",
       "vcs": {
         "git": {
-          "sha1": "75fef53d0a8590c2d1dbb63672aa7b7d1ef51155"
+          "sha1": "ff0c4068a4ba5f3af0fe3c5657ba42879b6ea599"
         },
         "path_in_vcs": "tokio"
       },
-      "version": "1.53.1"
+      "version": "1.53.2"
     },
     "tokio-macros 2.7.2": {
       "declared_license": "MIT",

@@ -438,7 +438,7 @@ allow = ["codec", "default", "futures-util", "io", "libc", "rt"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "tokio@1.53.1"
+crate = "tokio@1.53.2"
 allow = ["bytes", "default", "fs", "io-util", "libc", "macros", "mio", "net", "rt", "rt-multi-thread", "signal", "signal-hook-registry", "socket2", "sync", "time", "tokio-macros", "windows-sys"]
 reason = "Reviewed features for this exact locked dependency version"
 

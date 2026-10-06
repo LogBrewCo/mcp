@@ -183,7 +183,7 @@ allow = ["client", "client-legacy", "client-proxy", "default", "http1", "http2",
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "hyper@1.11.1"
+crate = "hyper@1.12.0"
 allow = ["client", "default", "http1", "http2", "server"]
 reason = "Reviewed features for this exact locked dependency version"
 

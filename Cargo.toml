@@ -21,7 +21,7 @@ base64 = "=0.23.1"
 http-body = "=1.1.0"
 http-body-util = "=0.1.5"
 httpdate = "=1.0.3"
-hyper = { version = "=1.11.1", features = ["client", "http1", "http2"] }
+hyper = { version = "=1.12.0", features = ["client", "http1", "http2"] }
 hyper-rustls = { version = "=0.27.10", default-features = false, features = ["aws-lc-rs", "http1", "http2", "tls12"] }
 hyper-util = { version = "=0.1.21", features = ["client-legacy", "http1", "http2", "tokio"] }
 jsonschema = { version = "=0.58.6", default-features = false, features = ["arbitrary-precision"] }

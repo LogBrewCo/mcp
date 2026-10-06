@@ -1,6 +1,6 @@
 {
   "binary_and_toolchain_coverage": "not_evaluated",
-  "cargo_lock_sha256": "c58a282d81f1ff5fa65a295ffe086b10fb370779a59397856df8ede685063289",
+  "cargo_lock_sha256": "592d7f854631ae55c29435d83a2b12cec604a9a70c4eedd65071659744bb0f66",
   "format_version": 1,
   "inventory_kind": "named_source_license_and_attribution_files_with_verified_source_prefixes",
   "license_permission_check": "separate_cargo_deny_gate_required",
@@ -9775,7 +9775,7 @@
       },
       "version": "0.4.3"
     },
-    "h2 0.4.19": {
+    "h2 0.4.20": {
       "declared_license": "MIT",
       "files": {
         "LICENSE": {
@@ -9786,15 +9786,15 @@
       },
       "name": "h2",
       "published_archive_verified": true,
-      "published_package_sha256": "ef8e5e5a340588f4452631496976cf8636d4a7ecf600239fdc27615d2530bc16",
+      "published_package_sha256": "7d29020232d6aa3fb1daca64c1127cf662cf97f254ae16c18c05b8ab635fc118",
       "repository": "https://github.com/hyperium/h2",
       "vcs": {
         "git": {
-          "sha1": "d57d1b852fec9dda6d42d3454502006d52104da8"
+          "sha1": "b0e890842ac16d3c76836fd4fcc06421acb15fa7"
         },
         "path_in_vcs": ""
       },
-      "version": "0.4.19"
+      "version": "0.4.20"
     },
     "hashbrown 0.17.1": {
       "declared_license": "MIT OR Apache-2.0",
@@ -9996,7 +9996,7 @@
       },
       "version": "0.4.15"
     },
-    "hyper 1.11.1": {
+    "hyper 1.12.0": {
       "declared_license": "MIT",
       "files": {
         "LICENSE": {
@@ -10007,15 +10007,15 @@
       },
       "name": "hyper",
       "published_archive_verified": true,
-      "published_package_sha256": "27b501faa50e7a26c3d3560ca625132f4078a17771f4810baf70475ae48cbe43",
+      "published_package_sha256": "2c3e324da4c95177d6291d4c8730197c0d1822f8a9766814a4a44fa5ab797c9c",
       "repository": "https://github.com/hyperium/hyper",
       "vcs": {
         "git": {
-          "sha1": "6371cd425017155f7fbecef0e57b218edbe6a93a"
+          "sha1": "7f67699ce32d717081deb7018b4da7d679277ac0"
         },
         "path_in_vcs": ""
       },
-      "version": "1.11.1"
+      "version": "1.12.0"
     },
     "hyper-rustls 0.27.10": {
       "declared_license": "Apache-2.0 OR ISC OR MIT",
@@ -14260,7 +14260,7 @@
       },
       "version": "2.5.0"
     },
-    "want 0.3.1": {
+    "want 0.3.2": {
       "declared_license": "MIT",
       "files": {
         "LICENSE": {
@@ -14271,15 +14271,15 @@
       },
       "name": "want",
       "published_archive_verified": true,
-      "published_package_sha256": "bfa7760aed19e106de2c7c0b581b509f2f25d3dacaf737cb82ac61bc6d760b0e",
+      "published_package_sha256": "ec4cdd0dd910afe868b7ef477227d8d538b46b3075031afee8a9f2acb0a2ed0b",
       "repository": "https://github.com/seanmonstar/want",
       "vcs": {
         "git": {
-          "sha1": "6e65401c71fa55c75b6fb52f595a692ef3643939"
+          "sha1": "322291ce5a87c72ecfd83d383d0d7f5245cf72c6"
         },
         "path_in_vcs": ""
       },
-      "version": "0.3.1"
+      "version": "0.3.2"
     },
     "wasi 0.11.1+wasi-snapshot-preview1": {
       "declared_license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",

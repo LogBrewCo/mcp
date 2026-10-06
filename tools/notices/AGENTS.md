@@ -70,7 +70,18 @@ limited to 1 MiB; selected files and named notices share an 8 MiB per-archive
 budget. The output records the full-file binding, prefix length and
 `checked_published_archive_source_prefix` provenance. Shared text appears once,
 with a separate reference for each source file. Whole upstream supplements retain
-their existing provenance. Permission policy, final binary
+their existing provenance.
+
+For vendored or generated files that cannot use the parent repository's raw-file
+URL, set `source_prefix.source_url_kind` to `"published_archive"` and use the exact
+`https://static.crates.io/crates/NAME/NAME-VERSION.crate` URL. The package revision,
+archive checksum, complete-file binding, repository path and exact prefix remain
+required. `source_commit` identifies the published package's checkout; it does not
+claim the revision of a vendored submodule. The JSON inventory records the URL
+kind, and readable archives label the notice as a verified archive-member prefix.
+An omitted URL kind keeps the existing repository-file URL check.
+
+Permission policy, final binary
 and toolchain notices, release provenance, and tool timing require separate proof.
 Never claim a completed release from successful inventory generation.
 

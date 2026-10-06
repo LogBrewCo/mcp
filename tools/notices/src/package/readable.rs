@@ -105,6 +105,12 @@ fn supplement_description(record: &Value) -> Result<&'static [u8]> {
     {
         return Err(error("invalid source prefix binding"));
     }
+    if let Some(kind) = prefix.get("source_url_kind") {
+        if kind.as_str() != Some("published_archive") {
+            return Err(error("invalid source prefix URL kind"));
+        }
+        return Ok(b"    Verified prefix of published archive member; see JSON inventory for full-file binding.\n");
+    }
     Ok(b"    Verified prefix of published source file; see JSON inventory for full-file binding.\n")
 }
 

@@ -4,7 +4,7 @@ use std::{
 };
 
 use serde::Deserialize;
-use serde_json::{Value, json};
+use serde_json::{Map, Value, json};
 
 use crate::{Result, Texts, archive, checksum, error, relative_path, string};
 
@@ -35,6 +35,13 @@ struct SourcePrefix {
     archive_path: String,
     bytes: u64,
     sha256: String,
+    source_url_kind: Option<PrefixUrlKind>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "snake_case")]
+enum PrefixUrlKind {
+    PublishedArchive,
 }
 
 /// # Errors
@@ -186,6 +193,57 @@ fn source_url(package: &Value, source_commit: &str, upstream_path: &str) -> Resu
 }
 
 /// # Errors
+/// Rejects unsafe registry URL path components.
+fn published_archive_url(package: &Value) -> Result<String> {
+    let name = string(package, "name")?;
+    let version = string(package, "version")?;
+    if name.is_empty()
+        || version.is_empty()
+        || !name
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
+        || !version
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'.' | b'+'))
+    {
+        return Err(error("invalid published archive URL identity"));
+    }
+    Ok(format!(
+        "https://static.crates.io/crates/{name}/{name}-{version}.crate"
+    ))
+}
+
+/// # Errors
+/// Rejects invalid package repository, revision, path or registry URL bindings.
+fn notice_url(package: &Value, notice: &Notice) -> Result<String> {
+    let repository = source_url(package, &notice.source_commit, &notice.upstream_path)?;
+    if notice
+        .source_prefix
+        .as_ref()
+        .is_some_and(|prefix| prefix.source_url_kind.is_some())
+    {
+        return published_archive_url(package);
+    }
+    Ok(repository)
+}
+
+fn prefix_record(prefix: &SourcePrefix, length: usize) -> Value {
+    let mut fields: Map<String, Value> = [
+        ("archive_path".to_owned(), json!(prefix.archive_path)),
+        ("bytes".to_owned(), json!(prefix.bytes)),
+        ("sha256".to_owned(), json!(prefix.sha256)),
+        ("prefix_bytes".to_owned(), json!(length)),
+    ]
+    .into_iter()
+    .collect();
+    if prefix.source_url_kind.is_some() {
+        let _previous: Option<Value> =
+            fields.insert("source_url_kind".to_owned(), json!("published_archive"));
+    }
+    Value::Object(fields)
+}
+
+/// # Errors
 /// Rejects malformed or excessive supplements, missing or unverified packages,
 /// archive or revision disagreement, URL mismatch, duplicates, unsafe file
 /// paths, failed bounded reads, invalid UTF-8 or empty text, checksum mismatch,
@@ -210,7 +268,7 @@ pub fn apply(
             .get_mut(&key)
             .ok_or_else(|| error("unused supplemental package"))?;
         verified_package(package, &notice)?;
-        if source_url(package, &notice.source_commit, &notice.upstream_path)? != notice.source_url {
+        if notice_url(package, &notice)? != notice.source_url {
             return Err(error("supplemental source URL mismatch"));
         }
         if !seen.insert((key, notice.upstream_path.clone())) {
@@ -232,8 +290,7 @@ pub fn apply(
             );
             let _previous_prefix: Option<Value> = fields.insert(
                 "source_prefix".to_owned(),
-                json!({"archive_path":prefix.archive_path,
-                "bytes":prefix.bytes,"sha256":prefix.sha256,"prefix_bytes":text_bytes.len()}),
+                prefix_record(&prefix, text_bytes.len()),
             );
         }
         let package = package

@@ -93,6 +93,83 @@ fn scenario() -> Result<Scenario> {
     })
 }
 
+/// # Errors
+/// Propagates fixture preparation, manifest field access, generation or output reads.
+fn archive_scenario() -> Result<Scenario> {
+    let mut scenario = scenario()?;
+    for record in scenario
+        .manifest
+        .get_mut("notices")
+        .and_then(Value::as_array_mut)
+        .ok_or("missing notices")?
+        .iter_mut()
+        .take(2)
+    {
+        let _previous: Option<Value> = record
+            .get_mut("source_prefix")
+            .and_then(Value::as_object_mut)
+            .ok_or("missing prefix")?
+            .insert("source_url_kind".into(), json!("published_archive"));
+        *record.get_mut("source_url").ok_or("missing URL")? =
+            json!("https://static.crates.io/crates/example/example-1.0.0.crate");
+    }
+    let root = &scenario.fixture.root;
+    write_json(&root.join("sources.json"), &scenario.manifest)?;
+    let result = scenario.fixture.run()?;
+    if !result.status.success() {
+        return Err(io::Error::other(String::from_utf8_lossy(&result.stderr)).into());
+    }
+    scenario.output = fs::read(root.join("output.json"))?;
+    Ok(scenario)
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture setup, command execution, output decoding or field access.
+///
+/// # Panics
+/// Panics if archive provenance loses the parent revision, complete-file binding or shared text.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
+)]
+fn preserves_verified_archive_prefix_provenance() -> Result<()> {
+    let scenario = archive_scenario()?;
+    let inventory: Value = serde_json::from_slice(&scenario.output)?;
+    let records = inventory
+        .pointer("/packages/example 1.0.0/supplemental_notices")
+        .and_then(Value::as_array)
+        .ok_or("missing records")?;
+    for record in records.iter().take(2) {
+        assert_eq!(
+            record.get("source_url"),
+            Some(&json!(
+                "https://static.crates.io/crates/example/example-1.0.0.crate"
+            ))
+        );
+        assert_eq!(record.get("source_commit"), Some(&json!("0".repeat(40))));
+        assert_eq!(
+            record.pointer("/source_prefix/source_url_kind"),
+            Some(&json!("published_archive"))
+        );
+        assert_eq!(
+            record.pointer("/source_prefix/sha256"),
+            Some(&json!(digest(SOURCE)?))
+        );
+    }
+    assert_eq!(
+        inventory.pointer(&format!("/texts/{}", digest(NOTICE)?)),
+        Some(&json!(std::str::from_utf8(NOTICE)?))
+    );
+    assert_eq!(records.len(), 3);
+    assert!(scenario.fixture.run()?.status.success());
+    assert_eq!(
+        fs::read(scenario.fixture.root.join("output.json"))?,
+        scenario.output
+    );
+    Ok(())
+}
+
 #[test]
 /// # Errors
 /// Propagates fixture setup, decoding, file access, or command execution errors.
@@ -153,7 +230,6 @@ fn preserves_source_references_and_shared_prefix_text() -> Result<()> {
     Ok(())
 }
 
-#[test]
 /// # Errors
 /// Propagates fixture setup, file access, field lookup, hashing or command execution errors.
 ///
@@ -163,8 +239,7 @@ fn preserves_source_references_and_shared_prefix_text() -> Result<()> {
     clippy::panic_in_result_fn,
     reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
 )]
-fn rejects_changed_bindings_and_preserves_previous_inventory() -> Result<()> {
-    let scenario = scenario()?;
+fn reject_changed_bindings(scenario: Scenario) -> Result<()> {
     let root = &scenario.fixture.root;
     for (pointer, replacement) in [
         ("/notices/0/source_prefix/sha256", json!("1".repeat(64))),
@@ -228,5 +303,60 @@ fn rejects_changed_bindings_and_preserves_previous_inventory() -> Result<()> {
         "changed source after the prefix"
     );
     assert_eq!(fs::read(root.join("output.json"))?, scenario.output);
+    Ok(())
+}
+
+#[test]
+/// # Errors
+/// Propagates the repository-prefix binding regression and fixture setup.
+fn rejects_changed_bindings_and_preserves_previous_inventory() -> Result<()> {
+    reject_changed_bindings(scenario()?)
+}
+
+#[test]
+/// # Errors
+/// Propagates the archive-prefix binding regression and fixture setup.
+fn rejects_changed_archive_bindings_and_preserves_previous_inventory() -> Result<()> {
+    reject_changed_bindings(archive_scenario()?)
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture setup, manifest field access, writes or command execution.
+///
+/// # Panics
+/// Panics if an unknown URL kind or incorrect archive URL is accepted.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-06, revisit 2026-11-06"
+)]
+fn rejects_unknown_archive_url_kinds_and_urls() -> Result<()> {
+    let scenario = archive_scenario()?;
+    let root = &scenario.fixture.root;
+    for (pointer, replacement) in [
+        ("/notices/0/source_prefix/source_url_kind", json!("other")),
+        ("/notices/0/source_prefix/source_url_kind", json!(true)),
+        ("/notices/0/source_prefix/source_url_kind", json!(null)),
+        (
+            "/notices/0/source_url",
+            json!("https://static.crates.io/crates/other/other-1.0.0.crate"),
+        ),
+        (
+            "/notices/0/source_url",
+            json!("https://static.crates.io/crates/example/example-1.0.1.crate"),
+        ),
+        (
+            "/notices/0/source_url",
+            json!("https://static.crates.io/crates/example/example-1.0.0.crate?extra=true"),
+        ),
+    ] {
+        let mut changed = scenario.manifest.clone();
+        *changed
+            .pointer_mut(pointer)
+            .ok_or("missing fixture field")? = replacement;
+        write_json(&root.join("sources.json"), &changed)?;
+        assert!(!scenario.fixture.run()?.status.success(), "{pointer}");
+        assert_eq!(fs::read(root.join("output.json"))?, scenario.output);
+    }
     Ok(())
 }

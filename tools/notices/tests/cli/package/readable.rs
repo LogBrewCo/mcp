@@ -84,8 +84,10 @@ fn readable_fixture() -> Result<Fixture> {
                         "prefix_bytes":SUPPLEMENT.len(),"sha256":supplement}},
                 {"upstream_path":"src/two.rs","bytes":SUPPLEMENT.len(),"sha256":supplement,
                     "source_kind":"checked_published_archive_source_prefix",
+                    "source_url":"https://static.crates.io/crates/synthetic-a/synthetic-a-1.0.0.crate",
                     "source_prefix":{"archive_path":"src/two.rs","bytes":SUPPLEMENT.len(),
-                        "prefix_bytes":SUPPLEMENT.len(),"sha256":supplement}}]},
+                        "prefix_bytes":SUPPLEMENT.len(),"sha256":supplement,
+                        "source_url_kind":"published_archive"}}]},
         "synthetic-b 2.0.0":{"name":"synthetic-b","version":"2.0.0",
             "files":{"COPYING":record(SHARED)?}}}),
     )?;
@@ -151,21 +153,7 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
             .get("licenses/DEPENDENCIES.txt")
             .ok_or("missing readable dependencies")?,
     )?;
-    assert!(dependency.contains("synthetic-a 1.0.0\n  LICENSE\n"));
-    assert!(dependency.contains("synthetic-b 2.0.0\n  COPYING\n"));
-    assert!(
-        ["  NOTICE\n", "  src/one.rs\n", "  src/two.rs\n"]
-            .iter()
-            .all(|path| dependency.contains(path))
-    );
-    assert_eq!(
-        dependency
-            .matches("Verified prefix of published source file")
-            .count(),
-        2
-    );
-    assert_eq!(dependency.matches(SHARED).count(), 1);
-    assert_eq!(dependency.matches(SUPPLEMENT).count(), 1);
+    assert_dependency_text(dependency);
     let linked_text = std::str::from_utf8(
         files
             .get("licenses/LINKED-TARGET.txt")
@@ -205,6 +193,33 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
         Some(&json!("external_required"))
     );
     Ok(())
+}
+
+/// # Panics
+///
+/// Panics if package paths, provenance labels, or deduplicated notice texts differ.
+fn assert_dependency_text(dependency: &str) {
+    assert!(dependency.contains("synthetic-a 1.0.0\n  LICENSE\n"));
+    assert!(dependency.contains("synthetic-b 2.0.0\n  COPYING\n"));
+    assert!(
+        ["  NOTICE\n", "  src/one.rs\n", "  src/two.rs\n"]
+            .iter()
+            .all(|path| dependency.contains(path))
+    );
+    assert_eq!(
+        dependency
+            .matches("Verified prefix of published source file")
+            .count(),
+        1
+    );
+    assert_eq!(
+        dependency
+            .matches("Verified prefix of published archive member")
+            .count(),
+        1
+    );
+    assert_eq!(dependency.matches(SHARED).count(), 1);
+    assert_eq!(dependency.matches(SUPPLEMENT).count(), 1);
 }
 
 #[test]
@@ -263,6 +278,14 @@ fn malformed_readable_sources_cannot_replace_an_existing_package() -> Result<()>
         (
             "/packages/synthetic-a 1.0.0/supplemental_notices/1/source_prefix/archive_path",
             json!("../src/one.rs"),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/2/source_prefix/source_url_kind",
+            json!("other"),
+        ),
+        (
+            "/packages/synthetic-a 1.0.0/supplemental_notices/2/source_prefix/source_url_kind",
+            json!(true),
         ),
     ] {
         let mut changed = dependency_inventory.clone();

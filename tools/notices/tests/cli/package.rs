@@ -41,7 +41,7 @@ fn files() -> Result<BTreeMap<&'static str, Vec<u8>>> {
         ("Cargo.lock", lock.to_vec()),
         ("LICENSE", b"synthetic project license\n".to_vec()),
         (
-            "licenses/rmcp-3.5.0.txt",
+            "licenses/rmcp-3.5.1.txt",
             b"synthetic SDK license\n".to_vec(),
         ),
         (
@@ -72,7 +72,7 @@ fn fixture() -> Result<Fixture> {
     for (field, path) in [
         ("binary", "server"),
         ("project_license", "LICENSE"),
-        ("sdk_license", "licenses/rmcp-3.5.0.txt"),
+        ("sdk_license", "licenses/rmcp-3.5.1.txt"),
         ("dependency_notices", "licenses/locked-source-notices.json"),
         (
             "toolchain_notices",

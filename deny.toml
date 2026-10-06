@@ -318,7 +318,7 @@ allow = ["alloc", "default", "dev_urandom_fallback"]
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "rmcp@3.5.0"
+crate = "rmcp@3.5.1"
 allow = ["__reqwest", "base64", "client", "client-side-sse", "schemars", "server", "server-side-http", "tower", "transport-async-rw", "transport-streamable-http-client", "transport-streamable-http-client-reqwest", "transport-streamable-http-server", "transport-streamable-http-server-session", "transport-worker", "uuid"]
 reason = "Reviewed features for this exact locked dependency version"
 

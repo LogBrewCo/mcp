@@ -571,16 +571,21 @@ fn append_values(headers: &mut HeaderMap, name: &'static str, values: Vec<&str>)
 /// Panics if invalid protocol fields are accepted, echoed in the response or start execution.
 async fn invalid_protocol_fields_do_not_echo_rejected_private_values() {
     let fixture = Fixture::new().await.expect("fixture");
-    for path in [
-        "/params/arguments",
-        "/params/_meta/io.modelcontextprotocol~1clientCapabilities",
+    for (path, expected) in [
+        ("/params/arguments", StatusCode::OK),
+        (
+            "/params/_meta/io.modelcontextprotocol~1clientCapabilities",
+            StatusCode::BAD_REQUEST,
+        ),
     ] {
         let mut value = body();
         *value.pointer_mut(path).expect("field") = json!("SYNTHETIC_PRIVATE_MARKER");
-        let (status, _, bytes, _) = response(&fixture, request(&value).expect("request"))
+        let (status, error, bytes, _) = response(&fixture, request(&value).expect("request"))
             .await
             .expect("malformed request");
-        assert!(status.is_client_error());
+        assert_eq!(status, expected, "{path}");
+        assert_eq!(error.pointer("/error/code"), Some(&json!(-32_602_i32)));
+        assert!(error.get("result").is_none());
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_MARKER"));
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);

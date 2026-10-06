@@ -38,13 +38,13 @@ license requirements and registry sources, rejects wildcard versions, and
 constrains reviewed features to exact dependency versions. Five exact duplicate
 version exceptions preserve incompatible upstream APIs; no dependency subtree
 is excluded. Unused license and source allowances fail the check. Binary
-distributions must include LICENSE, licenses/rmcp-3.5.0.txt, and all other
+distributions must include LICENSE, licenses/rmcp-3.5.1.txt, and all other
 applicable dependency notices. The SDK license is preserved from its
-[published source commit](https://github.com/modelcontextprotocol/rust-sdk/blob/0cde3c5cf3e6aff0cc852ce6045f107e95991f48/LICENSE).
+[published source commit](https://github.com/modelcontextprotocol/rust-sdk/blob/79437f291b2c44053d00dcd5db969fd0cca7c887/LICENSE).
 Complete notice bundling remains required before release.
 
 The toolchain file pins rustfmt and Clippy with Rust 1.99.0. The server uses
-the official MCP Rust SDK, rmcp 3.5.0, with Axum and Tokio. Cargo.lock records
+the official MCP Rust SDK, rmcp 3.5.1, with Axum and Tokio. Cargo.lock records
 the resolved dependency graph. All diagnostics must be resolved
 before release. Authorization, operation discovery, execution isolation and
 client integration remain required before a usable server can be released.
@@ -132,6 +132,8 @@ headers receive HTTP 400 with a `HeaderMismatch` error. Unsupported versions
 receive the supported-version list; unknown methods receive HTTP 404 with a
 JSON-RPC method error. Client response messages, batches, and invalid request IDs
 are rejected before execution.
+Handler validation errors use HTTP 200 with a JSON-RPC error response. Missing
+required request metadata remains an HTTP 400 error.
 
 Content negotiation parses complete media types, accepts case variants and
 repeated Accept fields, and requires both JSON and event-stream support with

@@ -82,14 +82,14 @@
       "version": "0.58.5"
     },
     {
-      "file": "rmcp-3.5.0.txt",
+      "file": "rmcp-3.5.1.txt",
       "package": "rmcp",
-      "published_package_sha256": "fae7019994ae0fe4ada40b732f798f3ff26f0f04facb1477f1bf37eb4f18a2d3",
+      "published_package_sha256": "ab5023804cbe0304cbe06197ac16e645a0a0d0ffa2953bf735c15c2fa0213350",
       "sha256": "0382b0057770ca05e9c350a50aa3b1c1fea84da0bc81d723bf00b9aa841be58a",
-      "source_commit": "0cde3c5cf3e6aff0cc852ce6045f107e95991f48",
-      "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/0cde3c5cf3e6aff0cc852ce6045f107e95991f48/LICENSE",
+      "source_commit": "79437f291b2c44053d00dcd5db969fd0cca7c887",
+      "source_url": "https://raw.githubusercontent.com/modelcontextprotocol/rust-sdk/79437f291b2c44053d00dcd5db969fd0cca7c887/LICENSE",
       "upstream_path": "LICENSE",
-      "version": "3.5.0"
+      "version": "3.5.1"
     },
     {
       "file": "rustls-platform-verifier-android-0.2.0.txt",

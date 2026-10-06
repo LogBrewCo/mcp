@@ -217,7 +217,7 @@ fn append_source_notices(
 ) -> Result<()> {
     for (path, binding) in [
         ("LICENSE", &plan.project_license),
-        ("licenses/rmcp-3.5.0.txt", &plan.sdk_license),
+        ("licenses/rmcp-3.5.1.txt", &plan.sdk_license),
     ] {
         append(
             builder,
@@ -350,7 +350,7 @@ pub fn guard_output(
         binary.to_path_buf(),
         root.join("Cargo.lock"),
         root.join("LICENSE"),
-        root.join("licenses/rmcp-3.5.0.txt"),
+        root.join("licenses/rmcp-3.5.1.txt"),
         root.join("licenses/locked-source-notices.json"),
         root.join("licenses/locked-rust-toolchain-notices.json"),
     ];

@@ -60,6 +60,26 @@ async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<B
 
 /// # Errors
 ///
+/// Returns a request, body-read or JSON error, or an error if request metadata is absent.
+async fn incomplete_metadata_packet(field: &str, id: &Value) -> TestResult<Request<Body>> {
+    let request = packet("tools/list", json!({}), id).await?;
+    let (parts, body) = request.into_parts();
+    let mut value: Value = serde_json::from_slice(&to_bytes(body, 4096).await?)?;
+    drop(
+        value
+            .pointer_mut("/params/_meta")
+            .and_then(Value::as_object_mut)
+            .ok_or_else(|| io::Error::other("missing request metadata"))?
+            .remove(field),
+    );
+    Ok(Request::from_parts(
+        parts,
+        Body::from(serde_json::to_vec(&value)?),
+    ))
+}
+
+/// # Errors
+///
 /// Returns a JSON error if the response body is invalid.
 ///
 /// # Panics
@@ -70,12 +90,13 @@ async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<B
     clippy::panic_in_result_fn,
     reason = "Test assertions must retain their failure and comparison diagnostics."
 )]
-fn assert_error(status: StatusCode, bytes: &[u8], id: &Value, code: i32) -> TestResult<()> {
-    let expected = if code == -32_601_i32 {
-        StatusCode::NOT_FOUND
-    } else {
-        StatusCode::BAD_REQUEST
-    };
+fn assert_error(
+    status: StatusCode,
+    expected: StatusCode,
+    bytes: &[u8],
+    id: &Value,
+    code: i32,
+) -> TestResult<()> {
     assert_eq!(status, expected);
     assert!(!String::from_utf8_lossy(bytes).contains("SYNTHETIC_PRIVATE_"));
     let error: Value = serde_json::from_slice(bytes)?;
@@ -113,7 +134,7 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
             .await?;
         let status = response.status();
         let bytes = to_bytes(response.into_body(), 4096).await?;
-        assert_error(status, &bytes, &id, -32601)?;
+        assert_error(status, StatusCode::NOT_FOUND, &bytes, &id, -32601)?;
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     Ok(())
@@ -132,7 +153,7 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
     clippy::panic_in_result_fn,
     reason = "Test assertions must retain their failure and comparison diagnostics."
 )]
-async fn malformed_known_methods_return_invalid_params_without_execution() -> TestResult<()> {
+async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (method, params) in malformed() {
         let response = fixture
@@ -142,7 +163,7 @@ async fn malformed_known_methods_return_invalid_params_without_execution() -> Te
             .await?;
         let status = response.status();
         let bytes = to_bytes(response.into_body(), 4096).await?;
-        assert_error(status, &bytes, &json!(1_i32), -32602)?;
+        assert_error(status, StatusCode::OK, &bytes, &json!(1_i32), -32602)?;
     }
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     Ok(())
@@ -238,13 +259,18 @@ async fn wire(http2: bool) -> TestResult<()> {
         (running.http1_client(), Version::HTTP_11)
     };
     let id: Value = serde_json::from_str("184467440737095516160")?;
-    let mut cases = vec![(PRIVATE_METHOD, json!({}), -32_601_i32)];
+    let mut cases = vec![(
+        PRIVATE_METHOD,
+        json!({}),
+        -32_601_i32,
+        StatusCode::NOT_FOUND,
+    )];
     cases.extend(
         malformed()
             .into_iter()
-            .map(|(method, params)| (method, params, -32_602_i32)),
+            .map(|(method, params)| (method, params, -32_602_i32, StatusCode::OK)),
     );
-    for (method, params, code) in cases {
+    for (method, params, code, expected) in cases {
         let request = packet(method, params, &id).await?;
         let response = send(&client, &running, &authority, request).await?;
         assert_eq!(response.version(), version);
@@ -254,7 +280,19 @@ async fn wire(http2: bool) -> TestResult<()> {
         );
         let status = response.status();
         let bytes = response.bytes().await?;
-        assert_error(status, &bytes, &id, code)?;
+        assert_error(status, expected, &bytes, &id, code)?;
+        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    }
+    for field in [
+        "io.modelcontextprotocol/protocolVersion",
+        "io.modelcontextprotocol/clientCapabilities",
+    ] {
+        let request = incomplete_metadata_packet(field, &id).await?;
+        let response = send(&client, &running, &authority, request).await?;
+        assert_eq!(response.version(), version);
+        let status = response.status();
+        let bytes = response.bytes().await?;
+        assert_error(status, StatusCode::BAD_REQUEST, &bytes, &id, -32602)?;
         assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
     }
     let request = packet(

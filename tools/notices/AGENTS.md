@@ -152,7 +152,7 @@ From this directory:
 cargo run --locked --offline --bin logbrew-mcp-package -- /absolute/path/to/plan.json /absolute/path/to/logbrew-mcp /absolute/path/to/mcp /absolute/path/to/package.tar.gz
 ```
 
-Version 1 contains exactly the binary, LICENSE, licenses/rmcp-3.5.0.txt, both
+Version 1 contains exactly the binary, LICENSE, licenses/rmcp-3.5.1.txt, both
 notice inventories, and MANIFEST.json beneath the package version and target.
 Version 2 requires a linked_target_notices size/checksum binding and adds
 licenses/linked-target-notices.json. Version 1 rejects that binding. The linked

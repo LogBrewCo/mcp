@@ -89,6 +89,15 @@ async fn discovery_and_tool_inventory_are_self_contained() {
         .await
         .expect("inventory");
     assert_eq!(status, StatusCode::OK);
+    assert_eq!(response.pointer("/result/ttlMs"), Some(&json!(0_i32)));
+    assert_eq!(
+        response.pointer("/result/cacheScope"),
+        Some(&json!("private"))
+    );
+    assert_eq!(
+        response.pointer("/result/resultType"),
+        Some(&json!("complete"))
+    );
     let tools = response
         .pointer("/result/tools")
         .and_then(Value::as_array)

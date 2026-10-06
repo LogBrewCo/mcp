@@ -801,6 +801,86 @@
       "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
       "upstream_path": "aws-lc-sys/aws-lc/crypto/fipsmodule/sha/asm/sha512-armv8.pl",
       "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-openssl-1998-2011.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "3045fed516adde5925edeb4e9e5387d209f12651c3e3a9870e1c87957b917c65",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/arm_arch.h",
+        "bytes": 4288,
+        "sha256": "e786fd950fdd4ecd8000285323963bfe4f7246ecc90322bd2553bf9bd90dfd8d",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/arm_arch.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2023.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b6b60851dac8c4349f5d238731959e3adceabcf64266715c3cedfd37017acbcd",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/asm_base.h",
+        "bytes": 8019,
+        "sha256": "9bb3cdfce042cfcb0aa36bf6acaad081d6ffe3368253c9493308f76a95487ae2",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/asm_base.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2023.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "b6b60851dac8c4349f5d238731959e3adceabcf64266715c3cedfd37017acbcd",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "aws-lc/include/openssl/target.h",
+        "bytes": 10045,
+        "sha256": "b4eb3eeeeb2da46043da60b81a961d031580ecd093d5980ffc627605eed9ef0e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/aws-lc/include/openssl/target.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "generated-include/openssl/boringssl_prefix_symbols.h",
+        "bytes": 369120,
+        "sha256": "ad8a1d839736238fec7c51144e7d055b504c2026afcd40ad71fb4fbcb36c6592",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/generated-include/openssl/boringssl_prefix_symbols.h",
+      "version": "0.45.0"
+    },
+    {
+      "file": "aws-lc-sys-0.45.0-header-google-2018.txt",
+      "package": "aws-lc-sys",
+      "published_package_sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+      "sha256": "f2c4b5cca8c6ca495c50b9d5aeab1b5fd03e178eaecfb8cbcb9aca4327a58244",
+      "source_commit": "7943223c99d909bc399bdf1b856821bb04f1f3c5",
+      "source_prefix": {
+        "archive_path": "generated-include/openssl/boringssl_prefix_symbols_asm.h",
+        "bytes": 406800,
+        "sha256": "1d31e6cd7635fcea79004a9bf4071578508c71b64bdf68383acfbf31e5d1552e",
+        "source_url_kind": "published_archive"
+      },
+      "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+      "upstream_path": "aws-lc-sys/generated-include/openssl/boringssl_prefix_symbols_asm.h",
+      "version": "0.45.0"
     }
   ]
 }

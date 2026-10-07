@@ -10,6 +10,8 @@ mod authorization;
 mod bearer;
 #[path = "cases/clients.rs"]
 mod clients;
+#[path = "support/count.rs"]
+mod count;
 #[path = "cases/headers.rs"]
 mod headers;
 #[path = "support/hpack.rs"]

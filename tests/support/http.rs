@@ -30,6 +30,8 @@ use sha2::{Digest as _, Sha256};
 use tower::ServiceExt as _;
 use zeroize::Zeroizing;
 
+use super::count::discard_count;
+
 pub const RESOURCE: &str = "https://resource.example/mcp";
 pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
 const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%&\n";
@@ -60,7 +62,7 @@ struct ExecutionGuard(Arc<AtomicUsize>);
 
 impl Drop for ExecutionGuard {
     fn drop(&mut self) {
-        let _: usize = self.0.fetch_sub(1, Ordering::SeqCst);
+        discard_count(self.0.fetch_sub(1, Ordering::SeqCst));
     }
 }
 
@@ -454,7 +456,7 @@ async fn introspect(
         .append_pair("token_type_hint", "access_token")
         .finish();
     assert_eq!(body.as_ref(), expected.as_bytes());
-    let _: usize = state.verifies.fetch_add(1, Ordering::SeqCst);
+    discard_count(state.verifies.fetch_add(1, Ordering::SeqCst));
     let reply = state
         .introspection_reply
         .lock()
@@ -528,8 +530,8 @@ async fn execute(
         input.get("client_id").and_then(Value::as_str),
         Some("synthetic-client")
     );
-    let _: usize = state.calls.fetch_add(1, Ordering::SeqCst);
-    let _: usize = state.active_executions.fetch_add(1, Ordering::SeqCst);
+    discard_count(state.calls.fetch_add(1, Ordering::SeqCst));
+    discard_count(state.active_executions.fetch_add(1, Ordering::SeqCst));
     let _active = ExecutionGuard(Arc::clone(&state.active_executions));
     if state.pause.load(Ordering::SeqCst) {
         state.release.notified().await;

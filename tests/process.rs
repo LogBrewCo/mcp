@@ -3,6 +3,9 @@
 #[cfg(target_os = "linux")]
 #[path = "process/authenticated.rs"]
 mod authenticated;
+#[cfg(target_os = "linux")]
+#[path = "support/count.rs"]
+mod count;
 #[path = "support/hpack.rs"]
 mod hpack;
 #[path = "process/http2.rs"]

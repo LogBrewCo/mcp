@@ -20,7 +20,7 @@ use base64::Engine as _;
 use serde_json::{Value, json};
 use tokio::time::timeout;
 
-use super::TestResult;
+use super::{super::count::discard_count, TestResult};
 
 pub(super) const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
 const SECRET: &str = "SYNTHETIC_MACHINE_SECRET";
@@ -47,7 +47,7 @@ struct PendingGuard(Arc<AtomicUsize>);
 
 impl Drop for PendingGuard {
     fn drop(&mut self) {
-        let _: usize = self.0.fetch_sub(1, Ordering::SeqCst);
+        discard_count(self.0.fetch_sub(1, Ordering::SeqCst));
     }
 }
 
@@ -69,7 +69,7 @@ impl Observations {
 
     async fn enter(&self, stage: PendingStage) -> PendingGuard {
         let (paused, pending) = self.stage(stage);
-        let _: usize = pending.fetch_add(1, Ordering::SeqCst);
+        discard_count(pending.fetch_add(1, Ordering::SeqCst));
         let active = PendingGuard(Arc::clone(pending));
         if paused.load(Ordering::SeqCst) {
             std::future::pending::<()>().await;

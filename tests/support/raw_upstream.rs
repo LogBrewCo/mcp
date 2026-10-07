@@ -22,7 +22,10 @@ use tokio::{
 };
 use zeroize::Zeroizing;
 
-use super::peer::{Frame, Peer};
+use super::{
+    count::discard_count,
+    peer::{Frame, Peer},
+};
 
 type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 type Stream = tokio_rustls::server::TlsStream<tokio::net::TcpStream>;
@@ -371,12 +374,12 @@ async fn run_exchange(
             body,
         } => {
             let mut stream = acceptor.accept(stream).await?;
-            let _: usize = accepted.fetch_add(1, Ordering::SeqCst);
+            discard_count(accepted.fetch_add(1, Ordering::SeqCst));
             if stream.get_ref().1.alpn_protocol() != Some(b"http/1.1") {
                 return Err(io::Error::other("HTTP/1 ALPN not negotiated").into());
             }
             request(&mut stream, path).await?;
-            let _: usize = observed.fetch_add(1, Ordering::SeqCst);
+            discard_count(observed.fetch_add(1, Ordering::SeqCst));
             reply(&mut stream, &headers, body.as_deref()).await
         }
         Plan::StalledTls(started) => stalled_handshake(stream, started).await,
@@ -386,7 +389,7 @@ async fn run_exchange(
             trailers,
         } => {
             let mut stream = acceptor.accept(stream).await?;
-            let _: usize = accepted.fetch_add(1, Ordering::SeqCst);
+            discard_count(accepted.fetch_add(1, Ordering::SeqCst));
             if stream.get_ref().1.alpn_protocol() != Some(b"h2") {
                 return Err(io::Error::other("HTTP/2 ALPN not negotiated").into());
             }
@@ -398,7 +401,7 @@ async fn run_exchange(
             let mut peer = Peer::new(stream);
             peer.send(0, 4, 0, &[]).await?;
             let request = http2_request(&mut peer).await?;
-            let _: usize = observed.fetch_add(1, Ordering::SeqCst);
+            discard_count(observed.fetch_add(1, Ordering::SeqCst));
             http2_reply(
                 &mut peer,
                 request,

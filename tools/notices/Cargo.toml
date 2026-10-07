@@ -33,6 +33,7 @@ as_conversions = "deny"
 as_pointer_underscore = "deny"
 as_underscore = "deny"
 assertions_on_result_states = "deny"
+big_endian_bytes = "deny"
 cargo = { level = "deny", priority = -4 }
 cfg_not_test = "deny"
 clone_on_ref_ptr = "deny"

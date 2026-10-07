@@ -191,7 +191,10 @@ fn record_bytes_and_record_count_have_explicit_limits() {
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// # Errors
 /// Propagates readiness-read errors or exhaustion of the bounded readiness attempts.
-fn await_readiness(mut ready: impl FnMut() -> Result<bool>) -> Result<()> {
+fn await_readiness<Ready>(mut ready: Ready) -> Result<()>
+where
+    Ready: FnMut() -> Result<bool>,
+{
     // Read past the native test harness prefix with bounded output.
     for _ in 0_u8..16_u8 {
         if ready()? {

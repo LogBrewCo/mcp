@@ -121,7 +121,10 @@ impl<R: Read + AsFd> Pipe<R> {
 
 /// # Errors
 /// Propagates pipe-read and output-budget failures across the bounded batch.
-fn drain_reads<R: Read + AsFd>(pipe: &mut Pipe<R>, buffer: &mut [u8], limit: usize) -> Result<()> {
+fn drain_reads<R>(pipe: &mut Pipe<R>, buffer: &mut [u8], limit: usize) -> Result<()>
+where
+    R: Read + AsFd,
+{
     // Bound work per pipe so a busy writer cannot starve the deadline.
     for _ in 0_u8..8_u8 {
         if !pipe.read_once(buffer, limit)? {

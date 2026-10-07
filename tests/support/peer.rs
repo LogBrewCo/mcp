@@ -160,9 +160,10 @@ impl<S: AsyncRead + AsyncWrite + Unpin + Send> Peer<S> {
 /// # Errors
 /// Propagates frame-read failures and rejects premature closure or an unmatched
 /// acknowledgement beyond the frame-count bound.
-async fn probe_frames<S: AsyncRead + AsyncWrite + Unpin + Send>(
-    peer: &mut Peer<S>,
-) -> TestResult<()> {
+async fn probe_frames<S>(peer: &mut Peer<S>) -> TestResult<()>
+where
+    S: AsyncRead + AsyncWrite + Unpin + Send,
+{
     for _ in 0_i32..16_i32 {
         let frame = peer
             .next()

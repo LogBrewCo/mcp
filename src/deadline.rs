@@ -1,6 +1,9 @@
 use std::{future::Future, time::Duration};
 
-pub async fn within<T>(budget: Duration, work: impl Future<Output = T>) -> Option<T> {
+pub async fn within<T, Work>(budget: Duration, work: Work) -> Option<T>
+where
+    Work: Future<Output = T>,
+{
     let deadline = tokio::time::Instant::now().checked_add(budget)?;
     // Timeout polls work before its timer. Reject a late completed result too.
     match tokio::time::timeout_at(deadline, work).await {

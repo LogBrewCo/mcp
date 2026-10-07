@@ -47,7 +47,10 @@ struct Staged {
 /// # Errors
 /// Rejects an existing destination that is not a regular file and propagates
 /// metadata lookup errors other than an absent destination.
-fn permissions(directory: impl AsFd, name: &OsStr) -> Result<Mode> {
+fn permissions<Directory>(directory: Directory, name: &OsStr) -> Result<Mode>
+where
+    Directory: AsFd,
+{
     match fs::statat(directory, name, AtFlags::SYMLINK_NOFOLLOW) {
         Ok(stat) => {
             if FileType::from_raw_mode(stat.st_mode) != FileType::RegularFile {
@@ -78,7 +81,10 @@ fn next_sequence(sequence: &AtomicU64) -> Result<u64> {
 /// # Errors
 /// Rejects staging-sequence exhaustion and propagates exclusive-file open
 /// failures other than a name collision.
-fn create_file(directory: impl AsFd) -> Result<Option<(File, OsString)>> {
+fn create_file<Directory>(directory: Directory) -> Result<Option<(File, OsString)>>
+where
+    Directory: AsFd,
+{
     let sequence = next_sequence(&SEQUENCE)?;
     let name = OsString::from(format!(
         ".logbrew-notices-{}-{sequence}.tmp",
@@ -179,7 +185,10 @@ impl Drop for Staged {
 /// Rejects an invalid destination name or destination type and propagates
 /// staging, writer, and publication failures. A directory-sync failure may
 /// occur after replacement; unpublished staging cleanup is best effort.
-fn replace(path: &Path, write: impl FnOnce(&mut File) -> io::Result<()>) -> Result<()> {
+fn replace<Write>(path: &Path, write: Write) -> Result<()>
+where
+    Write: FnOnce(&mut File) -> io::Result<()>,
+{
     let destination = path
         .file_name()
         .ok_or_else(|| error("invalid notice output filename"))?;

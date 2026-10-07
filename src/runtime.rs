@@ -26,10 +26,10 @@ impl Drop for Stop {
     clippy::integer_division_remainder_used,
     reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
 )]
-pub async fn serve(
-    service: Service,
-    shutdown: impl Future<Output = Result<(), Failure>>,
-) -> Result<(), Failure> {
+pub async fn serve<Shutdown>(service: Service, shutdown: Shutdown) -> Result<(), Failure>
+where
+    Shutdown: Future<Output = Result<(), Failure>>,
+{
     let handle = axum_server::Handle::new();
     let _stop = Stop(handle.clone());
     let acceptor = axum_server::tls_rustls::RustlsAcceptor::new(service.tls)

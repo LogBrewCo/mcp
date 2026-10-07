@@ -70,7 +70,10 @@ impl<'de> Visitor<'de> for ObjectVisitor {
         formatter.write_str("an object with unique decoded keys")
     }
 
-    fn visit_map<M: MapAccess<'de>>(self, map: M) -> Result<Self::Value, M::Error> {
+    fn visit_map<M>(self, map: M) -> Result<Self::Value, M::Error>
+    where
+        M: MapAccess<'de>,
+    {
         unique_fields(map).map(UniqueObject)
     }
 }
@@ -79,9 +82,10 @@ impl<'de> Visitor<'de> for ObjectVisitor {
 ///
 /// # Errors
 /// Propagates field decoding failures and rejects duplicate decoded keys.
-fn unique_fields<'de, M: MapAccess<'de>>(
-    mut map: M,
-) -> Result<BTreeMap<String, Box<RawValue>>, M::Error> {
+fn unique_fields<'de, M>(mut map: M) -> Result<BTreeMap<String, Box<RawValue>>, M::Error>
+where
+    M: MapAccess<'de>,
+{
     let mut fields = BTreeMap::new();
     while let Some((key, value)) = map.next_entry::<String, Box<RawValue>>()? {
         if fields.insert(key, value).is_some() {
@@ -92,7 +96,10 @@ fn unique_fields<'de, M: MapAccess<'de>>(
 }
 
 impl<'de> Deserialize<'de> for UniqueObject {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
         deserializer.deserialize_map(ObjectVisitor)
     }
 }

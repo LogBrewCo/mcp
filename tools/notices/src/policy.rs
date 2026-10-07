@@ -144,7 +144,10 @@ fn validate(success: bool, stdout: &[u8], stderr: &[u8]) -> Result<()> {
 /// Rejects an argument count or executable path violation, unsupported
 /// platform, incorrect pinned version, process capture failure, and dependency
 /// output that fails the strict policy-record validation.
-pub fn run(mut args: impl Iterator<Item = OsString>) -> Result<()> {
+pub fn run<Args>(mut args: Args) -> Result<()>
+where
+    Args: Iterator<Item = OsString>,
+{
     let executable = PathBuf::from(
         args.next()
             .ok_or_else(|| error("missing cargo-deny executable"))?,

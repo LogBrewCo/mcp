@@ -79,9 +79,10 @@ pub(super) struct Reply<'a> {
 ///
 /// # Errors
 /// Propagates the deserializer's raw-value decoding failure.
-fn present_raw<'de, D: serde::Deserializer<'de>>(
-    deserializer: D,
-) -> Result<Option<&'de RawValue>, D::Error> {
+fn present_raw<'de, D>(deserializer: D) -> Result<Option<&'de RawValue>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
     <&RawValue>::deserialize(deserializer).map(Some)
 }
 

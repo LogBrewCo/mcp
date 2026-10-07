@@ -55,10 +55,10 @@ impl<'de> serde::de::Visitor<'de> for UniqueFiles {
     fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         formatter.write_str("four unique standard-library notice paths")
     }
-    fn visit_map<A: serde::de::MapAccess<'de>>(
-        self,
-        mut map: A,
-    ) -> std::result::Result<Self::Value, A::Error> {
+    fn visit_map<A>(self, mut map: A) -> std::result::Result<Self::Value, A::Error>
+    where
+        A: serde::de::MapAccess<'de>,
+    {
         let mut files = BTreeMap::new();
         while let Some((path, notice)) = map.next_entry::<String, Notice>()? {
             insert_file(&mut files, path, notice).map_err(serde::de::Error::custom)?;
@@ -70,9 +70,10 @@ impl<'de> serde::de::Visitor<'de> for UniqueFiles {
 /// # Errors
 /// Propagates deserialization failures, including duplicate or excess notice
 /// paths rejected by the map visitor.
-fn files<'de, D: serde::Deserializer<'de>>(
-    deserializer: D,
-) -> std::result::Result<BTreeMap<String, Notice>, D::Error> {
+fn files<'de, D>(deserializer: D) -> std::result::Result<BTreeMap<String, Notice>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
     deserializer.deserialize_map(UniqueFiles)
 }
 

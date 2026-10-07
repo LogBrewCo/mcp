@@ -27,7 +27,10 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 ///
 /// # Errors
 /// Rejects process failures, incomplete output, and warning or error records.
-pub fn policy(args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
+pub fn policy<Args>(args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
     policy::run(args)
 }
 
@@ -57,7 +60,10 @@ fn checksum(bytes: &[u8]) -> Result<String> {
 /// # Errors
 /// Rejects limit overflow, reader failures, byte-count conversion failure,
 /// and input beyond the byte limit.
-fn bounded(reader: impl io::Read, limit: u64) -> Result<Vec<u8>> {
+fn bounded<Reader>(reader: Reader, limit: u64) -> Result<Vec<u8>>
+where
+    Reader: io::Read,
+{
     let read_limit = limit
         .checked_add(1)
         .ok_or_else(|| error("invalid byte limit"))?;
@@ -340,7 +346,10 @@ fn generate(
 ///
 /// # Errors
 /// Returns an error for invalid arguments, failed source verification or publication.
-pub fn run(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
+pub fn run<Args>(mut args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
     let metadata_path = args
         .next()
         .ok_or_else(|| error("missing Cargo metadata JSON argument"))?;
@@ -381,7 +390,10 @@ pub fn run(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
 ///
 /// # Errors
 /// Returns an error for invalid source bindings, distribution data or publication.
-pub fn toolchain(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
+pub fn toolchain<Args>(mut args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
     let sources = args.next().ok_or_else(|| error("missing source binding"))?;
     let manifest = args
         .next()
@@ -409,7 +421,10 @@ pub fn toolchain(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<(
 ///
 /// # Errors
 /// Returns an error for invalid bindings, mismatched input bytes or publication.
-pub fn package(mut args: impl Iterator<Item = std::ffi::OsString>) -> Result<()> {
+pub fn package<Args>(mut args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
     let plan_path = args.next().ok_or_else(|| error("missing packaging plan"))?;
     let binary = args.next().ok_or_else(|| error("missing server binary"))?;
     let root = args

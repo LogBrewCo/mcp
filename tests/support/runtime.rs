@@ -193,11 +193,14 @@ async fn ready(running: &Running, authority: &str) -> TestResult<()> {
 ///
 /// # Errors
 /// Returns an elapsed error if the condition is not met before the wait expires.
-pub async fn wait_until(
+pub async fn wait_until<Ready>(
     limit: Duration,
     interval: Duration,
-    ready: impl FnMut() -> bool,
-) -> Result<(), tokio::time::error::Elapsed> {
+    ready: Ready,
+) -> Result<(), tokio::time::error::Elapsed>
+where
+    Ready: FnMut() -> bool,
+{
     timeout(limit, poll_until(interval, ready)).await
 }
 
@@ -216,7 +219,10 @@ pub async fn wait_executions(
     .await
 }
 
-async fn poll_until(interval: Duration, mut ready: impl FnMut() -> bool) {
+async fn poll_until<Ready>(interval: Duration, mut ready: Ready)
+where
+    Ready: FnMut() -> bool,
+{
     while !ready() {
         sleep(interval).await;
     }

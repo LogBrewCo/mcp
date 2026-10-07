@@ -237,6 +237,16 @@ fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
             tools.get(1).and_then(|tool| tool.get("name")),
             Some(&json!("execute"))
         );
+        assert_eq!(
+            tools.first().and_then(|tool| tool.get("annotations")),
+            Some(&json!({"readOnlyHint":true,"openWorldHint":false}))
+        );
+        assert!(
+            tools
+                .get(1)
+                .and_then(|tool| tool.get("annotations"))
+                .is_none()
+        );
     }
     Ok(())
 }

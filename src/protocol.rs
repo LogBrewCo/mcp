@@ -17,6 +17,7 @@ use rmcp::{
     model::{
         CallToolRequestParams, CallToolResponse, CallToolResult, CustomRequest, CustomResult,
         ErrorCode, ListToolsResult, PaginatedRequestParams, ServerCapabilities, ServerConfig, Tool,
+        ToolAnnotations,
     },
     service::RequestContext,
     transport::streamable_http_server::{
@@ -542,9 +543,14 @@ fn definition(name: &str) -> Tool {
         )
     };
     let object = schema.as_object().cloned().unwrap_or_default();
-    Tool::new(name.to_owned(), description, Arc::new(object)).with_raw_output_schema(Arc::new(
-        output_schema().as_object().cloned().unwrap_or_default(),
-    ))
+    let tool = Tool::new(name.to_owned(), description, Arc::new(object)).with_raw_output_schema(
+        Arc::new(output_schema().as_object().cloned().unwrap_or_default()),
+    );
+    if name == "search" {
+        tool.with_annotations(ToolAnnotations::new().read_only(true).open_world(false))
+    } else {
+        tool
+    }
 }
 
 fn output_schema() -> Value {

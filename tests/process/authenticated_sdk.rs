@@ -152,6 +152,21 @@ async fn contracts(http2: bool) -> TestResult<()> {
         .map(|tool| tool.name.as_ref())
         .collect();
     assert_eq!(names, ["search", "execute"]);
+    assert_eq!(
+        inventory
+            .tools
+            .first()
+            .and_then(|tool| tool.annotations.as_ref())
+            .map(|hints| (hints.read_only_hint, hints.open_world_hint)),
+        Some((Some(true), Some(false)))
+    );
+    assert!(
+        inventory
+            .tools
+            .get(1)
+            .and_then(|tool| tool.annotations.as_ref())
+            .is_none()
+    );
     let search = connected
         .sdk
         .call_tool(tool("search", json!({"query":"logs","limit":1_i32}))?)

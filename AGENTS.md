@@ -18,6 +18,20 @@ packaging. Keep changes within this repository's public responsibilities.
 - Keep connection URLs and package identities independent of source directory
   layout so a repository move does not require client reconfiguration.
 
+Use the native Rust Tombi 1.7.2 CLI for TOML checks. Verify `tombi --version`
+before running it. Acquire the exact version from its
+[official release](https://github.com/tombi-toml/tombi/releases/tag/v1.7.2).
+From this repository root, run:
+
+```sh
+TOMBI_CACHE_HOME=tools/quality/schemastore/cache tombi lint --offline --quiet --error-on-warnings --diagnostics-format json --diagnostics-file /dev/stdout
+TOMBI_CACHE_HOME=tools/quality/schemastore/cache tombi format --offline --check --quiet
+```
+
+Every lint diagnostic fails. Keep the bundled schema graph, its source bindings,
+LICENSE and NOTICE intact. Recheck the graph and array-order exceptions before
+changing Tombi, the schemas or a manifest. Do not refresh the bundled cache in place.
+
 ## Code review
 
 - Reject credentials, customer data, private instructions, internal reports,

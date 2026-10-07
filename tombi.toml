@@ -1,0 +1,38 @@
+toml-version = "v1.0.0"
+
+[files]
+include = ["**/*.toml", "**/Cargo.lock"]
+respect-ignore-files = false
+
+[lint.rules]
+dotted-keys-out-of-order = "error"
+key-empty = "error"
+tables-out-of-order = "error"
+
+[schema]
+enabled = true
+strict = true
+catalog.paths = ["tombi://www.schemastore.org/api/json/catalog.json"]
+
+[[schemas]]
+toml-version = "v1.0.0"
+path = "tools/quality/schemastore/cache/https/www.schemastore.org/cargo.json"
+include = ["**/Cargo.toml"]
+
+[schemas.lint.rules]
+deprecated = "error"
+
+[[schemas.overrides]]
+targets = ["dependencies.tokio.features", "dev-dependencies.reqwest.features", "dependencies.toml.features", "package.keywords", "dependencies.goblin.features"]
+
+[schemas.overrides.format.rules]
+# Preserve declared array order. Review after a manifest, schema or tool change.
+array-values-order.enabled = false
+
+[[overrides]]
+[overrides.files]
+include = ["**/Cargo.lock"]
+
+[overrides.format.rules]
+# Match Cargo's generated lockfile indentation.
+indent-width = 1

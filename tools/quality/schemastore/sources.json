@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "bytes": 11358,
+      "path": "LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/LICENSE"
+    },
+    {
+      "bytes": 74,
+      "path": "NOTICE",
+      "sha256": "8ef971b09c8988fab0872f534432611ba90611ed93da61cb9cf2722c69a570ef",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/NOTICE"
+    },
+    {
+      "bytes": 3633,
+      "path": "cache/https/www.schemastore.org/cargo-lints-cargo.json",
+      "sha256": "e4c740358d80c1b55813f46f1c2efb2be3b2d601faf225eb84fb967602bb878f",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/cargo-lints-cargo.json"
+    },
+    {
+      "bytes": 210336,
+      "path": "cache/https/www.schemastore.org/cargo-lints-clippy.json",
+      "sha256": "23d40eee1e800ef7b992d5f6465e3287bfda03752789f0d75404faa06634d49b",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/cargo-lints-clippy.json"
+    },
+    {
+      "bytes": 69057,
+      "path": "cache/https/www.schemastore.org/cargo-lints-rust.json",
+      "sha256": "c2e8166fa1963cb4a003902d943f7dfa6aca4e3d509599a786f123c93f51d433",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/cargo-lints-rust.json"
+    },
+    {
+      "bytes": 4046,
+      "path": "cache/https/www.schemastore.org/cargo-lints-rustdoc.json",
+      "sha256": "afbdec4e0c762fc72a0100923ed0f7a6bcc618acba15b7bbcbe600be55a9d31d",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/cargo-lints-rustdoc.json"
+    },
+    {
+      "bytes": 167063,
+      "path": "cache/https/www.schemastore.org/cargo.json",
+      "sha256": "1c207ba2d52d7ff8d760723848ffd2c27940c510ab57e442e6bdf6e67657ee9b",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/cargo.json"
+    },
+    {
+      "bytes": 5951,
+      "path": "cache/https/www.schemastore.org/quikrun.json",
+      "sha256": "67cf4391e674bd17b77e893e97860d6d0c12f815a777251b65563c72e522b646",
+      "source_url": "https://raw.githubusercontent.com/SchemaStore/schemastore/c10b9c4086c8d160d82a76070271eda385ca47c6/src/schemas/json/quikrun.json"
+    }
+  ],
+  "format_version": 1,
+  "repository": "https://github.com/SchemaStore/schemastore",
+  "source_commit": "c10b9c4086c8d160d82a76070271eda385ca47c6",
+  "tool": {
+    "name": "Tombi",
+    "release": "https://github.com/tombi-toml/tombi/releases/tag/v1.7.2",
+    "version": "1.7.2"
+  }
+}

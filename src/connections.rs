@@ -139,11 +139,12 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
         buf: &mut ReadBuf<'_>,
     ) -> Poll<io::Result<()>> {
         self.as_mut().get_mut().check_delivery(cx)?;
-        let Self { inner, prefix, .. } = self.get_mut();
+        let this = self.get_mut();
         if buf.remaining() == 0 {
             return Poll::Ready(Ok(()));
         }
-        if prefix
+        if this
+            .prefix
             .as_mut()
             .is_some_and(|prefix| prefix.timer.as_mut().poll(cx).is_ready())
         {
@@ -153,9 +154,12 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
             )));
         }
         let filled = buf.filled().len();
-        let result = Pin::new(inner).poll_read(cx, buf);
+        let result = Pin::new(&mut this.inner).poll_read(cx, buf);
         if matches!(result, Poll::Ready(Ok(()))) {
-            detect_prefix(prefix, buf.filled().get(filled..).unwrap_or_default())?;
+            detect_prefix(
+                &mut this.prefix,
+                buf.filled().get(filled..).unwrap_or_default(),
+            )?;
         }
         result
     }

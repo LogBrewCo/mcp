@@ -263,16 +263,16 @@ fn inventory(
     let mut result = BTreeMap::new();
     for package in packages {
         let key = identity(package)?;
-        let (source, digest) = expected
+        let &(source, digest) = expected
             .get(&key)
             .ok_or_else(|| error("metadata package absent from lockfile"))?;
-        if *source != package.get("source").and_then(Value::as_str) {
+        if source != package.get("source").and_then(Value::as_str) {
             return Err(error("source disagrees with lockfile"));
         }
         let root = Path::new(string(package, "manifest_path")?)
             .parent()
             .ok_or_else(|| error("invalid package root"))?;
-        let record = if *source == Some("registry+https://github.com/rust-lang/crates.io-index") {
+        let record = if source == Some("registry+https://github.com/rust-lang/crates.io-index") {
             registry(
                 package,
                 root,

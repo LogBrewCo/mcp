@@ -148,7 +148,7 @@ async fn rejected(http: &reqwest::Client, resource: &str, http2: bool) -> TestRe
         (&["gzip"], Some(b"\x1f\x8b\x08\x00")),
         (&["gzip"], Some(b"not JSON")),
     ];
-    for (codings, body) in rejected {
+    for &(codings, body) in rejected {
         let request = coded_request(http, resource, codings)?;
         let request = match body {
             Some(body) => request.body(body.to_vec()),

@@ -63,8 +63,8 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
         .await
         .expect("both authenticated requests reached the backend");
     sleep(Duration::from_millis(5250)).await;
-    for (_, call) in &calls {
-        assert!(!call.is_finished());
+    for entry in &calls {
+        assert!(!entry.1.is_finished());
     }
     fixture.state.release.notify_waiters();
     for (version, call) in calls {

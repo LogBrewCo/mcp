@@ -82,7 +82,7 @@ fn notice_text(notice: &Notice, root: &Path) -> Result<Vec<u8>> {
         return Err(error("supplement must be a sibling file"));
     }
     let bytes = crate::input::read(&root.join(file), archive::NOTICE_BYTES)?;
-    let bytes = if let Some(encoding) = &notice.file_encoding {
+    let bytes = if let Some(encoding) = notice.file_encoding.as_ref() {
         if encoding.bytes != u64::try_from(bytes.len())? || checksum(&bytes)? != encoding.sha256 {
             return Err(error("supplemental encoded file mismatch"));
         }
@@ -115,7 +115,7 @@ fn verify_prefixes(
 ) -> Result<()> {
     let mut grouped: BTreeMap<String, BTreeMap<String, archive::Prefix>> = BTreeMap::new();
     for notice in &manifest.notices {
-        let Some(prefix) = &notice.source_prefix else {
+        let Some(prefix) = notice.source_prefix.as_ref() else {
             continue;
         };
         let key = format!("{} {}", notice.package, notice.version);

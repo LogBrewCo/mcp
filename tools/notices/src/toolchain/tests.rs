@@ -21,19 +21,19 @@ fn archive(entries: &[(&str, &[u8], tar::EntryType)]) -> Result<Vec<u8>> {
 fn archive_for_target(entries: &[(&str, &[u8], tar::EntryType)], target: &str) -> Result<Vec<u8>> {
     let prefix = format!("rustc-{}-{target}", env!("CARGO_PKG_RUST_VERSION"));
     let mut builder = tar::Builder::new(Vec::new());
-    for (relative, bytes, kind) in entries {
+    for &(relative, bytes, kind) in entries {
         let name = format!("{prefix}/{relative}");
         let mut header = tar::Header::new_gnu();
         header.set_size(u64::try_from(bytes.len())?);
         header.set_mode(0o644);
-        header.set_entry_type(*kind);
+        header.set_entry_type(kind);
         header
             .as_mut_bytes()
             .get_mut(..name.len())
             .ok_or_else(|| error("fixture path too long"))?
             .copy_from_slice(name.as_bytes());
         header.set_cksum();
-        builder.append(&header, *bytes)?;
+        builder.append(&header, bytes)?;
     }
     let mut encoder = GzEncoder::new(Vec::new(), Compression::fast());
     encoder.write_all(&builder.into_inner()?)?;

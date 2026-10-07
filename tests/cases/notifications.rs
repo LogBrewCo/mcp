@@ -32,9 +32,9 @@ impl Sender {
     ///
     /// Panics if the response version, cache policy or absence of session state changes.
     async fn send(&mut self, request: Request<Body>) -> TestResult<Response<Body>> {
-        let (response, version) = match self {
-            Self::Http1(sender) => (sender.send_request(request).await?, Version::HTTP_11),
-            Self::Http2(sender) => (sender.send_request(request).await?, Version::HTTP_2),
+        let (response, version) = match *self {
+            Self::Http1(ref mut sender) => (sender.send_request(request).await?, Version::HTTP_11),
+            Self::Http2(ref mut sender) => (sender.send_request(request).await?, Version::HTTP_2),
         };
         assert_eq!(response.version(), version);
         assert_eq!(

@@ -320,7 +320,7 @@ async fn run_plans(
     observed: Arc<AtomicUsize>,
 ) -> TestResult<()> {
     while let Some(exchange) = receiver.recv().await {
-        let deadline = match &exchange.plan {
+        let deadline = match exchange.plan {
             Plan::Http {
                 path: _,
                 headers: _,
@@ -682,7 +682,7 @@ fn request_length(bytes: &[u8], path: &str, end: usize) -> TestResult<usize> {
     let length = head
         .split("\r\n")
         .filter_map(|line| line.split_once(':'))
-        .find(|(name, _)| name.eq_ignore_ascii_case("content-length"))
+        .find(|field| field.0.eq_ignore_ascii_case("content-length"))
         .ok_or_else(|| io::Error::other("missing request length"))?
         .1
         .trim()

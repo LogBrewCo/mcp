@@ -125,10 +125,12 @@ pub fn object(bytes: &[u8], limit: usize) -> Result<Value, Failure> {
 /// # Errors
 /// Rejects malformed values, duplicate decoded keys and exceeded budgets.
 fn decode(raw: &str, depth: usize) -> Result<Value, Failure> {
-    if depth > DEPTH || (depth == DEPTH && matches!(raw.as_bytes().first(), Some(b'{' | b'['))) {
+    if depth > DEPTH
+        || (depth == DEPTH && matches!(raw.as_bytes().first().copied(), Some(b'{' | b'[')))
+    {
         return Err(Kind::InvalidInput.into());
     }
-    match raw.as_bytes().first() {
+    match raw.as_bytes().first().copied() {
         Some(b'{') => {
             let fields: UniqueObject =
                 serde_json::from_str(raw).map_err(Failure::redact(Kind::InvalidInput))?;

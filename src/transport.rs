@@ -85,7 +85,7 @@ fn acceptable_field(field: &str) -> Option<(bool, bool)> {
             continue;
         }
         let media = media_field.trim().parse::<mime::Mime>().ok()?;
-        let mut quality = media.params().filter(|(name, _)| *name == "q");
+        let mut quality = media.params().filter(|parameter| parameter.0 == "q");
         let weight = quality.next().map(|(_, value)| value);
         if quality.next().is_some() {
             return None;

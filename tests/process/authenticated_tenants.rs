@@ -77,6 +77,11 @@ impl Execution<'_> {
     ///
     /// Panics if the response transport, cache policy, session isolation,
     /// rejection body or private-field redaction changes.
+    // Reviewed 2026-10-07; review by 2026-11-07 or on source/toolchain change.
+    #[expect(
+        clippy::ref_patterns,
+        reason = "Shared enum fields must remain borrowed while concurrent identity requests use the same transport."
+    )]
     async fn run(
         &self,
         identity: Identity,
@@ -90,19 +95,19 @@ impl Execution<'_> {
         };
         let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
             "input":{"project":project,"context":context}}});
-        match &self.transport {
-            Transport::Http1(http) | Transport::Http2(http) => {
+        match self.transport {
+            Transport::Http1(ref http) | Transport::Http2(ref http) => {
                 request_with_token(
                     http,
                     self.resource,
                     "tools/call",
                     params,
-                    matches!(&self.transport, Transport::Http2(_)),
+                    matches!(self.transport, Transport::Http2(_)),
                     identity.token(),
                 )
                 .await
             }
-            Transport::SharedHttp2(connection) => {
+            Transport::SharedHttp2(ref connection) => {
                 connection
                     .execute(self.resource, params, identity.token())
                     .await
@@ -248,7 +253,7 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
         [2, 3, 0]
     );
     fixture.ready(&mut process).await?;
-    if let Transport::SharedHttp2(connection) = &mut execution.transport {
+    if let Transport::SharedHttp2(ref mut connection) = execution.transport {
         connection.close().await?;
     }
     process.signal(Signal::TERM)?;

@@ -130,7 +130,7 @@ impl Plan {
         ] {
             binding.validate(limit)?;
         }
-        if let Some(binding) = &plan.linked_target_notices {
+        if let Some(binding) = plan.linked_target_notices.as_ref() {
             binding.validate(LINKED_NOTICE_BYTES)?;
         }
         Ok(plan)
@@ -270,9 +270,10 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
         })
         .transpose()?;
     let readable = if plan.format_version == 3 {
-        let (linked_bytes, _) = linked
+        let linked_bytes = &linked
             .as_ref()
-            .ok_or_else(|| error("missing linked notice inventory"))?;
+            .ok_or_else(|| error("missing linked notice inventory"))?
+            .0;
         readable::derive(&dependency, &toolchain, linked_bytes)?
     } else {
         Vec::new()
@@ -291,7 +292,7 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
     ));
     append(&mut builder, &prefix, "bin/logbrew-mcp", &binary, 0o755)?;
     append_source_notices(&mut builder, &prefix, &plan, root, &dependency, &toolchain)?;
-    if let Some((bytes, _)) = &linked {
+    if let Some(bytes) = linked.as_ref().map(|record| &record.0) {
         append(
             &mut builder,
             &prefix,

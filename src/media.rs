@@ -72,7 +72,7 @@ fn token(value: &[u8]) -> Option<(&[u8], &[u8])> {
 }
 
 const fn ows(mut value: &[u8]) -> &[u8] {
-    while let Some((b' ' | b'\t', rest)) = value.split_first() {
+    while let Some((&(b' ' | b'\t'), rest)) = value.split_first() {
         value = rest;
     }
     value

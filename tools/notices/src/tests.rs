@@ -143,13 +143,13 @@ fn preserves_nested_notices_and_attribution_verbatim() -> Result<()> {
     let bytes = fixture(&entries)?;
     let collected = archive::collect(&package(), &bytes, &checksum(&bytes)?, Limits::default())?;
     assert_eq!(collected.notices.len(), 5);
-    for (path, text, _) in entries.iter().take(5) {
+    for &(path, text, _) in entries.iter().take(5) {
         let relative = path
             .strip_prefix("example-1.0.0/")
             .ok_or_else(|| error("fixture prefix"))?;
         assert_eq!(
             collected.notices.get(relative).map(String::as_bytes),
-            Some(*text)
+            Some(text)
         );
     }
     Ok(())

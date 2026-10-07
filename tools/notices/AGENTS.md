@@ -238,6 +238,16 @@ path fails without selecting Cargo's binary. With the variable unset, ordinary
 source tests use Cargo's binary. These tests prove only the exercised local
 development executable behavior; they do not prove hosted or real-client access.
 
+If a copied source tree retains old or fixed timestamps, ensure Cargo rebuilds
+the affected MCP test executable before using a shared target directory. Refresh
+the timestamps of explicitly selected copied inputs, or invalidate only this
+package's artifacts with `cargo clean --package logbrew-mcp` against the test
+run's target directory. Verify copied file contents against the source revision
+and retain compiler output that confirms the rebuild. A cached pass does not
+prove changed source. Reuse dependency caches and leave canonical source
+timestamps intact. The [Cargo clean reference](https://doc.rust-lang.org/cargo/commands/cargo-clean.html)
+describes package selection and the `--dry-run --verbose` preview.
+
 On Linux, an operator-verified GNU runtime fixture can supply its loader and
 one absolute library directory. Keep the executable byte-identical to the
 extracted archive:

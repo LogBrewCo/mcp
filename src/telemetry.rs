@@ -3,11 +3,10 @@
 //! These snapshots are not a delivery receipt or the centralized performance
 //! contract. Callers must retain measurement loss and pending work when using them.
 
+use alloc::sync::Arc;
+use core::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::{
-    sync::{
-        Arc, Mutex, OnceLock,
-        atomic::{AtomicBool, AtomicU64, Ordering},
-    },
+    sync::{Mutex, OnceLock},
     time::Instant,
 };
 
@@ -268,7 +267,7 @@ impl Default for Telemetry {
         Self(Arc::new(Inner {
             epoch: Instant::now(),
             stats: Mutex::new([Stats::EMPTY; STAGES.len()]),
-            losses: std::array::from_fn(|_| Loss::default()),
+            losses: core::array::from_fn(|_| Loss::default()),
             operations: OnceLock::new(),
         }))
     }

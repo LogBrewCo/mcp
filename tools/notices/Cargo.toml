@@ -26,6 +26,7 @@ rustix = { version = "=1.1.5", features = ["fs", "process"] }
 
 [lints.clippy]
 all = { level = "deny", priority = -3 }
+alloc_instead_of_core = "deny"
 allow_attributes = "deny"
 allow_attributes_without_reason = "deny"
 arithmetic_side_effects = "deny"
@@ -109,6 +110,8 @@ semicolon_inside_block = "deny"
 shadow_same = "deny"
 shadow_unrelated = "deny"
 str_to_string = "deny"
+std_instead_of_alloc = "deny"
+std_instead_of_core = "deny"
 string_add = "deny"
 string_lit_chars_any = "deny"
 string_slice = "deny"

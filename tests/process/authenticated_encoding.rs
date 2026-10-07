@@ -1,6 +1,6 @@
 //! Standalone executable request-coding rejection, privacy and recovery.
 
-use std::{
+use core::{
     convert::Infallible,
     pin::Pin,
     sync::atomic::Ordering,

@@ -1,6 +1,6 @@
 //! Stalled authorization or execution must time out and permit later recovery.
 
-use std::{sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
 
 use rustix::process::Signal;
 use serde_json::json;

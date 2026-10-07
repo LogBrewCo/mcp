@@ -1,5 +1,7 @@
 //! Authenticated, bounded `LogBrew` MCP service.
 
+extern crate alloc;
+
 mod bearer;
 pub mod catalog;
 pub mod clients;
@@ -59,17 +61,19 @@ impl From<error::Kind> for Failure {
     }
 }
 
-impl std::fmt::Display for Failure {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Failure {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(self.kind.code())
     }
 }
 
-impl std::error::Error for Failure {}
+impl core::error::Error for Failure {}
 
 #[cfg(test)]
 mod tests {
-    use std::{error::Error as _, io, sync::Arc};
+    use alloc::sync::Arc;
+    use core::error::Error as _;
+    use std::io;
 
     use super::{Failure, error::Kind};
 

@@ -1,5 +1,7 @@
 //! Protocol fixtures prove HTTP contracts, not compatibility with real clients.
 
+extern crate alloc;
+
 #[path = "cases/authority.rs"]
 mod authority;
 #[path = "cases/authority_wire.rs"]
@@ -53,7 +55,8 @@ mod upstream_trailers;
 #[path = "cases/upstream_transport.rs"]
 mod upstream_transport;
 
-use std::sync::{Arc, atomic::Ordering};
+use alloc::sync::Arc;
+use core::sync::atomic::Ordering;
 
 use axum::{
     body::{Body, to_bytes},
@@ -64,7 +67,7 @@ use tower::ServiceExt as _;
 
 use http::{Fixture, RESOURCE, TOKEN};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 #[tokio::test]
 /// # Panics
@@ -617,7 +620,7 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
             )
             .await
     });
-    runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+    runtime::wait_executions(&fixture, 1, core::time::Duration::from_secs(2))
         .await
         .expect("execution reached backend");
     request.abort();
@@ -627,7 +630,7 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
             .expect_err("request disconnected")
             .is_cancelled()
     );
-    runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(2))
+    runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(2))
         .await
         .expect("upstream request cancelled");
     assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);

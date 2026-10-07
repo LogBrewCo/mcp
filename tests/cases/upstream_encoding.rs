@@ -1,6 +1,7 @@
 //! Declared upstream content coding controls JSON interpretation.
 
-use std::{io::Write as _, time::Duration};
+use core::time::Duration;
+use std::io::Write as _;
 
 use logbrew_mcp::error::Kind;
 use tokio::{sync::oneshot, time::timeout};
@@ -11,7 +12,7 @@ use super::{
     upstream_transport::{body, operation},
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_CODING_MARKER";
 
 /// Queue a synthetic response with complete headers and optional body data.

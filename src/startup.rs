@@ -1,9 +1,9 @@
 //! Bounded startup files and explicit listener configuration.
 
+use core::net::SocketAddr;
 use std::{
     fs::{self, File},
     io::Read as _,
-    net::SocketAddr,
     os::unix::fs::MetadataExt as _,
     path::Path,
 };
@@ -61,8 +61,8 @@ pub struct Config {
     pub private_key_file: String,
 }
 
-impl std::fmt::Debug for Config {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for Config {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str("startup configuration [redacted]")
     }
 }
@@ -111,7 +111,7 @@ impl Config {
             .iter_mut()
             .zip(self.catalog_sha256.as_bytes().as_chunks::<2>().0)
         {
-            let text = std::str::from_utf8(pair).map_err(Failure::redact(Kind::Configuration))?;
+            let text = core::str::from_utf8(pair).map_err(Failure::redact(Kind::Configuration))?;
             *target = u8::from_str_radix(text, 16).map_err(Failure::redact(Kind::Configuration))?;
         }
         Ok((address, digest))
@@ -216,7 +216,7 @@ impl Service {
             .map_err(Failure::redact(Kind::Configuration))?;
         let private_key = rustls::pki_types::PrivateKeyDer::from_pem_slice(&key)
             .map_err(Failure::redact(Kind::Configuration))?;
-        let provider = std::sync::Arc::new(rustls::crypto::aws_lc_rs::default_provider());
+        let provider = alloc::sync::Arc::new(rustls::crypto::aws_lc_rs::default_provider());
         let mut configuration = rustls::ServerConfig::builder_with_provider(provider)
             .with_safe_default_protocol_versions()
             .map_err(Failure::redact(Kind::Configuration))?
@@ -224,8 +224,9 @@ impl Service {
             .with_single_cert(certificates, private_key)
             .map_err(Failure::redact(Kind::Configuration))?;
         configuration.alpn_protocols = vec![b"h2".to_vec(), b"http/1.1".to_vec()];
-        let tls =
-            axum_server::tls_rustls::RustlsConfig::from_config(std::sync::Arc::new(configuration));
+        let tls = axum_server::tls_rustls::RustlsConfig::from_config(alloc::sync::Arc::new(
+            configuration,
+        ));
         Ok(Self {
             address,
             router,
@@ -240,6 +241,6 @@ impl Service {
 /// Rejects unsafe or unreadable files, invalid UTF-8 and invalid credentials.
 fn credential(id: &str, path: &str) -> Result<MachineCredential, Failure> {
     let bytes = read_file(Path::new(path), 8 << 10, 0o600)?;
-    let secret = std::str::from_utf8(&bytes).map_err(Failure::redact(Kind::Configuration))?;
+    let secret = core::str::from_utf8(&bytes).map_err(Failure::redact(Kind::Configuration))?;
     MachineCredential::new(id.to_owned(), Zeroizing::new(secret.to_owned()))
 }

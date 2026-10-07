@@ -1,9 +1,9 @@
+use core::sync::atomic::{AtomicU64, Ordering};
 use std::{
     ffi::{OsStr, OsString},
     fs::File,
     io::{self, Write as _},
     path::Path,
-    sync::atomic::{AtomicU64, Ordering},
 };
 
 use rustix::{
@@ -21,8 +21,8 @@ struct DirectorySyncFailure {
     cause: Errno,
 }
 
-impl std::fmt::Display for DirectorySyncFailure {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for DirectorySyncFailure {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "notice output replaced; directory durability is unconfirmed: {}",
@@ -31,8 +31,8 @@ impl std::fmt::Display for DirectorySyncFailure {
     }
 }
 
-impl std::error::Error for DirectorySyncFailure {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for DirectorySyncFailure {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         Some(&self.cause)
     }
 }

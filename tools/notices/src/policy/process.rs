@@ -1,8 +1,9 @@
+use core::time::Duration;
 use std::{
     io::{self, Read},
     os::unix::process::CommandExt as _,
     process::{Child, Command, ExitStatus, Stdio},
-    time::{Duration, Instant},
+    time::Instant,
 };
 
 use rustix::{

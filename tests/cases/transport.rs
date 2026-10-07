@@ -1,6 +1,6 @@
 //! Current protocol metadata, HTTP errors and rejected-payload privacy.
 
-use std::sync::atomic::Ordering;
+use core::sync::atomic::Ordering;
 
 use axum::{
     body::{Body, to_bytes},
@@ -11,7 +11,7 @@ use tower::ServiceExt as _;
 
 use super::http::{Fixture, TOKEN};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 fn body() -> Value {
     json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{

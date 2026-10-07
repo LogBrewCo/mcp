@@ -1,15 +1,13 @@
 //! Correlation restoration preserves payload bytes and bounds failed bodies.
 
-use std::{
-    io,
+use alloc::sync::Arc;
+use core::{
     pin::Pin,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
+    sync::atomic::{AtomicBool, Ordering},
     task::{Context, Poll},
     time::Duration,
 };
+use std::io;
 
 use axum::body::Bytes;
 use http_body::Frame;
@@ -17,7 +15,7 @@ use tokio::time::timeout;
 
 use super::*;
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// Parse the exact numeric identifier used by correlation-restoration fixtures.
 ///

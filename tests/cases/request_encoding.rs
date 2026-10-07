@@ -1,16 +1,14 @@
 //! Reject unsupported request coding before interpreting or polling its body.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     convert::Infallible,
-    net::TcpListener,
     pin::Pin,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering},
-    },
+    sync::atomic::{AtomicBool, Ordering},
     task::{Context, Poll},
     time::Duration,
 };
+use std::net::TcpListener;
 
 use axum::{
     body::{Body, Bytes, to_bytes},

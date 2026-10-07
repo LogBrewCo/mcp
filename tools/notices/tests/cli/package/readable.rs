@@ -1,4 +1,5 @@
-use std::{collections::BTreeMap, fs, io::Read as _};
+use alloc::collections::BTreeMap;
+use std::{fs, io::Read as _};
 
 use flate2::read::MultiGzDecoder;
 use serde_json::{Value, json};
@@ -148,13 +149,13 @@ fn readable_package_preserves_texts_and_binds_each_copy_to_its_inventory() -> Re
     for (_, path, text) in RUST_FILES {
         assert_eq!(files.get(path).map(Vec::as_slice), Some(text.as_bytes()));
     }
-    let dependency = std::str::from_utf8(
+    let dependency = core::str::from_utf8(
         files
             .get("licenses/DEPENDENCIES.txt")
             .ok_or("missing readable dependencies")?,
     )?;
     assert_dependency_text(dependency);
-    let linked_text = std::str::from_utf8(
+    let linked_text = core::str::from_utf8(
         files
             .get("licenses/LINKED-TARGET.txt")
             .ok_or("missing readable linked notices")?,

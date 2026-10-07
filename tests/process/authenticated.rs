@@ -27,7 +27,8 @@ mod tenant_backend;
 #[path = "authenticated_tenants.rs"]
 mod tenants;
 
-use std::{fs, io, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::{fs, io};
 
 use rustix::process::Signal;
 use serde_json::{Value, json};

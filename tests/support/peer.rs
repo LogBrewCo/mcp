@@ -1,6 +1,8 @@
 //! Bounded HTTP/2 frames over certificate-verified, ALPN-negotiated TLS.
 
-use std::{io, net::SocketAddr, sync::Arc, time::Duration};
+use alloc::sync::Arc;
+use core::{net::SocketAddr, time::Duration};
+use std::io;
 
 use rustls::pki_types::{ServerName, pem::PemObject as _};
 use tokio::{
@@ -8,7 +10,7 @@ use tokio::{
     time::timeout,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 type Stream = tokio_rustls::client::TlsStream<tokio::net::TcpStream>;
 
 /// Connect with the fixture certificate and optional ALPN protocol.

@@ -1,4 +1,4 @@
-use std::{future::Future, time::Duration};
+use core::{future::Future, time::Duration};
 
 pub async fn within<T, Work>(budget: Duration, work: Work) -> Option<T>
 where
@@ -14,12 +14,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::{
+    use alloc::sync::Arc;
+    use core::{
         future::{Future, pending, poll_fn, ready},
-        sync::{
-            Arc,
-            atomic::{AtomicBool, Ordering},
-        },
+        sync::atomic::{AtomicBool, Ordering},
         task::Poll,
         time::Duration,
     };
@@ -79,7 +77,7 @@ mod tests {
         reason = "Test assertions must retain their failure and comparison diagnostics."
     )]
     async fn expiry_drops_pending_work_and_allows_recovery()
-    -> Result<(), Box<dyn std::error::Error>> {
+    -> Result<(), Box<dyn core::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
         let polled = AtomicBool::new(false);
         let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);
@@ -107,7 +105,7 @@ mod tests {
         reason = "Test assertions must retain their failure and comparison diagnostics."
     )]
     async fn unrepresentable_deadline_drops_work_without_polling_and_recovers()
-    -> Result<(), Box<dyn std::error::Error>> {
+    -> Result<(), Box<dyn core::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
         let polled = AtomicBool::new(false);
         let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);

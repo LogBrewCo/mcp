@@ -1,4 +1,5 @@
-use std::{collections::BTreeMap, io::Write as _, path::Path};
+use alloc::collections::BTreeMap;
+use std::{io::Write as _, path::Path};
 
 use flate2::{Compression, write::GzEncoder};
 use serde_json::{Value, json};
@@ -43,13 +44,13 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
         crate::input::read(&file, u64::try_from(bytes.len())?)?,
         bytes
     );
-    let _budget_error: Box<dyn std::error::Error> =
+    let _budget_error: Box<dyn core::error::Error> =
         crate::input::read(&file, 1).expect_err("input must be rejected");
-    let _directory_error: Box<dyn std::error::Error> =
+    let _directory_error: Box<dyn core::error::Error> =
         crate::input::read(&directory.0, 1024).expect_err("input must be rejected");
     let link = directory.0.join("link");
     std::os::unix::fs::symlink(&file, &link)?;
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         crate::input::read(&link, 1024).expect_err("input must be rejected");
     assert_eq!(std::fs::read(&file)?, bytes);
     Ok(())
@@ -73,7 +74,7 @@ fn gzip(bytes: &[u8]) -> Result<Vec<u8>> {
 /// Propagates size conversion, fixture-path bounds, tar writes, or gzip encoding errors.
 fn fixture(entries: &[(&str, &[u8], tar::EntryType)]) -> Result<Vec<u8>> {
     let mut builder = tar::Builder::new(Vec::new());
-    for (path, bytes, kind) in std::iter::once((
+    for (path, bytes, kind) in core::iter::once((
         "example-1.0.0/Cargo.toml",
         MANIFEST,
         tar::EntryType::Regular,
@@ -377,7 +378,7 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         "[[package]]\nname='example'\nversion='1.0.0'\n[[package]]\nname='example'\nversion='1.0.0'\n",
         "package=[]\n",
     ] {
-        let _error: Box<dyn std::error::Error> = inventory(
+        let _error: Box<dyn core::error::Error> = inventory(
             &metadata,
             lock.as_bytes(),
             Path::new("."),
@@ -386,7 +387,7 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         .expect_err("invalid lockfile must be rejected");
     }
     for name in ["../example", "", "example/example", "example\\example"] {
-        let _error: Box<dyn std::error::Error> =
+        let _error: Box<dyn core::error::Error> =
             identity(&json!({"name":name,"version":"1.0.0"})).expect_err("input must be rejected");
     }
     for path in [
@@ -396,7 +397,7 @@ fn rejects_lockfile_identity_source_and_coverage_mismatches_before_reads() {
         "./LICENSE",
         "LICENSE\\secret",
     ] {
-        let _error: Box<dyn std::error::Error> =
+        let _error: Box<dyn core::error::Error> =
             relative_path(path).expect_err("input must be rejected");
     }
 }

@@ -1,10 +1,10 @@
 //! HTTPS transport with bounded response parsing and connection establishment.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     error::Error,
     future::Future,
     pin::Pin,
-    sync::Arc,
     task::{Context, Poll},
     time::Duration,
 };

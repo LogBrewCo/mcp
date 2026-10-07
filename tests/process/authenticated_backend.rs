@@ -1,13 +1,12 @@
 //! Synthetic issuer and execution service for normal executable tests.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     net::SocketAddr,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, AtomicUsize, Ordering},
-    },
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
+    time::Duration,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     Router,
@@ -72,7 +71,7 @@ impl Observations {
         discard_count(pending.fetch_add(1, Ordering::SeqCst));
         let active = PendingGuard(Arc::clone(pending));
         if paused.load(Ordering::SeqCst) {
-            std::future::pending::<()>().await;
+            core::future::pending::<()>().await;
         }
         active
     }

@@ -1,6 +1,7 @@
 //! Every request uses one certificate-verified HTTP/2 connection without reconnects.
 
-use std::{io, time::Duration};
+use core::time::Duration;
+use std::io;
 
 use axum::{
     body::Bytes,

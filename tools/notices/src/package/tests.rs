@@ -240,14 +240,14 @@ fn load_requirements_reject_missing_segments_and_oversized_command_headers() -> 
         Target::MacX86,
     ] {
         let mut bytes = header(target)?;
-        let _missing_error: Box<dyn std::error::Error> =
+        let _missing_error: Box<dyn core::error::Error> =
             binary::requirements(target, &bytes).expect_err("input must be rejected");
         if matches!(target, Target::MacArm | Target::MacX86) {
             bytes
                 .get_mut(16..20)
                 .ok_or("missing command count")?
                 .copy_from_slice(&u32::MAX.to_le_bytes());
-            let _error: Box<dyn std::error::Error> =
+            let _error: Box<dyn core::error::Error> =
                 binary::requirements(target, &bytes).expect_err("input must be rejected");
         }
     }
@@ -282,14 +282,14 @@ fn deployment_records_reject_other_platforms_and_conflicting_metadata() -> Resul
         Some("11.0.0")
     );
     field(&mut bytes, 40, &2_u32.to_le_bytes())?;
-    let _platform_error: Box<dyn std::error::Error> =
+    let _platform_error: Box<dyn core::error::Error> =
         binary::requirements(target, &bytes).expect_err("input must be rejected");
     field(&mut bytes, 40, &1_u32.to_le_bytes())?;
     let duplicate = bytes.get(32..56).ok_or("missing command")?.to_vec();
     bytes.extend_from_slice(&duplicate);
     field(&mut bytes, 16, &2_u32.to_le_bytes())?;
     field(&mut bytes, 20, &48_u32.to_le_bytes())?;
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         binary::requirements(target, &bytes).expect_err("input must be rejected");
     Ok(())
 }
@@ -330,7 +330,7 @@ fn declared_gnu_version_count_requires_corresponding_records() -> Result<()> {
     let report = binary::requirements(target, &bytes)?;
     assert_eq!(report.get("symbol_version_requirements"), Some(&json!([])));
     field(&mut bytes, 184, &1_u64.to_le_bytes())?;
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         binary::requirements(target, &bytes).expect_err("input must be rejected");
     Ok(())
 }
@@ -378,14 +378,14 @@ fn command_strings_are_local_and_a_library_named_self_is_preserved() -> Result<(
     escaped.extend(command_words(&[0x8000_001c, 16, 16, 0]));
     let mut binary = command_fixture(&escaped, 2)?;
     binary.extend_from_slice(b"outside\0");
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         binary::requirements(Target::MacArm, &binary).expect_err("input must be rejected");
     escaped.truncate(24);
     rpath.get_mut(12..).ok_or("missing path")?.fill(b'x');
     escaped.extend_from_slice(&rpath);
     let mut unterminated_binary = command_fixture(&escaped, 2)?;
     unterminated_binary.push(0);
-    let _unterminated_error: Box<dyn std::error::Error> =
+    let _unterminated_error: Box<dyn core::error::Error> =
         binary::requirements(Target::MacArm, &unterminated_binary)
             .expect_err("input must be rejected");
     Ok(())
@@ -400,7 +400,7 @@ fn build_tool_and_segment_section_counts_fit_their_own_commands() -> Result<()> 
         binary::requirements(Target::MacArm, &command_fixture(&build, 1)?)?;
     for count in [1_u32, u32::MAX] {
         field(&mut build, 20, &count.to_le_bytes())?;
-        let _error: Box<dyn std::error::Error> =
+        let _error: Box<dyn core::error::Error> =
             binary::requirements(Target::MacArm, &command_fixture(&build, 1)?)
                 .expect_err("input must be rejected");
     }
@@ -417,7 +417,7 @@ fn build_tool_and_segment_section_counts_fit_their_own_commands() -> Result<()> 
             field(&mut segment, section_offset, &count.to_le_bytes())?;
             region.truncate(build.len());
             region.extend_from_slice(&segment);
-            let _error: Box<dyn std::error::Error> =
+            let _error: Box<dyn core::error::Error> =
                 binary::requirements(Target::MacArm, &command_fixture(&region, 2)?)
                     .expect_err("input must be rejected");
         }

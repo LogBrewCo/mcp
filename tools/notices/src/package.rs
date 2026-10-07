@@ -266,7 +266,7 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
                 LINKED_NOTICE_BYTES,
             )?;
             let report = linked::validate(plan.target.label(), &plan.binary.sha256, &bytes)?;
-            Ok::<_, Box<dyn std::error::Error>>((bytes, report))
+            Ok::<_, Box<dyn core::error::Error>>((bytes, report))
         })
         .transpose()?;
     let readable = if plan.format_version == 3 {

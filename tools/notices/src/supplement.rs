@@ -1,7 +1,5 @@
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    path::Path,
-};
+use alloc::collections::{BTreeMap, BTreeSet};
+use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value, json};
@@ -98,7 +96,7 @@ fn notice_text(notice: &Notice, root: &Path) -> Result<Vec<u8>> {
     if checksum(&bytes)? != notice.sha256 {
         return Err(error("supplemental text checksum mismatch"));
     }
-    if std::str::from_utf8(&bytes)?.trim().is_empty() {
+    if core::str::from_utf8(&bytes)?.trim().is_empty() {
         return Err(error("empty supplemental text"));
     }
     Ok(bytes)
@@ -303,7 +301,7 @@ pub fn apply(
             return Err(error("duplicate supplement"));
         }
         let text_bytes = notice_text(&notice, root)?;
-        let text = std::str::from_utf8(&text_bytes)?;
+        let text = core::str::from_utf8(&text_bytes)?;
         let digest = texts.insert(text)?;
         let mut record = json!({"file":notice.file,"sha256":digest,"bytes":text_bytes.len(),"source_url":notice.source_url,
             "source_commit":notice.source_commit,"upstream_path":notice.upstream_path,

@@ -1,4 +1,5 @@
-use std::{collections::BTreeMap, fs, io::Read as _, process::Command};
+use alloc::collections::BTreeMap;
+use std::{fs, io::Read as _, process::Command};
 
 use flate2::read::MultiGzDecoder;
 use serde_json::{Value, json};

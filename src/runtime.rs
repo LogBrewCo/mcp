@@ -1,6 +1,6 @@
 //! Bounded HTTPS serving shared by the standalone process and runtime regressions.
 
-use std::{future::Future, net::SocketAddr, time::Duration};
+use core::{future::Future, net::SocketAddr, time::Duration};
 
 use hyper_util::{
     rt::TokioExecutor,

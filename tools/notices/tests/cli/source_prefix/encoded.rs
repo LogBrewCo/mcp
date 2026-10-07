@@ -55,7 +55,7 @@ fn scenario() -> Result<Scenario> {
         bind_asset(
             &mut scenario,
             index,
-            &serde_json::to_vec(std::str::from_utf8(text)?)?,
+            &serde_json::to_vec(core::str::from_utf8(text)?)?,
         )?;
         *scenario
             .manifest
@@ -94,7 +94,7 @@ fn preserves_decoded_whitespace_and_encoded_asset_provenance() -> Result<()> {
     for (index, text) in [(0_usize, HEADER), (2_usize, LICENSE)] {
         assert_eq!(
             inventory.pointer(&format!("/texts/{}", digest(text)?)),
-            Some(&json!(std::str::from_utf8(text)?))
+            Some(&json!(core::str::from_utf8(text)?))
         );
         let record = inventory
             .pointer(&format!(
@@ -207,7 +207,7 @@ fn rejects_invalid_encoded_text_even_with_matching_asset_bindings() -> Result<()
             scenario.output
         );
     }
-    let mut normalized = std::str::from_utf8(HEADER)?.replace(" \t\r\n", "\r\n");
+    let mut normalized = core::str::from_utf8(HEADER)?.replace(" \t\r\n", "\r\n");
     normalized.push('\n');
     bind_asset(&mut scenario, 0, &serde_json::to_vec(&normalized)?)?;
     *scenario

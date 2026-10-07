@@ -1,6 +1,7 @@
 //! Strict object-rooted JSON with decoded-key uniqueness and numeric bounds.
 
-use std::{collections::BTreeMap, fmt};
+use alloc::collections::BTreeMap;
+use core::fmt;
 
 use serde::{
     Deserialize, Deserializer,
@@ -109,7 +110,7 @@ impl<'de> Deserialize<'de> for UniqueObject {
 /// # Errors
 /// Rejects oversized, malformed, duplicate-key, or out-of-budget JSON.
 pub fn object(bytes: &[u8], limit: usize) -> Result<Value, Failure> {
-    if bytes.len() > limit || std::str::from_utf8(bytes).is_err() {
+    if bytes.len() > limit || core::str::from_utf8(bytes).is_err() {
         return Err(Kind::InvalidInput.into());
     }
     let raw: Box<RawValue> =

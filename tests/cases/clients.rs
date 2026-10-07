@@ -1,6 +1,6 @@
 //! Client authorization uses issuer claims, with no caller-controlled overrides.
 
-use std::sync::atomic::Ordering;
+use core::sync::atomic::Ordering;
 
 use axum::{
     body::to_bytes,

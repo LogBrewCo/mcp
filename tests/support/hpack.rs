@@ -2,7 +2,7 @@
 
 use std::io;
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// Encode a non-Huffman string with a seven-bit length under RFC 7541 sections 5.1 and 5.2.
 ///

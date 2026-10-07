@@ -1,9 +1,7 @@
 //! Synthetic local measurements cannot prove centralized or hosted telemetry.
 
-use std::{
-    sync::{Arc, atomic::Ordering},
-    time::Duration,
-};
+use alloc::sync::Arc;
+use core::{sync::atomic::Ordering, time::Duration};
 
 use axum::{
     body::Body,

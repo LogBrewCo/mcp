@@ -1,6 +1,7 @@
 //! Actual TLS HTTP/2 authority, authorization, validation and disconnect behavior.
 
-use std::{net::TcpListener, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::net::TcpListener;
 
 use serde_json::{Value, json};
 use tokio::time::sleep;

@@ -1,6 +1,7 @@
 //! Exactly two tools behind request-bound authorization and host checks.
 
-use std::{sync::Arc, time::Duration};
+use alloc::sync::Arc;
+use core::time::Duration;
 
 use axum::{
     Router,
@@ -85,7 +86,7 @@ impl ServerHandler for Tools {
         &self,
         request: Option<PaginatedRequestParams>,
         context: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<ListToolsResult, ErrorData>>
+    ) -> impl core::future::Future<Output = Result<ListToolsResult, ErrorData>>
     + rmcp::service::MaybeSendFuture
     + '_ {
         let cursor_supplied = context
@@ -93,9 +94,12 @@ impl ServerHandler for Tools {
             .get::<axum::http::request::Parts>()
             .is_some_and(|parts| parts.extensions.get::<ToolCursorSupplied>().is_some());
         if cursor_supplied || request.is_some_and(|request| request.cursor.is_some()) {
-            return std::future::ready(Err(ErrorData::invalid_params("invalid tool cursor", None)));
+            return core::future::ready(Err(ErrorData::invalid_params(
+                "invalid tool cursor",
+                None,
+            )));
         }
-        std::future::ready(Ok(ListToolsResult::with_all_items(vec![
+        core::future::ready(Ok(ListToolsResult::with_all_items(vec![
             definition("search"),
             definition("execute"),
         ])))
@@ -109,7 +113,7 @@ impl ServerHandler for Tools {
         &self,
         request: CustomRequest,
         _context: RequestContext<RoleServer>,
-    ) -> impl std::future::Future<Output = Result<CustomResult, ErrorData>>
+    ) -> impl core::future::Future<Output = Result<CustomResult, ErrorData>>
     + rmcp::service::MaybeSendFuture
     + '_ {
         // The SDK routes malformed typed requests through this fallback too.
@@ -121,7 +125,7 @@ impl ServerHandler for Tools {
         } else {
             ErrorData::new(ErrorCode::METHOD_NOT_FOUND, "unknown method", None)
         };
-        std::future::ready(Err(error))
+        core::future::ready(Err(error))
     }
 
     #[expect(

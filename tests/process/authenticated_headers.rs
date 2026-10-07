@@ -1,6 +1,6 @@
 //! Normal executable header-error privacy, correlation and recovery.
 
-use std::{sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
 
 use rustix::process::Signal;
 use serde_json::{Value, json};

@@ -1,6 +1,7 @@
 //! Notification and invalid-ID isolation on a single real TLS connection.
 
-use std::{future::Future, io, pin::Pin, sync::atomic::Ordering, time::Duration};
+use core::{future::Future, pin::Pin, sync::atomic::Ordering, time::Duration};
+use std::io;
 
 use axum::{
     body::{Body, to_bytes},
@@ -15,7 +16,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 type Connection = Pin<Box<dyn Future<Output = Result<(), hyper::Error>> + Send>>;
 
 enum Sender {

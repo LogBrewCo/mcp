@@ -1,6 +1,7 @@
 //! Exact request/response correlation across the bounded JSON integer range.
 
-use std::{net::TcpListener, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::net::TcpListener;
 
 use axum::{
     body::{Body, to_bytes},
@@ -14,7 +15,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// # Errors
 ///
@@ -351,7 +352,7 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
     let release = async {
         super::runtime::wait_executions(&fixture, 4, Duration::from_secs(2)).await?;
         fixture.state.release.notify_waiters();
-        Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
+        Ok::<(), Box<dyn core::error::Error + Send + Sync>>(())
     };
     tokio::try_join!(
         wire_reply(
@@ -413,7 +414,7 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
         let escaped = remaining.checked_div(2).ok_or("fixture divisor is zero")?;
         let unescaped = remaining.checked_rem(2).ok_or("fixture divisor is zero")?;
         let mut blob = "\"".repeat(escaped);
-        blob.extend(std::iter::repeat_n('x', unescaped));
+        blob.extend(core::iter::repeat_n('x', unescaped));
         let body = json!({"blob":blob,"count":3_i32}).to_string();
         assert_eq!(body.len(), size);
         fixture.reply(StatusCode::OK, body, HeaderMap::new())?;

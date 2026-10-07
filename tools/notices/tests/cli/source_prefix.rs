@@ -168,7 +168,7 @@ fn preserves_verified_archive_prefix_provenance() -> Result<()> {
     }
     assert_eq!(
         inventory.pointer(&format!("/texts/{}", digest(NOTICE)?)),
-        Some(&json!(std::str::from_utf8(NOTICE)?))
+        Some(&json!(core::str::from_utf8(NOTICE)?))
     );
     assert_eq!(records.len(), 3);
     assert!(scenario.fixture.run()?.status.success());
@@ -229,7 +229,7 @@ fn preserves_source_references_and_shared_prefix_text() -> Result<()> {
     assert_eq!(texts.len(), 2);
     assert_eq!(
         texts.get(&digest(NOTICE)?),
-        Some(&json!(std::str::from_utf8(NOTICE)?))
+        Some(&json!(core::str::from_utf8(NOTICE)?))
     );
     assert!(scenario.fixture.run()?.status.success());
     assert_eq!(

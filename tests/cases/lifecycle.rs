@@ -1,6 +1,7 @@
 //! Exercise authenticated cancellation and drain through the production HTTPS runtime.
 
-use std::sync::{Arc, atomic::Ordering};
+use alloc::sync::Arc;
+use core::sync::atomic::Ordering;
 
 use serde_json::json;
 use tower::ServiceExt as _;
@@ -25,13 +26,13 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
     );
     let request_server = Arc::clone(&running);
     let request = tokio::spawn(async move { request_server.execute().await });
-    super::runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+    super::runtime::wait_executions(&fixture, 1, core::time::Duration::from_secs(2))
         .await
         .expect("authenticated request reached backend");
     running.stop.cancel();
     super::runtime::wait_until(
-        std::time::Duration::from_secs(2),
-        std::time::Duration::from_millis(5),
+        core::time::Duration::from_secs(2),
+        core::time::Duration::from_millis(5),
         || std::net::TcpListener::bind(running.address).is_ok(),
     )
     .await
@@ -70,18 +71,18 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
     );
     let request_server = Arc::clone(&running);
     let request = tokio::spawn(async move { request_server.execute().await });
-    super::runtime::wait_executions(&fixture, 1, std::time::Duration::from_secs(2))
+    super::runtime::wait_executions(&fixture, 1, core::time::Duration::from_secs(2))
         .await
         .expect("execution reached backend");
     running.abort();
     drop(
-        tokio::time::timeout(std::time::Duration::from_secs(2), request)
+        tokio::time::timeout(core::time::Duration::from_secs(2), request)
             .await
             .expect("request stopped")
             .expect("request task")
             .unwrap_err(),
     );
-    super::runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(2))
+    super::runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(2))
         .await
         .expect("backend work stopped");
     drop(std::net::TcpListener::bind(running.address).expect("listener released"));
@@ -101,7 +102,7 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
         let request_fixture = Arc::clone(&fixture);
         requests.push(tokio::spawn(execute(request_fixture)));
     }
-    super::runtime::wait_executions(&fixture, 64, std::time::Duration::from_secs(3))
+    super::runtime::wait_executions(&fixture, 64, core::time::Duration::from_secs(3))
         .await
         .expect("capacity reached");
     let (capacity_status, _) = fixture
@@ -117,7 +118,7 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     for request in requests {
         assert!(request.await.expect_err("cancelled request").is_cancelled());
     }
-    super::runtime::wait_executions(&fixture, 0, std::time::Duration::from_secs(3))
+    super::runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(3))
         .await
         .expect("backend capacity released");
     fixture.state.pause.store(false, Ordering::SeqCst);
@@ -135,7 +136,8 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
 /// Returns the authenticated fixture request or response-read error.
 async fn execute(
     fixture: Arc<Fixture>,
-) -> Result<(axum::http::StatusCode, serde_json::Value), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<(axum::http::StatusCode, serde_json::Value), Box<dyn core::error::Error + Send + Sync>>
+{
     fixture
         .request(
             "tools/call",

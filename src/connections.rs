@@ -1,13 +1,13 @@
 //! Bound connection admission and HTTP protocol detection without a waiting queue.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     future::Future,
-    io::{self, IoSlice},
     pin::Pin,
-    sync::Arc,
     task::{Context, Poll},
     time::Duration,
 };
+use std::io::{self, IoSlice};
 
 use axum::http::Request;
 use axum_server::accept::Accept;
@@ -103,7 +103,7 @@ where
 
     fn accept(&self, stream: I, service: S) -> Self::Future {
         let Ok(permit) = Arc::clone(&self.slots).try_acquire_owned() else {
-            return Box::pin(std::future::ready(Err(io::Error::new(
+            return Box::pin(core::future::ready(Err(io::Error::new(
                 io::ErrorKind::ConnectionRefused,
                 "connection capacity reached",
             ))));

@@ -1,5 +1,7 @@
 //! Collects named source notices from locked Cargo archives and checked supplements.
 
+extern crate alloc;
+
 mod archive;
 mod input;
 mod package;
@@ -11,9 +13,9 @@ mod toolchain;
 #[cfg(test)]
 mod tests;
 
+use alloc::collections::BTreeMap;
+use core::fmt::Write as _;
 use std::{
-    collections::BTreeMap,
-    fmt::Write as _,
     io::{self, Read as _},
     path::{Component, Path, PathBuf},
 };
@@ -21,7 +23,7 @@ use std::{
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type Result<T> = core::result::Result<T, Box<dyn core::error::Error>>;
 
 /// Run the pinned offline dependency policy gate from one executable argument.
 ///
@@ -34,7 +36,7 @@ where
     policy::run(args)
 }
 
-fn error(message: &str) -> Box<dyn std::error::Error> {
+fn error(message: &str) -> Box<dyn core::error::Error> {
     io::Error::other(message).into()
 }
 
@@ -204,7 +206,7 @@ fn registry(
 /// inventory admission failures.
 fn project_notice(package: &Value, root: &Path, texts: &mut Texts) -> Result<Value> {
     let bytes = input::read(&root.join("LICENSE"), archive::NOTICE_BYTES)?;
-    let text = std::str::from_utf8(&bytes)?;
+    let text = core::str::from_utf8(&bytes)?;
     if text.trim().is_empty() {
         return Err(error("empty project license"));
     }
@@ -226,7 +228,7 @@ fn inventory(
     cache: &Path,
     texts: &mut Texts,
 ) -> Result<BTreeMap<String, Value>> {
-    let lock = std::str::from_utf8(lock_bytes)?.parse::<toml::Table>()?;
+    let lock = core::str::from_utf8(lock_bytes)?.parse::<toml::Table>()?;
     let packages = metadata
         .get("packages")
         .and_then(Value::as_array)

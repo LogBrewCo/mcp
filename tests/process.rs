@@ -1,5 +1,7 @@
 //! Exercise the native executable with disposable TLS material and offline upstreams.
 
+extern crate alloc;
+
 #[cfg(target_os = "linux")]
 #[path = "process/authenticated.rs"]
 mod authenticated;
@@ -17,16 +19,19 @@ mod peer;
 #[path = "process/preflight.rs"]
 mod preflight;
 
-use std::{
+use core::{
     fmt::Write as _,
+    net::SocketAddr,
+    sync::atomic::{AtomicUsize, Ordering},
+    time::Duration,
+};
+use std::{
     fs,
     io::Read as _,
-    net::{SocketAddr, TcpListener},
+    net::TcpListener,
     os::unix::fs::{DirBuilderExt as _, PermissionsExt as _},
     path::{Path, PathBuf},
     process::{Child, Command, ExitStatus, Stdio},
-    sync::atomic::{AtomicUsize, Ordering},
-    time::Duration,
 };
 
 use rustix::process::{Pid, Signal, kill_process};
@@ -37,7 +42,7 @@ use tokio::{
     time::{Instant, sleep, timeout},
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 type TlsStream = tokio_rustls::client::TlsStream<tokio::net::TcpStream>;
 static NEXT: AtomicUsize = AtomicUsize::new(0);
 

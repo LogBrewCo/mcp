@@ -1,10 +1,7 @@
 //! Run the production HTTPS serving function with an isolated authenticated router.
 
-use std::{
-    net::{SocketAddr, TcpListener},
-    sync::atomic::Ordering,
-    time::Duration,
-};
+use core::{net::SocketAddr, sync::atomic::Ordering, time::Duration};
+use std::net::TcpListener;
 
 use axum::Router;
 use logbrew_mcp::{Failure, runtime, startup::Service};
@@ -17,7 +14,7 @@ use tokio_util::sync::CancellationToken;
 
 use super::http::{Fixture, TOKEN};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 pub struct Running {
     pub address: SocketAddr,

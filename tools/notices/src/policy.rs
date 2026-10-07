@@ -160,7 +160,8 @@ where
     }
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        use std::{process::Command, time::Duration};
+        use core::time::Duration;
+        use std::process::Command;
 
         let version = process::capture(
             Command::new(&executable).arg("--version"),

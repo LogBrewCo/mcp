@@ -1,6 +1,7 @@
 //! Overlapping identities through the normal executable and a synthetic project policy.
 
-use std::{fmt::Write as _, fs, io, sync::atomic::Ordering, time::Duration};
+use core::{fmt::Write as _, sync::atomic::Ordering, time::Duration};
+use std::{fs, io};
 
 use rustix::process::Signal;
 use serde_json::{Value, json};

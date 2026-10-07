@@ -120,7 +120,7 @@ fn unavailable_clock_timing_is_not_recorded_as_zero_latency() {
     assert_eq!(snapshot.maximum_ns, None);
     assert!(snapshot.latency_buckets.iter().all(|n| n.count == 0));
     let future = Instant::now()
-        .checked_add(std::time::Duration::from_secs(60))
+        .checked_add(core::time::Duration::from_secs(60))
         .expect("future instant");
     assert_eq!(elapsed_since(future), None);
 }

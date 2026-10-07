@@ -206,11 +206,12 @@ where
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod subprocess {
+    use core::{net::SocketAddr, time::Duration};
     use std::{
         io::{self, BufReader, Read as _, Write as _},
-        net::{SocketAddr, TcpListener, TcpStream},
+        net::{TcpListener, TcpStream},
         process::{Command, Stdio},
-        time::{Duration, Instant},
+        time::Instant,
     };
 
     use crate::Result;
@@ -330,7 +331,7 @@ mod subprocess {
             ("closed-pipe-descendant", true),
             ("closed-pipe-descendant-failure", false),
         ] {
-            let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0))?;
+            let listener = TcpListener::bind((core::net::Ipv4Addr::LOCALHOST, 0))?;
             listener.set_nonblocking(true)?;
             let mut command = fixture_command(mode)?;
             let _command: &mut Command = command.env(

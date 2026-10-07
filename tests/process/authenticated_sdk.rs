@@ -1,6 +1,7 @@
 //! Exercise the normal executable through the stock Rust SDK's HTTP client.
 
-use std::{io, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::io;
 
 use rmcp::{
     ClientLifecycleMode, ClientServiceExt as _,

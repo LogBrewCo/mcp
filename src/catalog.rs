@@ -1,6 +1,6 @@
 //! Immutable, verified operation discovery and declared JSON Schema contracts.
 
-use std::{collections::BTreeMap, sync::Arc};
+use alloc::{collections::BTreeMap, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -74,7 +74,7 @@ impl Catalog {
             .map_err(Failure::redact(Kind::Configuration))?;
         let mut digest = String::with_capacity(64);
         for byte in Sha256::digest(encoded) {
-            use std::fmt::Write as _;
+            use core::fmt::Write as _;
             write!(digest, "{byte:02x}").map_err(Failure::redact(Kind::Configuration))?;
         }
         Ok(Arc::new(Self { entries, digest }))
@@ -304,7 +304,7 @@ impl jsonschema::Retrieve for DenyRetrieval {
     fn retrieve(
         &self,
         _uri: &jsonschema::Uri<String>,
-    ) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
+    ) -> Result<Value, Box<dyn core::error::Error + Send + Sync>> {
         Err(Box::new(Failure::from(Kind::Configuration)))
     }
 }

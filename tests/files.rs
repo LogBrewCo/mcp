@@ -1,10 +1,10 @@
 //! File access rejects symlinks, special files, broad permissions, and excess bytes.
 
+use core::sync::atomic::{AtomicUsize, Ordering};
 use std::{
     fs,
     os::unix::fs::{DirBuilderExt as _, PermissionsExt as _, symlink},
     path::PathBuf,
-    sync::atomic::{AtomicUsize, Ordering},
 };
 
 use logbrew_mcp::startup::read_file;

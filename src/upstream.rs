@@ -1,9 +1,7 @@
 //! Fixed HTTPS upstreams with fresh introspection and no automatic retries.
 
-use std::{
-    fmt,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use core::{fmt, time::Duration};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::http::{HeaderMap, HeaderValue, header};
 use base64::{Engine as _, engine::general_purpose::STANDARD};

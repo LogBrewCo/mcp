@@ -1,9 +1,7 @@
 //! Scope challenges guide recovery without overriding token or client validation.
 
-use std::{
-    sync::atomic::Ordering,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     body::{Body, to_bytes},
@@ -23,7 +21,7 @@ use super::{
     raw_upstream::Raw,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const METADATA: &str = "https://resource.example/.well-known/oauth-protected-resource/mcp";
 
 #[tokio::test]

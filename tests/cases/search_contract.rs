@@ -1,13 +1,14 @@
 //! Discovery accepts its advertised Unicode and exact integer input contract.
 
-use std::{io, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
+use std::io;
 
 use axum::http::StatusCode;
 use serde_json::{Value, json};
 
 use super::http::{Fixture, TOKEN};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// # Errors
 ///

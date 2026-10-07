@@ -1,6 +1,7 @@
 //! Authority equivalence and malformed Host rejection over actual TLS.
 
-use std::{io, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::io;
 
 use axum::{
     body::{Body, to_bytes},
@@ -18,7 +19,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// # Errors
 ///

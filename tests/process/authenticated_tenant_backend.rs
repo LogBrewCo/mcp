@@ -1,13 +1,12 @@
 //! Bounded synthetic project policy; production tenant policy belongs to the backend.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     net::SocketAddr,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, AtomicUsize, Ordering},
-    },
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
+    time::Duration,
 };
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use axum::{
     Router,
@@ -115,8 +114,8 @@ impl Backend {
             alpha_active: AtomicBool::new(true),
             alpha_entered: Notify::new(),
             alpha_release: Notify::new(),
-            verifies: std::array::from_fn(|_| AtomicUsize::new(0)),
-            executes: std::array::from_fn(|_| AtomicUsize::new(0)),
+            verifies: core::array::from_fn(|_| AtomicUsize::new(0)),
+            executes: core::array::from_fn(|_| AtomicUsize::new(0)),
             pause_alpha: AtomicBool::new(true),
             issuer: endpoint.clone(),
             resource,

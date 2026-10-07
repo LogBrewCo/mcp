@@ -1,6 +1,7 @@
 //! Bearer field grammar, rejection before backend work, and credential privacy.
 
-use std::{net::TcpListener, sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::net::TcpListener;
 
 use axum::{
     body::to_bytes,
@@ -14,7 +15,7 @@ use super::http::{Fixture, TOKEN, request_message};
 use super::raw_upstream::Raw;
 use super::runtime::Running;
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// # Errors
 ///

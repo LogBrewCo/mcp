@@ -73,15 +73,15 @@ fn unavailable() -> Response {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        io,
+    use core::{
         pin::Pin,
         task::{Context, Poll},
     };
+    use std::io;
 
     use super::*;
 
-    type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+    type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
     /// Verify that an unrelated response retains its status, headers and body bytes.
     ///

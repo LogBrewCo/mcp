@@ -1,11 +1,13 @@
 //! Shared synthetic HTTPS backend and authenticated protocol request fixtures.
 
+use alloc::sync::Arc;
+use core::{
+    net::SocketAddr,
+    sync::atomic::{AtomicBool, AtomicUsize, Ordering},
+};
 use std::{
-    net::{SocketAddr, TcpListener},
-    sync::{
-        Arc, Mutex,
-        atomic::{AtomicBool, AtomicUsize, Ordering},
-    },
+    net::TcpListener,
+    sync::Mutex,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -41,7 +43,7 @@ const INTROSPECTION_AUTH: &str =
 const EXECUTION_AUTH: &str =
     "Basic ZXhlY3V0aW9uJTNBY2xpZW50OlNZTlRIRVRJQ19NQUNISU5FX1NFQ1JFVCslMkIlM0ElMjUlMjYlMEE=";
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 pub struct StateData {
     pub active: AtomicBool,
@@ -89,7 +91,7 @@ pub struct Fixture {
     pub state: Arc<StateData>,
     pub router: Router,
     pub telemetry: Telemetry,
-    handle: axum_server::Handle<std::net::SocketAddr>,
+    handle: axum_server::Handle<core::net::SocketAddr>,
     task: tokio::task::JoinHandle<std::io::Result<()>>,
 }
 
@@ -280,7 +282,7 @@ impl Fixture {
             task,
         };
         let _: SocketAddr = tokio::time::timeout(
-            std::time::Duration::from_secs(3),
+            core::time::Duration::from_secs(3),
             fixture.handle.listening(),
         )
         .await?

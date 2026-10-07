@@ -1,10 +1,7 @@
 //! Outbound parsing and TLS verification, cancellation, deadlines and recovery.
 
-use std::{
-    fmt::Write as _,
-    sync::atomic::Ordering,
-    time::{Duration, SystemTime, UNIX_EPOCH},
-};
+use core::{fmt::Write as _, sync::atomic::Ordering, time::Duration};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use logbrew_mcp::{
     Failure,
@@ -17,7 +14,7 @@ use tokio::time::timeout;
 
 use super::{hpack::literal, http::TOKEN, raw_upstream::Raw};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_RESPONSE_MARKER";
 
 /// # Errors
@@ -99,7 +96,7 @@ async fn exercise(execute: bool) -> TestResult<()> {
     timeout(Duration::from_secs(2), control_done).await???;
 
     let mut partial = b"HTTP/1.1 200 Fixture\r\nX-Incomplete: ".to_vec();
-    partial.extend(std::iter::repeat_n(b'a', 512 << 10));
+    partial.extend(core::iter::repeat_n(b'a', 512 << 10));
     // Reject at the configured budget, before Hyper's much larger default fills.
     let mut budget_partial = b"HTTP/1.1 200 Fixture\r\nX-Incomplete: ".to_vec();
     budget_partial.resize((16 << 10) + 1, b'a');
@@ -197,7 +194,7 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
         if !(2..=64).contains(&repetitions) {
             return Err("invalid compressed fixture repetition count".into());
         }
-        block.extend(std::iter::repeat_n(
+        block.extend(core::iter::repeat_n(
             0xbe,
             repetitions
                 .checked_sub(1)

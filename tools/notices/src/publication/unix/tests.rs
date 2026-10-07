@@ -1,10 +1,12 @@
-use std::{
+use core::{
     error::Error as _,
+    sync::atomic::{AtomicU64, Ordering},
+};
+use std::{
     fs,
     io::{self, Write as _},
     os::unix::{fs::PermissionsExt as _, net::UnixListener},
     path::PathBuf,
-    sync::atomic::{AtomicU64, Ordering},
 };
 
 use rustix::io::Errno;

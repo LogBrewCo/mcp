@@ -1,6 +1,6 @@
 //! Observe upstream termination after an authenticated HTTP request disconnects.
 
-use std::{sync::atomic::Ordering, time::Duration};
+use core::{sync::atomic::Ordering, time::Duration};
 
 use rustix::process::Signal;
 use serde_json::json;

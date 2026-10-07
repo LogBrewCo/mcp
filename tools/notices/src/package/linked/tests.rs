@@ -79,7 +79,7 @@ fn another_binary_target_or_scope_cannot_use_a_rebound_inventory_hash() -> Resul
         "\"format_version\":1",
         "\"format_version\":1,\"format_version\":1",
     );
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         validate(TARGET, &"b".repeat(64), duplicate.as_bytes())
             .expect_err("input must be rejected");
     Ok(())
@@ -175,9 +175,9 @@ fn notice_text_and_encoded_inventory_limits_reject_before_packaging() -> Result<
         .pointer_mut("/components/0/notices/0")
         .ok_or("missing notice")?;
     *notice = json!({"upstream_path":"COPYING","sha256":checksum(text.as_bytes())?,"text":text});
-    let _text_error: Box<dyn std::error::Error> =
+    let _text_error: Box<dyn core::error::Error> =
         check(&value_inventory).expect_err("input must be rejected");
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         validate(TARGET, &"b".repeat(64), &vec![b' '; (4 << 20) + 1])
             .expect_err("oversized inventory must be rejected");
     Ok(())
@@ -230,7 +230,7 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
     let mut additional = values.first().ok_or("missing notice")?.clone();
     *additional.get_mut("upstream_path").ok_or("missing path")? = json!("ADDITIONAL");
     values.push(additional);
-    let _error: Box<dyn std::error::Error> =
+    let _error: Box<dyn core::error::Error> =
         check(&value_inventory).expect_err("input must be rejected");
     Ok(())
 }

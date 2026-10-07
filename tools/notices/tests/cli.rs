@@ -1,11 +1,15 @@
 //! Verifies notice commands and preservation of existing output after failed input.
 
-use std::{
+extern crate alloc;
+
+use core::{
     fmt::Write as _,
+    sync::atomic::{AtomicU64, Ordering},
+};
+use std::{
     fs, io,
     path::{Path, PathBuf},
     process::Command,
-    sync::atomic::{AtomicU64, Ordering},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -19,7 +23,7 @@ mod package;
 #[path = "cli/source_prefix.rs"]
 mod source_prefix;
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+type Result<T> = core::result::Result<T, Box<dyn core::error::Error>>;
 static SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 struct Fixture {
@@ -240,9 +244,9 @@ fn reproducible_generation_rejects_changed_sources_and_preserves_previous_output
         inventory
             .pointer(&format!("/texts/{}", digest(notice)?))
             .and_then(Value::as_str),
-        Some(std::str::from_utf8(notice)?)
+        Some(core::str::from_utf8(notice)?)
     );
-    assert!(!std::str::from_utf8(&first)?.contains(&root.to_string_lossy().into_owned()));
+    assert!(!core::str::from_utf8(&first)?.contains(&root.to_string_lossy().into_owned()));
     metadata
         .get_mut("packages")
         .and_then(Value::as_array_mut)
@@ -392,7 +396,7 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
         value.get("binary_linkage_coverage"),
         Some(&json!("not_evaluated"))
     );
-    assert!(!std::str::from_utf8(&first)?.contains(&root.to_string_lossy().into_owned()));
+    assert!(!core::str::from_utf8(&first)?.contains(&root.to_string_lossy().into_owned()));
     assert!(run()?.status.success());
     assert_eq!(fs::read(root.join("output.json"))?, first);
     fs::write(
@@ -425,7 +429,7 @@ impl Drop for Process {
 /// Returns an error if the deadline cannot be constructed or the child status cannot be read.
 fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
     let end = std::time::Instant::now()
-        .checked_add(std::time::Duration::from_secs(1))
+        .checked_add(core::time::Duration::from_secs(1))
         .ok_or("fixture deadline overflow")?;
     loop {
         if let Some(status) = child.try_wait()? {
@@ -434,7 +438,7 @@ fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
         if std::time::Instant::now() >= end {
             return Ok(false);
         }
-        std::thread::sleep(std::time::Duration::from_millis(10));
+        std::thread::sleep(core::time::Duration::from_millis(10));
     }
 }
 

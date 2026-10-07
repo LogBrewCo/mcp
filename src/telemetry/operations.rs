@@ -1,6 +1,8 @@
 //! Execution observations whose labels come only from the verified catalog.
 
-use std::{collections::BTreeMap, iter, sync::Mutex, time::Instant};
+use alloc::collections::BTreeMap;
+use core::iter;
+use std::{sync::Mutex, time::Instant};
 
 use serde::Serialize;
 

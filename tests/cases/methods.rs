@@ -1,6 +1,7 @@
 //! Method errors preserve request IDs without returning rejected method values.
 
-use std::{io, net::TcpListener, sync::atomic::Ordering};
+use core::sync::atomic::Ordering;
+use std::{io, net::TcpListener};
 
 use axum::{
     body::{Body, to_bytes},
@@ -14,7 +15,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 const PRIVATE_METHOD: &str = "SYNTHETIC_PRIVATE_METHOD";
 
@@ -46,7 +47,7 @@ fn malformed() -> Vec<(&'static str, Value)> {
 /// Returns a request, body-read or JSON error, or an error if the fixture message is not an object.
 async fn packet(method: &str, params: Value, id: &Value) -> TestResult<Request<Body>> {
     let mut request = request_message(0, method, params, TOKEN)?;
-    let bytes = to_bytes(std::mem::take(request.body_mut()), 4096).await?;
+    let bytes = to_bytes(core::mem::take(request.body_mut()), 4096).await?;
     let mut value: Value = serde_json::from_slice(&bytes)?;
     drop(
         value

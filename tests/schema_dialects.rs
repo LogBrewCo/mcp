@@ -1,5 +1,7 @@
 //! Catalog schemas use their declared dialect without external retrieval.
 
+extern crate alloc;
+
 use logbrew_mcp::{Failure, catalog::Catalog, error::Kind};
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
@@ -8,7 +10,7 @@ use sha2::{Digest as _, Sha256};
 ///
 /// # Errors
 /// Propagates rejection of the synthetic catalog or supplied schema contract.
-fn load(schema: &Value) -> Result<std::sync::Arc<Catalog>, Failure> {
+fn load(schema: &Value) -> Result<alloc::sync::Arc<Catalog>, Failure> {
     let bytes = json!({"format_version":1_i32,"operations":[{
         "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"logs:read",
             "documentation":"https://docs.example/logs","stability":"stable",

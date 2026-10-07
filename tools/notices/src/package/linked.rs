@@ -1,4 +1,5 @@
-use std::{collections::BTreeSet, io::Write as _, path::Path};
+use alloc::collections::BTreeSet;
+use std::{io::Write as _, path::Path};
 
 use serde::Deserialize;
 use serde_json::{Value, json};

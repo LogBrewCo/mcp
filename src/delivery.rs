@@ -1,10 +1,8 @@
 //! Response delivery expires independently of body polling and flow control.
 
-use std::{
-    sync::{
-        Arc,
-        atomic::{AtomicU8, Ordering},
-    },
+use alloc::sync::Arc;
+use core::{
+    sync::atomic::{AtomicU8, Ordering},
     time::Duration,
 };
 

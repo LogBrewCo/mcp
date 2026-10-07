@@ -1,6 +1,7 @@
 //! Retry advice preserves the supplied deadline and the public delay bound.
 
-use std::time::{Duration, UNIX_EPOCH};
+use core::time::Duration;
+use std::time::UNIX_EPOCH;
 
 use super::retry_after_at;
 

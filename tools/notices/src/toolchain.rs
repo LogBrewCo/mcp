@@ -1,5 +1,5 @@
+use alloc::collections::{BTreeMap, BTreeSet};
 use std::{
-    collections::{BTreeMap, BTreeSet},
     io::{self, Read as _},
     path::Path,
 };
@@ -52,10 +52,10 @@ struct UniqueFiles;
 
 impl<'de> serde::de::Visitor<'de> for UniqueFiles {
     type Value = BTreeMap<String, Notice>;
-    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn expecting(&self, formatter: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         formatter.write_str("four unique standard-library notice paths")
     }
-    fn visit_map<A>(self, mut map: A) -> std::result::Result<Self::Value, A::Error>
+    fn visit_map<A>(self, mut map: A) -> core::result::Result<Self::Value, A::Error>
     where
         A: serde::de::MapAccess<'de>,
     {
@@ -70,7 +70,7 @@ impl<'de> serde::de::Visitor<'de> for UniqueFiles {
 /// # Errors
 /// Propagates deserialization failures, including duplicate or excess notice
 /// paths rejected by the map visitor.
-fn files<'de, D>(deserializer: D) -> std::result::Result<BTreeMap<String, Notice>, D::Error>
+fn files<'de, D>(deserializer: D) -> core::result::Result<BTreeMap<String, Notice>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -133,7 +133,7 @@ pub fn distribution(source: &Binding, bytes: &[u8]) -> Result<()> {
     if checksum(bytes)? != source.distribution_manifest_sha256 {
         return Err(error("Rust distribution manifest checksum mismatch"));
     }
-    let manifest = std::str::from_utf8(bytes)?.parse::<toml::Table>()?;
+    let manifest = core::str::from_utf8(bytes)?.parse::<toml::Table>()?;
     let rustc = manifest
         .get("pkg")
         .and_then(|value| value.get("rustc"))
@@ -193,7 +193,7 @@ fn add_notice(
     if *notice_bytes > 4_usize << 20_u32 {
         return Err(error("Rust notice text budget exceeded"));
     }
-    let text = std::str::from_utf8(&content)?;
+    let text = core::str::from_utf8(&content)?;
     if text.trim().is_empty() {
         return Err(error("empty Rust notice"));
     }

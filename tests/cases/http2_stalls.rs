@@ -1,11 +1,8 @@
 //! Bound stalled HTTP/2 input and output while the connection answers PINGs.
 
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    io,
-    sync::atomic::Ordering,
-    time::Duration,
-};
+use alloc::collections::{BTreeMap, BTreeSet};
+use core::{sync::atomic::Ordering, time::Duration};
+use std::io;
 
 use logbrew_mcp::telemetry::{Outcome, Stage};
 use serde_json::{Value, json};
@@ -18,7 +15,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const PRIVATE_BODY: &[u8] = br#"{"SYNTHETIC_PRIVATE_BODY":"#;
 
 /// # Errors

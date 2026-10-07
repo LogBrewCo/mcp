@@ -1,6 +1,7 @@
 //! Exercise parser limits before credential verification over actual TLS.
 
-use std::{fmt::Write as _, io, sync::atomic::Ordering, time::Duration};
+use core::{fmt::Write as _, sync::atomic::Ordering, time::Duration};
+use std::io;
 
 use serde_json::json;
 use tokio::{
@@ -15,7 +16,7 @@ use super::{
     runtime::Running,
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const LIMIT: usize = 16 << 10;
 
 /// # Errors
@@ -277,12 +278,12 @@ async fn http2_literal_and_compressed_header_limits_reject_before_authorization_
     literal(&mut compressed, b"x-repeat", &[b'a'; 1000], true).expect("indexed field");
     // Index 62 is the newest dynamic entry. Each repetition contributes its decoded
     // name and value plus 32 bytes to the header list (RFC 9113 section 6.5.2).
-    compressed.extend(std::iter::repeat_n(0xbe, 16));
+    compressed.extend(core::iter::repeat_n(0xbe, 16));
     assert!(compressed.len() < 1200);
     assert!((1000 + b"x-repeat".len() + 32) * 17 > LIMIT);
     let mut overhead = post().expect("POST block");
     literal(&mut overhead, b"x-repeat", b"", true).expect("indexed field");
-    overhead.extend(std::iter::repeat_n(0xbe, 410));
+    overhead.extend(core::iter::repeat_n(0xbe, 410));
     assert!(overhead.len() < 600);
     assert!(b"x-repeat".len() * 411 < LIMIT);
     assert!((b"x-repeat".len() + 32) * 411 > LIMIT);

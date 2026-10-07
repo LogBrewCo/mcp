@@ -9,7 +9,7 @@ use super::*;
 ///
 /// # Panics
 /// Panics if controlled JSON encoding or catalog verification fails.
-fn catalog(ids: &[String]) -> std::sync::Arc<Catalog> {
+fn catalog(ids: &[String]) -> alloc::sync::Arc<Catalog> {
     let operations: Vec<_> = ids
         .iter()
         .map(|id| {
@@ -233,7 +233,7 @@ fn operation_timing_starts_at_handler_entry_and_drop_records_cancellation() {
     let telemetry = observer();
     let mut parent = telemetry.begin(Stage::Execute);
     parent.start = Instant::now()
-        .checked_sub(std::time::Duration::from_millis(10))
+        .checked_sub(core::time::Duration::from_millis(10))
         .expect("controlled earlier entry");
     let operation = parent
         .operation("logs.fast.v1")
@@ -280,7 +280,7 @@ fn an_unknown_duration_suppresses_operation_percentiles() {
     let telemetry = observer();
     let mut parent = telemetry.begin(Stage::Execute);
     parent.start = Instant::now()
-        .checked_add(std::time::Duration::from_secs(60))
+        .checked_add(core::time::Duration::from_secs(60))
         .expect("controlled future clock");
     parent
         .operation("logs.fast.v1")

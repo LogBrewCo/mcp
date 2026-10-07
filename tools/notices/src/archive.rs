@@ -1,5 +1,5 @@
+use alloc::collections::{BTreeMap, BTreeSet};
 use std::{
-    collections::{BTreeMap, BTreeSet},
     io::{self, Read as _},
     path::Path,
 };
@@ -122,7 +122,7 @@ fn add_notice(
     notice_bytes: &mut usize,
 ) -> Result<()> {
     let bytes = bounded(entry, limits.notice_bytes)?;
-    let text = std::str::from_utf8(&bytes)?;
+    let text = core::str::from_utf8(&bytes)?;
     if text.trim().is_empty() {
         return Err(error("empty notice file"));
     }
@@ -247,7 +247,7 @@ pub fn collect_with_prefixes(
             .ok_or_else(|| error("missing filename"))?;
         if relative == "Cargo.toml" {
             let manifest_bytes = bounded(&mut entry, 64 << 10)?;
-            manifest = Some(std::str::from_utf8(&manifest_bytes)?.parse::<toml::Table>()?);
+            manifest = Some(core::str::from_utf8(&manifest_bytes)?.parse::<toml::Table>()?);
             continue;
         }
         if relative == ".cargo_vcs_info.json" {

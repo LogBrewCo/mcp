@@ -1,6 +1,6 @@
 //! Fail closed on invalid, unavailable, and mismatched delegated authority.
 
-use std::sync::atomic::Ordering;
+use core::sync::atomic::Ordering;
 
 use axum::http::{HeaderMap, StatusCode};
 use logbrew_mcp::clients::ClientAllowlist;
@@ -208,7 +208,7 @@ async fn introspection_payload_headers_and_media_type_are_bounded_before_authori
 fn invalid_authority_response(
     authority: &serde_json::Value,
     mode: i32,
-) -> Result<(serde_json::Value, HeaderMap), Box<dyn std::error::Error + Send + Sync>> {
+) -> Result<(serde_json::Value, HeaderMap), Box<dyn core::error::Error + Send + Sync>> {
     let mut body = authority.clone();
     let mut headers = HeaderMap::new();
     match mode {

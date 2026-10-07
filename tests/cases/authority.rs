@@ -1,6 +1,6 @@
 //! Same-origin authority equivalence and rejection before backend work.
 
-use std::sync::atomic::Ordering;
+use core::sync::atomic::Ordering;
 
 use axum::{
     body::{Body, to_bytes},
@@ -11,7 +11,7 @@ use tower::ServiceExt as _;
 
 use super::http::{Fixture, TOKEN, request_message};
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 /// # Errors
 ///

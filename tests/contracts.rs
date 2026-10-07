@@ -1,6 +1,8 @@
 //! Adversarial contract and startup regressions use synthetic data only.
 
-use std::sync::Arc;
+extern crate alloc;
+
+use alloc::sync::Arc;
 
 use logbrew_mcp::{catalog::Catalog, json, startup::Config};
 use serde_json::{Value, json};
@@ -364,7 +366,7 @@ fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
         "catalog_sha256":"00".repeat(32),"certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"});
     let bytes = serde_json::to_vec(&fields).expect("configuration");
     let config = Config::decode(&bytes).expect("secret references only");
-    let _: (std::net::SocketAddr, [u8; 32]) = config.address_digest().unwrap();
+    let _: (core::net::SocketAddr, [u8; 32]) = config.address_digest().unwrap();
     assert!(!format!("{config:?}").contains("synthetic"));
     assert!(config.client_allowlist_file.is_none());
     let mut policy = fields.clone();

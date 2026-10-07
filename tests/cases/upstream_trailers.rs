@@ -1,6 +1,6 @@
 //! Complete upstream field budgets include headers and separate trailer fields.
 
-use std::time::Duration;
+use core::time::Duration;
 
 use logbrew_mcp::error::Kind;
 use tokio::time::timeout;
@@ -11,7 +11,7 @@ use super::{
     upstream_transport::{body, healthy_exchange, operation},
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_TRAILER_MARKER";
 
 /// Observe a complete response and its fixture receipt under a two-second bound.
@@ -71,7 +71,7 @@ async fn http1_trailers(execute: bool) -> TestResult<()> {
         let wire = format!(
             "{:X}\r\n{}\r\n0\r\nX-Control: {}{MARKER}\r\n\r\n",
             body.len(),
-            std::str::from_utf8(&body)?,
+            core::str::from_utf8(&body)?,
             "b".repeat(filler)
         );
         let done = raw

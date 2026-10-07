@@ -1,13 +1,11 @@
 //! Observe outbound TLS lifetime and script response bytes without an HTTP parser.
 
-use std::{
-    io,
-    sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    },
+use alloc::sync::Arc;
+use core::{
+    sync::atomic::{AtomicUsize, Ordering},
     time::Duration,
 };
+use std::io;
 
 use logbrew_mcp::{
     clients::ClientAllowlist,
@@ -27,7 +25,7 @@ use super::{
     peer::{Frame, Peer},
 };
 
-type TestResult<T> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 type Stream = tokio_rustls::server::TlsStream<tokio::net::TcpStream>;
 
 enum Plan {
@@ -345,8 +343,8 @@ async fn run_plans(
             run_exchange(exchange.plan, stream, acceptor, accepted, observed).await
         })
         .await
-        .map_err(|error| -> Box<dyn std::error::Error + Send + Sync> { Box::new(error) })
-        .and_then(std::convert::identity);
+        .map_err(|error| -> Box<dyn core::error::Error + Send + Sync> { Box::new(error) })
+        .and_then(core::convert::identity);
         exchange
             .done
             .send(result)
@@ -674,7 +672,7 @@ async fn request(stream: &mut Stream, path: &str) -> TestResult<()> {
 /// Returns an error for an invalid header boundary or UTF-8, a mismatched
 /// endpoint, a missing or invalid content length, or a length above 8 KiB.
 fn request_length(bytes: &[u8], path: &str, end: usize) -> TestResult<usize> {
-    let head = std::str::from_utf8(
+    let head = core::str::from_utf8(
         bytes
             .get(..end)
             .ok_or_else(|| io::Error::other("request header boundary"))?,

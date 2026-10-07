@@ -1,6 +1,7 @@
 //! Exact client authorization from trusted operator configuration.
 
-use std::{collections::BTreeSet, fmt};
+use alloc::collections::BTreeSet;
+use core::fmt;
 
 use serde::Deserialize;
 

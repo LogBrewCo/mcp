@@ -1,8 +1,8 @@
 //! Admission lasts while a response body or any of its output buffers is retained.
 
-use std::{
+use alloc::sync::Arc;
+use core::{
     pin::Pin,
-    sync::Arc,
     task::{Context, Poll},
 };
 

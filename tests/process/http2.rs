@@ -1,6 +1,8 @@
 //! Exercise HTTP/2 control traffic over verified, ALPN-negotiated process TLS.
 
-use std::{collections::BTreeSet, io, time::Duration};
+use alloc::collections::BTreeSet;
+use core::time::Duration;
+use std::io;
 
 use rustix::process::Signal;
 use tokio::time::timeout;

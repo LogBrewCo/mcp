@@ -28,7 +28,7 @@ const CHECK_ARGS: &[&str] = &[
     "sources",
 ];
 const RECORD_BYTES: usize = 1 << 20;
-const RECORDS: usize = 16_384;
+const RECORDS: usize = 0x4000;
 
 #[derive(Deserialize)]
 #[serde(tag = "type", content = "fields")]

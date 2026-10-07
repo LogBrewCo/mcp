@@ -74,7 +74,7 @@ async fn observe(
     rejected: bool,
     done: oneshot::Receiver<TestResult<()>>,
 ) -> TestResult<()> {
-    let result = timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await?;
+    let result = timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await?;
     timeout(Duration::from_secs(2), done).await???;
     if rejected {
         let failure = result.err().ok_or("unsupported upstream coding accepted")?;

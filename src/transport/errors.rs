@@ -37,9 +37,9 @@ pub async fn fixed_header_error(response: Response) -> Response {
     };
     let encoded = serde_json::from_slice::<Reply<'_>>(&bytes)
         .ok()
-        .filter(|reply| reply.jsonrpc == "2.0" && reply.result.is_none())
+        .filter(|reply| reply.jsonrpc() == "2.0" && reply.result().is_none())
         .filter(|reply| {
-            reply.error.is_some_and(|error| {
+            reply.error().is_some_and(|error| {
                 serde_json::from_str::<ErrorCode>(error.get())
                     .is_ok_and(|error| error.code == -32020_i32)
             })
@@ -47,7 +47,7 @@ pub async fn fixed_header_error(response: Response) -> Response {
         .map(|reply| {
             serde_json::to_vec(&FixedHeaderError {
                 jsonrpc: "2.0",
-                id: reply.id,
+                id: reply.id(),
                 error: ErrorData::header_mismatch("invalid request headers", None),
             })
         });

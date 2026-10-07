@@ -38,8 +38,8 @@ async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
 ///
 /// Panics if a rejected request starts introspection or execution.
 fn no_backend_work(fixture: &Fixture) {
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 /// # Errors
@@ -58,9 +58,9 @@ async fn recovery(fixture: &Fixture, running: &mut Running) -> TestResult<()> {
             .pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    running.stop.cancel();
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    running.stop().cancel();
     running.wait().await?;
     Ok(())
 }
@@ -72,7 +72,7 @@ async fn recovery(fixture: &Fixture, running: &mut Running) -> TestResult<()> {
 /// change, rejected requests start upstream work, or recovery and drain fail.
 async fn http1_header_bytes_and_count_reject_before_authorization_and_recover() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut running = Running::start(fixture.router.clone())
+    let mut running = Running::start(fixture.router().clone())
         .await
         .expect("runtime");
     // Host, Connection and 98 extension fields reach 100 fields below the byte limit.
@@ -268,7 +268,7 @@ async fn metadata(peer: &mut Peer, indexed: bool) -> TestResult<()> {
 /// change, rejection starts upstream work, or decoder recovery and drain fail.
 async fn http2_literal_and_compressed_header_limits_reject_before_authorization_and_recover() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut running = Running::start(fixture.router.clone())
+    let mut running = Running::start(fixture.router().clone())
         .await
         .expect("runtime");
     let mut literal_block = post().expect("POST block");

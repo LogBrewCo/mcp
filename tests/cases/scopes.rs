@@ -43,7 +43,7 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
             .body(Body::empty())
             .expect("unauthenticated request");
         let challenge_response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(challenge_request)
             .await
@@ -56,7 +56,7 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
                 .expect("challenge"),
             format!("Bearer resource_metadata=\"{METADATA}\", scope=\"{scope}\"").as_str()
         );
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
         drop(challenge_response);
         let request = Request::builder()
             .uri("/.well-known/oauth-protected-resource/mcp")
@@ -64,7 +64,7 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
             .body(Body::empty())
             .expect("metadata request");
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -75,8 +75,8 @@ async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_s
             .expect("bounded metadata");
         let value: Value = serde_json::from_slice(&bytes).expect("metadata JSON");
         assert_eq!(value.get("scopes_supported"), Some(&json!([scope])));
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     assert!(
         Fixture::with_scope("offline_access".to_owned())
@@ -112,7 +112,7 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
             .expect("insufficient grant");
         let request = request_message(1, method, params.clone(), TOKEN).expect("request");
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -147,7 +147,7 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
             .await
             .expect("bounded private denial");
         assert_eq!(bytes.as_ref(), b"insufficient scope");
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
         fixture
             .introspection_reply(StatusCode::OK, base.to_string(), HeaderMap::new())
             .expect("repaired grant");
@@ -160,8 +160,8 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
             StatusCode::OK
         );
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 8);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 8);
     scope_observations(&fixture).expect("complete private observations");
 }
 
@@ -178,7 +178,10 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
     reason = "Test assertions must retain their failure and comparison diagnostics."
 )]
 fn scope_observations(fixture: &Fixture) -> TestResult<()> {
-    let snapshot = fixture.telemetry.snapshot().ok_or("missing observations")?;
+    let snapshot = fixture
+        .telemetry()
+        .snapshot()
+        .ok_or("missing observations")?;
     for stage in [Stage::RequestPrepared, Stage::Introspection] {
         let stats = snapshot
             .stages
@@ -247,7 +250,7 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
             .introspection_reply(StatusCode::OK, invalid.to_string(), HeaderMap::new())
             .expect("denied claims");
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request_message(1, "tools/list", json!({}), TOKEN).expect("request"))
             .await
@@ -274,8 +277,8 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
             .0,
         StatusCode::SERVICE_UNAVAILABLE
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 5);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 5);
 }
 
 #[tokio::test]
@@ -298,7 +301,7 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
         let bytes = serde_json::to_vec(&claims)?;
         let headers = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", bytes.len()).into_bytes();
         let done = raw.queue("/introspect", headers, Some(bytes)).await?;
-        let result = timeout(Duration::from_secs(2), raw.upstream.verify(TOKEN)).await?;
+        let result = timeout(Duration::from_secs(2), raw.upstream().verify(TOKEN)).await?;
         assert_verified_scope(scope, result)?;
         timeout(Duration::from_secs(2), done).await???;
     }

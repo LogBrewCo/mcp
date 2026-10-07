@@ -114,7 +114,7 @@ async fn discovery_and_tool_inventory_are_self_contained() {
         .filter_map(|tool| tool.get("name").and_then(Value::as_str))
         .collect();
     assert_eq!(names, ["search", "execute"]);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 2);
 }
 
 #[tokio::test]
@@ -149,13 +149,13 @@ async fn execution_carries_verified_identity_and_rechecks_revocation() {
             .expect("structured content")
             .clone()
     );
-    fixture.state.active.store(false, Ordering::SeqCst);
+    fixture.state().active().store(false, Ordering::SeqCst);
     let (revoked_status, _) = fixture
         .request("tools/call", arguments, TOKEN)
         .await
         .expect("revocation");
     assert_eq!(revoked_status, StatusCode::UNAUTHORIZED);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -193,7 +193,7 @@ async fn invalid_operations_and_inputs_never_reach_execution() {
         );
         assert!(!response.to_string().contains("SYNTHETIC_PRIVATE_MARKER"));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -239,7 +239,7 @@ async fn host_origin_and_credential_boundaries_reject_before_introspection() {
     ] {
         let request = boundary_request(host, &origins, &authorization).expect("request");
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -255,14 +255,14 @@ async fn host_origin_and_credential_boundaries_reject_before_introspection() {
         .body(Body::from("{}"))
         .expect("cross-site request");
     let response = fixture
-        .router
+        .router()
         .clone()
         .oneshot(request)
         .await
         .expect("cross-site response");
     assert_eq!(response.status(), StatusCode::FORBIDDEN);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -296,7 +296,7 @@ async fn metadata_is_public_and_has_an_explicit_read_only_method() {
             .body(Body::empty())
             .expect("metadata request");
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -305,7 +305,7 @@ async fn metadata_is_public_and_has_an_explicit_read_only_method() {
             .await
             .expect("metadata response");
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -326,7 +326,7 @@ async fn operation_object_keys_keep_their_meaning_through_the_sdk() {
         response.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -364,7 +364,7 @@ async fn maximum_output_survives_both_content_forms_and_one_more_byte_is_rejecte
         );
         http::assert_output_budget(content, size).expect("output budget");
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
 }
 
 #[tokio::test]
@@ -436,7 +436,7 @@ async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
         ),
         (StatusCode::FORBIDDEN, "2", "permission_denied", Value::Null),
     ] {
-        let before = fixture.state.calls.load(Ordering::SeqCst);
+        let before = fixture.state().calls().load(Ordering::SeqCst);
         let mut headers = HeaderMap::new();
         drop(headers.insert(header::RETRY_AFTER, delay.parse().expect("retry header")));
         fixture
@@ -460,7 +460,7 @@ async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
             Some(&expected)
         );
         assert!(!response.to_string().contains("SYNTHETIC_PRIVATE_MARKER"));
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), before + 1);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), before + 1);
     }
 }
 
@@ -610,7 +610,7 @@ fn assert_output_contract(tool: &Value) -> TestResult<()> {
 /// fails to cancel upstream work, or the operation runs more than once.
 async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
     let fixture = Arc::new(Fixture::new().await.expect("fixture"));
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let running_fixture = Arc::clone(&fixture);
     let request = tokio::spawn(async move {
         running_fixture
@@ -635,7 +635,7 @@ async fn disconnect_cancels_pending_upstream_execution_without_retrying_it() {
     runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(2))
         .await
         .expect("upstream request cancelled");
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]

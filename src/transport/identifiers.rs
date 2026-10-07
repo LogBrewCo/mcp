@@ -65,13 +65,31 @@ pub fn prepare_id(body: &mut Value) -> Option<NumericId> {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 pub(super) struct Reply<'a> {
-    pub(super) jsonrpc: &'a str,
+    jsonrpc: &'a str,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    pub(super) id: Option<&'a RawValue>,
+    id: Option<&'a RawValue>,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    pub(super) result: Option<&'a RawValue>,
+    result: Option<&'a RawValue>,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    pub(super) error: Option<&'a RawValue>,
+    error: Option<&'a RawValue>,
+}
+
+impl Reply<'_> {
+    pub(super) const fn jsonrpc(&self) -> &str {
+        self.jsonrpc
+    }
+
+    pub(super) const fn id(&self) -> Option<&RawValue> {
+        self.id
+    }
+
+    pub(super) const fn result(&self) -> Option<&RawValue> {
+        self.result
+    }
+
+    pub(super) const fn error(&self) -> Option<&RawValue> {
+        self.error
+    }
 }
 
 // A present null must remain distinct from a missing JSON-RPC field.

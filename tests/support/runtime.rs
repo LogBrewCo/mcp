@@ -17,10 +17,10 @@ use super::http::{Fixture, TOKEN};
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 pub struct Running {
-    pub address: SocketAddr,
+    address: SocketAddr,
     client: reqwest::Client,
     certificate: Vec<u8>,
-    pub stop: CancellationToken,
+    stop: CancellationToken,
     task: JoinHandle<Result<(), Failure>>,
 }
 
@@ -32,6 +32,14 @@ impl Drop for Running {
 }
 
 impl Running {
+    pub const fn address(&self) -> SocketAddr {
+        self.address
+    }
+
+    pub const fn stop(&self) -> &CancellationToken {
+        &self.stop
+    }
+
     /// Start the production serving function at a temporary loopback address.
     ///
     /// # Errors
@@ -211,7 +219,7 @@ pub async fn wait_executions(
     limit: Duration,
 ) -> Result<(), tokio::time::error::Elapsed> {
     wait_until(limit, Duration::from_millis(5), || {
-        fixture.state.active_executions.load(Ordering::SeqCst) == expected
+        fixture.state().active_executions().load(Ordering::SeqCst) == expected
     })
     .await
 }

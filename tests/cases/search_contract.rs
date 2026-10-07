@@ -122,8 +122,8 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
         assert!(!validator.is_valid(&arguments));
         drop(search(&fixture, arguments, false).await?);
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 9);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 9);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -173,8 +173,8 @@ async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning
             }
         );
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 8);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 8);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -218,8 +218,8 @@ async fn exact_integral_limit_representations_match_the_advertised_schema() -> T
             Some(1)
         );
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 11);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 11);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -269,8 +269,8 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
         assert!(!validator.is_valid(&arguments));
         drop(search(&fixture, arguments, false).await?);
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 17);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 17);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -330,7 +330,7 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
             collected_pages(&fixture, &validator, &limit, maximum, expected.len()).await?;
         assert_eq!(collected, expected);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 

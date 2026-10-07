@@ -40,7 +40,7 @@ async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<St
             .headers_mut()
             .append(header::AUTHORIZATION, value.clone());
     }
-    let response = fixture.router.clone().oneshot(request).await?;
+    let response = fixture.router().clone().oneshot(request).await?;
     let status = response.status();
     assert_eq!(
         response.headers().get(header::CACHE_CONTROL),
@@ -92,8 +92,8 @@ async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResul
             StatusCode::OK
         );
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 3);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 3);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 3);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 3);
     Ok(())
 }
 
@@ -126,8 +126,8 @@ async fn malformed_token_characters_never_reach_introspection_or_execution() -> 
             .await?,
             StatusCode::BAD_REQUEST
         );
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     Ok(())
 }
@@ -183,10 +183,14 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
             StatusCode::UNAUTHORIZED
         );
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    let observations =
-        serde_json::to_string(&fixture.telemetry.snapshot().ok_or("missing observations")?)?;
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    let observations = serde_json::to_string(
+        &fixture
+            .telemetry()
+            .snapshot()
+            .ok_or("missing observations")?,
+    )?;
     assert!(!observations.contains(TOKEN));
     assert!(!observations.contains("synthetic"));
     assert_eq!(
@@ -197,8 +201,8 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
         .await?,
         StatusCode::OK
     );
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     Ok(())
 }
 
@@ -227,8 +231,8 @@ async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> Te
             .await?,
             StatusCode::OK
         );
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     }
     Ok(())
 }
@@ -264,7 +268,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
     };
     for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "\u{e9}"] {
         assert_eq!(
-            tokio::time::timeout(Duration::from_millis(200), raw.upstream.verify(token))
+            tokio::time::timeout(Duration::from_millis(200), raw.upstream().verify(token))
                 .await?
                 .err()
                 .ok_or("unexpected principal")?
@@ -274,7 +278,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
         assert_eq!(
             tokio::time::timeout(
                 Duration::from_millis(200),
-                raw.upstream
+                raw.upstream()
                     .execute(&principal, token, "logs.read.v1", &json!({}))
             )
             .await?
@@ -284,8 +288,8 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
             Kind::Unavailable
         );
     }
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 0);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 0);
+    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 0);
+    assert_eq!(raw.requests().load(Ordering::SeqCst), 0);
     let client_id = "https://client.example/mcp?key=a:b+c";
     let clients = ClientAllowlist::decode(&serde_json::to_vec(
         &json!({"version":"1","clients":[client_id]}),
@@ -305,8 +309,8 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
         references.request("tools/list", json!({}), TOKEN).await?.0,
         StatusCode::OK
     );
-    assert_eq!(references.state.verifies.load(Ordering::SeqCst), 1);
-    assert_eq!(references.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(references.state().verifies().load(Ordering::SeqCst), 1);
+    assert_eq!(references.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -330,7 +334,7 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone()).await?;
-    let mut running = Running::at(address, fixture.router.clone(), &authority).await?;
+    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
     let body = json!({"jsonrpc":"2.0","id":1_i32,"method":"tools/call","params":{
         "name":"execute","arguments":{"operation":"logs.read.v1","input":{}},"_meta":{
             "io.modelcontextprotocol/protocolVersion":"2026-07-28",
@@ -341,9 +345,9 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
     ] {
         wire_authorization_cases(&fixture, &client, version, &resource, &body).await?;
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 6);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 4);
-    running.stop.cancel();
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 6);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
+    running.stop().cancel();
     running.wait().await?;
     Ok(())
 }
@@ -383,7 +387,7 @@ async fn wire_authorization_cases(
         ),
         (format!("Bearer {TOKEN}"), reqwest::StatusCode::OK, true),
     ] {
-        fixture.state.active.store(active, Ordering::SeqCst);
+        fixture.state().active().store(active, Ordering::SeqCst);
         let response = client
             .post(resource)
             .header("Authorization", authorization)

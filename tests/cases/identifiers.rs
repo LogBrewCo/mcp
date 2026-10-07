@@ -64,7 +64,7 @@ fn request(value: &Value) -> TestResult<Request<Body>> {
 ///
 /// Panics if the cache policy changes or response bytes disclose the bearer token.
 async fn reply(fixture: &Fixture, request: Request<Body>) -> TestResult<(StatusCode, Value)> {
-    let response = fixture.router.clone().oneshot(request).await?;
+    let response = fixture.router().clone().oneshot(request).await?;
     let status = response.status();
     assert_eq!(
         response
@@ -130,7 +130,7 @@ async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestR
     ] {
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 8);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
     Ok(())
 }
 
@@ -163,8 +163,8 @@ async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestR
         succeeds(&fixture, raw, "server/discover").await?;
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 12);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 6);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 6);
     Ok(())
 }
 
@@ -195,7 +195,7 @@ async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> 
     ] {
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 8);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
     Ok(())
 }
 
@@ -242,7 +242,7 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
         );
         assert_eq!(unknown_response.get("id"), unknown_method.get("id"));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -274,8 +274,8 @@ async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> T
         assert_eq!(response.pointer("/error/code"), Some(&json!(-32_600_i32)));
         assert!(response.get("id").is_none());
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 5);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 5);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -345,13 +345,13 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone()).await?;
-    fixture.state.pause.store(true, Ordering::SeqCst);
-    let mut running = Running::at(address, fixture.router.clone(), &authority).await?;
+    fixture.state().pause().store(true, Ordering::SeqCst);
+    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
     let http1 = running.http1_client();
     let http2 = running.http2_client()?;
     let release = async {
         super::runtime::wait_executions(&fixture, 4, Duration::from_secs(2)).await?;
-        fixture.state.release.notify_waiters();
+        fixture.state().release().notify_waiters();
         Ok::<(), Box<dyn core::error::Error + Send + Sync>>(())
     };
     tokio::try_join!(
@@ -381,10 +381,13 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
         ),
         release,
     )?;
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 4);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 4);
-    assert_eq!(fixture.state.active_executions.load(Ordering::SeqCst), 0);
-    running.stop.cancel();
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 4);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
+    assert_eq!(
+        fixture.state().active_executions().load(Ordering::SeqCst),
+        0
+    );
+    running.stop().cancel();
     running.wait().await?;
     Ok(())
 }
@@ -435,6 +438,6 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
         );
         super::http::assert_output_budget(content, size)?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
     Ok(())
 }

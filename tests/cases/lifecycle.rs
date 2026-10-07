@@ -18,9 +18,9 @@ use super::{
 /// drained response, runtime completion or execution totals fail.
 async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_first() {
     let fixture = Fixture::new().await.expect("fixture");
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let mut running = Arc::new(
-        Running::start(fixture.router.clone())
+        Running::start(fixture.router().clone())
             .await
             .expect("HTTPS runtime"),
     );
@@ -29,16 +29,16 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
     super::runtime::wait_executions(&fixture, 1, core::time::Duration::from_secs(2))
         .await
         .expect("authenticated request reached backend");
-    running.stop.cancel();
+    running.stop().cancel();
     super::runtime::wait_until(
         core::time::Duration::from_secs(2),
         core::time::Duration::from_millis(5),
-        || std::net::TcpListener::bind(running.address).is_ok(),
+        || std::net::TcpListener::bind(running.address()).is_ok(),
     )
     .await
     .expect("listener stops admitting new connections before drain");
     assert!(!request.is_finished());
-    fixture.state.release.notify_one();
+    fixture.state().release().notify_one();
     let response = request
         .await
         .expect("request task")
@@ -52,8 +52,11 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
         .wait()
         .await
         .expect("complete drain");
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.active_executions.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    assert_eq!(
+        fixture.state().active_executions().load(Ordering::SeqCst),
+        0
+    );
 }
 
 #[tokio::test]
@@ -63,9 +66,9 @@ async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_firs
 /// listener release or execution totals fail.
 async fn cancelling_the_serving_future_closes_active_requests_and_the_listener() {
     let fixture = Fixture::new().await.expect("fixture");
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let running = Arc::new(
-        Running::start(fixture.router.clone())
+        Running::start(fixture.router().clone())
             .await
             .expect("HTTPS runtime"),
     );
@@ -85,8 +88,8 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
     super::runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(2))
         .await
         .expect("backend work stopped");
-    drop(std::net::TcpListener::bind(running.address).expect("listener released"));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    drop(std::net::TcpListener::bind(running.address()).expect("listener released"));
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -96,7 +99,7 @@ async fn cancelling_the_serving_future_closes_active_requests_and_the_listener()
 /// released backend capacity or recovered admission fails.
 async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancellation() {
     let fixture = Arc::new(Fixture::new().await.expect("fixture"));
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let mut requests = Vec::new();
     for _ in 0_i32..64_i32 {
         let request_fixture = Arc::clone(&fixture);
@@ -110,8 +113,8 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
         .await
         .expect("capacity response");
     assert_eq!(capacity_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 64);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 64);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 64);
     for request in &requests {
         request.abort();
     }
@@ -121,14 +124,14 @@ async fn active_request_capacity_rejects_excess_work_and_recovers_after_cancella
     super::runtime::wait_executions(&fixture, 0, core::time::Duration::from_secs(3))
         .await
         .expect("backend capacity released");
-    fixture.state.pause.store(false, Ordering::SeqCst);
+    fixture.state().pause().store(false, Ordering::SeqCst);
     let (recovered_status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("capacity recovered");
     assert_eq!(recovered_status, axum::http::StatusCode::OK);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 64);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 65);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 64);
 }
 
 /// # Errors
@@ -166,7 +169,7 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
     let mut responses = Vec::new();
     for id in 0..64 {
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(
                 super::http::request_message(id, "tools/list", json!({}), TOKEN).expect("request"),
@@ -182,7 +185,7 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
         .await
         .expect("capacity response");
     assert_eq!(capacity_status, axum::http::StatusCode::TOO_MANY_REQUESTS);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 64);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 64);
     let complete = responses.pop().expect("pending response");
     let bytes = axum::body::to_bytes(complete.into_body(), logbrew_mcp::ENVELOPE_BYTES)
         .await
@@ -210,19 +213,19 @@ async fn response_body_capacity_is_held_until_completion_or_drop() -> Result<(),
         .await
         .expect("slot recovered after body completion");
     assert_eq!(completed_status, axum::http::StatusCode::OK);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 65);
     drop(responses.pop().expect("pending response"));
     let (status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("slot recovered after body cancellation");
     assert_eq!(status, axum::http::StatusCode::OK);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 66);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 66);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     retention(&fixture, 66, 62, 4)?;
     drop(responses);
     retention(&fixture, 66, 0, 66)?;
-    let snapshot = fixture.telemetry.snapshot().expect("capacity snapshot");
+    let snapshot = fixture.telemetry().snapshot().expect("capacity snapshot");
     let prepared = snapshot
         .stages
         .iter()
@@ -262,7 +265,7 @@ fn retention(
     pending: u64,
     released: u64,
 ) -> Result<(), &'static str> {
-    let snapshot = fixture.telemetry.snapshot().ok_or("retention snapshot")?;
+    let snapshot = fixture.telemetry().snapshot().ok_or("retention snapshot")?;
     let retained = snapshot
         .stages
         .iter()

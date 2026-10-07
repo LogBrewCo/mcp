@@ -83,7 +83,7 @@ async fn http2(running: &Running, request: Request<Body>) -> TestResult<(StatusC
 async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_auth() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
-    let mut running = Running::start(fixture.router.clone()).await?;
+    let mut running = Running::start(fixture.router().clone()).await?;
     for host in [
         b"\xff".as_slice(),
         b"foreign.example",
@@ -99,8 +99,8 @@ async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_aut
         let (status, bytes) = http2(&running, request).await?;
         assert_eq!(status, StatusCode::FORBIDDEN);
         assert_eq!(bytes, b"invalid host or origin");
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     let mut request = request_message(
         1,
@@ -121,9 +121,9 @@ async fn tls_http2_accepts_default_ports_and_rejects_conflicting_host_before_aut
         Some(&json!(3_i32))
     );
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    running.stop.cancel();
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    running.stop().cancel();
     running.wait().await?;
     Ok(())
 }
@@ -160,7 +160,7 @@ async fn http1(running: &Running, request: &[u8]) -> TestResult<Vec<u8>> {
 async fn tls_http1_metadata_rejects_malformed_host_and_recovers_with_default_port() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
-    let mut running = Running::start(fixture.router.clone()).await?;
+    let mut running = Running::start(fixture.router().clone()).await?;
     let invalid = b"GET https://resource.example/.well-known/oauth-protected-resource/mcp HTTP/1.1\r\nHost: \xff\r\nConnection: close\r\n\r\n";
     let denied = http1(&running, invalid).await?;
     assert!(denied.starts_with(b"HTTP/1.1 403 "));
@@ -169,9 +169,9 @@ async fn tls_http1_metadata_rejects_malformed_host_and_recovers_with_default_por
     let allowed = http1(&running, valid).await?;
     assert!(allowed.starts_with(b"HTTP/1.1 200 "));
     assert!(String::from_utf8_lossy(&allowed).contains("https://resource.example/mcp"));
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    running.stop.cancel();
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    running.stop().cancel();
     running.wait().await?;
     Ok(())
 }

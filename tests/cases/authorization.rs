@@ -71,8 +71,8 @@ async fn invalid_authority_claims_fail_closed_before_execution() {
             .expect("authorization result");
         assert_eq!(status, expected, "claim {field}");
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 14);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 14);
 }
 
 #[tokio::test]
@@ -130,8 +130,8 @@ async fn missing_or_unavailable_introspection_cannot_authorize_execution() {
         assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE);
         assert!(!response.to_string().contains("SYNTHETIC_PRIVATE_MARKER"));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 12);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
 }
 
 #[tokio::test]
@@ -169,7 +169,7 @@ async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
         response.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -197,8 +197,8 @@ async fn introspection_payload_headers_and_media_type_are_bounded_before_authori
             .expect("authorization result");
         assert_eq!(status, StatusCode::SERVICE_UNAVAILABLE);
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 3);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 3);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 /// # Errors

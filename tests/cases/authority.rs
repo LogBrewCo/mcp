@@ -51,7 +51,7 @@ fn execution(uri: &str, host: Option<&[u8]>, origin: Option<&[u8]>) -> TestResul
 /// Panics if the status, cache policy or execution result differs from the
 /// expected contract, or the response contains a synthetic private marker.
 async fn check(fixture: &Fixture, request: Request<Body>, expected: StatusCode) -> TestResult<()> {
-    let response = fixture.router.clone().oneshot(request).await?;
+    let response = fixture.router().clone().oneshot(request).await?;
     assert_eq!(response.status(), expected);
     assert_eq!(
         response.headers().get("Cache-Control"),
@@ -73,8 +73,8 @@ async fn check(fixture: &Fixture, request: Request<Body>, expected: StatusCode) 
 ///
 /// Panics if introspection or execution counts differ from the expected work.
 fn backend_work(fixture: &Fixture, count: usize) {
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), count);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), count);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), count);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), count);
 }
 
 #[tokio::test]

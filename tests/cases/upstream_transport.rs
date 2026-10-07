@@ -92,7 +92,7 @@ async fn exercise(execute: bool) -> TestResult<()> {
     let control = headers(200, body.len(), 100, 14_000)?;
     assert!(control.len() > 15_000 && control.len() < 16 << 10_i32);
     let control_done = raw.queue(path, control, Some(body.clone())).await?;
-    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
     timeout(Duration::from_secs(2), control_done).await???;
 
     let mut partial = b"HTTP/1.1 200 Fixture\r\nX-Incomplete: ".to_vec();
@@ -110,7 +110,7 @@ async fn exercise(execute: bool) -> TestResult<()> {
         ("incomplete 512 KiB header", partial),
     ] {
         let done = raw.queue(path, bytes, None).await?;
-        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+        let failure = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
             .await
             .map_err(|error| {
                 std::io::Error::other(format!("header rejection deadline: {case}: {error}"))
@@ -127,9 +127,9 @@ async fn exercise(execute: bool) -> TestResult<()> {
     let done = raw
         .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
         .await?;
-    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
     timeout(Duration::from_secs(2), done).await???;
-    header_observations(&raw.upstream, execute, 6, 4, false)?;
+    header_observations(raw.upstream(), execute, 6, 4, false)?;
     raw.finish().await
 }
 
@@ -227,7 +227,7 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
     let control_done = raw
         .queue_http2(http2_headers((16 << 10) - 1, false)?, Some(body.clone()))
         .await?;
-    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
     timeout(Duration::from_secs(2), control_done).await???;
 
     for (case, headers) in [
@@ -239,7 +239,7 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
         ("compressed repeated fields", http2_headers(17 << 10, true)?),
     ] {
         let done = raw.queue_http2(headers, None).await?;
-        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+        let failure = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
             .await
             .map_err(|error| {
                 std::io::Error::other(format!("HTTP/2 rejection deadline: {case}: {error}"))
@@ -257,11 +257,11 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
     let done = raw
         .queue_http2(http2_headers(1024, false)?, Some(body))
         .await?;
-    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
     timeout(Duration::from_secs(2), done).await???;
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 5);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 5);
-    header_observations(&raw.upstream, execute, 5, 3, true)?;
+    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 5);
+    assert_eq!(raw.requests().load(Ordering::SeqCst), 5);
+    header_observations(raw.upstream(), execute, 5, 3, true)?;
     raw.finish().await
 }
 
@@ -389,8 +389,8 @@ async fn upstream_tls_rejects_untrusted_and_mismatched_peers_before_http_and_rec
             .await
             .expect("trusted matching authority");
     }
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 2);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 2);
+    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 2);
+    assert_eq!(raw.requests().load(Ordering::SeqCst), 2);
     raw.finish().await.expect("healthy peer stopped");
 }
 
@@ -410,7 +410,7 @@ async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
         let done = raw
             .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
             .await?;
-        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+        let failure = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
             .await?
             .err()
             .ok_or("unapproved TLS authority accepted")?;
@@ -418,9 +418,13 @@ async fn rejected_tls(raw: &mut Raw) -> TestResult<()> {
         let receipt = timeout(Duration::from_secs(2), done).await??;
         assert!(receipt.is_err(), "TLS handshake unexpectedly completed");
     }
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 0);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 0);
-    let snapshot = raw.upstream.telemetry().snapshot().ok_or("observations")?;
+    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 0);
+    assert_eq!(raw.requests().load(Ordering::SeqCst), 0);
+    let snapshot = raw
+        .upstream()
+        .telemetry()
+        .snapshot()
+        .ok_or("observations")?;
     for selected in [Stage::Introspection, Stage::UpstreamExecute] {
         let stage = snapshot
             .stages
@@ -462,7 +466,7 @@ pub async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
     let done = raw
         .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
         .await?;
-    timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+    timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
     timeout(Duration::from_secs(2), done).await???;
     Ok(())
 }
@@ -485,7 +489,7 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
     let mut raw = Raw::new()?;
     for execute in [false, true] {
         let waiting = raw.stall_handshake().await?;
-        let mut request = Box::pin(operation(&raw.upstream, execute));
+        let mut request = Box::pin(operation(raw.upstream(), execute));
         tokio::select! {
             result = request.as_mut() => {
                 return Err(std::io::Error::other(format!(
@@ -508,7 +512,7 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
         } else {
             Stage::Introspection
         };
-        tls_observations(&raw.upstream, stage, 1, 0, 1, None)?;
+        tls_observations(raw.upstream(), stage, 1, 0, 1, None)?;
         if !cancel {
             // Execution's complete ten-second deadline cannot mask a missing
             // five-second connector deadline in this six-second check.
@@ -520,24 +524,31 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
         }
         drop(request);
         timeout(Duration::from_secs(2), waiting.closed).await???;
-        assert_eq!(raw.handshakes.load(Ordering::SeqCst), usize::from(execute));
-        assert_eq!(raw.requests.load(Ordering::SeqCst), usize::from(execute));
+        assert_eq!(
+            raw.handshakes().load(Ordering::SeqCst),
+            usize::from(execute)
+        );
+        assert_eq!(raw.requests().load(Ordering::SeqCst), usize::from(execute));
         let outcome = if cancel {
             Outcome::Cancelled
         } else {
             Outcome::Unavailable
         };
-        tls_observations(&raw.upstream, stage, 1, 1, 0, Some(outcome))?;
+        tls_observations(raw.upstream(), stage, 1, 1, 0, Some(outcome))?;
 
         let path = if execute { "/execute" } else { "/introspect" };
         let body = body(execute)?;
         let done = raw
             .queue(path, headers(200, body.len(), 4, 0)?, Some(body))
             .await?;
-        timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+        timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
         timeout(Duration::from_secs(2), done).await???;
-        tls_observations(&raw.upstream, stage, 2, 2, 0, Some(outcome))?;
-        let snapshot = raw.upstream.telemetry().snapshot().ok_or("observations")?;
+        tls_observations(raw.upstream(), stage, 2, 2, 0, Some(outcome))?;
+        let snapshot = raw
+            .upstream()
+            .telemetry()
+            .snapshot()
+            .ok_or("observations")?;
         assert_eq!(
             snapshot
                 .stages
@@ -553,8 +564,8 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
             Some(1)
         );
     }
-    assert_eq!(raw.handshakes.load(Ordering::SeqCst), 2);
-    assert_eq!(raw.requests.load(Ordering::SeqCst), 2);
+    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 2);
+    assert_eq!(raw.requests().load(Ordering::SeqCst), 2);
     raw.finish().await
 }
 
@@ -675,7 +686,7 @@ async fn json_media_types(execute: bool) -> TestResult<()> {
         let done = raw
             .queue(path, headers.into_bytes(), Some(body.clone()))
             .await?;
-        timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await??;
+        timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await??;
         timeout(Duration::from_secs(2), done).await???;
     }
     for values in [
@@ -699,7 +710,7 @@ async fn json_media_types(execute: bool) -> TestResult<()> {
         }
         headers.push_str("\r\n");
         let done = raw.queue(path, headers.into_bytes(), None).await?;
-        let failure = timeout(Duration::from_secs(2), operation(&raw.upstream, execute))
+        let failure = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
             .await?
             .err()
             .ok_or("invalid media type accepted")?;

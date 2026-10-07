@@ -139,7 +139,7 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
     let fast = execution(&operations, "logs.fast.v1");
     let slow = execution(&operations, "logs.slow.v1");
     assert_eq!(fast.p99_upper_ns, Some(128));
-    assert_eq!(slow.p99_upper_ns, Some(1_048_576));
+    assert_eq!(slow.p99_upper_ns, Some(0x0010_0000));
     assert_eq!(slow.maximum_ns, Some(1_000_000));
     assert_eq!(
         slow.outcomes

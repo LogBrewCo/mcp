@@ -84,7 +84,7 @@ async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
-    let mut running = Running::at(address, fixture.router.clone(), &authority)
+    let mut running = Running::at(address, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let rejected: &[&[&str]] = &[
@@ -112,7 +112,7 @@ async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
         &[", , identity, ,"],
         &["", "identity"],
     ];
-    let mut executions = fixture.state.calls.load(Ordering::SeqCst);
+    let mut executions = fixture.state().calls().load(Ordering::SeqCst);
     for (version, request) in wire_cases(&running, &resource, rejected).expect("rejected cases") {
         let response = request.send().await.expect("coding rejection");
         assert_eq!(response.version(), version);
@@ -120,7 +120,7 @@ async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
             response.status(),
             reqwest::StatusCode::UNSUPPORTED_MEDIA_TYPE,
             "unsupported coding; backend calls {}",
-            fixture.state.calls.load(Ordering::SeqCst)
+            fixture.state().calls().load(Ordering::SeqCst)
         );
         assert_eq!(
             response
@@ -141,7 +141,7 @@ async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
             response.text().await.expect("fixed error"),
             "unsupported content encoding"
         );
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), executions);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), executions);
     }
     for (version, request) in wire_cases(&running, &resource, accepted).expect("accepted cases") {
         let response = request.send().await.expect("unencoded recovery");
@@ -154,9 +154,9 @@ async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
             Some(&json!(3_i32))
         );
         executions = executions.checked_add(1).expect("execution count");
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), executions);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), executions);
     }
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }
 
@@ -191,7 +191,7 @@ async fn coding_rejection_does_not_poll_a_stalled_request_body() {
     *request.body_mut() = Body::new(UnreadBody(Arc::clone(&polled)));
     let response = tokio::time::timeout(
         Duration::from_secs(1),
-        fixture.router.clone().oneshot(request),
+        fixture.router().clone().oneshot(request),
     )
     .await
     .expect("rejection without body input")
@@ -201,7 +201,7 @@ async fn coding_rejection_does_not_poll_a_stalled_request_body() {
         reqwest::StatusCode::UNSUPPORTED_MEDIA_TYPE
     );
     assert!(!polled.load(Ordering::SeqCst));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     let (status, value) = fixture
         .request("tools/call", params(), TOKEN)
         .await
@@ -211,7 +211,7 @@ async fn coding_rejection_does_not_poll_a_stalled_request_body() {
         value.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -243,7 +243,7 @@ async fn coding_rejection_preserves_authentication_and_media_error_boundaries() 
         );
         *request.body_mut() = Body::from(bytes);
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -277,7 +277,7 @@ async fn coding_rejection_preserves_authentication_and_media_error_boundaries() 
                 .insert(header::CONTENT_ENCODING, HeaderValue::from_static("gzip")),
         );
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -292,7 +292,7 @@ async fn coding_rejection_preserves_authentication_and_media_error_boundaries() 
             .insert(header::CONTENT_TYPE, HeaderValue::from_static("text/plain")),
     );
     let response = fixture
-        .router
+        .router()
         .clone()
         .oneshot(request)
         .await
@@ -302,6 +302,6 @@ async fn coding_rejection_preserves_authentication_and_media_error_boundaries() 
         reqwest::StatusCode::UNSUPPORTED_MEDIA_TYPE
     );
     assert!(response.headers().get(header::ACCEPT_ENCODING).is_none());
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 4);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 4);
 }

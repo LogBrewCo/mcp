@@ -302,7 +302,7 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
         )?;
     }
     for file in &readable {
-        append(&mut builder, &prefix, file.path, &file.bytes, 0o644)?;
+        append(&mut builder, &prefix, file.path(), file.bytes(), 0o644)?;
     }
     let mut manifest = json!({"format_version":1_u32,
         "integrity_scope":"bound_input_bytes","release_evidence":"external_required",

@@ -63,7 +63,7 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
         ),
     ] {
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request_message(1, method, params.clone(), TOKEN).expect("request"))
             .await
@@ -78,7 +78,7 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
             .await
             .expect("bounded denial");
         assert_eq!(bytes.as_ref(), b"client access denied");
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
         assert_eq!(
             approved
                 .request(method, params, TOKEN)
@@ -88,12 +88,12 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
             StatusCode::OK
         );
     }
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 4);
-    assert_eq!(approved.state.verifies.load(Ordering::SeqCst), 4);
-    assert_eq!(approved.state.calls.load(Ordering::SeqCst), 1);
-    fixture.state.active.store(false, Ordering::SeqCst);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 4);
+    assert_eq!(approved.state().verifies().load(Ordering::SeqCst), 4);
+    assert_eq!(approved.state().calls().load(Ordering::SeqCst), 1);
+    fixture.state().active().store(false, Ordering::SeqCst);
     let response = fixture
-        .router
+        .router()
         .clone()
         .oneshot(request_message(5, "tools/list", json!({}), TOKEN).expect("revoked request"))
         .await
@@ -109,9 +109,9 @@ async fn missing_client_policy_denies_valid_authority_and_explicit_policy_recove
             .contains("invalid_token")
     );
     drop(response);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 5);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 5);
     let snapshot = fixture
-        .telemetry
+        .telemetry()
         .snapshot()
         .expect("default denial observations");
     for stage in [Stage::RequestPrepared, Stage::Introspection] {
@@ -196,7 +196,7 @@ async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() 
         ));
         // The request advertises a client identity, but only issuer claims authorize it.
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(request)
             .await
@@ -211,7 +211,7 @@ async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() 
             .await
             .expect("bounded denial");
         assert_eq!(bytes.as_ref(), b"client access denied");
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
         fixture
             .introspection_reply(StatusCode::OK, base.to_string(), HeaderMap::new())
             .expect("approved client");
@@ -227,9 +227,9 @@ async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() 
             .introspection_reply(StatusCode::OK, denied.to_string(), HeaderMap::new())
             .expect("restore denied claims");
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 8);
-    let snapshot = fixture.telemetry.snapshot().expect("observations");
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 8);
+    let snapshot = fixture.telemetry().snapshot().expect("observations");
     for stage in [Stage::RequestPrepared, Stage::Introspection] {
         let stats = snapshot
             .stages
@@ -270,7 +270,7 @@ async fn client_allowlist_uses_exact_ids_and_never_interprets_wildcards() {
         let (status, result) = fixture.request("tools/list", json!({}), TOKEN).await.expect("denial");
         assert_eq!(status, StatusCode::FORBIDDEN);
         assert_eq!(result, Value::Null);
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
     }
 }

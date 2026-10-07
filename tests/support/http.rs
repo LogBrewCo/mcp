@@ -46,18 +46,44 @@ const EXECUTION_AUTH: &str =
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 pub struct StateData {
-    pub active: AtomicBool,
-    pub calls: AtomicUsize,
-    pub verifies: AtomicUsize,
+    active: AtomicBool,
+    calls: AtomicUsize,
+    verifies: AtomicUsize,
     issuer: String,
     resource: String,
     scope: String,
     token: String,
     reply: Mutex<Option<Reply>>,
     introspection_reply: Mutex<Option<Reply>>,
-    pub pause: AtomicBool,
-    pub active_executions: Arc<AtomicUsize>,
-    pub release: tokio::sync::Notify,
+    pause: AtomicBool,
+    active_executions: Arc<AtomicUsize>,
+    release: tokio::sync::Notify,
+}
+
+impl StateData {
+    pub const fn active(&self) -> &AtomicBool {
+        &self.active
+    }
+
+    pub const fn calls(&self) -> &AtomicUsize {
+        &self.calls
+    }
+
+    pub const fn verifies(&self) -> &AtomicUsize {
+        &self.verifies
+    }
+
+    pub const fn pause(&self) -> &AtomicBool {
+        &self.pause
+    }
+
+    pub const fn active_executions(&self) -> &Arc<AtomicUsize> {
+        &self.active_executions
+    }
+
+    pub const fn release(&self) -> &tokio::sync::Notify {
+        &self.release
+    }
 }
 
 struct ExecutionGuard(Arc<AtomicUsize>);
@@ -88,9 +114,9 @@ impl axum::response::IntoResponse for Reply {
 }
 
 pub struct Fixture {
-    pub state: Arc<StateData>,
-    pub router: Router,
-    pub telemetry: Telemetry,
+    state: Arc<StateData>,
+    router: Router,
+    telemetry: Telemetry,
     handle: axum_server::Handle<core::net::SocketAddr>,
     task: tokio::task::JoinHandle<std::io::Result<()>>,
 }
@@ -103,6 +129,18 @@ impl Drop for Fixture {
 }
 
 impl Fixture {
+    pub const fn state(&self) -> &Arc<StateData> {
+        &self.state
+    }
+
+    pub const fn router(&self) -> &Router {
+        &self.router
+    }
+
+    pub const fn telemetry(&self) -> &Telemetry {
+        &self.telemetry
+    }
+
     /// Start the default synthetic HTTPS backend and authenticated request router.
     ///
     /// # Errors

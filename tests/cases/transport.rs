@@ -45,7 +45,7 @@ async fn response(
     fixture: &Fixture,
     request: Request<Body>,
 ) -> TestResult<(StatusCode, Value, Vec<u8>, HeaderMap)> {
-    let response = fixture.router.clone().oneshot(request).await?;
+    let response = fixture.router().clone().oneshot(request).await?;
     let status = response.status();
     let headers = response.headers().clone();
     let bytes = to_bytes(response.into_body(), 5 << 20).await?.to_vec();
@@ -85,7 +85,7 @@ async fn unsupported_versions_return_modern_negotiation_errors() {
             .expect("supported versions")
             .contains(&json!("2026-07-28"))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -115,7 +115,7 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
         assert_eq!(status, StatusCode::BAD_REQUEST, "{name}: {value:?}");
         assert_eq!(response.pointer("/error/code"), Some(&json!(-32_020_i32)));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -144,14 +144,14 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
     ] {
         reflected.extend(reflected_headers(&fixture, &id, marker).await?);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     let (status, result, _, _) = response(&fixture, request(&body())?).await?;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(
         result.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     assert!(
         reflected.is_empty(),
         "rejected fields reflected: {reflected:?}"
@@ -216,7 +216,7 @@ async fn every_current_request_requires_complete_client_metadata() {
         assert_eq!(status, StatusCode::BAD_REQUEST, "{field}");
         assert_eq!(response.pointer("/error/code"), Some(&json!(-32_602_i32)));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -241,7 +241,7 @@ async fn optional_client_identity_is_not_required_for_authorized_execution() {
         result.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -260,7 +260,7 @@ async fn unknown_methods_return_a_modern_error_without_extra_capabilities() {
     let (status, response, _, _) = response(&fixture, request).await.expect("unknown method");
     assert_eq!(status, StatusCode::NOT_FOUND);
     assert_eq!(response.pointer("/error/code"), Some(&json!(-32_601_i32)));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -352,7 +352,7 @@ async fn invalid_media_types_and_accept_values_do_not_reach_execution() {
         let (status, _, _, _) = response(&fixture, request).await.expect("media validation");
         assert_eq!(status, expected, "{name}: {value}");
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -377,7 +377,7 @@ async fn absent_or_duplicate_content_type_and_absent_accept_are_rejected() {
         let (status, _, _, _) = response(&fixture, request).await.expect("media validation");
         assert_eq!(status, expected);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -410,7 +410,7 @@ async fn current_transport_ignores_legacy_session_and_resume_headers() {
     assert_eq!(status, StatusCode::OK);
     assert!(headers.get("Mcp-Session-Id").is_none());
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_OLD_"));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -435,7 +435,7 @@ async fn encoded_tool_names_are_decoded_before_matching_the_body() {
         assert_eq!(status, expected, "{name}");
         assert_header_result(status, &value);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]
@@ -466,7 +466,7 @@ async fn malformed_message_shapes_never_reach_execution_or_echo_private_values()
         assert!(status.is_client_error(), "{status}");
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_MARKER"));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -520,7 +520,7 @@ async fn valid_media_types_support_case_parameters_and_multiple_accept_fields() 
             Some(&json!(3_i32))
         );
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 7);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 7);
 }
 
 /// # Errors
@@ -588,5 +588,5 @@ async fn invalid_protocol_fields_do_not_echo_rejected_private_values() {
         assert!(error.get("result").is_none());
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_MARKER"));
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }

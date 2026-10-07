@@ -137,7 +137,7 @@ async fn operation_identifiers_match_schema_bounds_and_remain_exact() {
         let response = rejected(&fixture, name, input).await.expect("selection");
         check_rejected(&response, valid);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     for name in ["search", "execute"] {
         let (status, reply) = fixture
             .request(
@@ -158,8 +158,8 @@ async fn operation_identifiers_match_schema_bounds_and_remain_exact() {
                 .is_some_and(|data| !data.is_null())
         );
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 26);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 26);
 }
 
 #[tokio::test]
@@ -188,6 +188,6 @@ async fn nonstring_operation_identifiers_are_input_errors() {
         let response = rejected(&fixture, name, input).await.expect("selection");
         check_rejected(&response, valid);
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 12);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
 }

@@ -44,8 +44,8 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
-    fixture.state.pause.store(true, Ordering::SeqCst);
-    let mut running = Running::at(address, fixture.router.clone(), &authority)
+    fixture.state().pause().store(true, Ordering::SeqCst);
+    let mut running = Running::at(address, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let clients = [
@@ -67,7 +67,7 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
     for entry in &calls {
         assert!(!entry.1.is_finished());
     }
-    fixture.state.release.notify_waiters();
+    fixture.state().release().notify_waiters();
     for (version, call) in calls {
         let response = call
             .await
@@ -82,10 +82,13 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
             Some(&json!(3_i32))
         );
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 2);
-    assert_eq!(fixture.state.active_executions.load(Ordering::SeqCst), 0);
-    running.stop.cancel();
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 2);
+    assert_eq!(
+        fixture.state().active_executions().load(Ordering::SeqCst),
+        0
+    );
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }
 
@@ -104,7 +107,7 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
-    let mut running = Running::at(address, fixture.router.clone(), &authority)
+    let mut running = Running::at(address, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let client = running.http2_client().expect("HTTP/2 client");
@@ -133,7 +136,7 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
         .await
         .expect("authority rejection");
     assert_eq!(authority_response.status(), reqwest::StatusCode::FORBIDDEN);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
 
     let response = request(&client, &resource)
         .header("Mcp-Name", "search")
@@ -144,9 +147,9 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     assert_eq!(response.status(), reqwest::StatusCode::BAD_REQUEST);
     let value: Value = response.json().await.expect("JSON error");
     assert_eq!(value.pointer("/error/code"), Some(&json!(-32_020_i32)));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let active = request(&client, &resource);
     let call = tokio::spawn(async move { active.send().await });
     super::runtime::wait_executions(&fixture, 1, Duration::from_secs(2))
@@ -161,9 +164,9 @@ async fn real_http2_preserves_authority_checks_and_cancels_authenticated_executi
     super::runtime::wait_executions(&fixture, 0, Duration::from_secs(2))
         .await
         .expect("upstream cancellation");
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 3);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 3);
     drop(client);
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }

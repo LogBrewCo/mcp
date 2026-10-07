@@ -18,10 +18,20 @@ const RUST_PATHS: [(&str, &str); 4] = [
 ];
 
 pub(super) struct File {
-    pub path: &'static str,
-    pub bytes: Vec<u8>,
+    path: &'static str,
+    bytes: Vec<u8>,
     inventory: &'static str,
     inventory_sha256: String,
+}
+
+impl File {
+    pub(super) const fn path(&self) -> &'static str {
+        self.path
+    }
+
+    pub(super) const fn bytes(&self) -> &[u8] {
+        self.bytes.as_slice()
+    }
 }
 
 /// # Errors

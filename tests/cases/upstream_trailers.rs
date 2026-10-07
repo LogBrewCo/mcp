@@ -28,8 +28,8 @@ async fn check_complete_response(
     budget: usize,
     done: tokio::sync::oneshot::Receiver<TestResult<()>>,
 ) -> TestResult<()> {
-    let result = timeout(Duration::from_secs(2), operation(&raw.upstream, execute)).await?;
-    if budget > 16_384 {
+    let result = timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await?;
+    if budget > 0x4000 {
         let failure = result.err().ok_or("aggregate response fields accepted")?;
         assert_eq!(failure.kind, Kind::Unavailable);
         assert_eq!(failure.retry_after_ms, None);
@@ -64,7 +64,7 @@ async fn http1_trailers(execute: bool) -> TestResult<()> {
         .checked_add("X-Control: \r\n".len())
         .and_then(|size| size.checked_add(MARKER.len()))
         .ok_or("trailer fixture size overflow")?;
-    for budget in [16_383_usize, 16_384, 16_385] {
+    for budget in [0x3fff_usize, 0x4000, 0x4001] {
         let filler = budget
             .checked_sub(overhead)
             .ok_or("trailer fixture budget too small")?;
@@ -105,7 +105,7 @@ async fn http2_trailers(execute: bool) -> TestResult<()> {
         .checked_add("X-Control: \r\n".len())
         .and_then(|size| size.checked_add(MARKER.len()))
         .ok_or("trailer fixture size overflow")?;
-    for budget in [16_383_usize, 16_384, 16_385] {
+    for budget in [0x3fff_usize, 0x4000, 0x4001] {
         let filler = budget
             .checked_sub(overhead)
             .ok_or("trailer fixture budget too small")?;

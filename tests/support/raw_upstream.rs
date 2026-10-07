@@ -60,9 +60,9 @@ enum Trust {
 }
 
 pub struct Raw {
-    pub upstream: Upstream,
-    pub handshakes: Arc<AtomicUsize>,
-    pub requests: Arc<AtomicUsize>,
+    upstream: Upstream,
+    handshakes: Arc<AtomicUsize>,
+    requests: Arc<AtomicUsize>,
     sender: Option<mpsc::Sender<Exchange>>,
     task: JoinHandle<TestResult<()>>,
 }
@@ -74,6 +74,18 @@ impl Drop for Raw {
 }
 
 impl Raw {
+    pub const fn upstream(&self) -> &Upstream {
+        &self.upstream
+    }
+
+    pub const fn handshakes(&self) -> &Arc<AtomicUsize> {
+        &self.handshakes
+    }
+
+    pub const fn requests(&self) -> &Arc<AtomicUsize> {
+        &self.requests
+    }
+
     /// Create an HTTP/1 fixture with matching certificate trust and hostname.
     ///
     /// # Errors

@@ -178,7 +178,7 @@ async fn drip_requests(
 /// Panics if excess work is accepted or authentication and execution counts change.
 async fn capacity(fixture: &Fixture, running: &Running) -> TestResult<()> {
     timeout(Duration::from_secs(2), async {
-        while fixture.state.verifies.load(Ordering::SeqCst) != 64 {
+        while fixture.state().verifies().load(Ordering::SeqCst) != 64 {
             sleep(Duration::from_millis(5)).await;
         }
     })
@@ -186,19 +186,22 @@ async fn capacity(fixture: &Fixture, running: &Running) -> TestResult<()> {
     .map_err(|error| {
         io::Error::other(format!(
             "admission observation: {error}; verifies={}",
-            fixture.state.verifies.load(Ordering::SeqCst),
+            fixture.state().verifies().load(Ordering::SeqCst),
         ))
     })?;
     let response = running
         .http1_client()
-        .post(format!("https://localhost:{}/mcp", running.address.port()))
+        .post(format!(
+            "https://localhost:{}/mcp",
+            running.address().port()
+        ))
         .header("Host", "resource.example")
         .body("{}")
         .send()
         .await?;
     assert_eq!(response.status(), reqwest::StatusCode::TOO_MANY_REQUESTS);
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 64);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 64);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -240,7 +243,10 @@ async fn recovery(peer: &mut Peer, block: &[u8], stream: u32) -> TestResult<()> 
     reason = "Test assertions must retain their failure and comparison diagnostics."
 )]
 fn observations(fixture: &Fixture) -> TestResult<()> {
-    let snapshot = fixture.telemetry.snapshot().ok_or("missing observations")?;
+    let snapshot = fixture
+        .telemetry()
+        .snapshot()
+        .ok_or("missing observations")?;
     let requests = snapshot
         .stages
         .iter()
@@ -273,7 +279,7 @@ fn observations(fixture: &Fixture) -> TestResult<()> {
 /// recovery, telemetry privacy or runtime drain fails.
 async fn unfinished_http2_bodies_expire_despite_ping_and_body_progress_and_capacity_recovers() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut running = Running::start(fixture.router.clone())
+    let mut running = Running::start(fixture.router().clone())
         .await
         .expect("runtime");
     let mut peer = Peer::connect(running.tls(Some(b"h2")).await.expect("TLS"), true)
@@ -307,16 +313,16 @@ async fn unfinished_http2_bodies_expire_despite_ping_and_body_progress_and_capac
     for response in responses.values() {
         assert_eq!(response.body, b"request deadline exceeded");
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     timeout(Duration::from_secs(2), recovery(&mut peer, &block, 129))
         .await
         .expect("same connection recovery deadline")
         .expect("authenticated execution after all timeouts");
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 65);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 65);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     observations(&fixture).expect("complete privacy-safe observations");
     drop(peer);
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }
 
@@ -386,17 +392,17 @@ async fn prepared_challenges(fixture: &Fixture) -> TestResult<()> {
     .map_err(|error| {
         io::Error::other(format!(
             "challenge observation: {error}; finished={:?}",
-            fixture.telemetry.snapshot().and_then(|snapshot| snapshot
+            fixture.telemetry().snapshot().and_then(|snapshot| snapshot
                 .stages
                 .into_iter()
                 .find(|stage| stage.stage == Stage::RequestPrepared)
                 .map(|stage| stage.finished))
         ))
     })?;
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     let snapshot = fixture
-        .telemetry
+        .telemetry()
         .snapshot()
         .ok_or("missing retention snapshot")?;
     assert_eq!(snapshot.format_version, 3);
@@ -452,7 +458,7 @@ async fn closed_retention(fixture: &Fixture) -> TestResult<()> {
 }
 
 fn stage_finished(fixture: &Fixture, selected: Stage, finished: u64) -> bool {
-    fixture.telemetry.snapshot().is_some_and(|snapshot| {
+    fixture.telemetry().snapshot().is_some_and(|snapshot| {
         snapshot
             .stages
             .iter()
@@ -465,7 +471,7 @@ fn stage_finished(fixture: &Fixture, selected: Stage, finished: u64) -> bool {
 /// This observer returns no errors; its caller supplies the observation timeout.
 async fn retained_snapshot(fixture: &Fixture) -> TestResult<logbrew_mcp::telemetry::Snapshot> {
     loop {
-        let snapshot = fixture.telemetry.snapshot().filter(|snapshot| {
+        let snapshot = fixture.telemetry().snapshot().filter(|snapshot| {
             snapshot
                 .stages
                 .iter()
@@ -485,7 +491,7 @@ async fn retained_snapshot(fixture: &Fixture) -> TestResult<logbrew_mcp::telemet
 /// cancellation, released capacity or runtime drain fails.
 async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_ping() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut running = Running::start(fixture.router.clone())
+    let mut running = Running::start(fixture.router().clone())
         .await
         .expect("runtime");
     let mut peer = Peer::connect(running.tls(Some(b"h2")).await.expect("TLS"), true)
@@ -509,7 +515,10 @@ async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_pi
         .expect("all challenges prepared without authority calls");
     let blocked = running
         .http1_client()
-        .post(format!("https://localhost:{}/mcp", running.address.port()))
+        .post(format!(
+            "https://localhost:{}/mcp",
+            running.address().port()
+        ))
         .header("Host", "resource.example")
         .body("{}")
         .send()
@@ -533,10 +542,10 @@ async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_pi
             .pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     drop(peer);
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }
 
@@ -547,7 +556,7 @@ async fn withheld_http2_response_window_cannot_keep_all_request_slots_despite_pi
 /// same-connection reuse, execution counts or runtime drain fails.
 async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadline() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut running = Running::start(fixture.router.clone())
+    let mut running = Running::start(fixture.router().clone())
         .await
         .expect("runtime");
     let mut peer = Peer::connect(running.tls(Some(b"h2")).await.expect("TLS"), true)
@@ -571,10 +580,10 @@ async fn completed_http2_delivery_keeps_the_connection_reusable_after_its_deadli
         .await
         .expect("reused response bound")
         .expect("complete response on the same connection");
-    assert_eq!(fixture.state.verifies.load(Ordering::SeqCst), 2);
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
     drop(peer);
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await.expect("runtime drain");
 }
 

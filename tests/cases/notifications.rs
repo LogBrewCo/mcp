@@ -91,7 +91,7 @@ fn candidate(id: Option<Value>) -> TestResult<Request<Body>> {
 ///
 /// Panics if valid execution status, exact ID, data, privacy or call increment changes.
 async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<()> {
-    let before = fixture.state.calls.load(Ordering::SeqCst);
+    let before = fixture.state().calls().load(Ordering::SeqCst);
     let response = sender
         .send(request_message(id, "tools/call", arguments(), TOKEN)?)
         .await?;
@@ -105,7 +105,7 @@ async fn control(sender: &mut Sender, fixture: &Fixture, id: u64) -> TestResult<
     );
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
     assert_eq!(
-        Some(fixture.state.calls.load(Ordering::SeqCst)),
+        Some(fixture.state().calls().load(Ordering::SeqCst)),
         before.checked_add(1)
     );
     Ok(())
@@ -132,8 +132,8 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
     let mut control_id = 1_u64;
     for id in cases {
         let notification = id.is_none();
-        let calls = fixture.state.calls.load(Ordering::SeqCst);
-        let verifies = fixture.state.verifies.load(Ordering::SeqCst);
+        let calls = fixture.state().calls().load(Ordering::SeqCst);
+        let verifies = fixture.state().verifies().load(Ordering::SeqCst);
         let response = sender.send(candidate(id)?).await?;
         let expected = if notification {
             StatusCode::ACCEPTED
@@ -150,9 +150,9 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
             assert!(error.get("id").is_none());
         }
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), calls);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), calls);
         assert_eq!(
-            Some(fixture.state.verifies.load(Ordering::SeqCst)),
+            Some(fixture.state().verifies().load(Ordering::SeqCst)),
             verifies.checked_add(1)
         );
         control(sender, fixture, control_id).await?;
@@ -160,20 +160,20 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
             .checked_add(1)
             .ok_or("fixture control ID overflow")?;
     }
-    fixture.state.active.store(false, Ordering::SeqCst);
-    let calls = fixture.state.calls.load(Ordering::SeqCst);
-    let verifies = fixture.state.verifies.load(Ordering::SeqCst);
+    fixture.state().active().store(false, Ordering::SeqCst);
+    let calls = fixture.state().calls().load(Ordering::SeqCst);
+    let verifies = fixture.state().verifies().load(Ordering::SeqCst);
     let response = sender.send(candidate(None)?).await?;
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
     assert!(response.headers().get("WWW-Authenticate").is_some());
     let bytes = to_bytes(response.into_body(), 4096).await?;
     assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), calls);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), calls);
     assert_eq!(
-        Some(fixture.state.verifies.load(Ordering::SeqCst)),
+        Some(fixture.state().verifies().load(Ordering::SeqCst)),
         verifies.checked_add(1)
     );
-    fixture.state.active.store(true, Ordering::SeqCst);
+    fixture.state().active().store(true, Ordering::SeqCst);
     control(sender, fixture, control_id).await
 }
 
@@ -188,7 +188,7 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
 )]
 async fn verify(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new().await?;
-    let mut running = Running::start(fixture.router.clone()).await?;
+    let mut running = Running::start(fixture.router().clone()).await?;
     let protocol = if http2 { b"h2".as_slice() } else { b"http/1.1" };
     let stream = running.tls(Some(protocol)).await?;
     let (mut sender, connection): (Sender, Connection) = if http2 {
@@ -217,7 +217,7 @@ async fn verify(http2: bool) -> TestResult<()> {
         }
     })
     .await??;
-    running.stop.cancel();
+    running.stop().cancel();
     running.wait().await
 }
 

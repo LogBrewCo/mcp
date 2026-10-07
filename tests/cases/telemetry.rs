@@ -188,7 +188,7 @@ fn assert_cancelled_operation(
 /// authentication and host denials, or telemetry privacy checks fail.
 async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
     let fixture = Fixture::new().await.expect("fixture");
-    let empty = fixture.telemetry.snapshot().expect("empty snapshot");
+    let empty = fixture.telemetry().snapshot().expect("empty snapshot");
     let catalog = assert_unobserved_catalog(&empty).expect("unobserved catalog proof");
 
     let calls = [
@@ -211,14 +211,14 @@ async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
             Some(catalog.definition_sha256.as_str())
         );
     }
-    fixture.state.active.store(false, Ordering::SeqCst);
+    fixture.state().active().store(false, Ordering::SeqCst);
     let (status, _) = fixture
         .request("tools/list", json!({}), TOKEN)
         .await
         .expect("revoked");
     assert_eq!(status, StatusCode::UNAUTHORIZED);
     let response = fixture
-        .router
+        .router()
         .clone()
         .oneshot(
             Request::builder()
@@ -233,7 +233,7 @@ async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
     assert_eq!(response.status(), StatusCode::FORBIDDEN);
     drop(response);
 
-    let snapshot = fixture.telemetry.snapshot().expect("snapshot");
+    let snapshot = fixture.telemetry().snapshot().expect("snapshot");
     for (stage, outcome, expected) in [
         (Stage::RequestPrepared, Outcome::Completed, 4),
         (Stage::RequestPrepared, Outcome::Unauthorized, 1),
@@ -274,19 +274,19 @@ async fn http_success_does_not_hide_tool_errors_or_disclose_request_content() {
 /// and operation, preserve prior success totals, or complete timing observations.
 async fn cancelling_https_work_records_each_started_stage_without_a_success() {
     let fixture = Fixture::new().await.expect("fixture");
-    fixture.state.pause.store(true, Ordering::SeqCst);
+    fixture.state().pause().store(true, Ordering::SeqCst);
     let running = Arc::new(
-        Running::start(fixture.router.clone())
+        Running::start(fixture.router().clone())
             .await
             .expect("HTTPS runtime"),
     );
-    let baseline = fixture.telemetry.snapshot().expect("readiness snapshot");
+    let baseline = fixture.telemetry().snapshot().expect("readiness snapshot");
     let server = Arc::clone(&running);
     let request = tokio::spawn(async move { server.execute().await });
     super::runtime::wait_executions(&fixture, 1, Duration::from_secs(2))
         .await
         .expect("execution reached backend");
-    let pending_snapshot = fixture.telemetry.snapshot().expect("pending snapshot");
+    let pending_snapshot = fixture.telemetry().snapshot().expect("pending snapshot");
     let pending = operation(&pending_snapshot).expect("pending operation");
     let before = operation(&baseline).expect("baseline operation");
     assert_eq!(pending.started, before.started + 1);
@@ -318,7 +318,7 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
     })
     .await
     .expect("cancelled stages finished");
-    let snapshot = fixture.telemetry.snapshot().expect("cancelled snapshot");
+    let snapshot = fixture.telemetry().snapshot().expect("cancelled snapshot");
     assert_cancelled_operation(&snapshot, before).expect("catalog cancellation proof");
     for selected in [
         Stage::RequestPrepared,
@@ -348,9 +348,9 @@ async fn cancelling_https_work_records_each_started_stage_without_a_success() {
 }
 
 fn idle(fixture: &Fixture) -> bool {
-    fixture.telemetry.snapshot().is_some_and(|snapshot| {
+    fixture.telemetry().snapshot().is_some_and(|snapshot| {
         snapshot.stages.iter().all(|stage| stage.pending == Some(0))
             && operation(&snapshot).is_some_and(|stage| stage.pending == Some(0))
-            && fixture.state.active_executions.load(Ordering::SeqCst) == 0
+            && fixture.state().active_executions().load(Ordering::SeqCst) == 0
     })
 }

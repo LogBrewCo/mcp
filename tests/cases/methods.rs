@@ -129,7 +129,7 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
         serde_json::from_str("184467440737095516160")?,
     ] {
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(packet(PRIVATE_METHOD, json!({}), &id).await?)
             .await?;
@@ -137,7 +137,7 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
         let bytes = to_bytes(response.into_body(), 4096).await?;
         assert_error(status, StatusCode::NOT_FOUND, &bytes, &id, -32601)?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -158,7 +158,7 @@ async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResul
     let fixture = Fixture::new().await?;
     for (method, params) in malformed() {
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
@@ -166,7 +166,7 @@ async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResul
         let bytes = to_bytes(response.into_body(), 4096).await?;
         assert_error(status, StatusCode::OK, &bytes, &json!(1_i32), -32602)?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -194,19 +194,19 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
         ),
     ] {
         let response = fixture
-            .router
+            .router()
             .clone()
             .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
         assert_eq!(response.status(), StatusCode::OK);
-        let bytes = to_bytes(response.into_body(), 32_768).await?;
+        let bytes = to_bytes(response.into_body(), 0x8000).await?;
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_"));
         let result: Value = serde_json::from_slice(&bytes)?;
         assert_eq!(result.get("id"), Some(&json!(1_i32)));
         assert!(result.get("error").is_none());
         assert_inventory(method, &result)?;
     }
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -263,7 +263,7 @@ async fn wire(http2: bool) -> TestResult<()> {
     let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
     let authority = format!("localhost:{}", address.port());
     let fixture = Fixture::for_resource(format!("https://{authority}/mcp")).await?;
-    let mut running = Running::at(address, fixture.router.clone(), &authority).await?;
+    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
     let (client, version) = if http2 {
         (running.http2_client()?, Version::HTTP_2)
     } else {
@@ -292,7 +292,7 @@ async fn wire(http2: bool) -> TestResult<()> {
         let status = response.status();
         let bytes = response.bytes().await?;
         assert_error(status, expected, &bytes, &id, code)?;
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     for field in [
         "io.modelcontextprotocol/protocolVersion",
@@ -304,7 +304,7 @@ async fn wire(http2: bool) -> TestResult<()> {
         let status = response.status();
         let bytes = response.bytes().await?;
         assert_error(status, StatusCode::BAD_REQUEST, &bytes, &id, -32602)?;
-        assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     let request = packet(
         "tools/call",
@@ -320,8 +320,8 @@ async fn wire(http2: bool) -> TestResult<()> {
         result.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state.calls.load(Ordering::SeqCst), 1);
-    running.stop.cancel();
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    running.stop().cancel();
     running.wait().await
 }
 
@@ -341,7 +341,10 @@ async fn send(
             .insert("Host", HeaderValue::from_str(authority)?),
     );
     Ok(client
-        .post(format!("https://localhost:{}/mcp", running.address.port()))
+        .post(format!(
+            "https://localhost:{}/mcp",
+            running.address().port()
+        ))
         .headers(parts.headers)
         .body(to_bytes(body, 4096).await?)
         .send()

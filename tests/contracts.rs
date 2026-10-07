@@ -17,6 +17,47 @@ fn artifact(schema: &Value) -> Vec<u8> {
     }]}).to_string().into_bytes()
 }
 
+#[test]
+/// # Panics
+///
+/// Panics if catalog lookup classifies invalid identifiers as unknown operations
+/// or counts Unicode bytes instead of schema characters on any boundary.
+fn operation_identifier_errors_agree_across_catalog_boundaries() {
+    let bytes = artifact(&json!({"type":"object"}));
+    let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("catalog");
+    for (id, expected) in [
+        (String::new(), logbrew_mcp::error::Kind::InvalidInput),
+        ("a".repeat(129), logbrew_mcp::error::Kind::InvalidInput),
+        (
+            "\u{1f980}".repeat(129),
+            logbrew_mcp::error::Kind::InvalidInput,
+        ),
+        (
+            "\u{1f980}".repeat(128),
+            logbrew_mcp::error::Kind::UnknownOperation,
+        ),
+    ] {
+        assert_eq!(
+            catalog
+                .search(&json!({"operation":id}))
+                .expect_err("selection")
+                .kind,
+            expected
+        );
+        assert_eq!(
+            catalog.input(&id, &json!({})).expect_err("input").kind,
+            expected
+        );
+        assert_eq!(
+            catalog
+                .output(&id, &json!({"count":3_i32}))
+                .expect_err("output")
+                .kind,
+            expected
+        );
+    }
+}
+
 /// Build a catalog with the same pattern on both validation boundaries.
 ///
 /// # Errors

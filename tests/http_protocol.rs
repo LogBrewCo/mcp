@@ -32,6 +32,8 @@ mod lifecycle;
 mod methods;
 #[path = "cases/notifications.rs"]
 mod notifications;
+#[path = "cases/operation_contract.rs"]
+mod operation_contract;
 #[path = "support/peer.rs"]
 mod peer;
 #[path = "support/raw_upstream.rs"]

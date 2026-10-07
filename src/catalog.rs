@@ -108,7 +108,7 @@ impl Catalog {
                 .get("operation")
                 .and_then(Value::as_str)
                 .ok_or(Kind::InvalidInput)?;
-            let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
+            let entry = self.selected(id)?;
             return serde_json::to_value(&entry.operation)
                 .map_err(Failure::redact(Kind::Unavailable));
         }
@@ -160,17 +160,30 @@ impl Catalog {
     /// # Errors
     /// Rejects unknown operations or input outside the declared contract and budget.
     pub fn input(&self, id: &str, value: &Value) -> Result<(), Failure> {
-        let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
+        let entry = self.selected(id)?;
         validate(&entry.input, value, INPUT_BYTES).map_err(Failure::redact(Kind::InvalidInput))
     }
 
     /// Validate output before returning evidence to the caller.
     ///
     /// # Errors
-    /// Rejects absent operations or invalid, oversized output.
+    /// Rejects invalid identifiers, absent operations or invalid, oversized output.
     pub fn output(&self, id: &str, value: &Value) -> Result<(), Failure> {
-        let entry = self.entries.get(id).ok_or(Kind::UnknownOperation)?;
+        let entry = self.selected(id)?;
         validate(&entry.output, value, OUTPUT_BYTES).map_err(Failure::redact(Kind::InvalidOutput))
+    }
+
+    /// Select an exact identifier after checking the caller's string contract.
+    ///
+    /// # Errors
+    /// Rejects identifiers outside the tool schema or absent from the catalog.
+    fn selected(&self, id: &str) -> Result<&Entry, Failure> {
+        if id.is_empty() || id.chars().take(129).count() > 128 {
+            return Err(Kind::InvalidInput.into());
+        }
+        self.entries
+            .get(id)
+            .ok_or_else(|| Kind::UnknownOperation.into())
     }
 }
 

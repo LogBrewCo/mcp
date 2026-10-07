@@ -88,17 +88,18 @@ async fn privacy_and_recovery(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut upstream = backend::Backend::start(resource.clone()).await?;
-    configure(&fixture, &upstream.endpoint)?;
-    let roots =
-        fixture
-            .directory
-            .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
+    configure(&fixture, upstream.endpoint())?;
+    let roots = fixture.directory.write(
+        "upstream-root.pem",
+        upstream.certificate().as_bytes(),
+        0o600,
+    )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let http = client(&fixture, http2)?;
     rejected(&http, &resource, http2).await?;
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 6);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 0);
+    assert_eq!(upstream.observations().verifies().load(Ordering::SeqCst), 6);
+    assert_eq!(upstream.observations().executes().load(Ordering::SeqCst), 0);
     let execution = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
     let (status, result) = request(&http, &resource, "tools/call", execution, http2).await?;
     assert_eq!(status, reqwest::StatusCode::OK);
@@ -106,13 +107,13 @@ async fn privacy_and_recovery(http2: bool) -> TestResult<()> {
         envelope(&result, None)?.pointer("/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 7);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 1);
+    assert_eq!(upstream.observations().verifies().load(Ordering::SeqCst), 7);
+    assert_eq!(upstream.observations().executes().load(Ordering::SeqCst), 1);
     for stage in [
         backend::PendingStage::Verification,
         backend::PendingStage::Execution,
     ] {
-        assert_eq!(upstream.observations.pending_count(stage), 0);
+        assert_eq!(upstream.observations().pending_count(stage), 0);
     }
     fixture.ready(&mut process).await?;
     process.signal(Signal::TERM)?;

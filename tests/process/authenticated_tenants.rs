@@ -161,7 +161,7 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
                 drop(reply?);
                 Err(io::Error::other("alpha completed before verification was released").into())
             }
-            () = observed.alpha_entered.notified() => Ok(())
+            () = observed.alpha_entered().notified() => Ok(())
         };
         waiting
     })
@@ -177,12 +177,12 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
     );
     assert_eq!(
         observed
-            .executes
+            .executes()
             .first()
             .map(|counter| counter.load(Ordering::SeqCst)),
         Some(0)
     );
-    observed.alpha_release.notify_one();
+    observed.alpha_release().notify_one();
     let (status, reply) = timeout(Duration::from_secs(2), alpha).await??;
     assert_eq!(status, reqwest::StatusCode::OK);
     result(&reply, "alpha")?;
@@ -202,11 +202,12 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut upstream = Backend::start(resource.clone()).await?;
-    configure_projects(&fixture, &upstream.endpoint)?;
-    let roots =
-        fixture
-            .directory
-            .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
+    configure_projects(&fixture, upstream.endpoint())?;
+    let roots = fixture.directory.write(
+        "upstream-root.pem",
+        upstream.certificate().as_bytes(),
+        0o600,
+    )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let transport = match mode {
@@ -218,10 +219,10 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
         transport,
         resource: &resource,
     };
-    overlapping(&execution, &upstream.observations).await?;
+    overlapping(&execution, upstream.observations()).await?;
     upstream
-        .observations
-        .alpha_active
+        .observations()
+        .alpha_active()
         .store(false, Ordering::SeqCst);
     let (revoked_status, _) = execution.run(Identity::Alpha, "alpha").await?;
     assert_eq!(revoked_status, reqwest::StatusCode::UNAUTHORIZED);
@@ -231,24 +232,24 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let (rejected_status, _) = execution.run(Identity::Rejected, "alpha").await?;
     assert_eq!(rejected_status, reqwest::StatusCode::FORBIDDEN);
     upstream
-        .observations
-        .alpha_active
+        .observations()
+        .alpha_active()
         .store(true, Ordering::SeqCst);
     let (status, alpha) = execution.run(Identity::Alpha, "alpha").await?;
     assert_eq!(status, reqwest::StatusCode::OK);
     result(&alpha, "alpha")?;
     assert_eq!(
         upstream
-            .observations
-            .verifies
+            .observations()
+            .verifies()
             .each_ref()
             .map(|counter| counter.load(Ordering::SeqCst)),
         [3, 3, 1]
     );
     assert_eq!(
         upstream
-            .observations
-            .executes
+            .observations()
+            .executes()
             .each_ref()
             .map(|counter| counter.load(Ordering::SeqCst)),
         [2, 3, 0]

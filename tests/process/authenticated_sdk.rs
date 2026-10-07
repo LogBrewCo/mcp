@@ -45,11 +45,12 @@ async fn connect(http2: bool) -> TestResult<Connected> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let upstream = backend::Backend::start(resource.clone()).await?;
-    configure(&fixture, &upstream.endpoint)?;
-    let roots =
-        fixture
-            .directory
-            .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
+    configure(&fixture, upstream.endpoint())?;
+    let roots = fixture.directory.write(
+        "upstream-root.pem",
+        upstream.certificate().as_bytes(),
+        0o600,
+    )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let config = StreamableHttpClientTransportConfig::with_uri(resource)
@@ -191,8 +192,8 @@ async fn contracts(http2: bool) -> TestResult<()> {
     drop(result(&rejected, Some("invalid_input"))?);
     connected
         .upstream
-        .observations
-        .active
+        .observations()
+        .active()
         .store(false, Ordering::SeqCst);
     let _rejected = connected
         .sdk
@@ -203,15 +204,15 @@ async fn contracts(http2: bool) -> TestResult<()> {
     assert_eq!(
         connected
             .upstream
-            .observations
-            .executes
+            .observations()
+            .executes()
             .load(Ordering::SeqCst),
         1
     );
     connected
         .upstream
-        .observations
-        .active
+        .observations()
+        .active()
         .store(true, Ordering::SeqCst);
     let recovered = connected.sdk.call_tool(execution).await?;
     assert_eq!(
@@ -221,16 +222,16 @@ async fn contracts(http2: bool) -> TestResult<()> {
     assert_eq!(
         connected
             .upstream
-            .observations
-            .verifies
+            .observations()
+            .verifies()
             .load(Ordering::SeqCst),
         7
     );
     assert_eq!(
         connected
             .upstream
-            .observations
-            .executes
+            .observations()
+            .executes()
             .load(Ordering::SeqCst),
         2
     );
@@ -248,7 +249,7 @@ async fn contracts(http2: bool) -> TestResult<()> {
 /// or verification and execution counts change.
 async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
     let connected = connect(http2).await?;
-    connected.upstream.observations.set_pause(stage, true);
+    connected.upstream.observations().set_pause(stage, true);
     let execution = tool("execute", json!({"operation":"logs.read.v1","input":{}}))?;
     let pending = connected
         .sdk
@@ -259,33 +260,33 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
         .await?;
     connected
         .upstream
-        .observations
+        .observations()
         .wait_for_pending(stage, 1)
         .await?;
     timeout(Duration::from_secs(2), pending.cancel(None)).await??;
     connected
         .upstream
-        .observations
+        .observations()
         .wait_for_pending(stage, 0)
         .await?;
     let executions = usize::from(matches!(stage, PendingStage::Execution));
     assert_eq!(
         connected
             .upstream
-            .observations
-            .verifies
+            .observations()
+            .verifies()
             .load(Ordering::SeqCst),
         2
     );
     assert_eq!(
         connected
             .upstream
-            .observations
-            .executes
+            .observations()
+            .executes()
             .load(Ordering::SeqCst),
         executions
     );
-    connected.upstream.observations.set_pause(stage, false);
+    connected.upstream.observations().set_pause(stage, false);
     let reply = connected.sdk.call_tool(execution).await?;
     assert_eq!(
         result(&reply, None)?.pointer("/data/count"),
@@ -294,8 +295,8 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
     assert_eq!(
         connected
             .upstream
-            .observations
-            .verifies
+            .observations()
+            .verifies()
             .load(Ordering::SeqCst),
         3
     );
@@ -303,8 +304,8 @@ async fn cancellation(http2: bool, stage: PendingStage) -> TestResult<()> {
         Some(
             connected
                 .upstream
-                .observations
-                .executes
+                .observations()
+                .executes()
                 .load(Ordering::SeqCst)
         ),
         executions.checked_add(1)

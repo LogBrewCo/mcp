@@ -70,20 +70,42 @@ impl Identity {
 }
 
 pub(super) struct Observations {
-    pub alpha_active: AtomicBool,
-    pub alpha_entered: Notify,
-    pub alpha_release: Notify,
-    pub verifies: [AtomicUsize; 3],
-    pub executes: [AtomicUsize; 3],
+    alpha_active: AtomicBool,
+    alpha_entered: Notify,
+    alpha_release: Notify,
+    verifies: [AtomicUsize; 3],
+    executes: [AtomicUsize; 3],
     pause_alpha: AtomicBool,
     issuer: String,
     resource: String,
 }
 
+impl Observations {
+    pub const fn alpha_active(&self) -> &AtomicBool {
+        &self.alpha_active
+    }
+
+    pub const fn alpha_entered(&self) -> &Notify {
+        &self.alpha_entered
+    }
+
+    pub const fn alpha_release(&self) -> &Notify {
+        &self.alpha_release
+    }
+
+    pub const fn verifies(&self) -> &[AtomicUsize; 3] {
+        &self.verifies
+    }
+
+    pub const fn executes(&self) -> &[AtomicUsize; 3] {
+        &self.executes
+    }
+}
+
 pub(super) struct Backend {
-    pub endpoint: String,
-    pub certificate: String,
-    pub observations: Arc<Observations>,
+    endpoint: String,
+    certificate: String,
+    observations: Arc<Observations>,
     handle: axum_server::Handle<SocketAddr>,
     task: tokio::task::JoinHandle<std::io::Result<()>>,
 }
@@ -96,6 +118,18 @@ impl Drop for Backend {
 }
 
 impl Backend {
+    pub const fn endpoint(&self) -> &str {
+        self.endpoint.as_str()
+    }
+
+    pub const fn certificate(&self) -> &str {
+        self.certificate.as_str()
+    }
+
+    pub const fn observations(&self) -> &Arc<Observations> {
+        &self.observations
+    }
+
     /// # Errors
     ///
     /// Returns a listener, certificate, TLS configuration or startup timeout error.

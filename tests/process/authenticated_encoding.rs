@@ -234,11 +234,11 @@ async fn recovery(
             Some(&json!(3_i32))
         );
         assert_eq!(
-            Some(upstream.observations.executes.load(Ordering::SeqCst)),
+            Some(upstream.observations().executes().load(Ordering::SeqCst)),
             index.checked_add(1)
         );
         assert_eq!(
-            Some(upstream.observations.verifies.load(Ordering::SeqCst)),
+            Some(upstream.observations().verifies().load(Ordering::SeqCst)),
             index.checked_add(11)
         );
     }
@@ -255,29 +255,33 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut upstream = backend::Backend::start(resource.clone()).await?;
-    configure(&fixture, &upstream.endpoint)?;
-    let roots =
-        fixture
-            .directory
-            .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
+    configure(&fixture, upstream.endpoint())?;
+    let roots = fixture.directory.write(
+        "upstream-root.pem",
+        upstream.certificate().as_bytes(),
+        0o600,
+    )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let http = client(&fixture, http2)?;
     rejected(&http, &resource, http2).await?;
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 9);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 0);
+    assert_eq!(upstream.observations().verifies().load(Ordering::SeqCst), 9);
+    assert_eq!(upstream.observations().executes().load(Ordering::SeqCst), 0);
     authorization(&http, &resource).await?;
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 9);
+    assert_eq!(upstream.observations().verifies().load(Ordering::SeqCst), 9);
     let (status, headers, bytes) = stalled(&fixture, &resource, http2).await?;
     rejection(status, &headers, &bytes);
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 10);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 0);
+    assert_eq!(
+        upstream.observations().verifies().load(Ordering::SeqCst),
+        10
+    );
+    assert_eq!(upstream.observations().executes().load(Ordering::SeqCst), 0);
     recovery(&http, &resource, http2, &upstream).await?;
     for stage in [
         backend::PendingStage::Verification,
         backend::PendingStage::Execution,
     ] {
-        assert_eq!(upstream.observations.pending_count(stage), 0);
+        assert_eq!(upstream.observations().pending_count(stage), 0);
     }
     fixture.ready(&mut process).await?;
     process.signal(Signal::TERM)?;

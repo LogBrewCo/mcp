@@ -31,9 +31,9 @@ pub(super) enum PendingStage {
 }
 
 pub(super) struct Observations {
-    pub active: AtomicBool,
-    pub verifies: AtomicUsize,
-    pub executes: AtomicUsize,
+    active: AtomicBool,
+    verifies: AtomicUsize,
+    executes: AtomicUsize,
     pause: AtomicBool,
     pending: Arc<AtomicUsize>,
     verification_pause: AtomicBool,
@@ -51,6 +51,18 @@ impl Drop for PendingGuard {
 }
 
 impl Observations {
+    pub const fn active(&self) -> &AtomicBool {
+        &self.active
+    }
+
+    pub const fn verifies(&self) -> &AtomicUsize {
+        &self.verifies
+    }
+
+    pub const fn executes(&self) -> &AtomicUsize {
+        &self.executes
+    }
+
     const fn stage(&self, stage: PendingStage) -> (&AtomicBool, &Arc<AtomicUsize>) {
         match stage {
             PendingStage::Verification => (&self.verification_pause, &self.verification_pending),
@@ -92,9 +104,9 @@ async fn pending_count(observed: &Observations, stage: PendingStage, count: usiz
 }
 
 pub(super) struct Backend {
-    pub endpoint: String,
-    pub certificate: String,
-    pub observations: Arc<Observations>,
+    endpoint: String,
+    certificate: String,
+    observations: Arc<Observations>,
     handle: axum_server::Handle<SocketAddr>,
     task: tokio::task::JoinHandle<std::io::Result<()>>,
 }
@@ -107,6 +119,18 @@ impl Drop for Backend {
 }
 
 impl Backend {
+    pub const fn endpoint(&self) -> &str {
+        self.endpoint.as_str()
+    }
+
+    pub const fn certificate(&self) -> &str {
+        self.certificate.as_str()
+    }
+
+    pub const fn observations(&self) -> &Arc<Observations> {
+        &self.observations
+    }
+
     /// # Errors
     ///
     /// Returns a listener, certificate, TLS configuration or startup timeout error.

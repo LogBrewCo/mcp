@@ -279,11 +279,12 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
     let mut upstream = backend::Backend::start(resource.clone()).await?;
-    configure(&fixture, &upstream.endpoint)?;
-    let roots =
-        fixture
-            .directory
-            .write("upstream-root.pem", upstream.certificate.as_bytes(), 0o600)?;
+    configure(&fixture, upstream.endpoint())?;
+    let roots = fixture.directory.write(
+        "upstream-root.pem",
+        upstream.certificate().as_bytes(),
+        0o600,
+    )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
     let http = client(&fixture, http2)?;
@@ -330,8 +331,8 @@ async fn contracts(http2: bool) -> TestResult<()> {
     let (status, reply) = request(&http, &resource, "tools/call", invalid, http2).await?;
     assert_eq!(status, reqwest::StatusCode::OK);
     drop(envelope(&reply, Some("invalid_input"))?);
-    assert_eq!(upstream.observations.verifies.load(Ordering::SeqCst), 7);
-    assert_eq!(upstream.observations.executes.load(Ordering::SeqCst), 2);
+    assert_eq!(upstream.observations().verifies().load(Ordering::SeqCst), 7);
+    assert_eq!(upstream.observations().executes().load(Ordering::SeqCst), 2);
     process.signal(Signal::TERM)?;
     assert!(process.wait().await?.success());
     drop(std::net::TcpListener::bind(fixture.address)?);
@@ -356,7 +357,10 @@ async fn revocation(
     let execution = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
     for attempt in 0_usize..3 {
         let active = attempt != 1;
-        upstream.observations.active.store(active, Ordering::SeqCst);
+        upstream
+            .observations()
+            .active()
+            .store(active, Ordering::SeqCst);
         let (status, reply) =
             request(http, resource, "tools/call", execution.clone(), http2).await?;
         if active {
@@ -369,11 +373,11 @@ async fn revocation(
             assert_eq!(status, reqwest::StatusCode::UNAUTHORIZED);
         }
         assert_eq!(
-            Some(upstream.observations.verifies.load(Ordering::SeqCst)),
+            Some(upstream.observations().verifies().load(Ordering::SeqCst)),
             attempt.checked_add(4)
         );
         assert_eq!(
-            upstream.observations.executes.load(Ordering::SeqCst),
+            upstream.observations().executes().load(Ordering::SeqCst),
             if attempt == 2 { 2 } else { 1 }
         );
     }

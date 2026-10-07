@@ -92,11 +92,7 @@ async fn stalled(fixture: &Fixture, resource: &str, http2: bool) -> TestResult<R
         .header("Mcp-Method", "tools/call")
         .header("Mcp-Name", "execute")
         .body(UnsentBody)?;
-    let io = TokioIo::new(
-        fixture
-            .tls_protocol(if http2 { Some(b"h2") } else { None })
-            .await?,
-    );
+    let io = TokioIo::new(fixture.tls_protocol(http2.then_some(b"h2")).await?);
     if http2 {
         let (mut sender, connection) =
             hyper::client::conn::http2::handshake(TokioExecutor::new(), io).await?;

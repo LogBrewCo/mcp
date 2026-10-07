@@ -12,7 +12,7 @@ pub use errors::fixed_header_error;
 mod identifiers;
 pub use identifiers::{prepare_id, restore_id};
 
-pub fn prepare(headers: &mut HeaderMap, body: &Value) -> Option<Response> {
+pub fn prepare_media(headers: &mut HeaderMap) -> Option<Response> {
     if !crate::media::json(headers) {
         return Some((StatusCode::UNSUPPORTED_MEDIA_TYPE, "invalid content type").into_response());
     }
@@ -29,6 +29,10 @@ pub fn prepare(headers: &mut HeaderMap, body: &Value) -> Option<Response> {
         header::ACCEPT,
         HeaderValue::from_static("application/json, text/event-stream"),
     ));
+    None
+}
+
+pub fn prepare(headers: &HeaderMap, body: &Value) -> Option<Response> {
     if body.get("jsonrpc").and_then(Value::as_str) != Some("2.0")
         || body.get("method").and_then(Value::as_str).is_none()
         || body.get("result").is_some()

@@ -177,6 +177,71 @@ impl http_body::Body for UnreadBody {
 
 #[tokio::test]
 /// # Panics
+/// Fails if rejecting unsupported media or Accept values polls a stalled body,
+/// changes the fixed rejection, executes, or prevents a valid request afterward.
+async fn media_rejection_does_not_poll_a_stalled_request_body() {
+    let fixture = Fixture::new().await.expect("fixture");
+    for (name, value, expected, message) in [
+        (
+            header::CONTENT_TYPE,
+            "text/plain",
+            reqwest::StatusCode::UNSUPPORTED_MEDIA_TYPE,
+            "invalid content type",
+        ),
+        (
+            header::ACCEPT,
+            "application/json",
+            reqwest::StatusCode::NOT_ACCEPTABLE,
+            "invalid accept types",
+        ),
+    ] {
+        let polled = Arc::new(AtomicBool::new(false));
+        let mut request = request_message(1, "tools/call", params(), TOKEN).expect("request");
+        drop(
+            request
+                .headers_mut()
+                .insert(name, HeaderValue::from_static(value)),
+        );
+        *request.body_mut() = Body::new(UnreadBody(Arc::clone(&polled)));
+        let response = tokio::time::timeout(
+            Duration::from_secs(1),
+            fixture.router().clone().oneshot(request),
+        )
+        .await
+        .expect("rejection without body input")
+        .expect("response");
+        assert_eq!(response.status(), expected);
+        assert_eq!(
+            response
+                .headers()
+                .get(header::CACHE_CONTROL)
+                .expect("cache"),
+            "no-store"
+        );
+        assert!(response.headers().get(header::ACCEPT_ENCODING).is_none());
+        assert_eq!(
+            to_bytes(response.into_body(), 128)
+                .await
+                .expect("fixed error"),
+            message
+        );
+        assert!(!polled.load(Ordering::SeqCst));
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    }
+    let (status, value) = fixture
+        .request("tools/call", params(), TOKEN)
+        .await
+        .expect("recovery");
+    assert_eq!(status, reqwest::StatusCode::OK);
+    assert_eq!(
+        value.pointer("/result/structuredContent/data/count"),
+        Some(&json!(3_i32))
+    );
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+}
+
+#[tokio::test]
+/// # Panics
 /// Fails if rejecting unsupported coding waits for or polls its body, executes,
 /// or prevents a later authenticated request from returning complete data.
 async fn coding_rejection_does_not_poll_a_stalled_request_body() {

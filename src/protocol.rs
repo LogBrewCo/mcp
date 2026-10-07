@@ -409,13 +409,16 @@ async fn prepared_request(mut request: Request, next: Next) -> Response {
                 .into_response();
         }
         let (mut parts, body) = request.into_parts();
+        if let Some(response) = transport::prepare_media(&mut parts.headers) {
+            return response;
+        }
         let Ok(bytes) = to_bytes(body, REQUEST_BYTES).await else {
             return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();
         };
         let Ok(mut value) = strict_json::object(&bytes, REQUEST_BYTES) else {
             return transport::rejected_json(&bytes);
         };
-        if let Some(response) = transport::prepare(&mut parts.headers, &value) {
+        if let Some(response) = transport::prepare(&parts.headers, &value) {
             return response;
         }
         original_id = transport::prepare_id(&mut value);

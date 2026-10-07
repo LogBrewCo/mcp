@@ -413,7 +413,7 @@ async fn prepared_request(mut request: Request, next: Next) -> Response {
             return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();
         };
         let Ok(mut value) = strict_json::object(&bytes, REQUEST_BYTES) else {
-            return (StatusCode::BAD_REQUEST, "invalid JSON request").into_response();
+            return transport::rejected_json(&bytes);
         };
         if let Some(response) = transport::prepare(&mut parts.headers, &value) {
             return response;

@@ -5,7 +5,7 @@ use axum::{
     http::{HeaderMap, HeaderValue, StatusCode, header},
     response::{IntoResponse as _, Response},
 };
-use serde_json::{Value, json};
+use serde_json::{Value, json, value::RawValue};
 
 mod errors;
 pub use errors::fixed_header_error;
@@ -45,6 +45,17 @@ pub fn prepare(headers: &mut HeaderMap, body: &Value) -> Option<Response> {
 
 fn valid_id(id: &Value) -> bool {
     identifiers::valid(id)
+}
+
+// Syntax validation borrows the bounded body without accepting duplicate keys,
+// wrong roots or values outside the strict parser's budgets for dispatch.
+pub fn rejected_json(bytes: &[u8]) -> Response {
+    let (code, message) = if serde_json::from_slice::<&RawValue>(bytes).is_ok() {
+        (-32_600_i32, "invalid client request")
+    } else {
+        (-32_700_i32, "invalid JSON request")
+    };
+    rpc_error(&Value::Null, code, message)
 }
 
 fn rpc_error(body: &Value, code: i32, message: &str) -> Response {

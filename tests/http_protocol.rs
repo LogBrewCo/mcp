@@ -40,6 +40,8 @@ mod peer;
 mod raw_upstream;
 #[path = "cases/request_encoding.rs"]
 mod request_encoding;
+#[path = "cases/request_json.rs"]
+mod request_json;
 #[path = "support/runtime.rs"]
 mod runtime;
 #[path = "cases/scopes.rs"]

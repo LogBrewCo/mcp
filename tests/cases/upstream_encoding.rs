@@ -15,6 +15,21 @@ use super::{
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_CODING_MARKER";
 
+/// Read completion state without exposing the fixture result or its error.
+fn receipt_state(done: &mut oneshot::Receiver<TestResult<()>>) -> &'static str {
+    match done.try_recv() {
+        Ok(result) => {
+            if result.is_ok() {
+                "completed"
+            } else {
+                "failed"
+            }
+        }
+        Err(oneshot::error::TryRecvError::Empty) => "pending",
+        Err(oneshot::error::TryRecvError::Closed) => "closed",
+    }
+}
+
 /// Queue a synthetic response with complete headers and optional body data.
 ///
 /// # Errors
@@ -72,21 +87,25 @@ async fn observe(
     raw: &Raw,
     execute: bool,
     rejected: bool,
-    done: oneshot::Receiver<TestResult<()>>,
+    mut done: oneshot::Receiver<TestResult<()>>,
 ) -> TestResult<()> {
-    let observation_error = |stage: &str, error: &tokio::time::error::Elapsed| {
+    let observation_error = |stage: &str, error: &tokio::time::error::Elapsed, receipt: &str| {
         std::io::Error::other(format!(
-            "{stage} observation timeout: {error}; completed TLS handshakes={}, complete requests={}",
+            "{stage} observation timeout: {error}; completed TLS handshakes={}, complete requests={}, fixture receipt={receipt}",
             raw.handshakes().load(Ordering::SeqCst),
             raw.requests().load(Ordering::SeqCst)
         ))
     };
     let result = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
         .await
-        .map_err(|error| observation_error("upstream operation", &error))?;
-    timeout(Duration::from_secs(2), done)
+        .map_err(|error| {
+            observation_error("upstream operation", &error, receipt_state(&mut done))
+        })?;
+    timeout(Duration::from_secs(2), &mut done)
         .await
-        .map_err(|error| observation_error("fixture completion", &error))???;
+        .map_err(|error| {
+            observation_error("fixture completion", &error, receipt_state(&mut done))
+        })???;
     if rejected {
         let failure = result.err().ok_or("unsupported upstream coding accepted")?;
         assert_eq!(failure.kind, Kind::Unavailable);
@@ -235,4 +254,35 @@ async fn introspection_http2_coding_rejection_and_recovery() -> TestResult<()> {
 /// Panics if execution data, failure classification or diagnostic privacy changes.
 async fn execution_http2_coding_rejection_and_recovery() -> TestResult<()> {
     exercise(true, true).await
+}
+
+#[tokio::test]
+/// # Errors
+/// Returns a fixture, receipt, timeout-observation or shutdown error.
+///
+/// # Panics
+/// Panics if a completed fixture failure is lost or exposes private diagnostics.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "The regression retains assertion diagnostics for timeout state and privacy. The old behavior fails this test. Reviewed 2026-10-08; review by 2026-11-08 or on fixture change."
+)]
+async fn completed_fixture_failure_is_private_on_operation_timeout() -> TestResult<()> {
+    let mut raw = Raw::http2()?;
+    let (sender, done) = oneshot::channel();
+    if sender
+        .send(Err(std::io::Error::other(MARKER).into()))
+        .is_err()
+    {
+        return Err("fixture observer closed".into());
+    }
+    // No exchange is queued: the real TLS operation cannot complete.
+    let error = observe(&raw, false, false, done)
+        .await
+        .err()
+        .ok_or("stalled operation unexpectedly completed")?;
+    let description = error.to_string();
+    assert!(description.contains("upstream operation observation timeout"));
+    assert!(description.contains("fixture receipt=failed"));
+    assert!(!description.contains(MARKER));
+    raw.finish().await
 }

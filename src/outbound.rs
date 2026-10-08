@@ -8,6 +8,7 @@ use core::{
     task::{Context, Poll},
     time::Duration,
 };
+use std::io;
 
 use axum::{
     body::Bytes,
@@ -23,7 +24,7 @@ use hyper_util::{
 use rustls::pki_types::CertificateDer;
 use tower_service::Service;
 
-use crate::{Failure, error::Kind};
+use crate::{Failure, deadline, error::Kind};
 
 pub type Response = axum::http::Response<Incoming>;
 type Connector = HttpsConnector<HttpConnector>;
@@ -46,8 +47,22 @@ impl Service<Uri> for ConnectDeadline {
 
     fn call(&mut self, req: Uri) -> Self::Future {
         let connecting = self.0.call(req);
-        Box::pin(async move { tokio::time::timeout(Duration::from_secs(5), connecting).await? })
+        Box::pin(connect(Duration::from_secs(5), connecting))
     }
+}
+
+/// Apply the connection budget to the connector's complete result.
+///
+/// # Errors
+/// Returns the original connector error, or `TimedOut` if the budget expires or
+/// cannot be represented. Rejects a poll that completes after its deadline.
+async fn connect<T, Connecting>(budget: Duration, connecting: Connecting) -> Result<T, ConnectError>
+where
+    Connecting: Future<Output = Result<T, ConnectError>>,
+{
+    deadline::within(budget, connecting)
+        .await
+        .ok_or_else(|| -> ConnectError { io::Error::from(io::ErrorKind::TimedOut).into() })?
 }
 
 pub struct Outbound {
@@ -133,3 +148,6 @@ impl Outbound {
             .map_err(Failure::redact(Kind::Unavailable))
     }
 }
+
+#[cfg(test)]
+mod tests;

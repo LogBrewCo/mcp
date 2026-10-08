@@ -1,6 +1,6 @@
 //! Declared upstream content coding controls JSON interpretation.
 
-use core::time::Duration;
+use core::{sync::atomic::Ordering, time::Duration};
 use std::io::Write as _;
 
 use logbrew_mcp::error::Kind;
@@ -74,8 +74,19 @@ async fn observe(
     rejected: bool,
     done: oneshot::Receiver<TestResult<()>>,
 ) -> TestResult<()> {
-    let result = timeout(Duration::from_secs(2), operation(raw.upstream(), execute)).await?;
-    timeout(Duration::from_secs(2), done).await???;
+    let observation_error = |stage: &str, error: &tokio::time::error::Elapsed| {
+        std::io::Error::other(format!(
+            "{stage} observation timeout: {error}; completed TLS handshakes={}, complete requests={}",
+            raw.handshakes().load(Ordering::SeqCst),
+            raw.requests().load(Ordering::SeqCst)
+        ))
+    };
+    let result = timeout(Duration::from_secs(2), operation(raw.upstream(), execute))
+        .await
+        .map_err(|error| observation_error("upstream operation", &error))?;
+    timeout(Duration::from_secs(2), done)
+        .await
+        .map_err(|error| observation_error("fixture completion", &error))???;
     if rejected {
         let failure = result.err().ok_or("unsupported upstream coding accepted")?;
         assert_eq!(failure.kind, Kind::Unavailable);

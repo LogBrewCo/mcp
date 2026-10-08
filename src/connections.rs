@@ -14,7 +14,7 @@ use axum_server::accept::Accept;
 use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
     sync::{OwnedSemaphorePermit, Semaphore},
-    time::{Sleep, sleep},
+    time::{Instant, Sleep, sleep},
 };
 use tokio_util::sync::{CancellationToken, WaitForCancellationFutureOwned};
 use tower_service::Service;
@@ -88,6 +88,23 @@ impl<S> LimitedStream<S> {
         }
         Ok(())
     }
+
+    /// Check the protocol cutoff even before the timer driver reports completion.
+    ///
+    /// # Errors
+    /// Returns `TimedOut` after the protocol detection budget expires.
+    fn check_protocol(&mut self, context: &mut Context<'_>) -> io::Result<()> {
+        if self.prefix.as_mut().is_some_and(|prefix| {
+            Instant::now() >= prefix.timer.deadline()
+                || prefix.timer.as_mut().poll(context).is_ready()
+        }) {
+            return Err(io::Error::new(
+                io::ErrorKind::TimedOut,
+                "protocol detection deadline exceeded",
+            ));
+        }
+        Ok(())
+    }
 }
 
 impl<A, I, S> Accept<I, S> for ConnectionLimit<A>
@@ -143,18 +160,15 @@ impl<S: AsyncRead + Unpin> AsyncRead for LimitedStream<S> {
         if buf.remaining() == 0 {
             return Poll::Ready(Ok(()));
         }
-        if this
-            .prefix
-            .as_mut()
-            .is_some_and(|prefix| prefix.timer.as_mut().poll(cx).is_ready())
-        {
-            return Poll::Ready(Err(io::Error::new(
-                io::ErrorKind::TimedOut,
-                "protocol detection deadline exceeded",
-            )));
-        }
+        this.check_protocol(cx)?;
         let filled = buf.filled().len();
         let result = Pin::new(&mut this.inner).poll_read(cx, buf);
+        // A completed poll can cross the cutoff. Reject its bytes before
+        // protocol selection clears the timer, preserving earlier buffer data.
+        if let Err(failure) = this.check_protocol(cx) {
+            buf.set_filled(filled);
+            return Poll::Ready(Err(failure));
+        }
         if matches!(result, Poll::Ready(Ok(()))) {
             detect_prefix(
                 &mut this.prefix,
@@ -230,3 +244,6 @@ impl<S: AsyncWrite + Unpin> AsyncWrite for LimitedStream<S> {
         Pin::new(&mut this.inner).poll_write_vectored(cx, bufs)
     }
 }
+
+#[cfg(test)]
+mod tests;

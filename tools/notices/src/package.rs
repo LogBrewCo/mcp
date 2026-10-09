@@ -45,16 +45,16 @@ impl Target {
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-struct FileBinding {
-    bytes: u64,
-    sha256: String,
+pub struct FileBinding {
+    pub bytes: u64,
+    pub sha256: String,
 }
 
 impl FileBinding {
     /// # Errors
     /// Rejects zero or excessive size and a checksum that is not 64 lowercase
     /// hexadecimal characters.
-    fn validate(&self, limit: u64) -> Result<()> {
+    pub fn validate(&self, limit: u64) -> Result<()> {
         if self.bytes == 0 || self.bytes > limit || !hex(&self.sha256, 64) {
             return Err(error("invalid package file binding"));
         }
@@ -64,7 +64,7 @@ impl FileBinding {
     /// # Errors
     /// Returns an error for bounded file-read failure or a
     /// byte-count or checksum mismatch.
-    fn read(&self, path: &Path, limit: u64) -> Result<Vec<u8>> {
+    pub fn read(&self, path: &Path, limit: u64) -> Result<Vec<u8>> {
         let bytes = input::read(path, limit)?;
         if u64::try_from(bytes.len())? != self.bytes || checksum(&bytes)? != self.sha256 {
             return Err(error("package input differs from its trusted binding"));
@@ -94,7 +94,7 @@ struct Plan {
     required_linked_notices: Option<FileBinding>,
 }
 
-fn hex(value: &str, length: usize) -> bool {
+pub fn hex(value: &str, length: usize) -> bool {
     value.len() == length
         && value
             .bytes()
@@ -143,9 +143,9 @@ impl Plan {
     }
 }
 
-struct Output {
-    bytes: Vec<u8>,
-    limit: usize,
+pub struct Output {
+    pub bytes: Vec<u8>,
+    pub limit: usize,
 }
 
 impl io::Write for Output {
@@ -170,11 +170,17 @@ impl io::Write for Output {
     }
 }
 
-type Builder = tar::Builder<GzEncoder<Output>>;
+pub type Builder = tar::Builder<GzEncoder<Output>>;
 
 /// # Errors
 /// Propagates size conversion, tar-path encoding, and archive-write errors.
-fn append(builder: &mut Builder, prefix: &str, path: &str, bytes: &[u8], mode: u32) -> Result<()> {
+pub fn append(
+    builder: &mut Builder,
+    prefix: &str,
+    path: &str,
+    bytes: &[u8],
+    mode: u32,
+) -> Result<()> {
     let mut header = tar::Header::new_ustar();
     header.set_size(u64::try_from(bytes.len())?);
     header.set_mode(mode);

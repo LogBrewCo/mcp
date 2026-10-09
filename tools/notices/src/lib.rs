@@ -7,6 +7,7 @@ mod input;
 mod package;
 mod policy;
 mod publication;
+mod relink;
 mod supplement;
 mod toolchain;
 
@@ -24,6 +25,18 @@ use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
 type Result<T> = core::result::Result<T, Box<dyn core::error::Error>>;
+
+/// Export bound GNU linker inputs with checked relative-path mappings.
+///
+/// # Errors
+/// Rejects an invalid plan, changed or unsafe archive inputs, unsupported
+/// response arguments, selected private markers, and publication failures.
+pub fn relink<Args>(args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
+    relink::run(args)
+}
 
 /// Run the pinned offline dependency policy gate from one executable argument.
 ///

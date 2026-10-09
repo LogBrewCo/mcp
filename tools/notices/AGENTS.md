@@ -168,6 +168,58 @@ Modified-header outputs can differ. This recipe supplies object rebuild inputs;
 the complete library source, application objects, final link command, recipient
 execution, and license permissions remain separate release requirements.
 
+## GNU final-link inputs
+
+Export a checksum-bound plain tar archive produced by LLD 23.1.3 `--reproduce`:
+
+```sh
+cargo run --locked --offline --bin logbrew-mcp-relink -- /absolute/path/to/relink-plan.json /absolute/path/to/capture.tar /absolute/path/to/relink.tar.gz
+```
+
+The strict plan uses `format_version: 1`, this package's `package_version` and
+`rust_release`, `build_identity` (`development` or the package version), a
+40-character lowercase hexadecimal `source_revision`, and a supported GNU
+`target` (`aarch64-unknown-linux-gnu` or `x86_64-unknown-linux-gnu`).
+`input_archive` and `reference_binary` each contain `bytes` and `sha256`.
+The reference binary binding is operator-supplied metadata; the exporter does
+not read or execute that binary. `linker` contains `version: "23.1.3"` and
+`source_commit: "0d261d1ca552c95a8f007e061c787ac7132fbcbc"`. The archived
+`version.txt` must match that exact LLD identity. `archive_root` names the
+capture's single top-level directory. `path_maps` contains at most 32 objects
+with relative `from` and `to` prefixes. Source prefixes must be distinct and
+nonoverlapping; every map must occur in an input or search-directory argument.
+`private_path_markers` contains 1 to 16 nonempty ASCII strings of at most
+256 bytes each. Unknown and duplicate fields fail.
+
+Mappings replace complete path components in archive paths and response input
+and search-directory arguments. Other input bytes remain unchanged. Standard
+GNU library paths can remain in place for captured linker scripts. The response
+must contain exactly one `--chroot .`, target-matching `-m` and runtime loader,
+one `-o`, and at least one captured input. GNU quotes and escapes are parsed and
+written as quoted arguments, one per line. Unterminated quotes, incomplete
+escapes, nested response files and unknown options fail. Supported flags are
+`-EL`, `--eh-frame-hdr`, `-pie`, `--fix-cortex-a53-843419`, `--as-needed`,
+`-Bstatic`, `-Bdynamic`, `--gc-sections`, `--strip-all`; operands are `-L`,
+`-l`, `-z` (`relro`, `now`, `noexecstack`), `--hash-style gnu`, `-O 1`,
+`--Map`, `--dependency-file`, and `--why-extract` (also `--why-extract=PATH`).
+Output paths must be relative and must not overwrite inputs or the manifest.
+
+The exporter reads bounded regular inputs without extracting or executing them.
+Limits are 16 KiB per plan, 64 MiB per archive and combined input payload,
+1024 regular files, 32 MiB per file, 2 MiB of input path text, and 128 KiB per
+original or rewritten response. Links, special files, duplicate paths, unsafe
+paths, destination collisions and nonzero trailing tar data fail. Every output
+path, file body and manifest is checked for the selected private markers. This
+check covers those exact strings; it does not prove absence of all private data.
+
+The deterministic output contains `relink/` files and a size/checksum manifest.
+Publication uses the shared atomic writer and rejects input aliases. Failure
+before replacement preserves the previous output. Run the verified linker with
+`@response.txt` from the extracted `relink` directory, then independently verify
+the output binary binding. Unchanged executable reproduction, complete
+corresponding source, source modification and relinking, and license permissions
+remain external requirements. Exporting inputs does not complete a release.
+
 ## Binary archives
 
 Use an operator-verified packaging plan. Its format_version is 1, 2, 3 or 4 and its

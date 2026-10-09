@@ -151,6 +151,23 @@ does not supply the recipient's notice. This check does not establish license
 permissions or complete linked-component coverage.
 Verify the remaining corresponding-source and relinking materials before release.
 
+`licenses/gnu-header-rebuild-recipe.json` records the two header-dependent
+AWS-LC C inputs, their reference objects, and the Clang 23.1.3 build arguments
+for the recorded GNU target. Replace each named root in an argument with its
+local absolute directory. The `source` root contains the verified extracted
+AWS-LC registry archive. The `headers` root contains the complete matching
+`bits/stdlib-bsearch.h`; `objects` and `dependencies` are output directories.
+Append `per_source_arguments` after `arguments`, replacing `source_path` and
+`object` with that source record's values. Pass the resulting argument array
+directly to the verified compiler without shell expansion.
+
+Verify the archive, every compiled source and include input, the complete header,
+and the compiler version and source commit before using the recipe. With the
+unmodified header, both outputs must match their reference-object bindings.
+Modified-header outputs can differ. This recipe supplies object rebuild inputs;
+the complete library source, application objects, final link command, recipient
+execution, and license permissions remain separate release requirements.
+
 ## Binary archives
 
 Use an operator-verified packaging plan. Its format_version is 1, 2, 3 or 4 and its

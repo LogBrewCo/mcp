@@ -57,35 +57,54 @@ async fn response(
 /// # Panics
 ///
 /// Panics if unsupported versions change their negotiation status, code, requested
-/// or supported versions, or start execution.
+/// or supported versions, start execution, or prevent supported-version recovery.
 async fn unsupported_versions_return_modern_negotiation_errors() {
     let fixture = Fixture::new().await.expect("fixture");
-    let mut value = body();
-    *value
-        .pointer_mut("/params/_meta/io.modelcontextprotocol~1protocolVersion")
-        .expect("version") = json!("1900-01-01");
-    let mut request = request(&value).expect("request");
-    drop(request.headers_mut().insert(
-        "mcp-protocol-version",
-        "1900-01-01".parse().expect("version header"),
-    ));
-    let (status, response, _, _) = response(&fixture, request)
+    for version in [
+        "1900-01-01",
+        "2024-11-05",
+        "2025-03-26",
+        "2025-06-18",
+        "2025-11-25",
+    ] {
+        let mut value = body();
+        *value
+            .pointer_mut("/params/_meta/io.modelcontextprotocol~1protocolVersion")
+            .expect("version") = json!(version);
+        let mut request = request(&value).expect("request");
+        drop(request.headers_mut().insert(
+            "mcp-protocol-version",
+            version.parse().expect("version header"),
+        ));
+        let (status, response, _, _) = response(&fixture, request)
+            .await
+            .expect("negotiation response");
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
+        assert_eq!(
+            response.pointer("/error/data/requested"),
+            Some(&json!(version))
+        );
+        assert_eq!(
+            response.pointer("/error/data/supported"),
+            Some(&json!(["2026-07-28"]))
+        );
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    }
+    let (status, response) = fixture
+        .request(
+            "tools/call",
+            json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}}),
+            TOKEN,
+        )
         .await
-        .expect("negotiation response");
-    assert_eq!(status, StatusCode::BAD_REQUEST);
-    assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
+        .expect("supported version recovery");
+    assert_eq!(status, StatusCode::OK);
     assert_eq!(
-        response.pointer("/error/data/requested"),
-        Some(&json!("1900-01-01"))
+        response.pointer("/result/structuredContent/data/count"),
+        Some(&json!(3_i32))
     );
-    assert!(
-        response
-            .pointer("/error/data/supported")
-            .and_then(Value::as_array)
-            .expect("supported versions")
-            .contains(&json!("2026-07-28"))
-    );
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
 }
 
 #[tokio::test]

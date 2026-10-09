@@ -1,6 +1,6 @@
 //! Exactly two tools behind request-bound authorization and host checks.
 
-use alloc::sync::Arc;
+use alloc::{borrow::Cow, sync::Arc};
 use core::time::Duration;
 
 use axum::{
@@ -16,8 +16,8 @@ use rmcp::{
     ErrorData, RoleServer, ServerHandler,
     model::{
         CallToolRequestParams, CallToolResponse, CallToolResult, CustomRequest, CustomResult,
-        ErrorCode, ListToolsResult, PaginatedRequestParams, ServerCapabilities, ServerConfig, Tool,
-        ToolAnnotations,
+        ErrorCode, ListToolsResult, PaginatedRequestParams, ProtocolVersion, ServerCapabilities,
+        ServerConfig, Tool, ToolAnnotations,
     },
     service::RequestContext,
     transport::streamable_http_server::{
@@ -40,6 +40,8 @@ use crate::{
     transport,
     upstream::{AuthorizationFailure, Principal, Upstream, canonical_https},
 };
+
+const SUPPORTED_PROTOCOL_VERSIONS: &[ProtocolVersion] = &[ProtocolVersion::V_2026_07_28];
 
 #[derive(Clone)]
 struct Authority {
@@ -77,6 +79,10 @@ enum ToolKind {
 }
 
 impl ServerHandler for Tools {
+    fn supported_protocol_versions(&self) -> Cow<'static, [ProtocolVersion]> {
+        Cow::Borrowed(SUPPORTED_PROTOCOL_VERSIONS)
+    }
+
     fn get_info(&self) -> ServerConfig {
         ServerConfig::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
             rmcp::model::Implementation::new("logbrew-mcp", "development"),

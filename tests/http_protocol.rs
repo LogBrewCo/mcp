@@ -76,8 +76,8 @@ type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if fixture setup or discovery fails, the advertised capabilities or
-/// completion state changes, or the inventory differs from search and execute.
+/// Panics if fixture setup or discovery fails, the advertised versions,
+/// capabilities or completion state change, or the tool inventory changes.
 async fn discovery_and_tool_inventory_are_self_contained() {
     let fixture = Fixture::new().await.expect("fixture");
     let (discovery_status, discovery_response) = fixture
@@ -85,6 +85,10 @@ async fn discovery_and_tool_inventory_are_self_contained() {
         .await
         .expect("discovery");
     assert_eq!(discovery_status, StatusCode::OK);
+    assert_eq!(
+        discovery_response.pointer("/result/supportedVersions"),
+        Some(&json!(["2026-07-28"]))
+    );
     assert_eq!(
         discovery_response.pointer("/result/capabilities"),
         Some(&json!({"tools":{}}))

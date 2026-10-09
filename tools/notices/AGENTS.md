@@ -172,6 +172,13 @@ the explicit include directories. Missing headers must fail the rebuild; do not
 add unchecked host include paths to make it succeed. The manifest describes
 unmodified inputs. Record a modified complete header's binding separately.
 
+Each `clang_headers` record also identifies its complete upstream source file
+at the compiler's recorded commit. Verify that file against the existing size
+and checksum, and preserve its source comments. The manifest's
+`compiler.source_license` binds the complete `clang/LICENSE.TXT` from that commit
+to `licenses/clang-23.1.3.txt`. Include that exact text with recipient materials.
+These source bindings do not establish complete distribution permissions.
+
 Verify the archive, every compiled source and include input, the complete header,
 and the compiler version and source commit before using the recipe. With the
 unmodified header, both outputs must match their reference-object bindings.

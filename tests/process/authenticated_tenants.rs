@@ -64,9 +64,9 @@ enum Transport {
     SharedHttp2(multiplexed::Connection),
 }
 
-struct Execution<'a> {
+struct Execution<'resource> {
     transport: Transport,
-    resource: &'a str,
+    resource: &'resource str,
 }
 
 impl Execution<'_> {

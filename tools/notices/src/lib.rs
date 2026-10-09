@@ -42,7 +42,7 @@ fn error(message: &str) -> Box<dyn core::error::Error> {
 
 /// # Errors
 /// Returns an error if the requested field is absent or is not a string.
-fn string<'a>(value: &'a Value, key: &str) -> Result<&'a str> {
+fn string<'value>(value: &'value Value, key: &str) -> Result<&'value str> {
     value
         .get(key)
         .and_then(Value::as_str)

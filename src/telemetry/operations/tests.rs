@@ -42,7 +42,10 @@ fn observer() -> Telemetry {
 ///
 /// # Panics
 /// Panics if the requested operation is absent from the supplied snapshot.
-fn execution<'a>(snapshot: &'a CatalogSnapshot, id: &str) -> &'a StageSnapshot {
+fn execution<'snapshot>(
+    snapshot: &'snapshot CatalogSnapshot,
+    id: &str,
+) -> &'snapshot StageSnapshot {
     &snapshot
         .executions
         .iter()

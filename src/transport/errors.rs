@@ -20,10 +20,10 @@ struct ErrorCode {
 }
 
 #[derive(Serialize)]
-struct FixedHeaderError<'a> {
+struct FixedHeaderError<'reply> {
     jsonrpc: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
-    id: Option<&'a RawValue>,
+    id: Option<&'reply RawValue>,
     error: ErrorData,
 }
 

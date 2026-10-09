@@ -64,14 +64,14 @@ pub fn prepare_id(body: &mut Value) -> Option<NumericId> {
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
-pub(super) struct Reply<'a> {
-    jsonrpc: &'a str,
+pub(super) struct Reply<'response> {
+    jsonrpc: &'response str,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    id: Option<&'a RawValue>,
+    id: Option<&'response RawValue>,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    result: Option<&'a RawValue>,
+    result: Option<&'response RawValue>,
     #[serde(default, borrow, deserialize_with = "present_raw")]
-    error: Option<&'a RawValue>,
+    error: Option<&'response RawValue>,
 }
 
 impl Reply<'_> {
@@ -105,13 +105,13 @@ where
 }
 
 #[derive(Serialize)]
-struct Restored<'a> {
-    jsonrpc: &'a str,
-    id: &'a Value,
+struct Restored<'reply> {
+    jsonrpc: &'reply str,
+    id: &'reply Value,
     #[serde(skip_serializing_if = "Option::is_none")]
-    result: Option<&'a RawValue>,
+    result: Option<&'reply RawValue>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    error: Option<&'a RawValue>,
+    error: Option<&'reply RawValue>,
 }
 
 pub async fn restore_id(original: Option<NumericId>, response: Response) -> Response {

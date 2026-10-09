@@ -80,9 +80,9 @@ impl TextBudget {
     /// # Errors
     /// Returns an error when any string fails admission to the shared text and
     /// count budgets.
-    fn strings<'a, Values>(&mut self, values: Values) -> Result<Vec<&'a str>>
+    fn strings<'text, Values>(&mut self, values: Values) -> Result<Vec<&'text str>>
     where
-        Values: Iterator<Item = &'a str>,
+        Values: Iterator<Item = &'text str>,
     {
         let mut result = Vec::new();
         for value in values {

@@ -36,7 +36,7 @@ impl File {
 
 /// # Errors
 /// Returns an error if the named field is absent or is not a JSON object.
-fn object<'a>(value: &'a Value, key: &str) -> Result<&'a Map<String, Value>> {
+fn object<'value>(value: &'value Value, key: &str) -> Result<&'value Map<String, Value>> {
     value
         .get(key)
         .and_then(Value::as_object)
@@ -53,7 +53,7 @@ const fn writer() -> Output {
 /// # Errors
 /// Rejects absent, empty, or oversized text and a mismatched byte count or
 /// checksum.
-fn text<'a>(record: &Value, text: &'a str, limit: usize) -> Result<&'a str> {
+fn text<'text>(record: &Value, text: &'text str, limit: usize) -> Result<&'text str> {
     if text.trim().is_empty()
         || text.len() > limit
         || record.get("bytes").and_then(Value::as_u64) != Some(u64::try_from(text.len())?)

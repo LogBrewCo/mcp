@@ -4,8 +4,8 @@
       "name": "glibc-headers",
       "notices": [
         {
-          "sha256": "dfa144594361abdaf81f5f61b70450bc95603ab065ed506d5588ff244988e930",
-          "text": "/* Perform binary search - inline version.\n   Copyright (C) 1991-2026 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */",
+          "sha256": "8866b8758a96c4bb80fb901bece064216ab2e0791edace0c696318871a5c2e4e",
+          "text": "/* Perform binary search - inline version.\n   Copyright (C) 1991-2026 Free Software Foundation, Inc.\n   This file is part of the GNU C Library.\n\n   The GNU C Library is free software; you can redistribute it and/or\n   modify it under the terms of the GNU Lesser General Public\n   License as published by the Free Software Foundation; either\n   version 2.1 of the License, or (at your option) any later version.\n\n   The GNU C Library is distributed in the hope that it will be useful,\n   but WITHOUT ANY WARRANTY; without even the implied warranty of\n   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n   Lesser General Public License for more details.\n\n   You should have received a copy of the GNU Lesser General Public\n   License along with the GNU C Library; if not, see\n   <https://www.gnu.org/licenses/>.  */\n\n__extern_inline void *\nbsearch (const void *__key, const void *__base, size_t __nmemb, size_t __size,\n\t __compar_fn_t __compar)\n{\n  const void *__p;\n  int __comparison;\n\n  while (__nmemb)\n    {\n      __p = (const void *) (((const char *) __base) + ((__nmemb >> 1) * __size));\n      __comparison = (*__compar) (__key, __p);\n      if (__comparison == 0)\n\t{\n#if __GNUC_PREREQ(4, 6)\n# pragma GCC diagnostic push\n# pragma GCC diagnostic ignored \"-Wcast-qual\"\n#endif\n\t  return (void *) __p;\n#if __GNUC_PREREQ(4, 6)\n# pragma GCC diagnostic pop\n#endif\n\t}\n      if (__comparison > 0)\n\t{\n\t  __base = ((const char *) __p) + __size;\n\t  --__nmemb;\n\t}\n      __nmemb >>= 1;\n    }\n\n  return NULL;\n}\n",
           "upstream_path": "bits/stdlib-bsearch.h"
         },
         {
@@ -19,7 +19,7 @@
     }
   ],
   "format_version": 1,
-  "notice_text_scope": "leading_license_comment_and_complete_license",
+  "notice_text_scope": "complete_header_source_and_complete_license",
   "scope": "gnu_header_source_notices",
   "source_bindings": [
     {

@@ -138,15 +138,18 @@ supplement does not select licenses or prove complete linked-component coverage.
 
 GNU builds can compile header implementations into linked objects. Audit those
 contributions separately from startup objects and shared libraries. When a build
-includes the glibc `bsearch` header implementation, include its source notice and
-the complete LGPL text in the linked-target inventory. The components in
-`licenses/gnu-header-source-notices.json` preserve both texts for the recorded
-glibc source version. Verify the actual header version before using this asset
-for another build. Compare every applicable source-notice component with the
+includes the glibc `bsearch` header implementation, include its complete source
+file and the complete LGPL text in the linked-target inventory. The components in
+`licenses/gnu-header-source-notices.json` preserve both files for the recorded
+glibc source version. The header text must match its full-file source binding,
+including its license comment and implementation. Verify the actual header
+version before using this asset for another build. Compare every applicable
+source-notice component with the
 final inventory before packaging, then verify the exact texts in both the JSON
 inventory and its readable archive copy. A source asset outside the archive
 does not supply the recipient's notice. This check does not establish license
 permissions or complete linked-component coverage.
+Verify the remaining corresponding-source and relinking materials before release.
 
 ## Binary archives
 

@@ -178,7 +178,8 @@ async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResul
 /// # Panics
 ///
 /// Panics if omitted cursors or discovery extensions are rejected, private fields
-/// are echoed, response IDs or tool inventory change, or execution starts.
+/// are echoed, cache hints permit reuse or sharing, response IDs or tool inventory
+/// change, or execution starts.
 // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
 #[expect(
     clippy::panic_in_result_fn,
@@ -199,11 +200,24 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
             .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
         assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get("Cache-Control").expect("no-store"),
+            "no-store"
+        );
         let bytes = to_bytes(response.into_body(), 0x8000).await?;
         assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_"));
         let result: Value = serde_json::from_slice(&bytes)?;
         assert_eq!(result.get("id"), Some(&json!(1_i32)));
         assert!(result.get("error").is_none());
+        assert_eq!(
+            result.pointer("/result/resultType"),
+            Some(&json!("complete"))
+        );
+        assert_eq!(result.pointer("/result/ttlMs"), Some(&json!(0_u64)));
+        assert_eq!(
+            result.pointer("/result/cacheScope"),
+            Some(&json!("private"))
+        );
         assert_inventory(method, &result)?;
     }
     assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);

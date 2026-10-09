@@ -1,0 +1,849 @@
+{
+  "compiler": {
+    "name": "clang",
+    "source_commit": "0d261d1ca552c95a8f007e061c787ac7132fbcbc",
+    "version": "23.1.3"
+  },
+  "complete_corresponding_source": false,
+  "complete_distribution_permissions": false,
+  "complete_recipient_relinking_kit": false,
+  "files": [
+    {
+      "bytes": 467,
+      "path": "__stdarg___gnuc_va_list.h",
+      "root": "clang_headers",
+      "sha256": "feca975bfdfb254d17458a8e3d51f8ad6d9bdc9fd6287727f0f8b2fb81fcb0b0"
+    },
+    {
+      "bytes": 445,
+      "path": "__stdarg___va_copy.h",
+      "root": "clang_headers",
+      "sha256": "f0a8d3c963338173f2d57b2cbc209dde38c90536107b15eb0cf78166d4caee1f"
+    },
+    {
+      "bytes": 417,
+      "path": "__stdarg_header_macro.h",
+      "root": "clang_headers",
+      "sha256": "7b3fbcc442af2508f36bb2dc98d9ad2b8a1f5c0f5333394fb2159c8bd5ecd5b8"
+    },
+    {
+      "bytes": 771,
+      "path": "__stdarg_va_arg.h",
+      "root": "clang_headers",
+      "sha256": "274c75a1db86f649439aa3bcc1dead4170725e6f803925c3fc38a2e93307afdc"
+    },
+    {
+      "bytes": 451,
+      "path": "__stdarg_va_copy.h",
+      "root": "clang_headers",
+      "sha256": "bb195f56cb08d4cee6a60bd9f62f34466e8ac4f89f6fed043b044cb2f7ead010"
+    },
+    {
+      "bytes": 448,
+      "path": "__stdarg_va_list.h",
+      "root": "clang_headers",
+      "sha256": "81c3055f7033e26e7f53705653bc9d69b5202f25c2692e03b3a4f77ff44a7d76"
+    },
+    {
+      "bytes": 417,
+      "path": "__stddef_header_macro.h",
+      "root": "clang_headers",
+      "sha256": "4cf46e8fbb809df048eecbbd63686fa741da27afa8db4245bd1f61c1fb1611dc"
+    },
+    {
+      "bytes": 857,
+      "path": "__stddef_max_align_t.h",
+      "root": "clang_headers",
+      "sha256": "3c1e4de47f4f06b35e2c5890d670052e84f716760505ff51b022fc8b21a9400f"
+    },
+    {
+      "bytes": 875,
+      "path": "__stddef_null.h",
+      "root": "clang_headers",
+      "sha256": "b1d71b08563ab3d2c22a1e4f8ddf4d9a1111c89e9404b859a45c307e8ebc6c69"
+    },
+    {
+      "bytes": 708,
+      "path": "__stddef_offsetof.h",
+      "root": "clang_headers",
+      "sha256": "e5f0f4ff8ff5fc6a1cc8b535f5065f1728eadd2bf1e1401f021f803ec7b4222f"
+    },
+    {
+      "bytes": 717,
+      "path": "__stddef_ptrdiff_t.h",
+      "root": "clang_headers",
+      "sha256": "b4178a57f3711b7013cba747a72a2f178c29fa9364e77d75b2159754072ced43"
+    },
+    {
+      "bytes": 708,
+      "path": "__stddef_size_t.h",
+      "root": "clang_headers",
+      "sha256": "d86ddc0238da09b385846ebef814ffc50a44e40cf85d4e3793f485952b7e73ad"
+    },
+    {
+      "bytes": 853,
+      "path": "__stddef_wchar_t.h",
+      "root": "clang_headers",
+      "sha256": "1900d4998aef3698b06399ed686db0c21e26509b08638a25734fb97ae89b1001"
+    },
+    {
+      "bytes": 2427,
+      "path": "inttypes.h",
+      "root": "clang_headers",
+      "sha256": "eb8a7b2e17d57e9321043282bf0267fedd2ca58aadb11b04929ddbf8100fc3bc"
+    },
+    {
+      "bytes": 3794,
+      "path": "limits.h",
+      "root": "clang_headers",
+      "sha256": "6b59cc1b6f86c901bf41ce942b8434530e852eb16e79e6e9287f89441f71efca"
+    },
+    {
+      "bytes": 756,
+      "path": "stdalign.h",
+      "root": "clang_headers",
+      "sha256": "0375392ce44c0bce9d2dda696b0b2e7129e2e58233e002f532d010c9ac02d27b"
+    },
+    {
+      "bytes": 2497,
+      "path": "stdarg.h",
+      "root": "clang_headers",
+      "sha256": "ce6e43d79dc89b50208ecf259b1ffd519f5a78cd3a2c7fcaac6386f376b89fef"
+    },
+    {
+      "bytes": 8662,
+      "path": "stdatomic.h",
+      "root": "clang_headers",
+      "sha256": "728b690f127fc85faa32b9031e3a0019da92f77db92ca91b749571e45617a9ea"
+    },
+    {
+      "bytes": 1172,
+      "path": "stdbool.h",
+      "root": "clang_headers",
+      "sha256": "48655faf4ebd4ca0af26a1ee8e3e16f8dc68385c9cd550ffb3629320681305b3"
+    },
+    {
+      "bytes": 5053,
+      "path": "stddef.h",
+      "root": "clang_headers",
+      "sha256": "b3e62a046ddf28d09eedebe6eb9461cb7060e47cad2c69964b222c4eea10347e"
+    },
+    {
+      "bytes": 27175,
+      "path": "stdint.h",
+      "root": "clang_headers",
+      "sha256": "5e0ab094f39830fafd0ecde083d329c423378ff325142a52700b17773977f6c3"
+    },
+    {
+      "bytes": 1516,
+      "path": "bits/stdlib-bsearch.h",
+      "root": "headers",
+      "sha256": "8866b8758a96c4bb80fb901bece064216ab2e0791edace0c696318871a5c2e4e"
+    },
+    {
+      "bytes": 8162,
+      "path": "aws-lc/crypto/asn1/internal.h",
+      "root": "source",
+      "sha256": "c1a3814eed2f87da672c303c944f4f3feddb6e24f0cf8173b8b2a39ef3c0144e"
+    },
+    {
+      "bytes": 22316,
+      "path": "aws-lc/crypto/err/err.c",
+      "root": "source",
+      "sha256": "c323141142c007eda6e6daabeb7a061e10bb8710e3dae0cb259751a7f804ff17"
+    },
+    {
+      "bytes": 1278,
+      "path": "aws-lc/crypto/err/internal.h",
+      "root": "source",
+      "sha256": "4109d97186fecf2c38273bf6bc2646658f9e44cfacdc3dd32e4b46c77b6d8449"
+    },
+    {
+      "bytes": 47281,
+      "path": "aws-lc/crypto/internal.h",
+      "root": "source",
+      "sha256": "429c8b477db2d321d13f73b1d1dab475a309b79de115fa5cde2683c54548e338"
+    },
+    {
+      "bytes": 12933,
+      "path": "aws-lc/crypto/lhash/internal.h",
+      "root": "source",
+      "sha256": "8ac72864cf25246aa8f4b61f8924705dcad88be364721976993fef02e5f5918c"
+    },
+    {
+      "bytes": 13589,
+      "path": "aws-lc/crypto/obj/obj.c",
+      "root": "source",
+      "sha256": "d6417d12091c52801e2f577b114e766f2cf2e5fc0779a27ffde1b8dd24da104b"
+    },
+    {
+      "bytes": 299158,
+      "path": "aws-lc/crypto/obj/obj_dat.h",
+      "root": "source",
+      "sha256": "59acec6b476ecc40265d82cf947367a86ff8508f37c8641f2415f972c6a29beb"
+    },
+    {
+      "bytes": 102362,
+      "path": "aws-lc/include/openssl/asn1.h",
+      "root": "source",
+      "sha256": "7a0db53f008a185f5480bd5ceb7a666d23faf90b48a879cfdf6a3dbe605151d2"
+    },
+    {
+      "bytes": 20064,
+      "path": "aws-lc/include/openssl/asn1t.h",
+      "root": "source",
+      "sha256": "7c0e4e7be50d2c08c668a2821c47670e6d972825d1ef21b3aedf789d5aa52df5"
+    },
+    {
+      "bytes": 23250,
+      "path": "aws-lc/include/openssl/base.h",
+      "root": "source",
+      "sha256": "438ba003642b929846563b43a5dc7e1e9decdeaf03bfbcdd3b5e3f2c98949152"
+    },
+    {
+      "bytes": 52452,
+      "path": "aws-lc/include/openssl/bio.h",
+      "root": "source",
+      "sha256": "76ce68a6900bca38b07b9c7eac31fc319db248a0a5a541b6948a5759154416a9"
+    },
+    {
+      "bytes": 46677,
+      "path": "aws-lc/include/openssl/bn.h",
+      "root": "source",
+      "sha256": "9c3b508aef0d12f5db09995106dc00b667c8194836e0db60bc752799ab0cf851"
+    },
+    {
+      "bytes": 2439,
+      "path": "aws-lc/include/openssl/buf.h",
+      "root": "source",
+      "sha256": "a1b4dceea84092ab46cc89beb8f6479928f1f2e2f557eb3dd052029e24eaadb3"
+    },
+    {
+      "bytes": 188,
+      "path": "aws-lc/include/openssl/buffer.h",
+      "root": "source",
+      "sha256": "b48319b04ac43d64b25a98de1f755216dd73641154cb82d24287de98679769da"
+    },
+    {
+      "bytes": 31106,
+      "path": "aws-lc/include/openssl/bytestring.h",
+      "root": "source",
+      "sha256": "7229fc96c17d1449d0d1943d309734fc8af5bd0b26fe1fed0d62430a2a656235"
+    },
+    {
+      "bytes": 8092,
+      "path": "aws-lc/include/openssl/crypto.h",
+      "root": "source",
+      "sha256": "abbadb56732493014b49ea33d4d36bc4d1d8ee0b7574107fd9bb8570bccaac2d"
+    },
+    {
+      "bytes": 16069,
+      "path": "aws-lc/include/openssl/err.h",
+      "root": "source",
+      "sha256": "42d057eedd1e2f68db1762ea9bd6e7f1b9fe15a5c7131afd3f04238e12db9449"
+    },
+    {
+      "bytes": 4186,
+      "path": "aws-lc/include/openssl/ex_data.h",
+      "root": "source",
+      "sha256": "e5225b9c966330af4bfb8403e7a41dc2cd01fc0f6f6064e37c6bd09bb23d7074"
+    },
+    {
+      "bytes": 157,
+      "path": "aws-lc/include/openssl/is_awslc.h",
+      "root": "source",
+      "sha256": "a854bfe72a62eb1e901642e9b9732eedc78d84dde3d94bf957c71751ece4a250"
+    },
+    {
+      "bytes": 1272,
+      "path": "aws-lc/include/openssl/lhash.h",
+      "root": "source",
+      "sha256": "d2239e47525ebea564d3bd951a84e1ce6e3af52d985969ae02b06c66c8d44651"
+    },
+    {
+      "bytes": 10660,
+      "path": "aws-lc/include/openssl/mem.h",
+      "root": "source",
+      "sha256": "b92d6404e2b12ff3b79fa525eb01885cf1706906ad14e146a3db136c8a6085af"
+    },
+    {
+      "bytes": 148850,
+      "path": "aws-lc/include/openssl/nid.h",
+      "root": "source",
+      "sha256": "6a5f7cc1443da1d982e8236a08c47295fb6cfa53cf06ab009e4d4d82ee109e4f"
+    },
+    {
+      "bytes": 8678,
+      "path": "aws-lc/include/openssl/obj.h",
+      "root": "source",
+      "sha256": "30534a9ba611b84870327e999a2d9cc1fe903908cb56d4cbfa20e7b8bbc3a54a"
+    },
+    {
+      "bytes": 1904,
+      "path": "aws-lc/include/openssl/opensslconf.h",
+      "root": "source",
+      "sha256": "ee4c57773a48433c56870175841f7fd13893ff28776a0f6cf87c469b14a2143b"
+    },
+    {
+      "bytes": 1288,
+      "path": "aws-lc/include/openssl/posix_time.h",
+      "root": "source",
+      "sha256": "b5543d2953bef412b3a50a38c2a8260adceda4a465e98a5339f40ab2831d7150"
+    },
+    {
+      "bytes": 3575,
+      "path": "aws-lc/include/openssl/service_indicator.h",
+      "root": "source",
+      "sha256": "6c676fb28f61fdbb148145ab9ee02103a7648c83c0d39f83ec5e90a6d181950a"
+    },
+    {
+      "bytes": 9319,
+      "path": "aws-lc/include/openssl/sha.h",
+      "root": "source",
+      "sha256": "28618598b98652484826bb69c84fd2adba4d190e2bce6497fa614d58519cf200"
+    },
+    {
+      "bytes": 6359,
+      "path": "aws-lc/include/openssl/span.h",
+      "root": "source",
+      "sha256": "fb009d1ba717800941aa7612488e145ffae05b062e1f32ecfbe44ebed094a94a"
+    },
+    {
+      "bytes": 32644,
+      "path": "aws-lc/include/openssl/stack.h",
+      "root": "source",
+      "sha256": "461722cbe13e371b49a81022b2812a00ff9ad865d1f8f9b359df987618e62bd8"
+    },
+    {
+      "bytes": 10045,
+      "path": "aws-lc/include/openssl/target.h",
+      "root": "source",
+      "sha256": "b4eb3eeeeb2da46043da60b81a961d031580ecd093d5980ffc627605eed9ef0e"
+    },
+    {
+      "bytes": 6254,
+      "path": "aws-lc/include/openssl/thread.h",
+      "root": "source",
+      "sha256": "7004fa9036da9678b59b793b7c18090de6ad415062cb75db73fdba53b187a893"
+    },
+    {
+      "bytes": 834,
+      "path": "aws-lc/include/openssl/type_check.h",
+      "root": "source",
+      "sha256": "ed59520457f1b98e2c8b5e20f543792f58d6767b1b77f192992de0636bd47fb5"
+    },
+    {
+      "bytes": 369120,
+      "path": "generated-include/openssl/boringssl_prefix_symbols.h",
+      "root": "source",
+      "sha256": "ad8a1d839736238fec7c51144e7d055b504c2026afcd40ad71fb4fbcb36c6592"
+    },
+    {
+      "bytes": 31,
+      "path": "usr/include/aarch64-linux-gnu/asm/errno.h",
+      "root": "sysroot",
+      "sha256": "4ee384515a4325315992e61dd957f0fa91f3858fe7c079de59f56edded51de86"
+    },
+    {
+      "bytes": 1283,
+      "path": "usr/include/aarch64-linux-gnu/bits/atomic_wide_counter.h",
+      "root": "sysroot",
+      "sha256": "7d508b02d7ed3a94c1a556779fdd590fd2e0668a34b0d736e40eab6df7d60154"
+    },
+    {
+      "bytes": 4516,
+      "path": "usr/include/aarch64-linux-gnu/bits/cpu-set.h",
+      "root": "sysroot",
+      "sha256": "ecdd99c77d20188bdc105d30f35139ba08d9ab3fc62e6e5b7f0dd2c4d68e23a9"
+    },
+    {
+      "bytes": 1905,
+      "path": "usr/include/aarch64-linux-gnu/bits/endian.h",
+      "root": "sysroot",
+      "sha256": "112b43d5b891adcb526fbbbd582625d1d92d68612f8251dc2ee5b47ba488899f"
+    },
+    {
+      "bytes": 347,
+      "path": "usr/include/aarch64-linux-gnu/bits/endianness.h",
+      "root": "sysroot",
+      "sha256": "2c78efa95341b590d1b229ee2ac3a372c0bbbbc99c1af1387f6bc43e12b90b94"
+    },
+    {
+      "bytes": 1426,
+      "path": "usr/include/aarch64-linux-gnu/bits/errno.h",
+      "root": "sysroot",
+      "sha256": "2c169b750ca9bdf063ae033299426bf1c858213df8ca6df0ef43dd9c7e9d500b"
+    },
+    {
+      "bytes": 10325,
+      "path": "usr/include/aarch64-linux-gnu/bits/floatn-common.h",
+      "root": "sysroot",
+      "sha256": "8d5c5517e58c6d7ac4c915037f3af518fadc41ceb47999ee3387e4fb91cb4eaa"
+    },
+    {
+      "bytes": 3508,
+      "path": "usr/include/aarch64-linux-gnu/bits/floatn.h",
+      "root": "sysroot",
+      "sha256": "391ce6f2cca4f4a4384df3c0dfcd3cea67936d523dae2b5af98d56e6599ff2a5"
+    },
+    {
+      "bytes": 4286,
+      "path": "usr/include/aarch64-linux-gnu/bits/libc-header-start.h",
+      "root": "sysroot",
+      "sha256": "9ec1af1a58b5d6431708a7ca71ef65944622921ca6fce878ae2ab486f3145296"
+    },
+    {
+      "bytes": 3175,
+      "path": "usr/include/aarch64-linux-gnu/bits/local_lim.h",
+      "root": "sysroot",
+      "sha256": "a925303c7eb6dc10aefead6580f721c77b97c04b9c9ce0b4b2bbcde5e185c1f9"
+    },
+    {
+      "bytes": 971,
+      "path": "usr/include/aarch64-linux-gnu/bits/long-double.h",
+      "root": "sysroot",
+      "sha256": "f2cbc0c774a6df86a7fa89853015a35be986fa06690b5d1f9f7ac10d3ed548dc"
+    },
+    {
+      "bytes": 5198,
+      "path": "usr/include/aarch64-linux-gnu/bits/posix1_lim.h",
+      "root": "sysroot",
+      "sha256": "7ea61c3da402843e85e830259c7b911f5330b1708981a5461e16c95b375fc0a7"
+    },
+    {
+      "bytes": 2867,
+      "path": "usr/include/aarch64-linux-gnu/bits/posix2_lim.h",
+      "root": "sysroot",
+      "sha256": "c60d757837eda19102c5ad7085c97fba283b4891e43bb906ce3d8a7d4426dc22"
+    },
+    {
+      "bytes": 1214,
+      "path": "usr/include/aarch64-linux-gnu/bits/pthread_stack_min-dynamic.h",
+      "root": "sysroot",
+      "sha256": "e0b0204279c085ebe23ee9f6b374d2cdf2f6bdb233f2fae179104eddfac2827f"
+    },
+    {
+      "bytes": 970,
+      "path": "usr/include/aarch64-linux-gnu/bits/pthread_stack_min.h",
+      "root": "sysroot",
+      "sha256": "a44a9fd8c7899d6359a5c090160d24a467486d50fec7e8c5744d86d9a5635249"
+    },
+    {
+      "bytes": 1322,
+      "path": "usr/include/aarch64-linux-gnu/bits/pthreadtypes-arch.h",
+      "root": "sysroot",
+      "sha256": "22fbcd8fc1d7284d5a682045665e6007c761e25481cef44d34074dc0a1d7f615"
+    },
+    {
+      "bytes": 3072,
+      "path": "usr/include/aarch64-linux-gnu/bits/pthreadtypes.h",
+      "root": "sysroot",
+      "sha256": "aa3af8683d56aa08f5fcedf866212c48f227f1f9f7045944f7977c0ad58ffe81"
+    },
+    {
+      "bytes": 5952,
+      "path": "usr/include/aarch64-linux-gnu/bits/sched.h",
+      "root": "sysroot",
+      "sha256": "4815c5543919ff2a94ff2aeec69e483b414d7449e2d7284104903bc13fd0ca1a"
+    },
+    {
+      "bytes": 1164,
+      "path": "usr/include/aarch64-linux-gnu/bits/setjmp.h",
+      "root": "sysroot",
+      "sha256": "1bc839a73a920081fe134c70a5b281d89335fc450302ffcff06422f3a4186f32"
+    },
+    {
+      "bytes": 1037,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-intn.h",
+      "root": "sysroot",
+      "sha256": "ed15fd5be7a39b8145b2beb08fd4a316bb72f0bd5ebca707399b4f5b0c0bf304"
+    },
+    {
+      "bytes": 1305,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-least.h",
+      "root": "sysroot",
+      "sha256": "24c527a005947517a1d3032fdf161577e5a62184f4419066a2112a79ab2da788"
+    },
+    {
+      "bytes": 1049,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-uintn.h",
+      "root": "sysroot",
+      "sha256": "f0d1ad8c0effab436bebd7a4c177a28a567f0faaae69877e9ccbe3d631a7cd68"
+    },
+    {
+      "bytes": 5599,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdio.h",
+      "root": "sysroot",
+      "sha256": "60242f346c3dcfd974e423c05cc4f7c82192026611c0dbe1c50ea850a9dc4fbe"
+    },
+    {
+      "bytes": 1059,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdio_lim.h",
+      "root": "sysroot",
+      "sha256": "7f6274022abc6b0a4970c9c78280abdf548660656e76f066949fedbfe6445920"
+    },
+    {
+      "bytes": 1115,
+      "path": "usr/include/aarch64-linux-gnu/bits/stdlib-float.h",
+      "root": "sysroot",
+      "sha256": "8900ab8d754778a6df25a040202726097d29f65954c4525de4542abef79c0c01"
+    },
+    {
+      "bytes": 2266,
+      "path": "usr/include/aarch64-linux-gnu/bits/struct_mutex.h",
+      "root": "sysroot",
+      "sha256": "aff94ffbc177b21e0515ef14fe20be127d66c72a4170c90521d31ecb54ba731d"
+    },
+    {
+      "bytes": 1303,
+      "path": "usr/include/aarch64-linux-gnu/bits/struct_rwlock.h",
+      "root": "sysroot",
+      "sha256": "f92f99abfd616b3a6af4323305bb0b1f9b807dd3bf7dc5f0f462f5909fb29b10"
+    },
+    {
+      "bytes": 3961,
+      "path": "usr/include/aarch64-linux-gnu/bits/thread-shared-types.h",
+      "root": "sysroot",
+      "sha256": "2c1bcabe7b6b7e9192feb703d888f4e871749070b8fb30f96878386e869ff21b"
+    },
+    {
+      "bytes": 3331,
+      "path": "usr/include/aarch64-linux-gnu/bits/time.h",
+      "root": "sysroot",
+      "sha256": "7c8d7e65c0b95928b7f6ec32308b9d21a5373afac19b97bf9becb17281fd3c15"
+    },
+    {
+      "bytes": 1340,
+      "path": "usr/include/aarch64-linux-gnu/bits/time64.h",
+      "root": "sysroot",
+      "sha256": "c502af2b2d265699b53ccb52e7a20521ab3ec4d346deb1366f494d1e22354ff9"
+    },
+    {
+      "bytes": 939,
+      "path": "usr/include/aarch64-linux-gnu/bits/timesize.h",
+      "root": "sysroot",
+      "sha256": "2c12f6bea2b39c6685ef8b6b199c8a7c4b2a7ef2e27093b71abee0b0417952d6"
+    },
+    {
+      "bytes": 8806,
+      "path": "usr/include/aarch64-linux-gnu/bits/types.h",
+      "root": "sysroot",
+      "sha256": "3fcf066dbf9fac9c5a15ff6327ca6a437e955e9aa571de1c3347cd0f4da4f93d"
+    },
+    {
+      "bytes": 180,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/FILE.h",
+      "root": "sysroot",
+      "sha256": "37515f78be386f2edad4746f2947c928f480728c56d9a94e25302ebbdaef3c96"
+    },
+    {
+      "bytes": 110,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__FILE.h",
+      "root": "sysroot",
+      "sha256": "26c909942e8a6bc82725e9c402f393aed9e32d94190257ddf71e1b5f819b4e5e"
+    },
+    {
+      "bytes": 410,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h",
+      "root": "sysroot",
+      "sha256": "8afae3abf006beb39fd9d4d4bae38745cdf08a91e6217ddf25833c8d4b04751b"
+    },
+    {
+      "bytes": 381,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h",
+      "root": "sysroot",
+      "sha256": "603e58ab31ed75b7e0ab09a2ca94e99955f7fbc63310466321ce27c906227eb4"
+    },
+    {
+      "bytes": 1661,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__locale_t.h",
+      "root": "sysroot",
+      "sha256": "293f874c654c206b3f18021510b2612487177d9010a333b9313991ae1877fc96"
+    },
+    {
+      "bytes": 564,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h",
+      "root": "sysroot",
+      "sha256": "c561df72d5b987ccbd022059fdb1bcb6899c3e94b403997a0576ef3e1afb0f94"
+    },
+    {
+      "bytes": 206,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__sigset_t.h",
+      "root": "sysroot",
+      "sha256": "05291a7d38bb1d0da1ed01c09fe85fa2b1f4d5bc708e06bb930efec672db08d5"
+    },
+    {
+      "bytes": 143,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/clock_t.h",
+      "root": "sysroot",
+      "sha256": "81e60e8a8d99b28bc723c14b156d7f7fc8ff663d98a857a3f5aea90431f577e3"
+    },
+    {
+      "bytes": 174,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/clockid_t.h",
+      "root": "sysroot",
+      "sha256": "dcd64d184855b245e5c7acf21910a0aaca590f1faf094e400da5d30551d11eb0"
+    },
+    {
+      "bytes": 983,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/locale_t.h",
+      "root": "sysroot",
+      "sha256": "8675fb9fc99a2763f278421e4adf57ecc8838ac5668b2db3cac52fabb440d802"
+    },
+    {
+      "bytes": 4383,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h",
+      "root": "sysroot",
+      "sha256": "5e9432ad4ca91afc6849cc610093b81721f425e24f38bb60e756ffa37a09a075"
+    },
+    {
+      "bytes": 1467,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct___jmp_buf_tag.h",
+      "root": "sysroot",
+      "sha256": "ac1a6a885d45e1d351c585bd0edf9e86b1c58132f5acd88a26838911f5c9a136"
+    },
+    {
+      "bytes": 288,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h",
+      "root": "sysroot",
+      "sha256": "d6299fbc46fc57e7d14635cd5cf69125710ed021ab7305586c84644a03a39f8e"
+    },
+    {
+      "bytes": 1073,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_sched_param.h",
+      "root": "sysroot",
+      "sha256": "c812957b07034e8841317dff7a75d581033155b490e4dd88d65c001427453030"
+    },
+    {
+      "bytes": 877,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_timespec.h",
+      "root": "sysroot",
+      "sha256": "798e773d0c7f3796033c043910db2b093d1e43116c4b3d2cf3be85f8c4304cf1"
+    },
+    {
+      "bytes": 760,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_tm.h",
+      "root": "sysroot",
+      "sha256": "e7bdda3f42eb0633850ed150fef0a0cf6193cbba8fa740e7505925424a595566"
+    },
+    {
+      "bytes": 208,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/time_t.h",
+      "root": "sysroot",
+      "sha256": "d1cc45e24a80009117f61ee4ae9cae5d12f69f38d691e0a933f989f7a1d27bb0"
+    },
+    {
+      "bytes": 159,
+      "path": "usr/include/aarch64-linux-gnu/bits/types/timer_t.h",
+      "root": "sysroot",
+      "sha256": "d96a2452da0d933941273d11d1048ea525f033306892835b0a7a0999b13853aa"
+    },
+    {
+      "bytes": 3906,
+      "path": "usr/include/aarch64-linux-gnu/bits/typesizes.h",
+      "root": "sysroot",
+      "sha256": "bc1bd0286ad232605bd7a48e516714ffd20a03c7fdfd8808ad96620449759342"
+    },
+    {
+      "bytes": 1385,
+      "path": "usr/include/aarch64-linux-gnu/bits/uio_lim.h",
+      "root": "sysroot",
+      "sha256": "abdee1164222c9831cd5f9994c89ab736d05444ff9fa4ae9c329098f5e19c1dd"
+    },
+    {
+      "bytes": 1697,
+      "path": "usr/include/aarch64-linux-gnu/bits/waitflags.h",
+      "root": "sysroot",
+      "sha256": "e9d5a8255131a9b555f35b04c5a1596bb3cdc96e6fd518cf43c473cbf41b6016"
+    },
+    {
+      "bytes": 2287,
+      "path": "usr/include/aarch64-linux-gnu/bits/waitstatus.h",
+      "root": "sysroot",
+      "sha256": "cc93cc0c23d21e2695414318d79124a5ca08e1a0ea60f81c2842a7a566b06711"
+    },
+    {
+      "bytes": 1906,
+      "path": "usr/include/aarch64-linux-gnu/bits/wchar.h",
+      "root": "sysroot",
+      "sha256": "9a3e6e246753da1e142227f6a81a9d0064cbb3189073c367263a491b4044373f"
+    },
+    {
+      "bytes": 909,
+      "path": "usr/include/aarch64-linux-gnu/bits/wordsize.h",
+      "root": "sysroot",
+      "sha256": "44caf00d8f9b3f69bcc3ef4c28b41b632426e0f3fe2908d26033b33c4f97d3f9"
+    },
+    {
+      "bytes": 3858,
+      "path": "usr/include/aarch64-linux-gnu/bits/xopen_lim.h",
+      "root": "sysroot",
+      "sha256": "29dcc96d2565ec4e4959eb068e1b6255cac7286b539ca771d142ddb0cb139574"
+    },
+    {
+      "bytes": 627,
+      "path": "usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h",
+      "root": "sysroot",
+      "sha256": "4e0206e34726006283e65605b9c74fa55b99a2d3bb02dffaf0b324482167985b"
+    },
+    {
+      "bytes": 325,
+      "path": "usr/include/aarch64-linux-gnu/gnu/stubs.h",
+      "root": "sysroot",
+      "sha256": "4fc54fd0190796cad1125563ea8dedc53811c81bce7d79e9396afc15994a35ab"
+    },
+    {
+      "bytes": 35168,
+      "path": "usr/include/aarch64-linux-gnu/sys/cdefs.h",
+      "root": "sysroot",
+      "sha256": "a5a71b01109709190529d0c3532751869d05db6a5e8ce01c8c73229b797cfb83"
+    },
+    {
+      "bytes": 5713,
+      "path": "usr/include/aarch64-linux-gnu/sys/types.h",
+      "root": "sysroot",
+      "sha256": "25d29436b206e2b36e3fbe7057fa8b9822fa9f0f7823659c489a8fc71c8cd1db"
+    },
+    {
+      "bytes": 1612,
+      "path": "usr/include/asm-generic/errno-base.h",
+      "root": "sysroot",
+      "sha256": "2c148e92b8318deeb767fabd60822113e575ee664ff09a1873aed8f7a495793c"
+    },
+    {
+      "bytes": 5756,
+      "path": "usr/include/asm-generic/errno.h",
+      "root": "sysroot",
+      "sha256": "651dbafba40d561d5ba2d6dc43263238e3894e91942d30af925971dc92230daf"
+    },
+    {
+      "bytes": 6922,
+      "path": "usr/include/assert.h",
+      "root": "sysroot",
+      "sha256": "efd33a1d9224c27a176166d18e82d39630a4bd8ae8956ff5f09d9b40afae693a"
+    },
+    {
+      "bytes": 1679,
+      "path": "usr/include/errno.h",
+      "root": "sysroot",
+      "sha256": "6af988372fbf273c6e462f4a488674bfe53fd4f535491c52b658357b46ede3dd"
+    },
+    {
+      "bytes": 1532,
+      "path": "usr/include/features-time64.h",
+      "root": "sysroot",
+      "sha256": "c7c33cddd4ffbbca1eb0de042131a51201a42f29139820d0a36c1e1dd0d16ba5"
+    },
+    {
+      "bytes": 19773,
+      "path": "usr/include/features.h",
+      "root": "sysroot",
+      "sha256": "f6d015d0248056a3091de489abcbadbbd93d7aaf95753d7426f779765f067118"
+    },
+    {
+      "bytes": 11563,
+      "path": "usr/include/inttypes.h",
+      "root": "sysroot",
+      "sha256": "f7b6d71ce5912c40209b716a7e681f69f208b97809397f33fdcedf3eb8ff6e13"
+    },
+    {
+      "bytes": 5839,
+      "path": "usr/include/limits.h",
+      "root": "sysroot",
+      "sha256": "7505220f742ab30ef635baa0849f26e1dfdb4fb22f2b506f4f2b0f4879f82dfb"
+    },
+    {
+      "bytes": 23,
+      "path": "usr/include/linux/errno.h",
+      "root": "sysroot",
+      "sha256": "a47fb2f49bce0546a1e88805cec954338abb1b2ac87de042166e8e3a74b23261"
+    },
+    {
+      "bytes": 937,
+      "path": "usr/include/linux/limits.h",
+      "root": "sysroot",
+      "sha256": "567dbb4893d20bb986996f0a8b8f774b02ca6cb7df8e4b642895eade7e7ffcd9"
+    },
+    {
+      "bytes": 48570,
+      "path": "usr/include/pthread.h",
+      "root": "sysroot",
+      "sha256": "5479c95276c6693fdd1baa448f5d457dee57fc02b31277bfa04df63cc0b26a94"
+    },
+    {
+      "bytes": 5043,
+      "path": "usr/include/sched.h",
+      "root": "sysroot",
+      "sha256": "aa0dc2014237be9bd0d5792981782e268e257652bb5a83fba63ab21d5ffbe11d"
+    },
+    {
+      "bytes": 2462,
+      "path": "usr/include/stdc-predef.h",
+      "root": "sysroot",
+      "sha256": "383ff8bd7dcc87deefedd062637f4afe28f85f8be443beda8b41d15e45ef1679"
+    },
+    {
+      "bytes": 8268,
+      "path": "usr/include/stdint.h",
+      "root": "sysroot",
+      "sha256": "fbd21c7a64b876eddd4e179172fb58a4921fd616d103b8107a28a54cf687289b"
+    },
+    {
+      "bytes": 34258,
+      "path": "usr/include/stdio.h",
+      "root": "sysroot",
+      "sha256": "7b9d4ea5a3d988998113785f389c635428dbfd25f503197d81688ec9ef0149fa"
+    },
+    {
+      "bytes": 42963,
+      "path": "usr/include/stdlib.h",
+      "root": "sysroot",
+      "sha256": "936ffcdf6161aa702d9fe433879e59b039731effebea7a9c02506da183a99d02"
+    },
+    {
+      "bytes": 21266,
+      "path": "usr/include/string.h",
+      "root": "sysroot",
+      "sha256": "6284f89702acd61ff489bc6d20b38f6a942c438783076b9b64633d073be3337d"
+    },
+    {
+      "bytes": 15326,
+      "path": "usr/include/time.h",
+      "root": "sysroot",
+      "sha256": "e27a0238aa4cbec65b5d3b94dfffa1f127415e1c33d95565a8a4acd8cf935f60"
+    }
+  ],
+  "format_version": 1,
+  "input_roots": [
+    "source",
+    "headers",
+    "sysroot",
+    "clang_headers"
+  ],
+  "reference_source_revision": "dd140a513f7ea5cd1b16be9c6bc2b62834035e00",
+  "scope": "gnu_header_compiler_inputs",
+  "source_archive": {
+    "bytes": 9725710,
+    "name": "aws-lc-sys",
+    "sha256": "9bff6c3b54fad79a2e60b8102caf565819711497c1f5f092f49508e2f5c31b27",
+    "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
+    "version": "0.45.0"
+  },
+  "system_packages": [
+    {
+      "package": "libc6-dev:arm64",
+      "source_package": "glibc",
+      "source_url": "https://launchpad.net/ubuntu/+source/glibc/2.43-2ubuntu2.4",
+      "source_version": "2.43-2ubuntu2.4",
+      "version": "2.43-2ubuntu2.4"
+    },
+    {
+      "package": "linux-libc-dev:arm64",
+      "source_package": "linux",
+      "source_url": "https://launchpad.net/ubuntu/+source/linux/7.0.0-34.34",
+      "source_version": "7.0.0-34.34",
+      "version": "7.0.0-34.34"
+    }
+  ],
+  "target": "aarch64-unknown-linux-gnu"
+}

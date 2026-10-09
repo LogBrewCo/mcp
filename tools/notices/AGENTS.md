@@ -151,15 +151,26 @@ does not supply the recipient's notice. This check does not establish license
 permissions or complete linked-component coverage.
 Verify the remaining corresponding-source and relinking materials before release.
 
-`licenses/gnu-header-rebuild-recipe.json` records the two header-dependent
-AWS-LC C inputs, their reference objects, and the Clang 23.1.3 build arguments
+Version 2 of `licenses/gnu-header-rebuild-recipe.json` records the two
+header-dependent AWS-LC C inputs, their reference objects, and the Clang 23.1.3 build arguments
 for the recorded GNU target. Replace each named root in an argument with its
 local absolute directory. The `source` root contains the verified extracted
 AWS-LC registry archive. The `headers` root contains the complete matching
-`bits/stdlib-bsearch.h`; `objects` and `dependencies` are output directories.
+`bits/stdlib-bsearch.h`. The `sysroot` and `clang_headers` roots contain the exact
+system and compiler-resource headers. `objects` and `dependencies` are output
+directories.
 Append `per_source_arguments` after `arguments`, replacing `source_path` and
 `object` with that source record's values. Pass the resulting argument array
 directly to the verified compiler without shell expansion.
+
+Verify the bound `compiler_inputs` manifest before materializing inputs. It
+records 134 distinct source/include files by root, relative path, size and
+checksum. Preserve the `usr/include/` layout beneath `sysroot`; compiler-resource
+paths are relative to `clang_headers`. Verify every file against its recorded
+binding. The recipe disables default include paths with `-nostdinc` and supplies
+the explicit include directories. Missing headers must fail the rebuild; do not
+add unchecked host include paths to make it succeed. The manifest describes
+unmodified inputs. Record a modified complete header's binding separately.
 
 Verify the archive, every compiled source and include input, the complete header,
 and the compiler version and source commit before using the recipe. With the

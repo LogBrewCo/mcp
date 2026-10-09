@@ -36,7 +36,10 @@ pub fn requirements(target: Target, input: &[u8]) -> Result<Value> {
         Target::MacArm | Target::MacX86 => {
             mach::requirements(&goblin::mach::MachO::parse(input, 0)?)?
         }
-        Target::LinuxArm | Target::LinuxX86 => elf::requirements(&goblin::elf::Elf::parse(input)?)?,
+        Target::LinuxArm | Target::LinuxX86 => elf::requirements(
+            &goblin::elf::Elf::parse(input)?,
+            u64::try_from(input.len())?,
+        )?,
     };
     if serde_json::to_vec(&requirements)?.len() > 16_usize << 10_u32 {
         return Err(error("binary load requirement report exceeds limit"));

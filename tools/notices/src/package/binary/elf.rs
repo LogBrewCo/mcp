@@ -1,5 +1,9 @@
 use crate::{Result, error};
-use goblin::elf::{Elf, program_header::PT_LOAD, symver::Verneed};
+use goblin::elf::{
+    Elf,
+    program_header::{PF_X, PT_LOAD},
+    symver::Verneed,
+};
 use serde_json::{Value, json};
 
 use super::TextBudget;
@@ -36,9 +40,9 @@ fn version_requirement(
 }
 
 /// # Errors
-/// Rejects excess headers or dependencies, missing load segments or required
-/// interpreter, inconsistent version counts, and invalid or excessive load text.
-pub fn requirements(binary: &Elf<'_>) -> Result<Value> {
+/// Rejects excess headers or dependencies, invalid load segments or entry point,
+/// missing required interpreter, inconsistent counts, and invalid load text.
+pub fn requirements(binary: &Elf<'_>, file_bytes: u64) -> Result<Value> {
     let mut text = TextBudget::default();
     if binary.program_headers.len() > 4096
         || !binary
@@ -47,6 +51,39 @@ pub fn requirements(binary: &Elf<'_>) -> Result<Value> {
             .any(|header| header.p_type == PT_LOAD)
     {
         return Err(error("missing or invalid executable load segments"));
+    }
+    let mut entry_is_executable = false;
+    for segment in binary
+        .program_headers
+        .iter()
+        .filter(|header| header.p_type == PT_LOAD)
+    {
+        let file_end = segment
+            .p_offset
+            .checked_add(segment.p_filesz)
+            .ok_or("executable file extent overflow")?;
+        let memory_end = segment
+            .p_vaddr
+            .checked_add(segment.p_memsz)
+            .ok_or("executable memory extent overflow")?;
+        if file_end > file_bytes || segment.p_filesz > segment.p_memsz {
+            return Err(error("invalid executable load extent"));
+        }
+        if segment.p_flags & PF_X != 0
+            && binary.entry >= segment.p_vaddr
+            && binary.entry < memory_end
+            && binary
+                .entry
+                .checked_sub(segment.p_vaddr)
+                .is_some_and(|offset| offset < segment.p_filesz)
+        {
+            entry_is_executable = true;
+        }
+    }
+    if binary.entry == 0 || !entry_is_executable {
+        return Err(error(
+            "entry point has no file-backed executable load segment",
+        ));
     }
     let libraries = text.strings(binary.libraries.iter().copied())?;
     if libraries.len()

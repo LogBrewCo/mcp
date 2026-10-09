@@ -308,6 +308,7 @@ fn declared_gnu_version_count_requires_corresponding_records() -> Result<()> {
     let target = Target::LinuxArm;
     let mut bytes = header(target)?;
     bytes.resize(208, 0);
+    field(&mut bytes, 24, &0x40_0078_u64.to_le_bytes())?;
     field(&mut bytes, 32, &64_u64.to_le_bytes())?;
     field(&mut bytes, 54, &56_u16.to_le_bytes())?;
     field(&mut bytes, 56, &2_u16.to_le_bytes())?;

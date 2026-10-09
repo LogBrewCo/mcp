@@ -220,6 +220,29 @@ the output binary binding. Unchanged executable reproduction, complete
 corresponding source, source modification and relinking, and license permissions
 remain external requirements. Exporting inputs does not complete a release.
 
+`licenses/gnu-header-relink-recipe.json` records the library replacement and final
+link for the same GNU development input set. Verify `link_inputs_archive` before
+extracting it into an operator-managed directory. Resolve `library.path` beneath
+`link_working_directory`. Verify the library binding, its regular-member count,
+and the bound `object_rebuild_recipe` before making changes.
+
+First rebuild both objects with the unmodified complete header and verify their
+reference bindings. Then make a permitted header change and rebuild the objects.
+Replace `{library}` in the archiver arguments with the local library path and
+`{objects}` with the rebuilt-object directory. Pass the argument array directly
+to the verified archiver. Every other regular archive member must retain its
+name, size and checksum; only `replacement_members` can change. Preserve the
+original manifest as a reference and record modified header, object, archive and
+output bindings separately. All other captured link inputs must remain unchanged.
+
+Run the verified linker with its argument array from `link_working_directory`.
+For an unmodified-header rebuild, the binary must match `unmodified_output`.
+Modified outputs need new bindings and functional checks. Verify that the
+required changed object sections reached the executable; presence in an archive
+alone does not prove that they were linked. The recipe covers the recorded input
+set. Complete matching source and system-header materials, recipient execution,
+license permissions and release verification remain required.
+
 ## Binary archives
 
 Use an operator-verified packaging plan. Its format_version is 1, 2, 3 or 4 and its

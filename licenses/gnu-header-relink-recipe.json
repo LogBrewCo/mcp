@@ -1,0 +1,53 @@
+{
+  "archiver": {
+    "arguments": [
+      "rcsD",
+      "{library}",
+      "{objects}/7ac4c9359514b807-obj.o",
+      "{objects}/a3e95cd5f24d649a-err.o"
+    ],
+    "name": "llvm-ar",
+    "source_commit": "0d261d1ca552c95a8f007e061c787ac7132fbcbc",
+    "version": "23.1.3"
+  },
+  "complete_corresponding_source": false,
+  "complete_distribution_permissions": false,
+  "complete_recipient_relinking_kit": false,
+  "format_version": 1,
+  "library": {
+    "bytes": 6201770,
+    "path": "application/deps/rustc2OgMWV/libaws_lc_sys-3f261a98ad8cecbe.rlib",
+    "regular_member_count": 371,
+    "sha256": "fdf0cfd855800e9a575a4e0a77e7d1377713ccc56dd6b862c74e353c511d861a"
+  },
+  "link_inputs_archive": {
+    "bytes": 13795339,
+    "sha256": "48e641781e076d45c22204a46611c309155e8cfd46e5a7d3e1f2aecdcb33978a"
+  },
+  "link_working_directory": "relink",
+  "linker": {
+    "arguments": [
+      "@response.txt"
+    ],
+    "name": "ld.lld",
+    "source_commit": "0d261d1ca552c95a8f007e061c787ac7132fbcbc",
+    "version": "23.1.3"
+  },
+  "object_rebuild_recipe": {
+    "bytes": 2897,
+    "path": "licenses/gnu-header-rebuild-recipe.json",
+    "sha256": "7ff82c6c434521252e712ffadfaef5e1699823142a6c1703c934a272f55992ea"
+  },
+  "reference_source_revision": "dd140a513f7ea5cd1b16be9c6bc2b62834035e00",
+  "replacement_members": [
+    "7ac4c9359514b807-obj.o",
+    "a3e95cd5f24d649a-err.o"
+  ],
+  "scope": "gnu_header_object_relink_recipe",
+  "target": "aarch64-unknown-linux-gnu",
+  "unmodified_output": {
+    "bytes": 12618576,
+    "path": "logbrew_mcp-c977d68491f31fdc",
+    "sha256": "a46d0fd60c1ae9b1d1c821544629834b521503d830845c634461bea67062f4ef"
+  }
+}

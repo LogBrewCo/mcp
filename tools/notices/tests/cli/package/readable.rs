@@ -66,7 +66,7 @@ fn bind(fixture: &Fixture, field: &str, path: &str, inventory: &Value) -> Result
 /// # Errors
 ///
 /// Returns an error if fixture preparation, JSON conversion or field access, file access, or checksum recording fails.
-fn readable_fixture() -> Result<Fixture> {
+pub(super) fn readable_fixture() -> Result<Fixture> {
     let fixture = fixture()?;
     let _bound: Vec<u8> = linked::bind(&fixture, &linked::inventory(&fixture)?)?;
     let mut dependency: Value = serde_json::from_slice(&fs::read(fixture.root.join(DEPENDENCY))?)?;

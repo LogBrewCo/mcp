@@ -25,7 +25,7 @@ struct Component {
     notices: Vec<Notice>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Eq, PartialEq)]
 #[serde(deny_unknown_fields)]
 struct Notice {
     upstream_path: String,
@@ -83,13 +83,18 @@ fn component(component: &Component) -> Result<String> {
 /// Rejects oversized or malformed strict-schema JSON, mismatched version,
 /// scope, target, or binary identity, excessive counts, duplicate components,
 /// and invalid component notices.
-pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value> {
+fn inventory(
+    target: &str,
+    binary_sha256: &str,
+    bytes: &[u8],
+    scope: &str,
+) -> Result<(Inventory, usize)> {
     if bytes.len() > 4_usize << 20_u32 {
         return Err(error("linked notice inventory exceeds limit"));
     }
     let inventory: Inventory = serde_json::from_slice(bytes)?;
     if inventory.format_version != 1
-        || inventory.scope != "linked_target_source_notices"
+        || inventory.scope != scope
         || inventory.target != target
         || inventory.binary_sha256 != binary_sha256
         || inventory.components.is_empty()
@@ -110,10 +115,62 @@ pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value
             return Err(error("linked notice count exceeds limit"));
         }
     }
+    Ok((inventory, count))
+}
+
+/// # Errors
+/// Rejects invalid linked inventory identity, structure, counts or notice text.
+pub fn validate(target: &str, binary_sha256: &str, bytes: &[u8]) -> Result<Value> {
+    let (inventory, count) =
+        inventory(target, binary_sha256, bytes, "linked_target_source_notices")?;
     Ok(json!({"scope":inventory.scope,"target":inventory.target,
         "binary_sha256":inventory.binary_sha256,"inventory_sha256":checksum(bytes)?,
         "components":inventory.components.len(),"notices":count,
         "verification":"bound_input_bytes_and_inventory_structure",
+        "coverage":"external_required","compilation_eligibility":"external_required",
+        "license_permission_check":"external_required"}))
+}
+
+/// # Errors
+/// Rejects invalid inventories, missing required components, mismatched source
+/// metadata or any required notice whose path, checksum or exact text is absent.
+pub fn required(
+    target: &str,
+    binary_sha256: &str,
+    bytes: &[u8],
+    linked_bytes: &[u8],
+) -> Result<Value> {
+    let (expected, count) = inventory(
+        target,
+        binary_sha256,
+        bytes,
+        "required_linked_source_notices",
+    )?;
+    let (linked, _linked_count) = inventory(
+        target,
+        binary_sha256,
+        linked_bytes,
+        "linked_target_source_notices",
+    )?;
+    for source in &expected.components {
+        let included = linked
+            .components
+            .iter()
+            .find(|candidate| candidate.name == source.name && candidate.version == source.version)
+            .ok_or_else(|| error("required linked component is absent"))?;
+        if included.source_url != source.source_url
+            || !source
+                .notices
+                .iter()
+                .all(|notice| included.notices.contains(notice))
+        {
+            return Err(error("required linked component notice differs"));
+        }
+    }
+    Ok(json!({"scope":expected.scope,"target":expected.target,
+        "binary_sha256":expected.binary_sha256,"inventory_sha256":checksum(bytes)?,
+        "components":expected.components.len(),"notices":count,
+        "verification":"required_component_metadata_and_notice_texts_present",
         "coverage":"external_required","compilation_eligibility":"external_required",
         "license_permission_check":"external_required"}))
 }

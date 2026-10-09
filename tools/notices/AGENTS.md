@@ -150,7 +150,7 @@ permissions or complete linked-component coverage.
 
 ## Binary archives
 
-Use an operator-verified packaging plan. Its format_version is 1, 2 or 3 and its
+Use an operator-verified packaging plan. Its format_version is 1, 2, 3 or 4 and its
 package_version and rust_release match this package's pins. Record target,
 build_identity, source_revision, and cargo_lock_sha256. An uncommitted revision
 requires the development identity. The binary, project_license, sdk_license,
@@ -190,6 +190,21 @@ notice coverage. It allows at most 512 dependency packages, 4096 notice referenc
 1 MiB per dependency text and 2 MiB per Rust text. The dependency text output is
 limited to 32 MiB and linked text output to 8 MiB. These copies do not select
 licenses or satisfy the external permission and release gates.
+
+Version 4 includes the version 3 files and requires a `required_linked_notices`
+size/checksum binding for `licenses/required-linked-notices.json`. This inventory
+uses the linked inventory's strict schema and limits, with scope
+`required_linked_source_notices`. Its target and binary hash must match the plan.
+List the components and source notices independently verified as applicable to
+that build. Packaging requires each component's exact name, version and source
+URL and each notice's path, checksum and verbatim text in the linked inventory.
+Additional linked notices are allowed. The archive preserves the required
+inventory, and the manifest records its binding and checked counts. Versions
+1 through 3 reject this binding. This check detects omission of declared
+requirements; selecting those requirements, complete coverage, compilation
+eligibility and license permissions remain external gates. The output path must
+not replace the required inventory.
+
 It uses fixed order, ownership and timestamps. The binary mode is 0755; other
 entries are 0644. Input limits are 64 MiB for the binary, 512 KiB per license,
 16 MiB for dependency notices, 8 MiB for toolchain notices, and 1 MiB for Cargo.lock.

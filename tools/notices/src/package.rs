@@ -90,6 +90,8 @@ struct Plan {
     toolchain_notices: FileBinding,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     linked_target_notices: Option<FileBinding>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    required_linked_notices: Option<FileBinding>,
 }
 
 fn hex(value: &str, length: usize) -> bool {
@@ -109,8 +111,9 @@ impl Plan {
             return Err(error("packaging plan exceeds limit"));
         }
         let plan: Self = serde_json::from_slice(bytes)?;
-        if !matches!(plan.format_version, 1..=3)
+        if !matches!(plan.format_version, 1..=4)
             || (plan.format_version >= 2) != plan.linked_target_notices.is_some()
+            || (plan.format_version == 4) != plan.required_linked_notices.is_some()
             || plan.package_version != env!("CARGO_PKG_VERSION")
             || plan.rust_release != env!("CARGO_PKG_RUST_VERSION")
             || !hex(&plan.cargo_lock_sha256, 64)
@@ -131,6 +134,9 @@ impl Plan {
             binding.validate(limit)?;
         }
         if let Some(binding) = plan.linked_target_notices.as_ref() {
+            binding.validate(LINKED_NOTICE_BYTES)?;
+        }
+        if let Some(binding) = plan.required_linked_notices.as_ref() {
             binding.validate(LINKED_NOTICE_BYTES)?;
         }
         Ok(plan)
@@ -237,6 +243,33 @@ fn append_source_notices(
 }
 
 /// # Errors
+/// Rejects missing linked notices, changed or oversized required inputs, and
+/// missing or altered declared component notices.
+fn required_notices(
+    plan: &Plan,
+    root: &Path,
+    linked: Option<&[u8]>,
+) -> Result<Option<(Vec<u8>, Value)>> {
+    plan.required_linked_notices
+        .as_ref()
+        .map(|binding| {
+            let bytes = binding.read(
+                &root.join("licenses/required-linked-notices.json"),
+                LINKED_NOTICE_BYTES,
+            )?;
+            let linked_bytes = linked.ok_or_else(|| error("missing linked notice inventory"))?;
+            let report = linked::required(
+                plan.target.label(),
+                &plan.binary.sha256,
+                &bytes,
+                linked_bytes,
+            )?;
+            Ok((bytes, report))
+        })
+        .transpose()
+}
+
+/// # Errors
 /// Rejects invalid plans, changed or oversized inputs, lockfile or binary
 /// disagreement, invalid load metadata or notice inventories, and malformed
 /// readable notices. Serialization and bounded tar/gzip write errors propagate.
@@ -269,7 +302,12 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
             Ok::<_, Box<dyn core::error::Error>>((bytes, report))
         })
         .transpose()?;
-    let readable = if plan.format_version == 3 {
+    let required = required_notices(
+        &plan,
+        root,
+        linked.as_ref().map(|record| record.0.as_slice()),
+    )?;
+    let readable = if plan.format_version >= 3 {
         let linked_bytes = &linked
             .as_ref()
             .ok_or_else(|| error("missing linked notice inventory"))?
@@ -292,14 +330,13 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
     ));
     append(&mut builder, &prefix, "bin/logbrew-mcp", &binary, 0o755)?;
     append_source_notices(&mut builder, &prefix, &plan, root, &dependency, &toolchain)?;
-    if let Some(bytes) = linked.as_ref().map(|record| &record.0) {
-        append(
-            &mut builder,
-            &prefix,
-            "licenses/linked-target-notices.json",
-            bytes,
-            0o644,
-        )?;
+    for (record, path) in [
+        (linked.as_ref(), "licenses/linked-target-notices.json"),
+        (required.as_ref(), "licenses/required-linked-notices.json"),
+    ] {
+        if let Some(inventory) = record {
+            append(&mut builder, &prefix, path, &inventory.0, 0o644)?;
+        }
     }
     for file in &readable {
         append(&mut builder, &prefix, file.path(), file.bytes(), 0o644)?;
@@ -311,11 +348,16 @@ pub fn build(plan_bytes: &[u8], binary_path: &Path, root: &Path) -> Result<Vec<u
         "runtime_compatibility":"external_required","static_components":"not_evaluated",
         "final_linked_target_notices":"external_required",
         "packaging_plan_sha256":checksum(plan_bytes)?,"plan":plan});
-    if let Some((_, report)) = linked {
-        let _previous: Option<Value> = manifest
-            .as_object_mut()
-            .ok_or_else(|| error("invalid package manifest"))?
-            .insert("linked_target_notice_inventory".into(), report);
+    for (record, key) in [
+        (linked, "linked_target_notice_inventory"),
+        (required, "required_linked_notice_inventory"),
+    ] {
+        if let Some((_bytes, report)) = record {
+            let _previous: Option<Value> = manifest
+                .as_object_mut()
+                .ok_or_else(|| error("invalid package manifest"))?
+                .insert(key.into(), report);
+        }
     }
     if !readable.is_empty() {
         let _previous: Option<Value> = manifest
@@ -355,8 +397,12 @@ pub fn guard_output(
         root.join("licenses/locked-source-notices.json"),
         root.join("licenses/locked-rust-toolchain-notices.json"),
     ];
-    if Plan::parse(plan_bytes)?.linked_target_notices.is_some() {
+    let parsed = Plan::parse(plan_bytes)?;
+    if parsed.linked_target_notices.is_some() {
         sources.push(root.join("licenses/linked-target-notices.json"));
+    }
+    if parsed.required_linked_notices.is_some() {
+        sources.push(root.join("licenses/required-linked-notices.json"));
     }
     for source in sources {
         if canonical_output == std::fs::canonicalize(source)? {

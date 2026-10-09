@@ -1,6 +1,6 @@
 use serde_json::{Value, json};
 
-use super::validate;
+use super::{required, validate};
 use crate::{Result, checksum};
 
 const TARGET: &str = "aarch64-unknown-linux-gnu";
@@ -232,5 +232,95 @@ fn component_and_notice_count_limits_preserve_the_exact_boundary() -> Result<()>
     values.push(additional);
     let _error: Box<dyn core::error::Error> =
         check(&value_inventory).expect_err("input must be rejected");
+    Ok(())
+}
+
+/// # Errors
+/// Propagates inventory encoding and required-component validation errors.
+fn check_required(expected: &Value, linked: &Value) -> Result<Value> {
+    required(
+        TARGET,
+        &"b".repeat(64),
+        &serde_json::to_vec(expected)?,
+        &serde_json::to_vec(linked)?,
+    )
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture access, checksum or validation errors, and fails if a
+/// missing component or rebound but changed required notice is accepted.
+fn required_components_reject_omissions_and_changed_metadata_or_notice_bytes() -> Result<()> {
+    let linked = inventory()?;
+    let mut expected = linked.clone();
+    *expected.get_mut("scope").ok_or("missing scope")? = json!("required_linked_source_notices");
+    let _valid: Value = check_required(&expected, &linked)?;
+    for (pointer, value) in [
+        ("/components/0/name", json!("omitted-component")),
+        ("/components/0/version", json!("2.0.0")),
+        (
+            "/components/0/source_url",
+            json!("https://example.com/another-source"),
+        ),
+        ("/components/0/notices/0/upstream_path", json!("NOTICE")),
+        ("/target", json!("x86_64-unknown-linux-gnu")),
+        ("/binary_sha256", json!("c".repeat(64))),
+        ("/scope", json!("linked_target_source_notices")),
+        ("/components", json!([])),
+    ] {
+        let mut changed = expected.clone();
+        *changed
+            .pointer_mut(pointer)
+            .ok_or("missing fixture field")? = value;
+        if check_required(&changed, &linked).is_ok() {
+            return Err(format!("invalid required notice accepted: {pointer}").into());
+        }
+    }
+    let mut changed_linked = linked;
+    let changed_text = "changed attribution\n";
+    *changed_linked
+        .pointer_mut("/components/0/notices/0")
+        .ok_or("missing notice")? = json!({"upstream_path":"COPYING",
+        "sha256":checksum(changed_text.as_bytes())?,"text":changed_text});
+    let _internally_valid: Value = check(&changed_linked)?;
+    if check_required(&expected, &changed_linked).is_ok() {
+        return Err("rebound changed text was accepted".into());
+    }
+    Ok(())
+}
+
+#[test]
+/// # Errors
+/// Propagates fixture access, encoding or validation errors, and fails if the
+/// exact required subset or external release requirements are not preserved.
+fn required_notice_subset_allows_additional_notices_and_keeps_external_gates() -> Result<()> {
+    let mut linked = inventory()?;
+    let mut expected = linked.clone();
+    *expected.get_mut("scope").ok_or("missing scope")? = json!("required_linked_source_notices");
+    let extra_text = "another source notice\n";
+    let notices = linked
+        .pointer_mut("/components/0/notices")
+        .and_then(Value::as_array_mut)
+        .ok_or("missing notices")?;
+    notices.insert(
+        0,
+        json!({"upstream_path":"NOTICE",
+        "sha256":checksum(extra_text.as_bytes())?,"text":extra_text}),
+    );
+    let report = check_required(&expected, &linked)?;
+    for key in [
+        "coverage",
+        "compilation_eligibility",
+        "license_permission_check",
+    ] {
+        if report.get(key) != Some(&json!("external_required")) {
+            return Err(format!("external gate changed: {key}").into());
+        }
+    }
+    if report.get("components") != Some(&json!(1_u32))
+        || report.get("notices") != Some(&json!(1_u32))
+    {
+        return Err("required subset counts changed".into());
+    }
     Ok(())
 }

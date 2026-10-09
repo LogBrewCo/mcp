@@ -114,6 +114,42 @@ fn later_versions_require_a_linked_notice_binding_and_version_one_rejects_it() -
     Ok(())
 }
 
+#[test]
+/// # Errors
+/// Propagates fixture access or plan encoding errors, and fails if the version
+/// or required-inventory binding is not enforced.
+fn version_four_requires_a_bounded_required_inventory_and_older_versions_reject_it() -> Result<()> {
+    let mut value = plan();
+    let object = value.as_object_mut().ok_or("missing plan")?;
+    let binding = json!({"bytes":1_u32,"sha256":"a".repeat(64)});
+    let _previous_linked: Option<Value> =
+        object.insert("linked_target_notices".into(), binding.clone());
+    let _previous_version: Option<Value> = object.insert("format_version".into(), json!(4_u32));
+    if Plan::parse(&serde_json::to_vec(&value)?).is_ok() {
+        return Err("version four accepted a missing required inventory".into());
+    }
+    let _previous_required: Option<Value> = value
+        .as_object_mut()
+        .ok_or("missing plan")?
+        .insert("required_linked_notices".into(), binding);
+    let _valid: Plan = Plan::parse(&serde_json::to_vec(&value)?)?;
+    for version in [1_u32, 2, 3, 5] {
+        *value.get_mut("format_version").ok_or("missing version")? = json!(version);
+        if Plan::parse(&serde_json::to_vec(&value)?).is_ok() {
+            return Err("incompatible version accepted a required inventory".into());
+        }
+    }
+    *value.get_mut("format_version").ok_or("missing version")? = json!(4_u32);
+    *value
+        .get_mut("required_linked_notices")
+        .ok_or("missing binding")? =
+        json!({"bytes":(4_u64 << 20_u32) + 1_u64,"sha256":"a".repeat(64)});
+    if Plan::parse(&serde_json::to_vec(&value)?).is_ok() {
+        return Err("oversized required inventory binding was accepted".into());
+    }
+    Ok(())
+}
+
 /// # Errors
 /// Rejects fixture offset overflow or a field outside the fixture buffer.
 fn field(bytes: &mut [u8], start: usize, value: &[u8]) -> Result<()> {

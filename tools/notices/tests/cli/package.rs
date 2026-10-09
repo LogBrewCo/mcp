@@ -14,6 +14,9 @@ mod linked;
 #[path = "package/readable.rs"]
 mod readable;
 
+#[path = "package/required.rs"]
+mod required;
+
 /// # Errors
 ///
 /// Returns an error if a fixture header offset, byte slice, checksum, or JSON encoding cannot be constructed.

@@ -223,9 +223,15 @@ The glibc `gnu/stubs.h` selector records its complete generator and ABI selectio
 sources. Reconstruct its preamble, includes and conditional wrappers from those
 rules, then verify every output byte against `input_binding`. This selected-rule
 reconstruction does not execute a complete glibc build. The generated
-`gnu/stubs-lp64.h` function list remains explicitly unqualified. Matching source and
-derived bytes do not prove the original Ubuntu package derivation, complete
-corresponding source, or distribution permissions.
+`gnu/stubs-lp64.h` function list remains unqualified as a source rebuild. Its
+compiled-object reconstruction binds the complete `libc.a`, all 2,034 inspected
+members, the eight marker objects, the prologue and its Ubuntu patch. Verify those
+inputs, remove prologue lines that start with `@`, then append sorted, unique
+`#define __stub_` lines from the `.gnu.glibc-stub.` section names. Verify all 627
+output bytes. The source files corroborate the markers; complete function
+selection has not been rebuilt from source. Matching source and derived bytes do
+not prove the original Ubuntu package derivation, complete corresponding source,
+or distribution permissions.
 
 Verify the archive, every compiled source and include input, the complete header,
 and the compiler version and source commit before using the recipe. With the

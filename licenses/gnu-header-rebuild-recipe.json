@@ -42,7 +42,7 @@
   "compiler_inputs": {
     "bytes": 33474,
     "path": "licenses/gnu-header-compiler-inputs.json",
-    "sha256": "87f1818c8aa1d1eaed9e2dcca74cc186f998dd1374b5b44a7dd83d84a8df9f99"
+    "sha256": "151d7416c1078a9b730b4ad07649b174b0257eec302732816c78440f8a5865cb"
   },
   "complete_corresponding_source": false,
   "complete_distribution_permissions": false,

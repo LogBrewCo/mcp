@@ -1,4 +1,4 @@
-use super::{Directory, Plan, export, fixture, plan, plan_value};
+use super::{Plan, export, fixture, plan, plan_value};
 use crate::{Result, checksum};
 use alloc::{string::String, vec::Vec};
 use serde_json::{Value, json};
@@ -278,18 +278,12 @@ fn wrapper_rejects_special_members_and_size_overruns_before_reading() -> Result<
 /// # Errors
 /// Fails if changed compressed input replaces a successful prior export.
 fn wrapper_command_preserves_previous_output_after_changed_input() -> Result<()> {
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)?
-        .as_nanos();
-    let directory = Directory(
-        std::env::temp_dir().join(format!("logbrew-wrapper-{}-{nanos}", std::process::id())),
-    );
-    std::fs::DirBuilder::new().create(&directory.0)?;
+    let directory = crate::test_directory::directory("wrapper")?;
     let input = fixture()?;
     let compressed = wrap(&[("capture.tar", &input)])?;
-    let plan_path = directory.0.join("plan.json");
-    let capture_path = directory.0.join("capture.tar.gz");
-    let output_path = directory.0.join("output.tar.gz");
+    let plan_path = directory.path().join("plan.json");
+    let capture_path = directory.path().join("capture.tar.gz");
+    let output_path = directory.path().join("output.tar.gz");
     std::fs::write(
         &plan_path,
         serde_json::to_vec(&wrapped_plan_value(&input, &compressed)?)?,
@@ -305,7 +299,7 @@ fn wrapper_command_preserves_previous_output_after_changed_input() -> Result<()>
     std::fs::write(&capture_path, b"changed compressed capture")?;
     if crate::relink::run(arguments()).is_ok()
         || crate::input::read(&output_path, super::super::ARCHIVE_BYTES)? != prior
-        || std::fs::read_dir(&directory.0)?.count() != 3
+        || std::fs::read_dir(directory.path())?.count() != 3
     {
         return Err("changed wrapper replaced output or left staging".into());
     }

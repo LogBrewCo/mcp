@@ -22,22 +22,8 @@ use crate::{
     reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
 )]
 fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<()> {
-    struct Directory(std::path::PathBuf);
-    impl Drop for Directory {
-        fn drop(&mut self) {
-            let _cleanup: std::io::Result<()> = std::fs::remove_dir_all(&self.0);
-        }
-    }
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)?
-        .as_nanos();
-    let path = std::env::temp_dir().join(format!(
-        "logbrew-notice-input-{}-{nanos}",
-        std::process::id()
-    ));
-    std::fs::DirBuilder::new().create(&path)?;
-    let directory = Directory(path);
-    let file = directory.0.join("source");
+    let directory = crate::test_directory::directory("notice-input")?;
+    let file = directory.path().join("source");
     let bytes = b"complete source";
     std::fs::write(&file, bytes)?;
     assert_eq!(
@@ -47,8 +33,8 @@ fn regular_notice_input_rejects_links_directories_and_size_overruns() -> Result<
     let _budget_error: Box<dyn core::error::Error> =
         crate::input::read(&file, 1).expect_err("input must be rejected");
     let _directory_error: Box<dyn core::error::Error> =
-        crate::input::read(&directory.0, 1024).expect_err("input must be rejected");
-    let link = directory.0.join("link");
+        crate::input::read(directory.path(), 1024).expect_err("input must be rejected");
+    let link = directory.path().join("link");
     std::os::unix::fs::symlink(&file, &link)?;
     let _error: Box<dyn core::error::Error> =
         crate::input::read(&link, 1024).expect_err("input must be rejected");

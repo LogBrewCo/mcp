@@ -15,6 +15,9 @@ mod toolchain;
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
+mod test_directory;
+
 use alloc::collections::BTreeMap;
 use core::fmt::Write as _;
 use std::{

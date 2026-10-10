@@ -1,5 +1,4 @@
 use alloc::{string::String, vec::Vec};
-use std::path::PathBuf;
 
 use flate2::read::GzDecoder;
 use serde_json::{Value, json};
@@ -294,30 +293,16 @@ fn tar_rejects_ambiguous_and_nonregular_material() -> Result<()> {
     Ok(())
 }
 
-struct Directory(PathBuf);
-
-impl Drop for Directory {
-    fn drop(&mut self) {
-        let _cleanup: std::io::Result<()> = std::fs::remove_dir_all(&self.0);
-    }
-}
-
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 #[test]
 /// # Errors
 /// Fails if changed input replaces prior output, an input alias passes or
 /// failed publication leaves staging files behind.
 fn command_preserves_previous_output_and_rejects_input_aliases() -> Result<()> {
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)?
-        .as_nanos();
-    let directory = Directory(
-        std::env::temp_dir().join(format!("logbrew-relink-{}-{nanos}", std::process::id())),
-    );
-    std::fs::DirBuilder::new().create(&directory.0)?;
-    let plan_path = directory.0.join("plan.json");
-    let archive_path = directory.0.join("capture.tar");
-    let output_path = directory.0.join("output.tar.gz");
+    let directory = crate::test_directory::directory("relink")?;
+    let plan_path = directory.path().join("plan.json");
+    let archive_path = directory.path().join("capture.tar");
+    let output_path = directory.path().join("output.tar.gz");
     let input = fixture()?;
     std::fs::write(&plan_path, serde_json::to_vec(&plan_value(&input)?)?)?;
     std::fs::write(&archive_path, &input)?;
@@ -338,13 +323,13 @@ fn command_preserves_previous_output_and_rejects_input_aliases() -> Result<()> {
     {
         return Err("changed input replaced previous output".into());
     }
-    std::fs::hard_link(&plan_path, directory.0.join("alias"))?;
-    for output in [&plan_path, &directory.0.join("alias")] {
+    std::fs::hard_link(&plan_path, directory.path().join("alias"))?;
+    for output in [&plan_path, &directory.path().join("alias")] {
         if super::guard_output(output, &[&plan_path, &archive_path]).is_ok() {
             return Err("input alias accepted".into());
         }
     }
-    if std::fs::read_dir(&directory.0)?.count() != 4 {
+    if std::fs::read_dir(directory.path())?.count() != 4 {
         return Err("failed export left staging files".into());
     }
     Ok(())

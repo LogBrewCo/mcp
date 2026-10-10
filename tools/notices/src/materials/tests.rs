@@ -1,38 +1,22 @@
 use alloc::{collections::BTreeMap, string::String, vec::Vec};
-use std::path::PathBuf;
 
 use flate2::read::GzDecoder;
 use serde_json::{Value, json};
 
 use super::{Plan, build};
-use crate::{Result, checksum, input};
-
-struct Directory(PathBuf);
-
-impl Drop for Directory {
-    fn drop(&mut self) {
-        let _cleanup: std::io::Result<()> = std::fs::remove_dir_all(&self.0);
-    }
-}
+use crate::{Result, checksum, input, test_directory::Directory};
 
 /// # Errors
 /// Propagates exclusive fixture-directory creation failures.
 fn directory() -> Result<Directory> {
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)?
-        .as_nanos();
-    let directory = Directory(
-        std::env::temp_dir().join(format!("logbrew-materials-{}-{nanos}", std::process::id())),
-    );
-    std::fs::DirBuilder::new().create(&directory.0)?;
-    Ok(directory)
+    Ok(crate::test_directory::directory("materials")?)
 }
 
 /// # Errors
 /// Propagates fixture publication or checksum errors.
 fn fixture(directory: &Directory) -> Result<Value> {
     let body = b"complete upstream text\n";
-    let path = directory.0.join("private-input.txt");
+    let path = directory.path().join("private-input.txt");
     std::fs::write(&path, body)?;
     Ok(json!({
         "format_version":1_u32,"package_version":"0.1.0","build_identity":"development",
@@ -267,8 +251,8 @@ fn plan_budgets_fail_before_file_reads() -> Result<()> {
 fn rejected_inputs_preserve_previous_output() -> Result<()> {
     let directory = directory()?;
     let mut value = fixture(&directory)?;
-    let plan_path = directory.0.join("plan.json");
-    let output_path = directory.0.join("output.tar.gz");
+    let plan_path = directory.path().join("plan.json");
+    let output_path = directory.path().join("output.tar.gz");
     std::fs::write(&plan_path, serde_json::to_vec(&value)?)?;
     let arguments = || {
         [&plan_path, &output_path]
@@ -277,13 +261,16 @@ fn rejected_inputs_preserve_previous_output() -> Result<()> {
     };
     super::run(arguments())?;
     let prior = input::read(&output_path, super::PAYLOAD_BYTES)?;
-    std::fs::write(directory.0.join("private-input.txt"), b"changed source")?;
+    std::fs::write(
+        directory.path().join("private-input.txt"),
+        b"changed source",
+    )?;
     if super::run(arguments()).is_ok() || input::read(&output_path, super::PAYLOAD_BYTES)? != prior
     {
         return Err("changed material replaced previous output".into());
     }
     let private = b"private-input";
-    std::fs::write(directory.0.join("private-input.txt"), private)?;
+    std::fs::write(directory.path().join("private-input.txt"), private)?;
     *file(&mut value)?
         .get_mut("binding")
         .ok_or("missing binding")? = json!({"bytes":private.len(),"sha256":checksum(private)?});
@@ -294,8 +281,8 @@ fn rejected_inputs_preserve_previous_output() -> Result<()> {
     }
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        let link = directory.0.join("input-link");
-        std::os::unix::fs::symlink(directory.0.join("private-input.txt"), &link)?;
+        let link = directory.path().join("input-link");
+        std::os::unix::fs::symlink(directory.path().join("private-input.txt"), &link)?;
         *file(&mut value)?
             .get_mut("input_path")
             .ok_or("missing input")? = json!(link);
@@ -314,10 +301,10 @@ fn rejected_inputs_preserve_previous_output() -> Result<()> {
 fn command_rejects_every_input_alias() -> Result<()> {
     let directory = directory()?;
     let value = fixture(&directory)?;
-    let plan_path = directory.0.join("plan.json");
+    let plan_path = directory.path().join("plan.json");
     std::fs::write(&plan_path, serde_json::to_vec(&value)?)?;
-    let source_path = directory.0.join("private-input.txt");
-    let alias_path = directory.0.join("alias");
+    let source_path = directory.path().join("private-input.txt");
+    let alias_path = directory.path().join("alias");
     std::fs::hard_link(&source_path, &alias_path)?;
     for destination in [&plan_path, &source_path, &alias_path] {
         if super::run(
@@ -330,7 +317,7 @@ fn command_rejects_every_input_alias() -> Result<()> {
             return Err("materials input alias accepted".into());
         }
     }
-    if std::fs::read_dir(&directory.0)?.count() != 3 {
+    if std::fs::read_dir(directory.path())?.count() != 3 {
         return Err("rejected materials publication left staging files".into());
     }
     Ok(())

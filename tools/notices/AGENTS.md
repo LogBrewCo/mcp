@@ -199,15 +199,28 @@ and checksum, and preserve its source comments. The manifest's
 to `licenses/clang-23.1.3.txt`. Include that exact text with recipient materials.
 These source bindings do not establish complete distribution permissions.
 
-The bound `system_header_sources` asset records complete upstream source files
-for 72 system headers. Its `source_archives` identify the glibc upstream and
+The bound `system_header_sources` asset records source bindings and selected
+derivations for 77 system headers. Its `source_archives` identify the glibc upstream and
 Ubuntu patch archives by URL, size and checksum. For each header, verify the
 source file against its recorded binding, apply its listed patches in order,
 and verify the complete result against `input_binding`. Preserve whitespace.
 Unpatched source files must already match that input binding. Verify the bound
 patch series and include this asset and both source archives with recipient
-materials. Two generated glibc headers and five kernel headers remain explicitly
-unqualified. These bindings do not establish their derivation, complete
+materials.
+
+The asset also binds complete Linux v7.0 files to its recorded source commit.
+Three kernel headers match those files without changes. The `linux/limits.h`
+derivation changes only the two listed UAPI guards. Verify that the complete
+source needs none of the install script's other transformations. The ARM64
+`asm/errno.h` derivation produces the listed include wrapper. Verify the
+mandatory-header selection, architecture file inventory and generator rule.
+These are selected-rule reconstructions; a complete upstream build is unrun.
+Include every bound Linux source file and both complete Linux license texts with
+recipient materials. Preserve their full bytes and source comments.
+For a JSON-string license asset, verify `file_encoding`, decode the string, and
+verify the complete decoded text against its source binding before inclusion.
+Two generated glibc headers remain explicitly unqualified. Matching source and
+derived bytes do not prove the original Ubuntu package derivation, complete
 corresponding source, or distribution permissions.
 
 Verify the archive, every compiled source and include input, the complete header,

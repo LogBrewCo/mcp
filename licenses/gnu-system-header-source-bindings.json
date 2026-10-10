@@ -5,6 +5,84 @@
   "format_version": 1,
   "headers": [
     {
+      "derivation": {
+        "architecture": "arm64",
+        "architecture_header_paths": [
+          "arch/arm64/include/uapi/asm/Kbuild",
+          "arch/arm64/include/uapi/asm/auxvec.h",
+          "arch/arm64/include/uapi/asm/bitsperlong.h",
+          "arch/arm64/include/uapi/asm/bpf_perf_event.h",
+          "arch/arm64/include/uapi/asm/byteorder.h",
+          "arch/arm64/include/uapi/asm/fcntl.h",
+          "arch/arm64/include/uapi/asm/hwcap.h",
+          "arch/arm64/include/uapi/asm/kvm.h",
+          "arch/arm64/include/uapi/asm/mman.h",
+          "arch/arm64/include/uapi/asm/param.h",
+          "arch/arm64/include/uapi/asm/perf_regs.h",
+          "arch/arm64/include/uapi/asm/posix_types.h",
+          "arch/arm64/include/uapi/asm/ptrace.h",
+          "arch/arm64/include/uapi/asm/setup.h",
+          "arch/arm64/include/uapi/asm/sigcontext.h",
+          "arch/arm64/include/uapi/asm/signal.h",
+          "arch/arm64/include/uapi/asm/statfs.h",
+          "arch/arm64/include/uapi/asm/sve_context.h",
+          "arch/arm64/include/uapi/asm/ucontext.h",
+          "arch/arm64/include/uapi/asm/unistd.h"
+        ],
+        "complete_upstream_build_executed": false,
+        "direct_architecture_header_absent": true,
+        "generator": {
+          "binding": {
+            "bytes": 3459,
+            "sha256": "a41518fb74c884e12f0b6a3addb974d13d76f008582f4e0e7c332a5e8201e325"
+          },
+          "path": "scripts/Makefile.asm-headers",
+          "repository": "linux",
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/Makefile.asm-headers"
+        },
+        "header": "errno.h",
+        "kind": "asm_generic_wrapper",
+        "output": "#include <asm-generic/errno.h>\n",
+        "selected_rule_reconstruction": true,
+        "selection_sources": [
+          {
+            "binding": {
+              "bytes": 928,
+              "sha256": "7f798a9dee418ae8169e28cfcfd4646cfdbf265e74907ce99191c1029a5cc1c0"
+            },
+            "path": "include/uapi/asm-generic/Kbuild",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/Kbuild"
+          },
+          {
+            "binding": {
+              "bytes": 85,
+              "sha256": "80ea7d9bb46731c0ddf368714430e69508fa0e1489779ac0d2fdda2f2351955f"
+            },
+            "path": "arch/arm64/include/uapi/asm/Kbuild",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/arch/arm64/include/uapi/asm/Kbuild"
+          }
+        ]
+      },
+      "input_binding": {
+        "bytes": 31,
+        "sha256": "4ee384515a4325315992e61dd957f0fa91f3858fe7c079de59f56edded51de86"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/asm/errno.h",
+      "root": "sysroot",
+      "source": {
+        "binding": {
+          "bytes": 5756,
+          "sha256": "651dbafba40d561d5ba2d6dc43263238e3894e91942d30af925971dc92230daf"
+        },
+        "path": "include/uapi/asm-generic/errno.h",
+        "repository": "linux",
+        "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/errno.h"
+      }
+    },
+    {
       "input_binding": {
         "bytes": 1283,
         "sha256": "7d508b02d7ed3a94c1a556779fdd590fd2e0668a34b0d736e40eab6df7d60154"
@@ -992,6 +1070,42 @@
     },
     {
       "input_binding": {
+        "bytes": 1612,
+        "sha256": "2c148e92b8318deeb767fabd60822113e575ee664ff09a1873aed8f7a495793c"
+      },
+      "patches": [],
+      "path": "usr/include/asm-generic/errno-base.h",
+      "root": "sysroot",
+      "source": {
+        "binding": {
+          "bytes": 1612,
+          "sha256": "2c148e92b8318deeb767fabd60822113e575ee664ff09a1873aed8f7a495793c"
+        },
+        "path": "include/uapi/asm-generic/errno-base.h",
+        "repository": "linux",
+        "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/errno-base.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5756,
+        "sha256": "651dbafba40d561d5ba2d6dc43263238e3894e91942d30af925971dc92230daf"
+      },
+      "patches": [],
+      "path": "usr/include/asm-generic/errno.h",
+      "root": "sysroot",
+      "source": {
+        "binding": {
+          "bytes": 5756,
+          "sha256": "651dbafba40d561d5ba2d6dc43263238e3894e91942d30af925971dc92230daf"
+        },
+        "path": "include/uapi/asm-generic/errno.h",
+        "repository": "linux",
+        "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/errno.h"
+      }
+    },
+    {
+      "input_binding": {
         "bytes": 6922,
         "sha256": "efd33a1d9224c27a176166d18e82d39630a4bd8ae8956ff5f09d9b40afae693a"
       },
@@ -1108,6 +1222,81 @@
           "sha256": "7505220f742ab30ef635baa0849f26e1dfdb4fb22f2b506f4f2b0f4879f82dfb"
         },
         "path": "glibc-2.43/include/limits.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 23,
+        "sha256": "a47fb2f49bce0546a1e88805cec954338abb1b2ac87de042166e8e3a74b23261"
+      },
+      "patches": [],
+      "path": "usr/include/linux/errno.h",
+      "root": "sysroot",
+      "source": {
+        "binding": {
+          "bytes": 23,
+          "sha256": "a47fb2f49bce0546a1e88805cec954338abb1b2ac87de042166e8e3a74b23261"
+        },
+        "path": "include/uapi/linux/errno.h",
+        "repository": "linux",
+        "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/linux/errno.h"
+      }
+    },
+    {
+      "derivation": {
+        "complete_upstream_build_executed": false,
+        "kernel_conditionals_present": false,
+        "kind": "headers_install_uapi_guards",
+        "other_install_transformations_needed": false,
+        "recipes": [
+          {
+            "binding": {
+              "bytes": 1844,
+              "sha256": "868a1c45cff9befd5b5d61b4c9b0c4a97e23c285b921cfa10c14dc37a8bc643b"
+            },
+            "path": "scripts/headers_install.sh",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/headers_install.sh"
+          },
+          {
+            "binding": {
+              "bytes": 2950,
+              "sha256": "a763f07b49b50df48fd47440dd64868874774edba92914ea5fb4fae002564b37"
+            },
+            "path": "scripts/Makefile.headersinst",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/Makefile.headersinst"
+          }
+        ],
+        "selected_rule_reconstruction": true,
+        "transformations": [
+          {
+            "directive": "ifndef",
+            "from": "_UAPI_LINUX_LIMITS_H",
+            "to": "_LINUX_LIMITS_H"
+          },
+          {
+            "directive": "define",
+            "from": "_UAPI_LINUX_LIMITS_H",
+            "to": "_LINUX_LIMITS_H"
+          }
+        ]
+      },
+      "input_binding": {
+        "bytes": 937,
+        "sha256": "567dbb4893d20bb986996f0a8b8f774b02ca6cb7df8e4b642895eade7e7ffcd9"
+      },
+      "patches": [],
+      "path": "usr/include/linux/limits.h",
+      "root": "sysroot",
+      "source": {
+        "binding": {
+          "bytes": 947,
+          "sha256": "5c047eb319a61e211442af30493b420eb9e721a1eceee552258dce0d5a26dede"
+        },
+        "path": "include/uapi/linux/limits.h",
+        "repository": "linux",
+        "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/linux/limits.h"
       }
     },
     {
@@ -1275,12 +1464,6 @@
   "target": "aarch64-unknown-linux-gnu",
   "unqualified_headers": [
     {
-      "path": "usr/include/aarch64-linux-gnu/asm/errno.h",
-      "reason": "Kernel header source derivation is unproven.",
-      "root": "sysroot",
-      "source_package": "linux"
-    },
-    {
       "path": "usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h",
       "reason": "Generated header source derivation is unproven.",
       "root": "sysroot",
@@ -1291,30 +1474,127 @@
       "reason": "Generated header source derivation is unproven.",
       "root": "sysroot",
       "source_package": "glibc"
-    },
-    {
-      "path": "usr/include/asm-generic/errno-base.h",
-      "reason": "Kernel header source derivation is unproven.",
-      "root": "sysroot",
-      "source_package": "linux"
-    },
-    {
-      "path": "usr/include/asm-generic/errno.h",
-      "reason": "Kernel header source derivation is unproven.",
-      "root": "sysroot",
-      "source_package": "linux"
-    },
-    {
-      "path": "usr/include/linux/errno.h",
-      "reason": "Kernel header source derivation is unproven.",
-      "root": "sysroot",
-      "source_package": "linux"
-    },
-    {
-      "path": "usr/include/linux/limits.h",
-      "reason": "Kernel header source derivation is unproven.",
-      "root": "sysroot",
-      "source_package": "linux"
     }
-  ]
+  ],
+  "upstream_repositories": {
+    "linux": {
+      "commit": "028ef9c96e96197026887c0f092424679298aae8",
+      "original_package_derivation_proven": false,
+      "repository_url": "https://github.com/torvalds/linux",
+      "source_files": {
+        "LICENSES/exceptions/Linux-syscall-note": {
+          "binding": {
+            "bytes": 1258,
+            "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/LICENSES/exceptions/Linux-syscall-note"
+        },
+        "LICENSES/preferred/GPL-2.0": {
+          "binding": {
+            "bytes": 18600,
+            "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/LICENSES/preferred/GPL-2.0"
+        },
+        "arch/arm64/include/uapi/asm/Kbuild": {
+          "binding": {
+            "bytes": 85,
+            "sha256": "80ea7d9bb46731c0ddf368714430e69508fa0e1489779ac0d2fdda2f2351955f"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/arch/arm64/include/uapi/asm/Kbuild"
+        },
+        "include/uapi/asm-generic/Kbuild": {
+          "binding": {
+            "bytes": 928,
+            "sha256": "7f798a9dee418ae8169e28cfcfd4646cfdbf265e74907ce99191c1029a5cc1c0"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/Kbuild"
+        },
+        "include/uapi/asm-generic/errno-base.h": {
+          "binding": {
+            "bytes": 1612,
+            "sha256": "2c148e92b8318deeb767fabd60822113e575ee664ff09a1873aed8f7a495793c"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/errno-base.h"
+        },
+        "include/uapi/asm-generic/errno.h": {
+          "binding": {
+            "bytes": 5756,
+            "sha256": "651dbafba40d561d5ba2d6dc43263238e3894e91942d30af925971dc92230daf"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/asm-generic/errno.h"
+        },
+        "include/uapi/linux/errno.h": {
+          "binding": {
+            "bytes": 23,
+            "sha256": "a47fb2f49bce0546a1e88805cec954338abb1b2ac87de042166e8e3a74b23261"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/linux/errno.h"
+        },
+        "include/uapi/linux/limits.h": {
+          "binding": {
+            "bytes": 947,
+            "sha256": "5c047eb319a61e211442af30493b420eb9e721a1eceee552258dce0d5a26dede"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/include/uapi/linux/limits.h"
+        },
+        "scripts/Makefile.asm-headers": {
+          "binding": {
+            "bytes": 3459,
+            "sha256": "a41518fb74c884e12f0b6a3addb974d13d76f008582f4e0e7c332a5e8201e325"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/Makefile.asm-headers"
+        },
+        "scripts/Makefile.headersinst": {
+          "binding": {
+            "bytes": 2950,
+            "sha256": "a763f07b49b50df48fd47440dd64868874774edba92914ea5fb4fae002564b37"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/Makefile.headersinst"
+        },
+        "scripts/headers_install.sh": {
+          "binding": {
+            "bytes": 1844,
+            "sha256": "868a1c45cff9befd5b5d61b4c9b0c4a97e23c285b921cfa10c14dc37a8bc643b"
+          },
+          "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/scripts/headers_install.sh"
+        }
+      },
+      "source_licenses": [
+        {
+          "public_path": "licenses/linux-7.0-GPL-2.0.txt",
+          "source": {
+            "binding": {
+              "bytes": 18600,
+              "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa"
+            },
+            "path": "LICENSES/preferred/GPL-2.0",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/LICENSES/preferred/GPL-2.0"
+          },
+          "spdx_identifier": "GPL-2.0"
+        },
+        {
+          "file_encoding": {
+            "bytes": 1291,
+            "format": "json_string",
+            "sha256": "5bd51b835122cf9fbf717810d3ce28a91a15c4fe45c1b77d7957a553bfa2f048"
+          },
+          "public_path": "licenses/linux-7.0-syscall-note.json",
+          "source": {
+            "binding": {
+              "bytes": 1258,
+              "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f"
+            },
+            "path": "LICENSES/exceptions/Linux-syscall-note",
+            "repository": "linux",
+            "source_url": "https://raw.githubusercontent.com/torvalds/linux/028ef9c96e96197026887c0f092424679298aae8/LICENSES/exceptions/Linux-syscall-note"
+          },
+          "spdx_identifier": "Linux-syscall-note"
+        }
+      ],
+      "tag": "v7.0",
+      "tag_object": "3131ff5a117498bb4b9db3a238bb311cbf8383ce"
+    }
+  }
 }

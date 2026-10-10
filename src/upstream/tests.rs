@@ -3,7 +3,49 @@
 use core::time::Duration;
 use std::time::UNIX_EPOCH;
 
-use super::retry_after_at;
+use super::{MachineCredential, retry_after_at};
+use crate::error::Kind;
+use zeroize::Zeroizing;
+
+/// # Panics
+/// Panics if a printable machine ID is rejected, changed or exposed in diagnostics.
+#[test]
+fn machine_client_ids_preserve_spaces_commas_and_the_exact_byte_limit() {
+    for id in ["synthetic client,one".to_owned(), " ,".repeat(4096)] {
+        let credential = MachineCredential::new(
+            id.clone(),
+            Zeroizing::new("SYNTHETIC_MACHINE_SECRET".to_owned()),
+        )
+        .expect("printable machine client ID");
+        assert_eq!(credential.id, id);
+        assert_eq!(format!("{credential:?}"), "machine credential [redacted]");
+    }
+}
+
+/// # Panics
+/// Panics if an empty, non-ASCII, control-bearing or oversized machine ID is accepted.
+#[test]
+fn invalid_machine_client_ids_fail_configuration() {
+    for id in [
+        "",
+        "client\tname",
+        "client\nname",
+        "client\rname",
+        "client\0name",
+        "client\x1fname",
+        "client\x7fname",
+        "client\u{00e9}",
+    ]
+    .map(str::to_owned)
+    .into_iter()
+    .chain(core::iter::once("x".repeat(8193)))
+    {
+        let failure =
+            MachineCredential::new(id, Zeroizing::new("SYNTHETIC_MACHINE_SECRET".to_owned()))
+                .expect_err("invalid machine client ID");
+        assert_eq!(failure.kind, Kind::Configuration);
+    }
+}
 
 /// # Panics
 /// Panics if future dates round below their deadline, or past dates add a delay.

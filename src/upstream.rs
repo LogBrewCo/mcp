@@ -103,7 +103,13 @@ impl MachineCredential {
     /// # Errors
     /// Rejects empty or oversized secrets and invalid client identifiers.
     pub fn new(id: String, secret: Zeroizing<String>) -> Result<Self, Failure> {
-        if !valid_token(&id) || secret.is_empty() || secret.len() > TOKEN_BYTES {
+        // RFC 6749 Appendix A.1 permits spaces and commas in machine client IDs.
+        if id.is_empty()
+            || id.len() > TOKEN_BYTES
+            || !id.bytes().all(|byte| (b' '..=b'~').contains(&byte))
+            || secret.is_empty()
+            || secret.len() > TOKEN_BYTES
+        {
             return Err(Kind::Configuration.into());
         }
         Ok(Self { id, secret })

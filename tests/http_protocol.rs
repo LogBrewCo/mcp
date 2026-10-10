@@ -44,6 +44,8 @@ mod request_encoding;
 mod request_json;
 #[path = "support/runtime.rs"]
 mod runtime;
+#[path = "cases/scope_grants.rs"]
+mod scope_grants;
 #[path = "cases/scopes.rs"]
 mod scopes;
 #[path = "cases/search_contract.rs"]

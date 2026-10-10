@@ -579,14 +579,5 @@ fn authorization(credential: &MachineCredential) -> Result<HeaderValue, Failure>
 }
 
 fn form_component(value: &str) -> String {
-    value
-        .bytes()
-        .map(|byte| match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'*' | b'-' | b'.' | b'_' => {
-                char::from(byte).to_string()
-            }
-            b' ' => "+".to_owned(),
-            _ => format!("%{byte:02X}"),
-        })
-        .collect()
+    url::form_urlencoded::byte_serialize(value.as_bytes()).collect()
 }

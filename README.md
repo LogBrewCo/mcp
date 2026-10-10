@@ -31,7 +31,7 @@ data before an offline run. Use the pinned tool's `cargo deny fetch std-replacem
 command for that data. The Rust gate verifies the tool version, process status,
 structured logs and a complete final summary. Data-loading errors fail even if
 cargo-deny returns zero. Run it from this repository root to check the server.
-The [tool guide](tools/notices/AGENTS.md) records its host and output limits.
+The [tool guide](tools/notices/README.md) records its host and output limits.
 The policy covers
 normal, build, and test dependencies across the resolved graph. It checks
 license requirements and registry sources, rejects wildcard versions, and

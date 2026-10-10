@@ -136,6 +136,15 @@ linked-target inventory before packaging. Keep all notice text verbatim and
 verify the registry archive pins and the Rust and LLVM source commits. The
 supplement does not select licenses or prove complete linked-component coverage.
 
+For GCC 15.2.0-16ubuntu1 startup inputs, include the complete `COPYING3` and
+`COPYING.RUNTIME` texts from the `gcc-runtime` component in
+`licenses/gnu-startup-source-notices.json`. The asset preserves the source
+comment and both license documents with full-file bindings. Compare the exact
+texts with the required and final linked-target inventories, then verify their
+readable copies in the archive. Check shared GCC runtime inputs separately;
+their package and source versions can differ from the startup files. These
+texts do not establish compilation eligibility or distribution permissions.
+
 GNU builds can compile header implementations into linked objects. Audit those
 contributions separately from startup objects and shared libraries. When a build
 includes the glibc `bsearch` header implementation, include its complete source

@@ -145,6 +145,17 @@ readable copies in the archive. Check shared GCC runtime inputs separately;
 their package and source versions can differ from the startup files. These
 texts do not establish compilation eligibility or distribution permissions.
 
+For the captured `libgcc-s1` 16-20260322-1ubuntu1 input, include the
+`gcc-shared-runtime` component from
+`licenses/gnu-shared-runtime-source-notices.json`. Its complete copyright text
+comes from the matching `gcc-16-base` package. Preserve every byte, including
+the final newline, and compare its binding with the package archive. The base
+copyright covers the wider GCC collection. It contains the runtime exception
+and refers to the separate GPL text; include the complete `COPYING3` text from
+the startup asset as well. Verify exact inventory and readable-archive copies.
+The runtime file binding records this captured package, not a current compiler
+release or complete corresponding source.
+
 GNU builds can compile header implementations into linked objects. Audit those
 contributions separately from startup objects and shared libraries. When a build
 includes the glibc `bsearch` header implementation, include its complete source

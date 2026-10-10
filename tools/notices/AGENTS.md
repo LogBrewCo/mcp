@@ -194,7 +194,7 @@ Export a checksum-bound plain tar archive produced by LLD 23.1.3 `--reproduce`:
 cargo run --locked --offline --bin logbrew-mcp-relink -- /absolute/path/to/relink-plan.json /absolute/path/to/capture.tar /absolute/path/to/relink.tar.gz
 ```
 
-The strict plan uses `format_version: 1`, this package's `package_version` and
+The strict plan uses `format_version: 1` or `2`, this package's `package_version` and
 `rust_release`, `build_identity` (`development` or the package version), a
 40-character lowercase hexadecimal `source_revision`, and a supported GNU
 `target` (`aarch64-unknown-linux-gnu` or `x86_64-unknown-linux-gnu`).
@@ -208,6 +208,18 @@ with relative `from` and `to` prefixes. Source prefixes must be distinct and
 nonoverlapping; every map must occur in an input or search-directory argument.
 `private_path_markers` contains 1 to 16 nonempty ASCII strings of at most
 256 bytes each. Unknown and duplicate fields fail.
+
+Version 2 reads a gzip-compressed tar wrapper directly. It requires
+`capture_wrapper` with a compressed-file `binding` (`bytes` and `sha256`) and
+the relative `member` path of the enclosed plain LLD archive. `input_archive`
+continues to bind that enclosed archive. Version 1 rejects a wrapper binding.
+The command verifies both sets of bytes and keeps the existing export unchanged.
+The wrapper is limited to 64 MiB compressed, 96 MiB expanded, 64 regular members,
+64 MiB per member and 64 KiB of path text. Every path must be safe and unique.
+Links, special entries, corrupt gzip framing, additional gzip streams and
+missing, unaligned or nonzero tar end records fail. It reads the wrapper in
+memory and never writes the enclosed plain archive to disk. Wrapper companions
+are omitted from the export and are not recipient materials.
 
 Mappings replace complete path components in archive paths and response input
 and search-directory arguments. Other input bytes remain unchanged. Standard

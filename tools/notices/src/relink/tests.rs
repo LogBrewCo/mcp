@@ -7,6 +7,8 @@ use serde_json::{Value, json};
 use super::{Plan, collect, export, paths, response};
 use crate::{Result, checksum};
 
+mod wrapper;
+
 const RESPONSE: &str = "--chroot . -m aarch64linux -dynamic-linker /lib/ld-linux-aarch64.so.1 -o program private-build/input.o -L private-build/search -z relro --why-extract=extractions.tsv";
 const VERSION: &str =
     "LLD 23.1.3 (https://github.com/llvm/llvm-project 0d261d1ca552c95a8f007e061c787ac7132fbcbc)\n";

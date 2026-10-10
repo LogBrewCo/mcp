@@ -13,6 +13,7 @@ use package::FileBinding;
 
 mod paths;
 mod response;
+mod wrapper;
 
 #[cfg(test)]
 mod tests;
@@ -46,6 +47,8 @@ struct Plan {
     rust_release: String,
     target: String,
     input_archive: FileBinding,
+    #[serde(default)]
+    capture_wrapper: Option<wrapper::Capture>,
     reference_binary: FileBinding,
     linker: Linker,
     archive_root: String,
@@ -62,7 +65,8 @@ impl Plan {
             return Err(error("relink plan exceeds limit"));
         }
         let plan: Self = serde_json::from_slice(bytes)?;
-        if plan.format_version != 1
+        if !matches!(plan.format_version, 1 | 2)
+            || (plan.format_version == 2) != plan.capture_wrapper.is_some()
             || plan.package_version != env!("CARGO_PKG_VERSION")
             || plan.rust_release != env!("CARGO_PKG_RUST_VERSION")
             || !package::hex(&plan.source_revision, 40)
@@ -79,6 +83,9 @@ impl Plan {
         }
         let _root: &std::path::Path = relative_path(&plan.archive_root)?;
         plan.input_archive.validate(ARCHIVE_BYTES)?;
+        if let Some(capture) = plan.capture_wrapper.as_ref() {
+            capture.validate()?;
+        }
         plan.reference_binary.validate(ARCHIVE_BYTES)?;
         paths::validate(&plan.path_maps, &plan.private_path_markers)?;
         Ok(plan)
@@ -256,7 +263,12 @@ where
     }
     guard_output(&output_path, &[&plan_path, &archive_path])?;
     let plan = Plan::parse(&input::read(&plan_path, 16 << 10)?)?;
-    let archive = plan.input_archive.read(&archive_path, ARCHIVE_BYTES)?;
+    let archive = if let Some(capture) = plan.capture_wrapper.as_ref() {
+        let bytes = capture.binding.read(&archive_path, ARCHIVE_BYTES)?;
+        capture.decode(&bytes, &plan.input_archive)?
+    } else {
+        plan.input_archive.read(&archive_path, ARCHIVE_BYTES)?
+    };
     publication::write(&output_path, &export(&plan, &archive)?)
 }
 

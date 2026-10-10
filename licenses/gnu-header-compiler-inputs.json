@@ -922,9 +922,9 @@
     "version": "0.45.0"
   },
   "system_header_sources": {
-    "bytes": 53246,
+    "bytes": 55848,
     "path": "licenses/gnu-system-header-source-bindings.json",
-    "sha256": "d67cf9d5e5394d8511824ca545be8235848ab8c32508855a01fd3a525befd253"
+    "sha256": "5125ac5467be16966854290e0f7169829affdc5f4ed130ff9ce8907aa5e1336f"
   },
   "system_packages": [
     {

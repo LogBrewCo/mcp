@@ -200,7 +200,7 @@ to `licenses/clang-23.1.3.txt`. Include that exact text with recipient materials
 These source bindings do not establish complete distribution permissions.
 
 The bound `system_header_sources` asset records source bindings and selected
-derivations for 77 system headers. Its `source_archives` identify the glibc upstream and
+derivations for 78 system headers. Its `source_archives` identify the glibc upstream and
 Ubuntu patch archives by URL, size and checksum. For each header, verify the
 source file against its recorded binding, apply its listed patches in order,
 and verify the complete result against `input_binding`. Preserve whitespace.
@@ -219,7 +219,11 @@ Include every bound Linux source file and both complete Linux license texts with
 recipient materials. Preserve their full bytes and source comments.
 For a JSON-string license asset, verify `file_encoding`, decode the string, and
 verify the complete decoded text against its source binding before inclusion.
-Two generated glibc headers remain explicitly unqualified. Matching source and
+The glibc `gnu/stubs.h` selector records its complete generator and ABI selection
+sources. Reconstruct its preamble, includes and conditional wrappers from those
+rules, then verify every output byte against `input_binding`. This selected-rule
+reconstruction does not execute a complete glibc build. The generated
+`gnu/stubs-lp64.h` function list remains explicitly unqualified. Matching source and
 derived bytes do not prove the original Ubuntu package derivation, complete
 corresponding source, or distribution permissions.
 

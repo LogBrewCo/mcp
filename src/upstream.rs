@@ -14,7 +14,7 @@ use zeroize::Zeroizing;
 
 use crate::{
     Failure, INPUT_BYTES, OUTPUT_BYTES, bearer,
-    clients::ClientAllowlist,
+    clients::{ClientAllowlist, valid_client_id},
     deadline,
     error::Kind,
     json as strict_json,
@@ -79,8 +79,7 @@ impl Principal {
     pub fn valid(&self) -> bool {
         valid_token(&self.credential_id)
             && self.credential_id.len() <= 256
-            && valid_token(&self.client_id)
-            && self.client_id.len() <= 2048
+            && valid_client_id(&self.client_id, 2048)
     }
 }
 
@@ -103,13 +102,7 @@ impl MachineCredential {
     /// # Errors
     /// Rejects empty or oversized secrets and invalid client identifiers.
     pub fn new(id: String, secret: Zeroizing<String>) -> Result<Self, Failure> {
-        // RFC 6749 Appendix A.1 permits spaces and commas in machine client IDs.
-        if id.is_empty()
-            || id.len() > TOKEN_BYTES
-            || !id.bytes().all(|byte| (b' '..=b'~').contains(&byte))
-            || secret.is_empty()
-            || secret.len() > TOKEN_BYTES
-        {
+        if !valid_client_id(&id, TOKEN_BYTES) || secret.is_empty() || secret.len() > TOKEN_BYTES {
             return Err(Kind::Configuration.into());
         }
         Ok(Self { id, secret })

@@ -5,7 +5,13 @@ use core::fmt;
 
 use serde::Deserialize;
 
-use crate::{Failure, error::Kind, json, upstream::valid_token};
+use crate::{Failure, error::Kind, json};
+
+/// Check bounded printable ASCII without normalizing an OAuth client ID.
+pub(crate) fn valid_client_id(id: &str, maximum: usize) -> bool {
+    // RFC 6749 Appendix A.1 uses VSCHAR, including space and comma.
+    !id.is_empty() && id.len() <= maximum && id.bytes().all(|byte| (b' '..=b'~').contains(&byte))
+}
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -47,7 +53,7 @@ impl ClientAllowlist {
 fn decode_clients(ids: Vec<String>) -> Result<BTreeSet<String>, Failure> {
     let mut clients = BTreeSet::new();
     for client in ids {
-        if client.len() > 2048 || !valid_token(&client) || !clients.insert(client) {
+        if !valid_client_id(&client, 2048) || !clients.insert(client) {
             return Err(Kind::Configuration.into());
         }
     }

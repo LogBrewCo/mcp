@@ -36,6 +36,7 @@ use super::count::discard_count;
 
 pub const RESOURCE: &str = "https://resource.example/mcp";
 pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
+const CLIENT_ID: &str = "synthetic-client";
 const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%&\n";
 // RFC 6749 section 2.3.1 encodes each component before HTTP Basic encoding.
 const INTROSPECTION_AUTH: &str = "Basic aW50cm9zcGVjdGlvbiUyQmNsaWVudCUyQytvbmU6U1lOVEhFVElDX01BQ0hJTkVfU0VDUkVUKyUyQiUzQSUyNSUyNiUwQQ==";
@@ -51,6 +52,7 @@ pub struct StateData {
     resource: String,
     scope: String,
     token: String,
+    client_id: String,
     reply: Mutex<Option<Reply>>,
     introspection_reply: Mutex<Option<Reply>>,
     pause: AtomicBool,
@@ -154,7 +156,15 @@ impl Fixture {
     pub async fn for_resource(resource: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(resource, Some(clients), "mcp:read".to_owned(), None, TOKEN).await
+        Self::build(
+            resource,
+            Some(clients),
+            "mcp:read".to_owned(),
+            None,
+            TOKEN,
+            CLIENT_ID,
+        )
+        .await
     }
 
     /// Start the fixture with no authorized client policy.
@@ -168,6 +178,7 @@ impl Fixture {
             "mcp:read".to_owned(),
             None,
             TOKEN,
+            CLIENT_ID,
         )
         .await
     }
@@ -177,12 +188,21 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn with_clients(clients: ClientAllowlist) -> TestResult<Self> {
+        Self::with_client_id(clients, CLIENT_ID).await
+    }
+
+    /// Start the fixture expecting one exact issuer-confirmed client identity.
+    ///
+    /// # Errors
+    /// Propagates HTTPS fixture construction or startup readiness failures.
+    pub async fn with_client_id(clients: ClientAllowlist, client_id: &str) -> TestResult<Self> {
         Self::build(
             RESOURCE.to_owned(),
             Some(clients),
             "mcp:read".to_owned(),
             None,
             TOKEN,
+            client_id,
         )
         .await
     }
@@ -194,7 +214,15 @@ impl Fixture {
     pub async fn with_scope(scope: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(RESOURCE.to_owned(), Some(clients), scope, None, TOKEN).await
+        Self::build(
+            RESOURCE.to_owned(),
+            Some(clients),
+            scope,
+            None,
+            TOKEN,
+            CLIENT_ID,
+        )
+        .await
     }
 
     /// Start the fixture with the supplied catalog bytes and their computed checksum.
@@ -210,6 +238,7 @@ impl Fixture {
             "mcp:read".to_owned(),
             Some(artifact),
             TOKEN,
+            CLIENT_ID,
         )
         .await
     }
@@ -227,6 +256,7 @@ impl Fixture {
             "mcp:read".to_owned(),
             None,
             token,
+            CLIENT_ID,
         )
         .await
     }
@@ -243,6 +273,7 @@ impl Fixture {
         scope: String,
         artifact: Option<Vec<u8>>,
         token: &str,
+        client_id: &str,
     ) -> TestResult<Self> {
         let listener = TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
@@ -263,6 +294,7 @@ impl Fixture {
             resource: resource.clone(),
             scope: scope.clone(),
             token: token.to_owned(),
+            client_id: client_id.to_owned(),
             reply: Mutex::new(None),
             introspection_reply: Mutex::new(None),
             pause: AtomicBool::new(false),
@@ -522,7 +554,7 @@ fn claims(state: &StateData) -> Result<Value, StatusCode> {
     Ok(
         json!({"active":state.active.load(Ordering::SeqCst),"iss":state.issuer,
         "aud":state.resource,"exp":now.saturating_add(60),"iat":now,"token_type":"Bearer",
-        "scope":state.scope,"jti":"synthetic-credential-reference","client_id":"synthetic-client"}),
+        "scope":state.scope,"jti":"synthetic-credential-reference","client_id":state.client_id}),
     )
 }
 
@@ -566,7 +598,7 @@ async fn execute(
     );
     assert_eq!(
         input.get("client_id").and_then(Value::as_str),
-        Some("synthetic-client")
+        Some(state.client_id.as_str())
     );
     discard_count(state.calls.fetch_add(1, Ordering::SeqCst));
     discard_count(state.active_executions.fetch_add(1, Ordering::SeqCst));

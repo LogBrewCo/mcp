@@ -15,6 +15,104 @@ use tower::ServiceExt as _;
 
 use super::http::{Fixture, TOKEN, request_message};
 
+#[tokio::test]
+/// # Panics
+///
+/// Panics if printable client IDs fail authorization, an alias or caller identity
+/// grants access, exact recovery or revocation fails, or telemetry discloses an ID.
+async fn printable_client_ids_require_exact_issuer_and_allowlist_matches() {
+    const CLIENT: &str = "SYNTHETIC_PRIVATE_CLIENT, one";
+    let policy =
+        serde_json::to_vec(&json!({"version":"1","clients":[CLIENT]})).expect("client policy JSON");
+    let clients = ClientAllowlist::decode(&policy).expect("trusted printable client policy");
+    let fixture = Fixture::with_client_id(clients, CLIENT)
+        .await
+        .expect("fixture");
+    let base = fixture.authority().expect("issuer claims");
+    let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
+        "input":{"context":{"client_id":"CALLER_CLIENT_OVERRIDE",
+        "$serde_json::private::Number":"123","context":"preserved"}}}});
+    let (status, result) = fixture
+        .request("tools/call", params.clone(), TOKEN)
+        .await
+        .expect("exact authorized client");
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        result.pointer("/result/structuredContent/data/count"),
+        Some(&json!(3_i32))
+    );
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    for alias in [
+        "SYNTHETIC_PRIVATE_CLIENT,one",
+        "synthetic_private_client, one",
+        "SYNTHETIC_PRIVATE_CLIENT,%20one",
+        "SYNTHETIC_PRIVATE_CLIENT,+one",
+        "SYNTHETIC_PRIVATE_CLIENT, one ",
+        " SYNTHETIC_PRIVATE_CLIENT, one",
+    ] {
+        let mut claims = base.clone();
+        *claims.get_mut("client_id").expect("client claim") = json!(alias);
+        fixture
+            .introspection_reply(StatusCode::OK, claims.to_string(), HeaderMap::new())
+            .expect("unlisted issuer client");
+        let mut request = request_message(2, "tools/call", params.clone(), TOKEN).expect("request");
+        drop(
+            request
+                .headers_mut()
+                .insert("X-Client-Id", CLIENT.parse().expect("caller ID")),
+        );
+        let response = fixture
+            .router()
+            .clone()
+            .oneshot(request)
+            .await
+            .expect("client denial");
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        assert_eq!(
+            response.headers().get("Cache-Control").expect("no-store"),
+            "no-store"
+        );
+        assert!(response.headers().get("WWW-Authenticate").is_none());
+        let bytes = to_bytes(response.into_body(), 1024)
+            .await
+            .expect("bounded denial");
+        assert_eq!(bytes.as_ref(), b"client access denied");
+        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    }
+    fixture
+        .introspection_reply(StatusCode::OK, base.to_string(), HeaderMap::new())
+        .expect("exact issuer client restored");
+    let (recovered_status, recovered_result) = fixture
+        .request("tools/call", params.clone(), TOKEN)
+        .await
+        .expect("recovery");
+    assert_eq!(recovered_status, StatusCode::OK);
+    assert_eq!(
+        recovered_result.pointer("/result/structuredContent/data/count"),
+        Some(&json!(3_i32))
+    );
+    let mut revoked = base;
+    *revoked.get_mut("active").expect("active claim") = json!(false);
+    fixture
+        .introspection_reply(StatusCode::OK, revoked.to_string(), HeaderMap::new())
+        .expect("revoked authority");
+    assert_eq!(
+        fixture
+            .request("tools/call", params, TOKEN)
+            .await
+            .expect("revocation")
+            .0,
+        StatusCode::UNAUTHORIZED
+    );
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 9);
+    let text = serde_json::to_string(&fixture.telemetry().snapshot().expect("observations"))
+        .expect("telemetry JSON");
+    for prohibited in [CLIENT, TOKEN, "CALLER_CLIENT_OVERRIDE", "SYNTHETIC_PRIVATE"] {
+        assert!(!text.contains(prohibited));
+    }
+}
+
 fn no_operation_work(snapshot: &Snapshot) -> bool {
     snapshot.operations.as_ref().is_some_and(|catalog| {
         catalog.executions.len() == 1

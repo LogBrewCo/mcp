@@ -412,10 +412,10 @@ fn toolchain_command_preserves_notices_and_previous_output_after_failed_verifica
     Ok(())
 }
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 struct Process(std::process::Child);
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 impl Drop for Process {
     fn drop(&mut self) {
         let _kill: io::Result<()> = self.0.kill();
@@ -423,26 +423,84 @@ impl Drop for Process {
     }
 }
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+struct CommandObservation {
+    status: Option<std::process::ExitStatus>,
+    elapsed: core::time::Duration,
+    stderr: String,
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+impl CommandObservation {
+    fn input_rejected(&self) -> bool {
+        self.status
+            .as_ref()
+            .is_some_and(|status| status.code() == Some(1_i32))
+            && self
+                .stderr
+                .contains("notice input must be a bounded regular file")
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 /// # Errors
 ///
 /// Returns an error if the deadline cannot be constructed or the child status cannot be read.
-fn rejected_without_writer(child: &mut std::process::Child) -> Result<bool> {
-    let end = std::time::Instant::now()
+fn exit_before_deadline(
+    child: &mut std::process::Child,
+    started: std::time::Instant,
+) -> Result<Option<std::process::ExitStatus>> {
+    let end = started
         .checked_add(core::time::Duration::from_secs(1))
         .ok_or("fixture deadline overflow")?;
     loop {
         if let Some(status) = child.try_wait()? {
-            return Ok(!status.success());
+            return Ok(Some(status));
         }
         if std::time::Instant::now() >= end {
-            return Ok(false);
+            return Ok(None);
         }
         std::thread::sleep(core::time::Duration::from_millis(10));
     }
 }
 
-#[cfg(unix)]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+/// # Errors
+///
+/// Returns an error if launch, pipe configuration, bounded capture or child polling fails.
+fn observe_command(program: &str, args: &[&Path]) -> Result<CommandObservation> {
+    use std::io::Read as _;
+
+    let started = std::time::Instant::now();
+    let mut child = Process(
+        Command::new(program)
+            .args(args)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped())
+            .spawn()?,
+    );
+    let wait_started = std::time::Instant::now();
+    let stderr = child.0.stderr.take().ok_or("fixture stderr is missing")?;
+    let flags = rustix::fs::fcntl_getfl(&stderr)?;
+    rustix::fs::fcntl_setfl(&stderr, flags | rustix::fs::OFlags::NONBLOCK)?;
+    let status = exit_before_deadline(&mut child.0, wait_started)?;
+    let elapsed = started.elapsed();
+    // Retire the owned leader before reading; nonblocking capture also rejects a held-open pipe.
+    drop(child);
+    let mut captured = Vec::new();
+    let _bytes = stderr.take(4097).read_to_end(&mut captured)?;
+    if captured.len() > 4096 {
+        return Err(io::Error::other("fixture stderr exceeded 4 KiB").into());
+    }
+    Ok(CommandObservation {
+        status,
+        elapsed,
+        stderr: String::from_utf8(captured)?,
+    })
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 #[test]
 /// # Errors
 ///
@@ -467,7 +525,6 @@ fn notice_and_package_commands_reject_input_pipes_without_waiting_for_a_writer()
     }
     let output = fixture.root.join("output.json");
     fs::write(&output, b"previous complete inventory")?;
-    let mut outcomes = Vec::new();
     for (program, args) in [
         (
             env!("CARGO_BIN_EXE_logbrew-mcp-notices"),
@@ -481,22 +538,58 @@ fn notice_and_package_commands_reject_input_pipes_without_waiting_for_a_writer()
             env!("CARGO_BIN_EXE_logbrew-mcp-package"),
             vec![&input, &input, &input, &output],
         ),
+        (
+            env!("CARGO_BIN_EXE_logbrew-mcp-relink"),
+            vec![&input, &input, &output],
+        ),
+        (
+            env!("CARGO_BIN_EXE_logbrew-mcp-materials"),
+            vec![&input, &output],
+        ),
     ] {
-        let mut child = Process(
-            Command::new(program)
-                .args(args)
-                .stdin(std::process::Stdio::null())
-                .stdout(std::process::Stdio::null())
-                .stderr(std::process::Stdio::null())
-                .spawn()?,
+        let args: Vec<&Path> = args.into_iter().map(PathBuf::as_path).collect();
+        let observation = observe_command(program, &args)?;
+        assert!(
+            observation.input_rejected(),
+            "{program}: expected regular-input rejection; status={}, elapsed_us={}, stderr={}",
+            observation.status.map_or_else(
+                || "deadline expired".to_owned(),
+                |status| status.to_string()
+            ),
+            observation.elapsed.as_micros(),
+            observation.stderr,
         );
-        outcomes.push(rejected_without_writer(&mut child.0)?);
+        assert_eq!(fs::read(&output)?, b"previous complete inventory");
     }
-    assert_eq!(
-        outcomes,
-        [true, true, true],
-        "notice commands must reject an input pipe without a writer"
+    Ok(())
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[test]
+/// # Errors
+///
+/// Returns an error if command launch, bounded capture or polling fails.
+///
+/// # Panics
+///
+/// Panics if an unrelated argument failure counts as regular-input rejection.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-10, revisit 2026-11-10"
+)]
+fn argument_errors_do_not_count_as_pipe_rejections() -> Result<()> {
+    let observation = observe_command(env!("CARGO_BIN_EXE_logbrew-mcp-notices"), &[])?;
+    assert!(
+        observation
+            .status
+            .as_ref()
+            .is_some_and(|status| status.code() == Some(1_i32))
     );
-    assert_eq!(fs::read(output)?, b"previous complete inventory");
+    assert!(!observation.input_rejected());
+    assert!(
+        observation
+            .stderr
+            .contains("missing Cargo metadata JSON argument")
+    );
     Ok(())
 }

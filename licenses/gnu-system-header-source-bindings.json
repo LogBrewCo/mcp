@@ -1,0 +1,1320 @@
+{
+  "complete_corresponding_source": false,
+  "complete_distribution_permissions": false,
+  "complete_recipient_relinking_kit": false,
+  "format_version": 1,
+  "headers": [
+    {
+      "input_binding": {
+        "bytes": 1283,
+        "sha256": "7d508b02d7ed3a94c1a556779fdd590fd2e0668a34b0d736e40eab6df7d60154"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/atomic_wide_counter.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1283,
+          "sha256": "7d508b02d7ed3a94c1a556779fdd590fd2e0668a34b0d736e40eab6df7d60154"
+        },
+        "path": "glibc-2.43/bits/atomic_wide_counter.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 4516,
+        "sha256": "ecdd99c77d20188bdc105d30f35139ba08d9ab3fc62e6e5b7f0dd2c4d68e23a9"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/cpu-set.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 4516,
+          "sha256": "ecdd99c77d20188bdc105d30f35139ba08d9ab3fc62e6e5b7f0dd2c4d68e23a9"
+        },
+        "path": "glibc-2.43/posix/bits/cpu-set.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1905,
+        "sha256": "112b43d5b891adcb526fbbbd582625d1d92d68612f8251dc2ee5b47ba488899f"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/endian.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1905,
+          "sha256": "112b43d5b891adcb526fbbbd582625d1d92d68612f8251dc2ee5b47ba488899f"
+        },
+        "path": "glibc-2.43/string/bits/endian.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 347,
+        "sha256": "2c78efa95341b590d1b229ee2ac3a372c0bbbbc99c1af1387f6bc43e12b90b94"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/endianness.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 347,
+          "sha256": "2c78efa95341b590d1b229ee2ac3a372c0bbbbc99c1af1387f6bc43e12b90b94"
+        },
+        "path": "glibc-2.43/sysdeps/aarch64/bits/endianness.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1426,
+        "sha256": "2c169b750ca9bdf063ae033299426bf1c858213df8ca6df0ef43dd9c7e9d500b"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/errno.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1426,
+          "sha256": "2c169b750ca9bdf063ae033299426bf1c858213df8ca6df0ef43dd9c7e9d500b"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/errno.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 10325,
+        "sha256": "8d5c5517e58c6d7ac4c915037f3af518fadc41ceb47999ee3387e4fb91cb4eaa"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/floatn-common.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 10325,
+          "sha256": "8d5c5517e58c6d7ac4c915037f3af518fadc41ceb47999ee3387e4fb91cb4eaa"
+        },
+        "path": "glibc-2.43/bits/floatn-common.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3508,
+        "sha256": "391ce6f2cca4f4a4384df3c0dfcd3cea67936d523dae2b5af98d56e6599ff2a5"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/floatn.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3508,
+          "sha256": "391ce6f2cca4f4a4384df3c0dfcd3cea67936d523dae2b5af98d56e6599ff2a5"
+        },
+        "path": "glibc-2.43/sysdeps/ieee754/ldbl-128/bits/floatn.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 4286,
+        "sha256": "9ec1af1a58b5d6431708a7ca71ef65944622921ca6fce878ae2ab486f3145296"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/libc-header-start.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 4286,
+          "sha256": "9ec1af1a58b5d6431708a7ca71ef65944622921ca6fce878ae2ab486f3145296"
+        },
+        "path": "glibc-2.43/bits/libc-header-start.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3175,
+        "sha256": "a925303c7eb6dc10aefead6580f721c77b97c04b9c9ce0b4b2bbcde5e185c1f9"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/local_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3175,
+          "sha256": "a925303c7eb6dc10aefead6580f721c77b97c04b9c9ce0b4b2bbcde5e185c1f9"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/local_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 971,
+        "sha256": "f2cbc0c774a6df86a7fa89853015a35be986fa06690b5d1f9f7ac10d3ed548dc"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/long-double.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 971,
+          "sha256": "f2cbc0c774a6df86a7fa89853015a35be986fa06690b5d1f9f7ac10d3ed548dc"
+        },
+        "path": "glibc-2.43/sysdeps/ieee754/ldbl-128/bits/long-double.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5198,
+        "sha256": "7ea61c3da402843e85e830259c7b911f5330b1708981a5461e16c95b375fc0a7"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/posix1_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5198,
+          "sha256": "7ea61c3da402843e85e830259c7b911f5330b1708981a5461e16c95b375fc0a7"
+        },
+        "path": "glibc-2.43/posix/bits/posix1_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 2867,
+        "sha256": "c60d757837eda19102c5ad7085c97fba283b4891e43bb906ce3d8a7d4426dc22"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/posix2_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 2867,
+          "sha256": "c60d757837eda19102c5ad7085c97fba283b4891e43bb906ce3d8a7d4426dc22"
+        },
+        "path": "glibc-2.43/posix/bits/posix2_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1214,
+        "sha256": "e0b0204279c085ebe23ee9f6b374d2cdf2f6bdb233f2fae179104eddfac2827f"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/pthread_stack_min-dynamic.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1214,
+          "sha256": "e0b0204279c085ebe23ee9f6b374d2cdf2f6bdb233f2fae179104eddfac2827f"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/pthread_stack_min-dynamic.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 970,
+        "sha256": "a44a9fd8c7899d6359a5c090160d24a467486d50fec7e8c5744d86d9a5635249"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/pthread_stack_min.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 970,
+          "sha256": "a44a9fd8c7899d6359a5c090160d24a467486d50fec7e8c5744d86d9a5635249"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/aarch64/bits/pthread_stack_min.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1322,
+        "sha256": "22fbcd8fc1d7284d5a682045665e6007c761e25481cef44d34074dc0a1d7f615"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/pthreadtypes-arch.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1322,
+          "sha256": "22fbcd8fc1d7284d5a682045665e6007c761e25481cef44d34074dc0a1d7f615"
+        },
+        "path": "glibc-2.43/sysdeps/aarch64/nptl/bits/pthreadtypes-arch.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3072,
+        "sha256": "aa3af8683d56aa08f5fcedf866212c48f227f1f9f7045944f7977c0ad58ffe81"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/pthreadtypes.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3072,
+          "sha256": "aa3af8683d56aa08f5fcedf866212c48f227f1f9f7045944f7977c0ad58ffe81"
+        },
+        "path": "glibc-2.43/sysdeps/nptl/bits/pthreadtypes.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5952,
+        "sha256": "4815c5543919ff2a94ff2aeec69e483b414d7449e2d7284104903bc13fd0ca1a"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/sched.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5952,
+          "sha256": "4815c5543919ff2a94ff2aeec69e483b414d7449e2d7284104903bc13fd0ca1a"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/sched.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1164,
+        "sha256": "1bc839a73a920081fe134c70a5b281d89335fc450302ffcff06422f3a4186f32"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/setjmp.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1164,
+          "sha256": "1bc839a73a920081fe134c70a5b281d89335fc450302ffcff06422f3a4186f32"
+        },
+        "path": "glibc-2.43/sysdeps/aarch64/bits/setjmp.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1037,
+        "sha256": "ed15fd5be7a39b8145b2beb08fd4a316bb72f0bd5ebca707399b4f5b0c0bf304"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-intn.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1037,
+          "sha256": "ed15fd5be7a39b8145b2beb08fd4a316bb72f0bd5ebca707399b4f5b0c0bf304"
+        },
+        "path": "glibc-2.43/bits/stdint-intn.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1305,
+        "sha256": "24c527a005947517a1d3032fdf161577e5a62184f4419066a2112a79ab2da788"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-least.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1305,
+          "sha256": "24c527a005947517a1d3032fdf161577e5a62184f4419066a2112a79ab2da788"
+        },
+        "path": "glibc-2.43/bits/stdint-least.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1049,
+        "sha256": "f0d1ad8c0effab436bebd7a4c177a28a567f0faaae69877e9ccbe3d631a7cd68"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdint-uintn.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1049,
+          "sha256": "f0d1ad8c0effab436bebd7a4c177a28a567f0faaae69877e9ccbe3d631a7cd68"
+        },
+        "path": "glibc-2.43/bits/stdint-uintn.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5599,
+        "sha256": "60242f346c3dcfd974e423c05cc4f7c82192026611c0dbe1c50ea850a9dc4fbe"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdio.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5599,
+          "sha256": "60242f346c3dcfd974e423c05cc4f7c82192026611c0dbe1c50ea850a9dc4fbe"
+        },
+        "path": "glibc-2.43/libio/bits/stdio.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1059,
+        "sha256": "7f6274022abc6b0a4970c9c78280abdf548660656e76f066949fedbfe6445920"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdio_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1059,
+          "sha256": "7f6274022abc6b0a4970c9c78280abdf548660656e76f066949fedbfe6445920"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/stdio_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1115,
+        "sha256": "8900ab8d754778a6df25a040202726097d29f65954c4525de4542abef79c0c01"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/stdlib-float.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1115,
+          "sha256": "8900ab8d754778a6df25a040202726097d29f65954c4525de4542abef79c0c01"
+        },
+        "path": "glibc-2.43/stdlib/bits/stdlib-float.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 2266,
+        "sha256": "aff94ffbc177b21e0515ef14fe20be127d66c72a4170c90521d31ecb54ba731d"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/struct_mutex.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 2266,
+          "sha256": "aff94ffbc177b21e0515ef14fe20be127d66c72a4170c90521d31ecb54ba731d"
+        },
+        "path": "glibc-2.43/sysdeps/nptl/bits/struct_mutex.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1303,
+        "sha256": "f92f99abfd616b3a6af4323305bb0b1f9b807dd3bf7dc5f0f462f5909fb29b10"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/struct_rwlock.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1303,
+          "sha256": "f92f99abfd616b3a6af4323305bb0b1f9b807dd3bf7dc5f0f462f5909fb29b10"
+        },
+        "path": "glibc-2.43/sysdeps/aarch64/nptl/bits/struct_rwlock.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3961,
+        "sha256": "2c1bcabe7b6b7e9192feb703d888f4e871749070b8fb30f96878386e869ff21b"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/thread-shared-types.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3961,
+          "sha256": "2c1bcabe7b6b7e9192feb703d888f4e871749070b8fb30f96878386e869ff21b"
+        },
+        "path": "glibc-2.43/sysdeps/nptl/bits/thread-shared-types.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3331,
+        "sha256": "7c8d7e65c0b95928b7f6ec32308b9d21a5373afac19b97bf9becb17281fd3c15"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/time.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3331,
+          "sha256": "7c8d7e65c0b95928b7f6ec32308b9d21a5373afac19b97bf9becb17281fd3c15"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/time.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1340,
+        "sha256": "c502af2b2d265699b53ccb52e7a20521ab3ec4d346deb1366f494d1e22354ff9"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/time64.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1340,
+          "sha256": "c502af2b2d265699b53ccb52e7a20521ab3ec4d346deb1366f494d1e22354ff9"
+        },
+        "path": "glibc-2.43/bits/time64.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 939,
+        "sha256": "2c12f6bea2b39c6685ef8b6b199c8a7c4b2a7ef2e27093b71abee0b0417952d6"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/timesize.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 939,
+          "sha256": "2c12f6bea2b39c6685ef8b6b199c8a7c4b2a7ef2e27093b71abee0b0417952d6"
+        },
+        "path": "glibc-2.43/bits/timesize.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 8806,
+        "sha256": "3fcf066dbf9fac9c5a15ff6327ca6a437e955e9aa571de1c3347cd0f4da4f93d"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 8806,
+          "sha256": "3fcf066dbf9fac9c5a15ff6327ca6a437e955e9aa571de1c3347cd0f4da4f93d"
+        },
+        "path": "glibc-2.43/posix/bits/types.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 180,
+        "sha256": "37515f78be386f2edad4746f2947c928f480728c56d9a94e25302ebbdaef3c96"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/FILE.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 180,
+          "sha256": "37515f78be386f2edad4746f2947c928f480728c56d9a94e25302ebbdaef3c96"
+        },
+        "path": "glibc-2.43/libio/bits/types/FILE.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 110,
+        "sha256": "26c909942e8a6bc82725e9c402f393aed9e32d94190257ddf71e1b5f819b4e5e"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__FILE.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 110,
+          "sha256": "26c909942e8a6bc82725e9c402f393aed9e32d94190257ddf71e1b5f819b4e5e"
+        },
+        "path": "glibc-2.43/libio/bits/types/__FILE.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 410,
+        "sha256": "8afae3abf006beb39fd9d4d4bae38745cdf08a91e6217ddf25833c8d4b04751b"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__fpos64_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 410,
+          "sha256": "8afae3abf006beb39fd9d4d4bae38745cdf08a91e6217ddf25833c8d4b04751b"
+        },
+        "path": "glibc-2.43/libio/bits/types/__fpos64_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 381,
+        "sha256": "603e58ab31ed75b7e0ab09a2ca94e99955f7fbc63310466321ce27c906227eb4"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__fpos_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 381,
+          "sha256": "603e58ab31ed75b7e0ab09a2ca94e99955f7fbc63310466321ce27c906227eb4"
+        },
+        "path": "glibc-2.43/libio/bits/types/__fpos_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1661,
+        "sha256": "293f874c654c206b3f18021510b2612487177d9010a333b9313991ae1877fc96"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__locale_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1661,
+          "sha256": "293f874c654c206b3f18021510b2612487177d9010a333b9313991ae1877fc96"
+        },
+        "path": "glibc-2.43/locale/bits/types/__locale_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 564,
+        "sha256": "c561df72d5b987ccbd022059fdb1bcb6899c3e94b403997a0576ef3e1afb0f94"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__mbstate_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 564,
+          "sha256": "c561df72d5b987ccbd022059fdb1bcb6899c3e94b403997a0576ef3e1afb0f94"
+        },
+        "path": "glibc-2.43/wcsmbs/bits/types/__mbstate_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 206,
+        "sha256": "05291a7d38bb1d0da1ed01c09fe85fa2b1f4d5bc708e06bb930efec672db08d5"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/__sigset_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 206,
+          "sha256": "05291a7d38bb1d0da1ed01c09fe85fa2b1f4d5bc708e06bb930efec672db08d5"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/types/__sigset_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 143,
+        "sha256": "81e60e8a8d99b28bc723c14b156d7f7fc8ff663d98a857a3f5aea90431f577e3"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/clock_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 143,
+          "sha256": "81e60e8a8d99b28bc723c14b156d7f7fc8ff663d98a857a3f5aea90431f577e3"
+        },
+        "path": "glibc-2.43/time/bits/types/clock_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 174,
+        "sha256": "dcd64d184855b245e5c7acf21910a0aaca590f1faf094e400da5d30551d11eb0"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/clockid_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 174,
+          "sha256": "dcd64d184855b245e5c7acf21910a0aaca590f1faf094e400da5d30551d11eb0"
+        },
+        "path": "glibc-2.43/time/bits/types/clockid_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 983,
+        "sha256": "8675fb9fc99a2763f278421e4adf57ecc8838ac5668b2db3cac52fabb440d802"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/locale_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 983,
+          "sha256": "8675fb9fc99a2763f278421e4adf57ecc8838ac5668b2db3cac52fabb440d802"
+        },
+        "path": "glibc-2.43/locale/bits/types/locale_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 4383,
+        "sha256": "5e9432ad4ca91afc6849cc610093b81721f425e24f38bb60e756ffa37a09a075"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_FILE.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 4383,
+          "sha256": "5e9432ad4ca91afc6849cc610093b81721f425e24f38bb60e756ffa37a09a075"
+        },
+        "path": "glibc-2.43/libio/bits/types/struct_FILE.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1467,
+        "sha256": "ac1a6a885d45e1d351c585bd0edf9e86b1c58132f5acd88a26838911f5c9a136"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct___jmp_buf_tag.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1467,
+          "sha256": "ac1a6a885d45e1d351c585bd0edf9e86b1c58132f5acd88a26838911f5c9a136"
+        },
+        "path": "glibc-2.43/setjmp/bits/types/struct___jmp_buf_tag.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 288,
+        "sha256": "d6299fbc46fc57e7d14635cd5cf69125710ed021ab7305586c84644a03a39f8e"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_itimerspec.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 288,
+          "sha256": "d6299fbc46fc57e7d14635cd5cf69125710ed021ab7305586c84644a03a39f8e"
+        },
+        "path": "glibc-2.43/time/bits/types/struct_itimerspec.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1073,
+        "sha256": "c812957b07034e8841317dff7a75d581033155b490e4dd88d65c001427453030"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_sched_param.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1073,
+          "sha256": "c812957b07034e8841317dff7a75d581033155b490e4dd88d65c001427453030"
+        },
+        "path": "glibc-2.43/bits/types/struct_sched_param.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 877,
+        "sha256": "798e773d0c7f3796033c043910db2b093d1e43116c4b3d2cf3be85f8c4304cf1"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_timespec.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 877,
+          "sha256": "798e773d0c7f3796033c043910db2b093d1e43116c4b3d2cf3be85f8c4304cf1"
+        },
+        "path": "glibc-2.43/time/bits/types/struct_timespec.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 760,
+        "sha256": "e7bdda3f42eb0633850ed150fef0a0cf6193cbba8fa740e7505925424a595566"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/struct_tm.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 760,
+          "sha256": "e7bdda3f42eb0633850ed150fef0a0cf6193cbba8fa740e7505925424a595566"
+        },
+        "path": "glibc-2.43/time/bits/types/struct_tm.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 208,
+        "sha256": "d1cc45e24a80009117f61ee4ae9cae5d12f69f38d691e0a933f989f7a1d27bb0"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/time_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 208,
+          "sha256": "d1cc45e24a80009117f61ee4ae9cae5d12f69f38d691e0a933f989f7a1d27bb0"
+        },
+        "path": "glibc-2.43/time/bits/types/time_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 159,
+        "sha256": "d96a2452da0d933941273d11d1048ea525f033306892835b0a7a0999b13853aa"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/types/timer_t.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 159,
+          "sha256": "d96a2452da0d933941273d11d1048ea525f033306892835b0a7a0999b13853aa"
+        },
+        "path": "glibc-2.43/time/bits/types/timer_t.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3906,
+        "sha256": "bc1bd0286ad232605bd7a48e516714ffd20a03c7fdfd8808ad96620449759342"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/typesizes.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3906,
+          "sha256": "bc1bd0286ad232605bd7a48e516714ffd20a03c7fdfd8808ad96620449759342"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/typesizes.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1385,
+        "sha256": "abdee1164222c9831cd5f9994c89ab736d05444ff9fa4ae9c329098f5e19c1dd"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/uio_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1385,
+          "sha256": "abdee1164222c9831cd5f9994c89ab736d05444ff9fa4ae9c329098f5e19c1dd"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/uio_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1697,
+        "sha256": "e9d5a8255131a9b555f35b04c5a1596bb3cdc96e6fd518cf43c473cbf41b6016"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/waitflags.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1697,
+          "sha256": "e9d5a8255131a9b555f35b04c5a1596bb3cdc96e6fd518cf43c473cbf41b6016"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/bits/waitflags.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 2287,
+        "sha256": "cc93cc0c23d21e2695414318d79124a5ca08e1a0ea60f81c2842a7a566b06711"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/waitstatus.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 2287,
+          "sha256": "cc93cc0c23d21e2695414318d79124a5ca08e1a0ea60f81c2842a7a566b06711"
+        },
+        "path": "glibc-2.43/bits/waitstatus.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1906,
+        "sha256": "9a3e6e246753da1e142227f6a81a9d0064cbb3189073c367263a491b4044373f"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/wchar.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1906,
+          "sha256": "9a3e6e246753da1e142227f6a81a9d0064cbb3189073c367263a491b4044373f"
+        },
+        "path": "glibc-2.43/bits/wchar.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 909,
+        "sha256": "44caf00d8f9b3f69bcc3ef4c28b41b632426e0f3fe2908d26033b33c4f97d3f9"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/wordsize.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 909,
+          "sha256": "44caf00d8f9b3f69bcc3ef4c28b41b632426e0f3fe2908d26033b33c4f97d3f9"
+        },
+        "path": "glibc-2.43/sysdeps/aarch64/bits/wordsize.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 3858,
+        "sha256": "29dcc96d2565ec4e4959eb068e1b6255cac7286b539ca771d142ddb0cb139574"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/bits/xopen_lim.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 3858,
+          "sha256": "29dcc96d2565ec4e4959eb068e1b6255cac7286b539ca771d142ddb0cb139574"
+        },
+        "path": "glibc-2.43/include/bits/xopen_lim.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 35168,
+        "sha256": "a5a71b01109709190529d0c3532751869d05db6a5e8ce01c8c73229b797cfb83"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/sys/cdefs.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 35168,
+          "sha256": "a5a71b01109709190529d0c3532751869d05db6a5e8ce01c8c73229b797cfb83"
+        },
+        "path": "glibc-2.43/misc/sys/cdefs.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5713,
+        "sha256": "25d29436b206e2b36e3fbe7057fa8b9822fa9f0f7823659c489a8fc71c8cd1db"
+      },
+      "patches": [],
+      "path": "usr/include/aarch64-linux-gnu/sys/types.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5713,
+          "sha256": "25d29436b206e2b36e3fbe7057fa8b9822fa9f0f7823659c489a8fc71c8cd1db"
+        },
+        "path": "glibc-2.43/posix/sys/types.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 6922,
+        "sha256": "efd33a1d9224c27a176166d18e82d39630a4bd8ae8956ff5f09d9b40afae693a"
+      },
+      "patches": [
+        {
+          "archive": "glibc_debian",
+          "binding": {
+            "bytes": 1161,
+            "sha256": "2aacb4700daeca26d43a1f853589591bfa70450ac909cce7cb7085b316e732e3"
+          },
+          "path": "debian/patches/any/local-asserth-decls.diff"
+        }
+      ],
+      "path": "usr/include/assert.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 6841,
+          "sha256": "bedb320895856c94f58760831b05a86dc7230641c6697e76e1dc70eb864d6b4c"
+        },
+        "path": "glibc-2.43/assert/assert.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1679,
+        "sha256": "6af988372fbf273c6e462f4a488674bfe53fd4f535491c52b658357b46ede3dd"
+      },
+      "patches": [],
+      "path": "usr/include/errno.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1679,
+          "sha256": "6af988372fbf273c6e462f4a488674bfe53fd4f535491c52b658357b46ede3dd"
+        },
+        "path": "glibc-2.43/stdlib/errno.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 1532,
+        "sha256": "c7c33cddd4ffbbca1eb0de042131a51201a42f29139820d0a36c1e1dd0d16ba5"
+      },
+      "patches": [],
+      "path": "usr/include/features-time64.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 1532,
+          "sha256": "c7c33cddd4ffbbca1eb0de042131a51201a42f29139820d0a36c1e1dd0d16ba5"
+        },
+        "path": "glibc-2.43/sysdeps/unix/sysv/linux/features-time64.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 19773,
+        "sha256": "f6d015d0248056a3091de489abcbadbbd93d7aaf95753d7426f779765f067118"
+      },
+      "patches": [
+        {
+          "archive": "glibc_debian",
+          "binding": {
+            "bytes": 1205,
+            "sha256": "f10c9b712b83b9430b22bc0b8a4d7553a94122f1e67d960b4270b5a5e2a4fc72"
+          },
+          "path": "debian/patches/any/local-revert-bz13979.diff"
+        }
+      ],
+      "path": "usr/include/features.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 19842,
+          "sha256": "72a5cbeba3c7c842537c9646b4d2d135094313d962d2db6a2c89a52e426ddd11"
+        },
+        "path": "glibc-2.43/include/features.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 11563,
+        "sha256": "f7b6d71ce5912c40209b716a7e681f69f208b97809397f33fdcedf3eb8ff6e13"
+      },
+      "patches": [],
+      "path": "usr/include/inttypes.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 11563,
+          "sha256": "f7b6d71ce5912c40209b716a7e681f69f208b97809397f33fdcedf3eb8ff6e13"
+        },
+        "path": "glibc-2.43/stdlib/inttypes.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5839,
+        "sha256": "7505220f742ab30ef635baa0849f26e1dfdb4fb22f2b506f4f2b0f4879f82dfb"
+      },
+      "patches": [],
+      "path": "usr/include/limits.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5839,
+          "sha256": "7505220f742ab30ef635baa0849f26e1dfdb4fb22f2b506f4f2b0f4879f82dfb"
+        },
+        "path": "glibc-2.43/include/limits.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 48570,
+        "sha256": "5479c95276c6693fdd1baa448f5d457dee57fc02b31277bfa04df63cc0b26a94"
+      },
+      "patches": [],
+      "path": "usr/include/pthread.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 48570,
+          "sha256": "5479c95276c6693fdd1baa448f5d457dee57fc02b31277bfa04df63cc0b26a94"
+        },
+        "path": "glibc-2.43/sysdeps/nptl/pthread.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 5043,
+        "sha256": "aa0dc2014237be9bd0d5792981782e268e257652bb5a83fba63ab21d5ffbe11d"
+      },
+      "patches": [],
+      "path": "usr/include/sched.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 5043,
+          "sha256": "aa0dc2014237be9bd0d5792981782e268e257652bb5a83fba63ab21d5ffbe11d"
+        },
+        "path": "glibc-2.43/posix/sched.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 2462,
+        "sha256": "383ff8bd7dcc87deefedd062637f4afe28f85f8be443beda8b41d15e45ef1679"
+      },
+      "patches": [],
+      "path": "usr/include/stdc-predef.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 2462,
+          "sha256": "383ff8bd7dcc87deefedd062637f4afe28f85f8be443beda8b41d15e45ef1679"
+        },
+        "path": "glibc-2.43/include/stdc-predef.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 8268,
+        "sha256": "fbd21c7a64b876eddd4e179172fb58a4921fd616d103b8107a28a54cf687289b"
+      },
+      "patches": [],
+      "path": "usr/include/stdint.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 8268,
+          "sha256": "fbd21c7a64b876eddd4e179172fb58a4921fd616d103b8107a28a54cf687289b"
+        },
+        "path": "glibc-2.43/stdlib/stdint.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 34258,
+        "sha256": "7b9d4ea5a3d988998113785f389c635428dbfd25f503197d81688ec9ef0149fa"
+      },
+      "patches": [],
+      "path": "usr/include/stdio.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 34258,
+          "sha256": "7b9d4ea5a3d988998113785f389c635428dbfd25f503197d81688ec9ef0149fa"
+        },
+        "path": "glibc-2.43/libio/stdio.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 42963,
+        "sha256": "936ffcdf6161aa702d9fe433879e59b039731effebea7a9c02506da183a99d02"
+      },
+      "patches": [],
+      "path": "usr/include/stdlib.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 42963,
+          "sha256": "936ffcdf6161aa702d9fe433879e59b039731effebea7a9c02506da183a99d02"
+        },
+        "path": "glibc-2.43/stdlib/stdlib.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 21266,
+        "sha256": "6284f89702acd61ff489bc6d20b38f6a942c438783076b9b64633d073be3337d"
+      },
+      "patches": [],
+      "path": "usr/include/string.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 21266,
+          "sha256": "6284f89702acd61ff489bc6d20b38f6a942c438783076b9b64633d073be3337d"
+        },
+        "path": "glibc-2.43/string/string.h"
+      }
+    },
+    {
+      "input_binding": {
+        "bytes": 15326,
+        "sha256": "e27a0238aa4cbec65b5d3b94dfffa1f127415e1c33d95565a8a4acd8cf935f60"
+      },
+      "patches": [],
+      "path": "usr/include/time.h",
+      "root": "sysroot",
+      "source": {
+        "archive": "glibc_upstream",
+        "binding": {
+          "bytes": 15326,
+          "sha256": "e27a0238aa4cbec65b5d3b94dfffa1f127415e1c33d95565a8a4acd8cf935f60"
+        },
+        "path": "glibc-2.43/time/time.h"
+      }
+    }
+  ],
+  "patch_application": "Apply each listed patch in order. Preserve whitespace and verify the complete result against input_binding.",
+  "patch_series": {
+    "archive": "glibc_debian",
+    "binding": {
+      "bytes": 3257,
+      "sha256": "ddfa628857044ce19272076147aa390cf68ddae5fff73815ed8c9e17159c0368"
+    },
+    "path": "debian/patches/series"
+  },
+  "reference_source_revision": "dd140a513f7ea5cd1b16be9c6bc2b62834035e00",
+  "scope": "gnu_system_header_source_bindings",
+  "source_archives": {
+    "glibc_debian": {
+      "bytes": 530764,
+      "name": "glibc_2.43-2ubuntu2.4.debian.tar.xz",
+      "sha256": "28103a7cf808c29901c6053d89a4e8299880abfbb850c0d97a09c8df8533e306",
+      "source_url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/glibc/2.43-2ubuntu2.4/glibc_2.43-2ubuntu2.4.debian.tar.xz"
+    },
+    "glibc_upstream": {
+      "bytes": 20297012,
+      "name": "glibc_2.43.orig.tar.xz",
+      "sha256": "d9c86c6b5dbddb43a3e08270c5844fc5177d19442cf5b8df4be7c07cd5fa3831",
+      "source_url": "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/glibc/2.43-2ubuntu2.4/glibc_2.43.orig.tar.xz"
+    }
+  },
+  "target": "aarch64-unknown-linux-gnu",
+  "unqualified_headers": [
+    {
+      "path": "usr/include/aarch64-linux-gnu/asm/errno.h",
+      "reason": "Kernel header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "linux"
+    },
+    {
+      "path": "usr/include/aarch64-linux-gnu/gnu/stubs-lp64.h",
+      "reason": "Generated header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "glibc"
+    },
+    {
+      "path": "usr/include/aarch64-linux-gnu/gnu/stubs.h",
+      "reason": "Generated header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "glibc"
+    },
+    {
+      "path": "usr/include/asm-generic/errno-base.h",
+      "reason": "Kernel header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "linux"
+    },
+    {
+      "path": "usr/include/asm-generic/errno.h",
+      "reason": "Kernel header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "linux"
+    },
+    {
+      "path": "usr/include/linux/errno.h",
+      "reason": "Kernel header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "linux"
+    },
+    {
+      "path": "usr/include/linux/limits.h",
+      "reason": "Kernel header source derivation is unproven.",
+      "root": "sysroot",
+      "source_package": "linux"
+    }
+  ]
+}

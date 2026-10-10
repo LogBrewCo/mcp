@@ -199,6 +199,17 @@ and checksum, and preserve its source comments. The manifest's
 to `licenses/clang-23.1.3.txt`. Include that exact text with recipient materials.
 These source bindings do not establish complete distribution permissions.
 
+The bound `system_header_sources` asset records complete upstream source files
+for 72 system headers. Its `source_archives` identify the glibc upstream and
+Ubuntu patch archives by URL, size and checksum. For each header, verify the
+source file against its recorded binding, apply its listed patches in order,
+and verify the complete result against `input_binding`. Preserve whitespace.
+Unpatched source files must already match that input binding. Verify the bound
+patch series and include this asset and both source archives with recipient
+materials. Two generated glibc headers and five kernel headers remain explicitly
+unqualified. These bindings do not establish their derivation, complete
+corresponding source, or distribution permissions.
+
 Verify the archive, every compiled source and include input, the complete header,
 and the compiler version and source commit before using the recipe. With the
 unmodified header, both outputs must match their reference-object bindings.

@@ -36,7 +36,7 @@
   "object_rebuild_recipe": {
     "bytes": 3302,
     "path": "licenses/gnu-header-rebuild-recipe.json",
-    "sha256": "c05ba4ece45c8243e58960013d4611fe06b13065d7aa4009bf7a70e567073279"
+    "sha256": "844d6d5a9795640936b690205a3071da25fdc99abeb1089c23bbfe0e1f99a114"
   },
   "reference_source_revision": "dd140a513f7ea5cd1b16be9c6bc2b62834035e00",
   "replacement_members": [

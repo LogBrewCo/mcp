@@ -921,6 +921,11 @@
     "source_url": "https://static.crates.io/crates/aws-lc-sys/aws-lc-sys-0.45.0.crate",
     "version": "0.45.0"
   },
+  "system_header_sources": {
+    "bytes": 41160,
+    "path": "licenses/gnu-system-header-source-bindings.json",
+    "sha256": "095685c18a7bc276b7ad30c775ead51a86b50f1743baaa48df41eacbfc093536"
+  },
   "system_packages": [
     {
       "package": "libc6-dev:arm64",

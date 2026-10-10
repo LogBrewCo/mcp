@@ -211,6 +211,37 @@ fn invalid_material(fixture: &Fixture, invalid: &str) -> TestResult<()> {
     Ok(())
 }
 
+/// Reject malformed machine secret bytes and accept a repaired private file.
+///
+/// # Panics
+/// Panics if invalid bytes pass, diagnostics escape, repair fails, or a check binds the listener.
+#[tokio::test]
+async fn invalid_machine_secret_check_is_private_and_recovers() {
+    let fixture = Fixture::new().expect("fixture");
+    let secret = fixture.directory.0.join("secret");
+    fs::write(&secret, b"SYNTHETIC_PRIVATE_SECRET\n").expect("invalid secret bytes");
+    let mut rejected = check(&fixture.config).expect("native executable");
+    assert_eq!(
+        rejected
+            .wait()
+            .await
+            .expect("bounded private rejection")
+            .code(),
+        Some(1_i32)
+    );
+    drop(TcpListener::bind(fixture.address).expect("rejected check did not bind"));
+    fs::write(&secret, b" SYNTHETIC_MACHINE_SECRET,+:=%& ").expect("repaired secret bytes");
+    let mut repaired = check(&fixture.config).expect("native executable");
+    assert!(
+        repaired
+            .wait()
+            .await
+            .expect("bounded private recovery")
+            .success()
+    );
+    drop(TcpListener::bind(fixture.address).expect("repaired check did not bind"));
+}
+
 /// Reject missing paths, unknown options and extra configuration-check arguments.
 ///
 /// # Panics

@@ -48,6 +48,50 @@ fn invalid_machine_client_ids_fail_configuration() {
 }
 
 /// # Panics
+/// Panics if printable secret bytes change, their exact limit fails, or Debug discloses them.
+#[test]
+fn machine_secrets_preserve_printable_ascii_and_the_exact_byte_limit() {
+    for secret in [
+        " SYNTHETIC_MACHINE_SECRET !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ".to_owned(),
+        " ".repeat(8192),
+    ] {
+        let credential = MachineCredential::new(
+            "synthetic-client".to_owned(),
+            Zeroizing::new(secret.clone()),
+        )
+        .expect("printable machine secret");
+        assert_eq!(credential.secret.as_str(), secret);
+        assert_eq!(format!("{credential:?}"), "machine credential [redacted]");
+    }
+}
+
+/// # Panics
+/// Panics if empty, oversized, control-bearing or non-ASCII secrets are accepted or disclosed.
+#[test]
+fn invalid_machine_secrets_fail_configuration_without_disclosure() {
+    for secret in [
+        "",
+        "SYNTHETIC_PRIVATE_SECRET\t",
+        "SYNTHETIC_PRIVATE_SECRET\n",
+        "SYNTHETIC_PRIVATE_SECRET\r",
+        "SYNTHETIC_PRIVATE_SECRET\0",
+        "SYNTHETIC_PRIVATE_SECRET\x1f",
+        "SYNTHETIC_PRIVATE_SECRET\x7f",
+        "SYNTHETIC_PRIVATE_SECRET\u{00e9}",
+        "SYNTHETIC_PRIVATE_SECRET\u{1f512}",
+    ]
+    .map(str::to_owned)
+    .into_iter()
+    .chain(core::iter::once("x".repeat(8193)))
+    {
+        let failure = MachineCredential::new("synthetic-client".to_owned(), Zeroizing::new(secret))
+            .expect_err("invalid machine secret");
+        assert_eq!(failure.kind, Kind::Configuration);
+        assert!(!format!("{failure:?} {failure}").contains("SYNTHETIC_PRIVATE"));
+    }
+}
+
+/// # Panics
 /// Panics if future dates round below their deadline, or past dates add a delay.
 #[test]
 fn http_dates_round_up_to_milliseconds_without_retrying_early() {

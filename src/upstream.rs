@@ -100,9 +100,14 @@ impl MachineCredential {
     /// Construct a bounded machine credential without diagnostic disclosure.
     ///
     /// # Errors
-    /// Rejects empty or oversized secrets and invalid client identifiers.
+    /// Rejects empty or oversized secrets and credentials outside printable ASCII.
     pub fn new(id: String, secret: Zeroizing<String>) -> Result<Self, Failure> {
-        if !valid_client_id(&id, TOKEN_BYTES) || secret.is_empty() || secret.len() > TOKEN_BYTES {
+        // RFC 6749 Appendix A.2 defines client-secret using VSCHAR (%x20-7E).
+        if !valid_client_id(&id, TOKEN_BYTES)
+            || secret.is_empty()
+            || secret.len() > TOKEN_BYTES
+            || !secret.bytes().all(|byte| (b' '..=b'~').contains(&byte))
+        {
             return Err(Kind::Configuration.into());
         }
         Ok(Self { id, secret })

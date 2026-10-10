@@ -37,10 +37,10 @@ use super::count::discard_count;
 pub const RESOURCE: &str = "https://resource.example/mcp";
 pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
 const CLIENT_ID: &str = "synthetic-client";
-const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%&\n";
+const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%& ";
 // RFC 6749 section 2.3.1 encodes each component before HTTP Basic encoding.
-const INTROSPECTION_AUTH: &str = "Basic aW50cm9zcGVjdGlvbiUyQmNsaWVudCUyQytvbmU6U1lOVEhFVElDX01BQ0hJTkVfU0VDUkVUKyUyQiUzQSUyNSUyNiUwQQ==";
-const EXECUTION_AUTH: &str = "Basic ZXhlY3V0aW9uJTNBY2xpZW50JTJDK3R3bzpTWU5USEVUSUNfTUFDSElORV9TRUNSRVQrJTJCJTNBJTI1JTI2JTBB";
+const INTROSPECTION_AUTH: &str = "Basic aW50cm9zcGVjdGlvbiUyQmNsaWVudCUyQytvbmU6U1lOVEhFVElDX01BQ0hJTkVfU0VDUkVUKyUyQiUzQSUyNSUyNis=";
+const EXECUTION_AUTH: &str = "Basic ZXhlY3V0aW9uJTNBY2xpZW50JTJDK3R3bzpTWU5USEVUSUNfTUFDSElORV9TRUNSRVQrJTJCJTNBJTI1JTI2Kw==";
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 

@@ -4,6 +4,7 @@ extern crate alloc;
 
 mod archive;
 mod input;
+mod materials;
 mod package;
 mod policy;
 mod publication;
@@ -25,6 +26,18 @@ use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
 type Result<T> = core::result::Result<T, Box<dyn core::error::Error>>;
+
+/// Bundle selected, checksum-bound recipient materials without extracting them.
+///
+/// # Errors
+/// Rejects invalid plans, changed or unsafe inputs, selected private markers,
+/// output aliases and publication failures.
+pub fn materials<Args>(args: Args) -> Result<()>
+where
+    Args: Iterator<Item = std::ffi::OsString>,
+{
+    materials::run(args)
+}
 
 /// Export bound GNU linker inputs with checked relative-path mappings.
 ///

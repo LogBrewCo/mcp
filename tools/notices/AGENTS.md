@@ -261,6 +261,54 @@ alone does not prove that they were linked. The recipe covers the recorded input
 set. Complete matching source and system-header materials, recipient execution,
 license permissions and release verification remain required.
 
+## Selected recipient materials
+
+Bundle selected source archives, headers, recipes, licenses and final-link inputs
+with an operator-verified plan:
+
+```sh
+cargo run --locked --offline --bin logbrew-mcp-materials -- /absolute/path/to/materials-plan.json /absolute/path/to/materials.tar.gz
+```
+
+The strict plan uses `format_version: 1`, this package's `package_version` and
+`rust_release`, `build_identity` (`development` or the package version), a
+40-character lowercase hexadecimal `source_revision`, and GNU `target`
+(`aarch64-unknown-linux-gnu` or `x86_64-unknown-linux-gnu`). `reference_binary`
+contains `bytes` and `sha256`. This is operator-supplied metadata; the command
+does not read that binary or establish build provenance.
+
+Each `files` entry contains an absolute `input_path`, an archive-relative `path`,
+a `kind` (`source_archive`, `header`, `recipe`, `license` or `link_inputs`), and
+a `binding` containing `bytes` and `sha256`. Verify those bindings independently.
+Unknown and duplicate fields fail. Destinations use ASCII letters, digits,
+slashes, underscores, hyphens and periods. Unsafe paths, duplicates,
+ancestor/descendant collisions and the reserved `MANIFEST.json` path fail.
+`private_path_markers` contains 1 to 16 nonempty ASCII strings of at most
+256 bytes each. The command rejects those exact strings in destination paths,
+raw file bodies and its generated manifest. Compressed nested archives are
+opaque; this check cannot establish their privacy or contents.
+
+Limits are 128 KiB per plan, 256 files, 512 bytes per destination path, 64 KiB
+of destination path text, 32 MiB per file, 64 MiB of combined input payload and
+64 MiB of compressed output. Files are read and appended individually. Reuse
+verified archives directly instead of copying or expanding them for packaging.
+There is no directory walk, extraction, binary execution or network access.
+
+The deterministic archive contains the selected bytes beneath `materials/`
+and a `MANIFEST.json` with their destinations, kinds, sizes and checksums.
+Input paths and selected marker values stay outside the manifest. The manifest
+records the plan checksum, fixed build metadata and explicit external
+requirements. Selection does not prove complete corresponding source,
+component coverage, recipient modification/relink execution, license permissions
+or release eligibility. Verify these separately before distributing a complete
+recipient bundle.
+
+Inputs must be bounded regular files in operator-managed directories. Final
+component links and special files fail. Publication uses the shared atomic
+writer and rejects plan/file aliases, including hard links. Failure before
+replacement preserves the previous output. Remove finished disposable outputs
+after preserving the checks and the inputs needed to reproduce them.
+
 ## Binary archives
 
 Use an operator-verified packaging plan. Its format_version is 1, 2, 3 or 4 and its

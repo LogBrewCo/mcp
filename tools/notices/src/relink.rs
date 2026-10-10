@@ -262,7 +262,7 @@ where
 
 /// # Errors
 /// Rejects output paths aliasing either input and propagates metadata failures.
-fn guard_output(output: &Path, inputs: &[&PathBuf]) -> Result<()> {
+pub fn guard_output(output: &Path, inputs: &[&PathBuf]) -> Result<()> {
     let parent = output
         .parent()
         .ok_or_else(|| error("missing relink output parent"))?;

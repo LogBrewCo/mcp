@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned tools
+        run: |
+          set -euo pipefail
+          bin="$RUNNER_TEMP/bin"
+          mkdir -p "$bin"
+          cd "$RUNNER_TEMP"
+          curl -fsSLO https://github.com/EmbarkStudios/cargo-deny/releases/download/0.20.2/cargo-deny-0.20.2-x86_64-unknown-linux-musl.tar.gz
+          curl -fsSLO https://github.com/tombi-toml/tombi/releases/download/v1.7.2/tombi-cli-1.7.2-x86_64-unknown-linux-musl.tar.gz
+          sha256sum -c - <<'SUMS'
+          9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-0.20.2-x86_64-unknown-linux-musl.tar.gz
+          70d702da0bb92758469c4f85761935b93c8172598b2682d9c89d7ab383a23a4c  tombi-cli-1.7.2-x86_64-unknown-linux-musl.tar.gz
+          SUMS
+          tar -xzf cargo-deny-0.20.2-x86_64-unknown-linux-musl.tar.gz --strip-components=1 -C "$bin" cargo-deny-0.20.2-x86_64-unknown-linux-musl/cargo-deny
+          tar -xzf tombi-cli-1.7.2-x86_64-unknown-linux-musl.tar.gz --strip-components=1 -C "$bin" tombi-cli-1.7.2-x86_64-unknown-linux-musl/tombi
+          echo "$bin" >> "$GITHUB_PATH"
+
+      - name: Install Rust
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - name: Check
+        run: scripts/check-all.sh

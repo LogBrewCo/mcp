@@ -2,8 +2,9 @@
 
 Source repository for LogBrew's Model Context Protocol server.
 
-Development is in progress. This repository does not yet provide a released
-server, install command, or verified hosted connection endpoint.
+The server ships only as the hosted LogBrew service. This repository does not
+publish downloadable binaries or installers. Development is in progress, and no
+verified hosted connection endpoint exists yet.
 
 The [draft operation reference](docs/operations.md) describes the current read
 catalog and its evidence, permission and recovery boundaries. It is source
@@ -11,37 +12,22 @@ documentation, not a released capability list.
 
 ## Development
 
-Use Rust 1.99.0. The HTTP transport is under development. Its tests use
+Use Rust 1.99.0, cargo-deny 0.20.2 and Tombi 1.7.2. Run every required gate
+from the repository root:
+
+```sh
+scripts/check-all.sh
+```
+
+CI runs the same script. The HTTP transport is under development. Its tests use
 local HTTPS servers and synthetic credentials; they do not prove hosted access.
 
-```sh
-cargo test --locked --all-targets -- --test-threads=2
-cargo clippy --locked --all-targets -- -D warnings
-cargo fmt --all -- --check
-```
-
-Use cargo-deny 0.20.2 for the dependency policy gate:
-
-```sh
-cargo run --manifest-path tools/notices/Cargo.toml --locked --offline --bin logbrew-mcp-policy-check -- /absolute/path/to/cargo-deny
-```
-
-Fetch the locked dependency graph and cargo-deny's standard-library replacement
-data before an offline run. Use the pinned tool's `cargo deny fetch std-replacement`
-command for that data. The Rust gate verifies the tool version, process status,
-structured logs and a complete final summary. Data-loading errors fail even if
-cargo-deny returns zero. Run it from this repository root to check the server.
-The [tool guide](tools/notices/README.md) records its host and output limits.
-The policy covers
-normal, build, and test dependencies across the resolved graph. It checks
-license requirements and registry sources, rejects wildcard versions, and
-constrains reviewed features to exact dependency versions. Five exact duplicate
-version exceptions preserve incompatible upstream APIs; no dependency subtree
-is excluded. Unused license and source allowances fail the check. Binary
-distributions must include LICENSE, licenses/rmcp-3.5.1.txt, and all other
-applicable dependency notices. The SDK license is preserved from its
-[published source commit](https://github.com/modelcontextprotocol/rust-sdk/blob/79437f291b2c44053d00dcd5db969fd0cca7c887/LICENSE).
-Complete notice bundling remains required before release.
+The dependency policy in `deny.toml` covers normal, build and test dependencies
+across the resolved graph. It checks license requirements and registry sources,
+rejects wildcard versions, and constrains reviewed features to exact dependency
+versions. Five exact duplicate version exceptions preserve incompatible upstream
+APIs; no dependency subtree is excluded. Unused license and source allowances
+fail the check, and every warning fails.
 
 The toolchain file pins rustfmt and Clippy with Rust 1.99.0. The server uses
 the official MCP Rust SDK, rmcp 3.5.1, with Axum and Tokio. Cargo.lock records

@@ -1,2 +1,0 @@
-// Copyright 2016 Brian Smith.
-// SPDX-License-Identifier: ISC

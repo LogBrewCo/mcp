@@ -23,7 +23,7 @@ include = ["**/Cargo.toml"]
 deprecated = "error"
 
 [[schemas.overrides]]
-targets = ["dependencies.tokio.features", "dev-dependencies.reqwest.features", "dependencies.toml.features", "package.keywords", "dependencies.goblin.features"]
+targets = ["dependencies.tokio.features", "dev-dependencies.reqwest.features", "package.keywords"]
 
 [schemas.overrides.format.rules]
 # Preserve declared array order. Review after a manifest, schema or tool change.

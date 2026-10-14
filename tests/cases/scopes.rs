@@ -27,62 +27,57 @@ const METADATA: &str = "https://resource.example/.well-known/oauth-protected-res
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if initial challenges or public metadata advertise a different scope,
-/// start upstream work, exceed fixture bounds, or accept `offline_access`.
-async fn initial_challenge_and_metadata_advertise_only_the_configured_resource_scope() {
-    for scope in [
-        "mcp:read".to_owned(),
-        "logs:read,extra=!$&'()*+[]{}".to_owned(),
-        "s".repeat(8192),
-    ] {
-        let fixture = Fixture::with_scope(scope.clone()).await.expect("fixture");
-        let challenge_request = Request::builder()
-            .method("POST")
-            .uri("/mcp")
-            .header("Host", "resource.example")
-            .body(Body::empty())
-            .expect("unauthenticated request");
-        let challenge_response = fixture
-            .router()
-            .clone()
-            .oneshot(challenge_request)
-            .await
-            .expect("challenge");
-        assert_eq!(challenge_response.status(), StatusCode::UNAUTHORIZED);
-        assert_eq!(
-            challenge_response
-                .headers()
-                .get("WWW-Authenticate")
-                .expect("challenge"),
-            format!("Bearer resource_metadata=\"{METADATA}\", scope=\"{scope}\"").as_str()
-        );
-        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
-        drop(challenge_response);
-        let request = Request::builder()
-            .uri("/.well-known/oauth-protected-resource/mcp")
-            .header("Host", "resource.example")
-            .body(Body::empty())
-            .expect("metadata request");
-        let response = fixture
-            .router()
-            .clone()
-            .oneshot(request)
-            .await
-            .expect("public metadata");
-        assert_eq!(response.status(), StatusCode::OK);
-        let bytes = to_bytes(response.into_body(), 16 << 10)
-            .await
-            .expect("bounded metadata");
-        let value: Value = serde_json::from_slice(&bytes).expect("metadata JSON");
-        assert_eq!(value.get("scopes_supported"), Some(&json!([scope])));
-        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
-    }
-    assert!(
-        Fixture::with_scope("offline_access".to_owned())
-            .await
-            .is_err()
+/// Panics if the initial challenge or the protected resource metadata differs
+/// from the exact RFC 9728 document naming the issuer and the `read` scope, or
+/// if either starts upstream work.
+async fn initial_challenge_and_metadata_name_the_issuer_and_read_scope() {
+    let fixture = Fixture::new().await.expect("fixture");
+    let challenge_request = Request::builder()
+        .method("POST")
+        .uri("/mcp")
+        .header("Host", "resource.example")
+        .body(Body::empty())
+        .expect("unauthenticated request");
+    let challenge_response = fixture
+        .router()
+        .clone()
+        .oneshot(challenge_request)
+        .await
+        .expect("challenge");
+    assert_eq!(challenge_response.status(), StatusCode::UNAUTHORIZED);
+    assert_eq!(
+        challenge_response
+            .headers()
+            .get("WWW-Authenticate")
+            .expect("challenge"),
+        format!("Bearer resource_metadata=\"{METADATA}\", scope=\"read\"").as_str()
     );
+    drop(challenge_response);
+    let request = Request::builder()
+        .uri("/.well-known/oauth-protected-resource/mcp")
+        .header("Host", "resource.example")
+        .body(Body::empty())
+        .expect("metadata request");
+    let response = fixture
+        .router()
+        .clone()
+        .oneshot(request)
+        .await
+        .expect("public metadata");
+    assert_eq!(response.status(), StatusCode::OK);
+    let bytes = to_bytes(response.into_body(), 16 << 10)
+        .await
+        .expect("bounded metadata");
+    let value: Value = serde_json::from_slice(&bytes).expect("metadata JSON");
+    let claims = fixture.authority().expect("issuer claims");
+    let issuer = claims.get("iss").expect("issuer");
+    assert_eq!(
+        value,
+        json!({"resource":"https://resource.example/mcp","authorization_servers":[issuer],
+            "bearer_methods_supported":["header"],"scopes_supported":["read"]})
+    );
+    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
 
 #[tokio::test]
@@ -132,7 +127,7 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
                 .get("WWW-Authenticate")
                 .expect("challenge"),
             format!(
-                "Bearer resource_metadata=\"{METADATA}\", scope=\"mcp:read\", error=\"insufficient_scope\""
+                "Bearer resource_metadata=\"{METADATA}\", scope=\"read\", error=\"insufficient_scope\""
             )
             .as_str()
         );
@@ -293,9 +288,9 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
 async fn direct_token_verification_classifies_scope_denial_and_recovers() -> TestResult<()> {
     let mut raw = Raw::new()?;
     let base = json!({"active":true,"exp":SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs() + 300,
-        "iss":"https://issuer.example","aud":"https://resource.example/mcp","scope":"mcp:read",
+        "iss":"https://issuer.example","aud":"https://resource.example/mcp","scope":"read",
         "token_type":"Bearer","jti":"synthetic-credential","client_id":"synthetic-client"});
-    for scope in ["other:scope", "mcp:read"] {
+    for scope in ["other:scope", "read"] {
         let mut claims = base.clone();
         *claims.get_mut("scope").ok_or("missing synthetic scope")? = json!(scope);
         let bytes = serde_json::to_vec(&claims)?;
@@ -352,7 +347,7 @@ fn assert_verified_scope(
     scope: &str,
     result: Result<logbrew_mcp::upstream::Principal, logbrew_mcp::Failure>,
 ) -> TestResult<()> {
-    if scope == "mcp:read" {
+    if scope == "read" {
         assert_eq!(result?.client_id, "synthetic-client");
     } else {
         let failure = result.err().ok_or("insufficient grant accepted")?;

@@ -229,7 +229,7 @@ async fn introspect(
 ) -> Result<axum::Json<Value>, StatusCode> {
     machine(
         &headers,
-        "synthetic-introspection",
+        "synthetic-service",
         "application/x-www-form-urlencoded",
     );
     let expected = url::form_urlencoded::Serializer::new(String::new())
@@ -246,7 +246,7 @@ async fn introspect(
     Ok(axum::Json(
         json!({"active":observed.active.load(Ordering::SeqCst),
         "iss":observed.issuer,"aud":observed.resource,"exp":now.saturating_add(60),
-        "iat":now,"token_type":"Bearer","scope":"mcp:read",
+        "iat":now,"token_type":"Bearer","scope":"read",
         "jti":"synthetic-credential-reference","client_id":"synthetic-client"}),
     ))
 }
@@ -268,7 +268,7 @@ async fn execute(
     headers: HeaderMap,
     bytes: Bytes,
 ) -> Result<axum::Json<Value>, StatusCode> {
-    machine(&headers, "synthetic-execution", "application/json");
+    machine(&headers, "synthetic-service", "application/json");
     let input: Value = serde_json::from_slice(&bytes).map_err(|_| StatusCode::BAD_REQUEST)?;
     assert_eq!(input.get("token"), Some(&json!(TOKEN)));
     assert_eq!(

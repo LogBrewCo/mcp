@@ -90,9 +90,7 @@ async fn direct_execution_cannot_bypass_missing_or_empty_client_policy() {
             execution_endpoint: "https://127.0.0.1:1/execute".to_owned(),
             issuer: "https://issuer.example".to_owned(),
             resource: "https://resource.example/mcp".to_owned(),
-            required_scope: "mcp:read".to_owned(),
-            introspection_credential: credential(),
-            execution_credential: credential(),
+            service_credential: credential(),
         })
         .expect("offline client");
         upstream = match policy {

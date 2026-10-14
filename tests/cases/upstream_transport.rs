@@ -66,7 +66,7 @@ pub fn body(execute: bool) -> TestResult<Vec<u8>> {
         json!({
             "active":true,"exp":SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs().checked_add(300).ok_or("fixture expiry overflow")?,
             "iss":"https://issuer.example","aud":"https://resource.example/mcp",
-            "scope":"mcp:read","token_type":"Bearer",
+            "scope":"read","token_type":"Bearer",
             "jti":"synthetic-credential","client_id":"synthetic-client"
         })
     }

@@ -54,7 +54,7 @@ async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<St
             .ok_or("missing challenge")?
             .to_str()?;
         assert!(challenge.contains("resource_metadata=\"https://resource.example/.well-known/oauth-protected-resource/mcp\""));
-        assert!(challenge.contains("scope=\"mcp:read\""));
+        assert!(challenge.contains("scope=\"read\""));
         assert_eq!(
             challenge.contains("error=\"invalid_request\""),
             status == StatusCode::BAD_REQUEST

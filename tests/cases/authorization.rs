@@ -144,7 +144,7 @@ async fn invalid_authority_claims_fail_closed_before_execution() {
         ("scope", json!("different:scope"), StatusCode::FORBIDDEN),
         (
             "scope",
-            json!("mcp:read  extra:scope"),
+            json!("read  extra:scope"),
             StatusCode::UNAUTHORIZED,
         ),
         ("token_type", json!("different"), StatusCode::UNAUTHORIZED),
@@ -255,7 +255,7 @@ async fn bounded_audience_lists_and_explicit_scopes_allow_valid_authority() {
         claims
             .as_object_mut()
             .expect("claims")
-            .insert("scope".to_owned(), json!("extra:scope mcp:read")),
+            .insert("scope".to_owned(), json!("extra:scope read")),
     );
     fixture
         .introspection_reply(StatusCode::OK, claims.to_string(), HeaderMap::new())

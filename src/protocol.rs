@@ -38,7 +38,7 @@ use crate::{
     json as strict_json, responses,
     telemetry::{Outcome, Stage, Telemetry},
     transport,
-    upstream::{AuthorizationFailure, Principal, Upstream, canonical_https},
+    upstream::{AuthorizationFailure, Principal, SCOPE, Upstream, canonical_https},
 };
 
 const SUPPORTED_PROTOCOL_VERSIONS: &[ProtocolVersion] = &[ProtocolVersion::V_2026_07_28];
@@ -257,10 +257,8 @@ pub fn router(
     let path = url.path().to_owned();
     let authority = authority::HttpsAuthority::parse(&host).ok_or(Kind::Configuration)?;
     let metadata_path = format!("/.well-known/oauth-protected-resource{path}");
-    let challenge = format!(
-        "Bearer resource_metadata=\"https://{host}{metadata_path}\", scope=\"{}\"",
-        upstream.required_scope()
-    );
+    let challenge =
+        format!("Bearer resource_metadata=\"https://{host}{metadata_path}\", scope=\"{SCOPE}\"");
     let value = |text: &str| {
         header::HeaderValue::from_str(text).map_err(Failure::redact(Kind::Configuration))
     };
@@ -318,7 +316,7 @@ async fn metadata(State(shared): State<Arc<Shared>>, request: Request) -> Respon
     }
     axum::Json(
         json!({"resource":shared.resource,"authorization_servers":[shared.issuer],
-        "bearer_methods_supported":["header"],"scopes_supported":[shared.upstream.required_scope()]}),
+        "bearer_methods_supported":["header"],"scopes_supported":[SCOPE]}),
     )
     .into_response()
 }

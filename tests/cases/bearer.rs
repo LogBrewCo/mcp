@@ -330,11 +330,12 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
 )]
 async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery() -> TestResult<()>
 {
-    let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
+    let listener = TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone()).await?;
-    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
+    let mut running = Running::at(listener, fixture.router().clone(), &authority).await?;
     let body = json!({"jsonrpc":"2.0","id":1_i32,"method":"tools/call","params":{
         "name":"execute","arguments":{"operation":"logs.read.v1","input":{}},"_meta":{
             "io.modelcontextprotocol/protocolVersion":"2026-07-28",

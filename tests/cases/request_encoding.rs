@@ -75,16 +75,14 @@ fn wire_cases(
 /// Fails if unsupported coding executes, rejection discloses request values,
 /// supported coding loses results, either HTTP version changes, or drain fails.
 async fn http1_and_http2_reject_coding_and_recover_with_unencoded_json() {
-    let address = TcpListener::bind("127.0.0.1:0")
-        .expect("frontend address")
-        .local_addr()
-        .expect("address");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("frontend address");
+    let address = listener.local_addr().expect("address");
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
-    let mut running = Running::at(address, fixture.router().clone(), &authority)
+    let mut running = Running::at(listener, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let rejected: &[&[&str]] = &[

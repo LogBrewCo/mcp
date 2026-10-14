@@ -4,7 +4,7 @@ use core::{net::SocketAddr, sync::atomic::Ordering, time::Duration};
 use std::net::TcpListener;
 
 use axum::Router;
-use logbrew_mcp::{Failure, runtime, startup::Service};
+use logbrew_mcp::{Failure, runtime};
 use serde_json::{Value, json};
 use tokio::{
     task::JoinHandle,
@@ -45,16 +45,22 @@ impl Running {
     /// # Errors
     /// Returns an error if address selection, TLS setup or readiness fails.
     pub async fn start(router: Router) -> TestResult<Self> {
-        let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
-        Self::at(address, router, "resource.example").await
+        Self::at(
+            TcpListener::bind("127.0.0.1:0")?,
+            router,
+            "resource.example",
+        )
+        .await
     }
 
-    /// Start an isolated HTTPS service and wait for its resource metadata.
+    /// Start an isolated HTTPS service on a bound listener and wait for its
+    /// resource metadata. Binding before the call keeps the port reserved.
     ///
     /// # Errors
     /// Returns an error if certificate generation, TLS or client construction,
     /// or the bounded readiness check fails.
-    pub async fn at(address: SocketAddr, router: Router, authority: &str) -> TestResult<Self> {
+    pub async fn at(listener: TcpListener, router: Router, authority: &str) -> TestResult<Self> {
+        let address = listener.local_addr()?;
         let certificate = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])?;
         let pem = certificate.cert.pem();
         let tls = axum_server::tls_rustls::RustlsConfig::from_pem(
@@ -71,12 +77,7 @@ impl Running {
             .build()?;
         let stop = CancellationToken::new();
         let shutdown = stop.clone();
-        let service = Service {
-            address,
-            router,
-            tls,
-        };
-        let task = tokio::spawn(runtime::serve(service, async move {
+        let task = tokio::spawn(runtime::serve_listener(listener, router, tls, async move {
             shutdown.cancelled().await;
             Ok(())
         }));

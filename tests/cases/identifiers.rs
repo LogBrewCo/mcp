@@ -341,12 +341,13 @@ async fn wire_reply(
 )]
 async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids() -> TestResult<()>
 {
-    let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
+    let listener = TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone()).await?;
     fixture.state().pause().store(true, Ordering::SeqCst);
-    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
+    let mut running = Running::at(listener, fixture.router().clone(), &authority).await?;
     let http1 = running.http1_client();
     let http2 = running.http2_client()?;
     let release = async {

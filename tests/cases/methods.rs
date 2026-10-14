@@ -270,10 +270,11 @@ fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
 /// Panics if method errors change HTTP version, cache or private error contracts,
 /// start execution, or prevent a subsequent valid execution.
 async fn wire(http2: bool) -> TestResult<()> {
-    let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
+    let listener = TcpListener::bind("127.0.0.1:0")?;
+    let address = listener.local_addr()?;
     let authority = format!("localhost:{}", address.port());
     let fixture = Fixture::for_resource(format!("https://{authority}/mcp")).await?;
-    let mut running = Running::at(address, fixture.router().clone(), &authority).await?;
+    let mut running = Running::at(listener, fixture.router().clone(), &authority).await?;
     let (client, version) = if http2 {
         (running.http2_client()?, Version::HTTP_2)
     } else {

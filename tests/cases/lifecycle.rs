@@ -14,6 +14,28 @@ use super::{
 #[tokio::test]
 /// # Panics
 ///
+/// Panics if the reserved port is released before serving, another socket can
+/// take it, or the runtime does not serve the listener it was given.
+async fn runtime_serves_the_bound_listener_without_releasing_its_port() {
+    let fixture = Fixture::new().await.expect("fixture");
+    let listener = std::net::TcpListener::bind("127.0.0.1:0").expect("port 0");
+    let address = listener.local_addr().expect("bound address");
+    drop(std::net::TcpListener::bind(address).unwrap_err());
+    let running = Running::at(listener, fixture.router().clone(), "resource.example")
+        .await
+        .expect("HTTPS runtime");
+    assert_eq!(running.address(), address);
+    drop(std::net::TcpListener::bind(address).unwrap_err());
+    let response = running.execute().await.expect("served response");
+    assert_eq!(
+        response.pointer("/result/structuredContent/data/count"),
+        Some(&json!(3_i32))
+    );
+}
+
+#[tokio::test]
+/// # Panics
+///
 /// Panics if setup, execution admission, listener closure before drain, the
 /// drained response, runtime completion or execution totals fail.
 async fn shutdown_drains_an_authenticated_execution_and_closes_the_listener_first() {

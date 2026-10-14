@@ -123,7 +123,8 @@ impl Fixture {
             write!(digest, "{byte:02x}")?;
         }
         let config = serde_json::to_vec(&json!({
-            "version":"3","listen":address.to_string(),"client_allowlist_file":clients,
+            "version":"4","listen":address.to_string(),"client_allowlist_file":clients,
+            "admission":{"burst":64_u32,"per_minute":60_000_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":0_u32},
             "resource":format!("https://localhost:{}/mcp", address.port()),
             "issuer":"https://issuer.example",
             "introspection_endpoint":"https://127.0.0.1:1/introspect",

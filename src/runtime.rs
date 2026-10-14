@@ -79,7 +79,7 @@ where
         .keep_alive_timeout(Duration::from_secs(5))
         .max_header_list_size(16 << 10)
         .max_concurrent_streams(64);
-    let future = server.serve(router.into_make_service());
+    let future = server.serve(router.into_make_service_with_connect_info::<SocketAddr>());
     tokio::pin!(future);
     tokio::select! {
         result = &mut future => result.map_err(Failure::redact(Kind::Unavailable)),

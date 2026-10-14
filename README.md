@@ -47,23 +47,46 @@ operator-managed directories and absolute regular-file paths, checks byte and
 permission bounds, and rejects final-component symlinks. Files are opened
 without waiting for a FIFO writer and their identity is checked before reading.
 The draft configuration reader accepts a private file up to 16 KiB with
-version `"3"` only. Every field is required and must appear exactly once with a
+version `"4"` only. Every field is required and must appear exactly once with a
 nonempty string value: `listen`, `resource`, `issuer`, `client_allowlist_file`,
 `introspection_endpoint`, `execution_endpoint`, `service_client_id`,
 `service_secret_file`, `catalog_file`, `catalog_sha256`, `certificate_file` and
-`private_key_file`. It rejects unknown fields, case aliases, duplicate decoded
-keys, invalid UTF-8, trailing documents, and inline secret fields. It preserves
-secret-file references without opening them.
+`private_key_file`. The `admission` object is also required (see below). It
+rejects unknown fields, case aliases, duplicate decoded keys, invalid UTF-8,
+trailing documents, and inline secret fields. It preserves secret-file
+references without opening them.
+
+`admission` limits requests that have not proven authority, per client:
+
+```json
+"admission": {"burst": 16, "per_minute": 600, "tracked_clients": 10000,
+  "rejected_token_seconds": 30, "trusted_proxy": "127.0.0.1"}
+```
+
+Each MCP request reserves one unit of its client's budget before it takes a
+request slot or starts introspection; a request whose token verifies gets the
+unit back. A client may start `burst` (1 to 64) unverified requests at once,
+refilled at `per_minute` (1 to 60000). Beyond that the server answers HTTP 429
+with `Retry-After` in whole seconds and the body
+`too many unauthenticated requests`, without introspection. Up to
+`tracked_clients` (1 to 100000) clients get their own budget; idle clients are
+evicted, and the rest share one overflow budget, so memory stays bounded. IPv6
+clients are grouped by /64. The client is the TCP peer, or the single
+`X-Real-IP` address when the peer is the optional `trusted_proxy`. A token that
+introspection rejected (inactive, invalid, unlisted client or missing scope) is
+refused for `rejected_token_seconds` (0 to 300, 0 disables) without asking
+again; up to 4096 token digests are kept, never tokens. Unavailable
+introspection is never remembered.
 
 One service login, `service_client_id` with the secret in
 `service_secret_file`, authenticates both introspection and execution. The
 issuer and API must hold the same pair. `issuer` must equal the authorization
 server's issuer identifier byte for byte, and `resource` must equal the audience
 the issuer binds into tokens. Startup rejects an issuer that ends with `/` and a
-client allowlist with no entries; either would deny every request. The server requires the single delegated scope
-`read`; it is not configurable. It publishes RFC 9728 protected resource
-metadata at `/.well-known/oauth-protected-resource` followed by the resource
-path. The document names the issuer as the only authorization server and `read`
+client allowlist with no entries; either would deny every request. The server
+requires the single delegated scope `read`; it is not configurable. It
+publishes RFC 9728 protected resource metadata at
+`/.well-known/oauth-protected-resource` followed by the resource path. The document names the issuer as the only authorization server and `read`
 as the only scope, and every 401 and 403 challenge links to it.
 
 The separate service loader reads referenced material and constructs the

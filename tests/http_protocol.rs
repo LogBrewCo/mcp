@@ -2,6 +2,8 @@
 
 extern crate alloc;
 
+#[path = "cases/admission.rs"]
+mod admission;
 #[path = "cases/authority.rs"]
 mod authority;
 #[path = "cases/authority_wire.rs"]

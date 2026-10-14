@@ -1,7 +1,11 @@
 //! Fixed HTTPS upstreams with fresh introspection and no automatic retries.
 
+use alloc::collections::BTreeMap;
 use core::{fmt, time::Duration};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::{
+    sync::{Mutex, PoisonError},
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use axum::http::{HeaderMap, HeaderValue, header};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
@@ -9,6 +13,8 @@ use http_body::Body as _;
 use http_body_util::BodyExt as _;
 use rustls::pki_types::CertificateDer;
 use serde_json::{Value, json};
+use sha2::{Digest as _, Sha256};
+use tokio::time::Instant;
 use url::Url;
 use zeroize::Zeroizing;
 
@@ -30,6 +36,8 @@ const TOKEN_BYTES: usize = 8 << 10;
 const CLOCK_SKEW_SECONDS: u64 = 60;
 const CLAIM_BYTES: usize = 64 << 10;
 const HEADER_BYTES: usize = 16 << 10;
+/// Most rejected tokens remembered at once.
+const REJECTED_TOKENS: usize = 4096;
 
 #[cfg(test)]
 mod tests;
@@ -145,6 +153,9 @@ pub struct Upstream {
     options: UpstreamOptions,
     telemetry: Telemetry,
     clients: ClientAllowlist,
+    rejected_ttl: Duration,
+    /// SHA-256 of recently rejected tokens, never the tokens themselves.
+    rejected: Mutex<BTreeMap<[u8; 32], (Instant, AuthorizationFailure)>>,
 }
 
 impl Upstream {
@@ -181,7 +192,17 @@ impl Upstream {
             options,
             telemetry: Telemetry::default(),
             clients: ClientAllowlist::default(),
+            rejected_ttl: Duration::ZERO,
+            rejected: Mutex::new(BTreeMap::new()),
         })
+    }
+
+    /// Refuse a token for `ttl` after introspection rejected it, without asking
+    /// again. Only definite denials are kept; `Duration::ZERO` disables this.
+    #[must_use]
+    pub(crate) const fn with_rejected_token_ttl(mut self, ttl: Duration) -> Self {
+        self.rejected_ttl = ttl;
+        self
     }
 
     /// Restrict issuer-confirmed client IDs before discovery or execution.
@@ -209,7 +230,8 @@ impl Upstream {
         self.telemetry.clone()
     }
 
-    /// Introspect each request. No positive or negative authorization cache exists.
+    /// Introspect each request. No positive authorization cache exists;
+    /// recent definite rejections may be answered without introspection.
     ///
     /// # Errors
     /// Distinguishes rejected credentials, insufficient scope, and unavailable authorization.
@@ -219,7 +241,8 @@ impl Upstream {
             .map_err(AuthorizationFailure::failure)
     }
 
-    /// Measure bounded per-request introspection without an authorization cache.
+    /// Measure bounded per-request introspection. A token rejected within the
+    /// configured window is refused again without introspection.
     ///
     /// # Errors
     /// Preserves credential, scope and client denials; returns Unavailable for
@@ -228,6 +251,58 @@ impl Upstream {
         &self,
         token: &str,
     ) -> Result<Principal, AuthorizationFailure> {
+        let key: [u8; 32] = Sha256::digest(token.as_bytes()).into();
+        if let Some(failure) = self.recently_rejected(&key) {
+            return Err(failure);
+        }
+        let result = self.introspect(token).await;
+        if let Err(failure) = result {
+            self.remember_rejection(key, failure);
+        }
+        result
+    }
+
+    /// Return a rejection remembered for this token digest and still current.
+    fn recently_rejected(&self, key: &[u8; 32]) -> Option<AuthorizationFailure> {
+        let (until, failure) = *self
+            .rejected
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .get(key)?;
+        (Instant::now() < until).then_some(failure)
+    }
+
+    /// Remember a definite denial; unavailable outcomes are always retried.
+    /// When full, expired entries are dropped first, and a new rejection is
+    /// not kept if none expired.
+    fn remember_rejection(&self, key: [u8; 32], failure: AuthorizationFailure) {
+        let now = Instant::now();
+        let Some(until) = now.checked_add(self.rejected_ttl) else {
+            return;
+        };
+        if until <= now
+            || !matches!(
+                failure.failure().kind,
+                Kind::Unauthorized | Kind::PermissionDenied
+            )
+        {
+            return;
+        }
+        let mut rejected = self.rejected.lock().unwrap_or_else(PoisonError::into_inner);
+        if rejected.len() >= REJECTED_TOKENS {
+            rejected.retain(|_, entry| entry.0 > now);
+        }
+        if rejected.len() < REJECTED_TOKENS || rejected.contains_key(&key) {
+            let _previous: Option<(Instant, AuthorizationFailure)> =
+                rejected.insert(key, (until, failure));
+        }
+    }
+
+    /// Introspect once within the deadline and record the outcome.
+    ///
+    /// # Errors
+    /// Same as [`Self::verify_request`].
+    async fn introspect(&self, token: &str) -> Result<Principal, AuthorizationFailure> {
         let measurement = self.telemetry.begin(Stage::Introspection);
         let result = deadline::within(Duration::from_secs(5), self.verify_inner(token))
             .await

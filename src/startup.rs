@@ -14,6 +14,7 @@ use zeroize::Zeroizing;
 
 use crate::{
     Failure,
+    admission::Admission,
     catalog::Catalog,
     clients::ClientAllowlist,
     error::Kind,
@@ -51,6 +52,8 @@ pub struct Config {
     pub certificate_file: String,
     /// TLS private key path.
     pub private_key_file: String,
+    /// Per-client limits for requests without verified authority.
+    pub admission: Admission,
 }
 
 impl core::fmt::Debug for Config {
@@ -63,23 +66,24 @@ impl Config {
     /// Decode exact fields without reading referenced files or making requests.
     ///
     /// # Errors
-    /// Rejects unknown, duplicate, missing, empty, or non-string fields and
-    /// any version other than 3.
+    /// Rejects unknown, duplicate, missing, empty, or non-string fields other
+    /// than the `admission` object, admission limits outside their ranges and
+    /// any version other than 4.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
-        if document.as_object().is_none_or(|fields| {
-            fields
-                .values()
-                .any(|value| value.as_str().is_none_or(str::is_empty))
-        }) {
+        if document
+            .as_object()
+            .is_none_or(|fields| fields.iter().any(invalid_field))
+        {
             return Err(Kind::Configuration.into());
         }
         let config: Self =
             serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
-        if config.version != "3" {
+        if config.version != "4" {
             return Err(Kind::Configuration.into());
         }
+        let _validated: Admission = config.admission.validate()?;
         Ok(config)
     }
 
@@ -105,6 +109,11 @@ impl Config {
         }
         Ok((address, digest))
     }
+}
+
+/// Every field except the `admission` object is a nonempty string.
+fn invalid_field((name, value): (&String, &serde_json::Value)) -> bool {
+    name != "admission" && value.as_str().is_none_or(str::is_empty)
 }
 
 /// Read an absolute regular file without following its final symlink or waiting on a FIFO.
@@ -189,7 +198,13 @@ impl Service {
             service_credential,
         })?
         .with_client_allowlist(ClientAllowlist::decode(&allowlist)?);
-        let router = protocol::router(catalog, upstream, config.resource, config.issuer)?;
+        let router = protocol::router(
+            catalog,
+            upstream,
+            config.resource,
+            config.issuer,
+            config.admission,
+        )?;
         let certificate = read_file(Path::new(&config.certificate_file), 256 << 10, 0o644)?;
         let key = read_file(Path::new(&config.private_key_file), 64 << 10, 0o600)?;
         let certificates = rustls::pki_types::CertificateDer::pem_slice_iter(&certificate)

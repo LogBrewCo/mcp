@@ -1,12 +1,12 @@
 //! Exactly two tools behind request-bound authorization and host checks.
 
 use alloc::{borrow::Cow, sync::Arc};
-use core::time::Duration;
+use core::{net::SocketAddr, time::Duration};
 
 use axum::{
     Router,
     body::{Body, to_bytes},
-    extract::{Request, State},
+    extract::{ConnectInfo, Request, State},
     http::{StatusCode, header},
     middleware::{self, Next},
     response::{IntoResponse as _, Response},
@@ -31,7 +31,9 @@ use zeroize::Zeroizing;
 mod authority;
 
 use crate::{
-    ENVELOPE_BYTES, Failure, REQUEST_BYTES, bearer,
+    ENVELOPE_BYTES, Failure, REQUEST_BYTES,
+    admission::{Admission, Limiter, Ticket},
+    bearer,
     catalog::Catalog,
     deadline,
     error::Kind,
@@ -67,6 +69,7 @@ struct Shared {
     invalid_request_challenge: header::HeaderValue,
     insufficient_scope_challenge: header::HeaderValue,
     slots: Arc<Semaphore>,
+    limiter: Limiter,
     telemetry: Telemetry,
 }
 
@@ -237,14 +240,17 @@ impl Tools {
 /// Construct a stateless router without contacting any service or opening a listener.
 ///
 /// # Errors
-/// Rejects invalid resource locations, root resource paths and issuers with a
-/// trailing slash.
+/// Rejects invalid resource locations, root resource paths, issuers with a
+/// trailing slash and admission limits outside their ranges.
 pub fn router(
     catalog: Arc<Catalog>,
     upstream: Upstream,
     resource: String,
     issuer: String,
+    admission: Admission,
 ) -> Result<Router, Failure> {
+    let limiter = Limiter::new(admission)?;
+    let upstream = upstream.with_rejected_token_ttl(admission.rejected_token_ttl());
     let url = canonical_https(&resource)?;
     drop(canonical_https(&issuer)?);
     // Introspection compares `iss` byte for byte, and issuers omit the slash.
@@ -289,6 +295,7 @@ pub fn router(
         invalid_request_challenge,
         insufficient_scope_challenge,
         slots: Arc::new(Semaphore::new(64)),
+        limiter,
         telemetry,
     });
     let captured = Arc::clone(&shared);
@@ -348,6 +355,16 @@ async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
     if request.uri().query().is_some() {
         return (StatusCode::BAD_REQUEST, "query parameters are not accepted").into_response();
     }
+    // Admission comes before a request slot or introspection is spent.
+    let peer = request
+        .extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map(|info| info.0);
+    let client = shared.limiter.client(peer, request.headers());
+    let ticket = match shared.limiter.reserve(client) {
+        Ok(ticket) => ticket,
+        Err(wait) => return throttled(wait),
+    };
     let Ok(permit) = Arc::clone(&shared.slots).try_acquire_owned() else {
         return (
             StatusCode::TOO_MANY_REQUESTS,
@@ -360,11 +377,11 @@ async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
         .extensions()
         .get::<crate::delivery::Connection>()
         .cloned();
-    let response = authorized(shared, request, next).await;
+    let response = authorized(shared, request, next, ticket).await;
     responses::hold(response, permit, connection, &shared.telemetry)
 }
 
-async fn authorized(shared: &Shared, mut request: Request, next: Next) -> Response {
+async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: Ticket) -> Response {
     let token = match bearer::parse(request.headers()) {
         Ok(token) => Zeroizing::new(token.to_owned()),
         Err(bearer::Rejection::Missing) => return unauthorized(shared),
@@ -382,7 +399,10 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next) -> Respon
     };
     let work = async {
         let principal = match shared.upstream.verify_request(&token).await {
-            Ok(principal) if principal.valid() => principal,
+            Ok(principal) if principal.valid() => {
+                shared.limiter.refund(ticket);
+                principal
+            }
             Err(failure) => return authorization_failure(shared, failure),
             _ => {
                 return (StatusCode::SERVICE_UNAVAILABLE, "authorization unavailable")
@@ -471,6 +491,20 @@ fn valid_host_origin(shared: &Shared, request: &Request) -> bool {
         return false;
     }
     shared.authority.allows(request)
+}
+
+/// A stable 429 for a client that spent its unauthenticated budget.
+fn throttled(wait: Duration) -> Response {
+    let seconds = wait
+        .as_secs()
+        .saturating_add(u64::from(wait.subsec_nanos() > 0))
+        .max(1);
+    (
+        StatusCode::TOO_MANY_REQUESTS,
+        [(header::RETRY_AFTER, seconds.to_string())],
+        "too many unauthenticated requests",
+    )
+        .into_response()
 }
 
 fn unauthorized(shared: &Shared) -> Response {

@@ -272,7 +272,7 @@ impl Fixture {
         let artifact = match artifact {
             Some(artifact) => artifact,
             None => serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
-                "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read","documentation":"https://docs.example/logs",
+                "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read","documentation":"https://docs.example/logs",
                     "stability":"stable","cost":"one read","safety":"read_only"},
                 "input_schema":{"type":"object","additionalProperties":false,
                     "properties":{"context":{"type":"object"}}},

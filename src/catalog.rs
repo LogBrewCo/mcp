@@ -17,7 +17,7 @@ const SCHEMA_BYTES: usize = 256 << 10;
 pub struct OperationInfo {
     /// Public operation purpose.
     pub summary: String,
-    /// Required permission, not a grant of access.
+    /// Required delegated scope, not a grant of access. Always `read`.
     pub permission: String,
     /// Public documentation URL.
     pub documentation: String,
@@ -25,7 +25,7 @@ pub struct OperationInfo {
     pub stability: String,
     /// Public cost description.
     pub cost: String,
-    /// Read-only, write, or destructive semantics.
+    /// Operation semantics. The server loads only `read_only` operations.
     pub safety: String,
 }
 
@@ -325,8 +325,9 @@ impl jsonschema::Retrieve for DenyRetrieval {
 /// Check the identifier and public discovery metadata.
 ///
 /// # Errors
-/// Rejects invalid text, permission tokens, stability or safety values and
-/// documentation URLs outside the accepted HTTPS contract.
+/// Rejects invalid text, any permission other than `read`, any safety other
+/// than `read_only`, invalid stability values and documentation URLs outside
+/// the accepted HTTPS contract.
 fn validate_operation(operation: &Operation) -> Result<(), Failure> {
     let info = &operation.info;
     if !valid_id(&operation.id)
@@ -340,12 +341,12 @@ fn validate_operation(operation: &Operation) -> Result<(), Failure> {
         ]
         .iter()
         .any(|text| !valid_text(text))
-        || !crate::upstream::valid_token(&info.permission)
+        || info.permission != crate::upstream::SCOPE
+        || info.safety != "read_only"
         || !matches!(
             info.stability.as_str(),
             "experimental" | "stable" | "deprecated"
         )
-        || !matches!(info.safety.as_str(), "read_only" | "write" | "destructive")
     {
         return Err(Kind::Configuration.into());
     }

@@ -12,7 +12,7 @@ use sha2::{Digest as _, Sha256};
 /// Propagates rejection of the synthetic catalog or supplied schema contract.
 fn load(schema: &Value) -> Result<alloc::sync::Arc<Catalog>, Failure> {
     let bytes = json!({"format_version":1_i32,"operations":[{
-        "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"logs:read",
+        "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"read",
             "documentation":"https://docs.example/logs","stability":"stable",
             "cost":"one read","safety":"read_only"},
         "input_schema":schema,"output_schema":schema

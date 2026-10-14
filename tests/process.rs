@@ -108,7 +108,7 @@ impl Fixture {
         let secret = directory.write("secret", b"SYNTHETIC_MACHINE_SECRET", 0o600)?;
         let clients = directory.write("clients.json", br#"{"version":"1","clients":[]}"#, 0o600)?;
         let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
-            "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read",
+            "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read",
                 "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
             "input_schema":{"type":"object","additionalProperties":false},
             "output_schema":{"type":"object"}

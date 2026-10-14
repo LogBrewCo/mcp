@@ -286,7 +286,7 @@ fn catalog() -> TestResult<Vec<u8>> {
                 "Read unrelated traces"
             };
             json!({"id":format!("signals.read.v{version}"), "info":{"summary":summary,
-            "permission":"logs:read","documentation":"https://docs.example/logs",
+            "permission":"read","documentation":"https://docs.example/logs",
             "stability":"stable","cost":"one read","safety":"read_only"},
             "input_schema":{"type":"object"},"output_schema":{"type":"object"}})
         })

@@ -26,6 +26,8 @@ use crate::{
 pub const SCOPE: &str = "read";
 
 const TOKEN_BYTES: usize = 8 << 10;
+/// Accepted issuer clock lead for `iat` and `nbf`, in seconds.
+const CLOCK_SKEW_SECONDS: u64 = 60;
 const CLAIM_BYTES: usize = 64 << 10;
 const HEADER_BYTES: usize = 16 << 10;
 
@@ -412,7 +414,7 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
         .ok_or(Kind::Unavailable)?;
     for key in ["iat", "nbf"] {
         if let Some(field) = value.get(key)
-            && field.as_u64().ok_or(Kind::Unavailable)? > now
+            && field.as_u64().ok_or(Kind::Unavailable)? > now.saturating_add(CLOCK_SKEW_SECONDS)
         {
             return Err(Kind::Unauthorized.into());
         }

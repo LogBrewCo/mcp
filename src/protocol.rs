@@ -550,14 +550,12 @@ fn definition(name: &str) -> Tool {
         )
     };
     let object = schema.as_object().cloned().unwrap_or_default();
-    let tool = Tool::new(name.to_owned(), description, Arc::new(object)).with_raw_output_schema(
-        Arc::new(output_schema().as_object().cloned().unwrap_or_default()),
-    );
-    if name == "search" {
-        tool.with_annotations(ToolAnnotations::new().read_only(true).open_world(false))
-    } else {
-        tool
-    }
+    // The catalog loader admits only read-only operations, so both tools only read.
+    Tool::new(name.to_owned(), description, Arc::new(object))
+        .with_raw_output_schema(Arc::new(
+            output_schema().as_object().cloned().unwrap_or_default(),
+        ))
+        .with_annotations(ToolAnnotations::new().read_only(true).open_world(false))
 }
 
 fn output_schema() -> Value {

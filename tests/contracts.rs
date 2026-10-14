@@ -10,7 +10,7 @@ use sha2::{Digest as _, Sha256};
 
 fn artifact(schema: &Value) -> Vec<u8> {
     json!({"format_version":1,"operations":[{
-        "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"logs:read",
+        "id":"logs.read.v1","info":{"summary":"Read selected logs","permission":"read",
             "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
         "input_schema":schema,"output_schema":{"type":"object","additionalProperties":false,
             "required":["count"],"properties":{"count":{"type":"integer"}}}
@@ -277,6 +277,32 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
             "case {case}"
         );
         assert!(!failure.to_string().contains("SYNTHETIC_PRIVATE_MARKER"));
+    }
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if the loader admits an operation that needs a scope other than
+/// `read` or that is not read-only.
+fn catalog_admits_only_read_only_operations_under_the_read_scope() {
+    for (field, value) in [
+        ("permission", "logs:read"),
+        ("permission", "READ"),
+        ("permission", "read write"),
+        ("safety", "write"),
+        ("safety", "destructive"),
+    ] {
+        let mut document: Value =
+            serde_json::from_slice(&artifact(&json!({"type":"object"}))).expect("artifact");
+        *document
+            .pointer_mut(&format!("/operations/0/info/{field}"))
+            .expect("field") = json!(value);
+        let bytes = serde_json::to_vec(&document).expect("encoded artifact");
+        let failure = Catalog::load(&bytes, &Sha256::digest(&bytes).into())
+            .err()
+            .expect("rejected catalog");
+        assert_eq!(failure.kind, logbrew_mcp::error::Kind::Configuration);
     }
 }
 

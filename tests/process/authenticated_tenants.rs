@@ -24,7 +24,7 @@ fn configure_projects(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
         0o600,
     )?);
     let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
-        "id":"logs.read.v1","info":{"summary":"Read logs","permission":"logs:read",
+        "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read",
             "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
         "input_schema":{"type":"object","required":["project"],"additionalProperties":false,
             "properties":{"project":{"type":"string","enum":["alpha","beta"]},

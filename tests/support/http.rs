@@ -20,6 +20,7 @@ use axum::{
     routing::post,
 };
 use logbrew_mcp::{
+    admission::Admission,
     catalog::Catalog,
     clients::ClientAllowlist,
     protocol,
@@ -36,6 +37,14 @@ use super::count::discard_count;
 
 pub const RESOURCE: &str = "https://resource.example/mcp";
 pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
+/// Limits wide enough that only admission tests reach them.
+pub const OPEN: Admission = Admission {
+    burst: 64,
+    per_minute: 60_000,
+    tracked_clients: 64,
+    rejected_token_seconds: 0,
+    trusted_proxy: None,
+};
 const CLIENT_ID: &str = "synthetic-client";
 const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%& ";
 // RFC 6749 section 2.3.1 encodes each component before HTTP Basic encoding.
@@ -156,7 +165,7 @@ impl Fixture {
     pub async fn for_resource(resource: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(resource, Some(clients), None, TOKEN, CLIENT_ID).await
+        Self::build(resource, Some(clients), None, TOKEN, CLIENT_ID, OPEN).await
     }
 
     /// Start the fixture with no authorized client policy.
@@ -164,7 +173,7 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn without_clients() -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), None, None, TOKEN, CLIENT_ID).await
+        Self::build(RESOURCE.to_owned(), None, None, TOKEN, CLIENT_ID, OPEN).await
     }
 
     /// Start the fixture with the supplied client allowlist.
@@ -180,7 +189,33 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn with_client_id(clients: ClientAllowlist, client_id: &str) -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), Some(clients), None, TOKEN, client_id).await
+        Self::build(
+            RESOURCE.to_owned(),
+            Some(clients),
+            None,
+            TOKEN,
+            client_id,
+            OPEN,
+        )
+        .await
+    }
+
+    /// Start the fixture with the supplied admission limits.
+    ///
+    /// # Errors
+    /// Propagates client-policy decoding, invalid limits or HTTPS fixture setup failures.
+    pub async fn with_admission(admission: Admission) -> TestResult<Self> {
+        let clients =
+            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
+        Self::build(
+            RESOURCE.to_owned(),
+            Some(clients),
+            None,
+            TOKEN,
+            CLIENT_ID,
+            admission,
+        )
+        .await
     }
 
     /// Start the fixture with the supplied catalog bytes and their computed checksum.
@@ -196,6 +231,7 @@ impl Fixture {
             Some(artifact),
             TOKEN,
             CLIENT_ID,
+            OPEN,
         )
         .await
     }
@@ -207,7 +243,15 @@ impl Fixture {
     pub async fn with_token(token: &str) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(RESOURCE.to_owned(), Some(clients), None, token, CLIENT_ID).await
+        Self::build(
+            RESOURCE.to_owned(),
+            Some(clients),
+            None,
+            token,
+            CLIENT_ID,
+            OPEN,
+        )
+        .await
     }
 
     /// Assemble the synthetic backend, fixture certificate trust, catalog and protocol router.
@@ -222,6 +266,7 @@ impl Fixture {
         artifact: Option<Vec<u8>>,
         token: &str,
         client_id: &str,
+        admission: Admission,
     ) -> TestResult<Self> {
         let listener = TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
@@ -282,7 +327,7 @@ impl Fixture {
         };
         let catalog = Catalog::load(&artifact, &Sha256::digest(&artifact).into())?;
         let telemetry = upstream.telemetry();
-        let router = protocol::router(catalog, upstream, resource, issuer)?;
+        let router = protocol::router(catalog, upstream, resource, issuer, admission)?;
         let future = axum_server::from_tcp_rustls(listener, tls)?
             .handle(handle.clone())
             .serve(backend.into_make_service());

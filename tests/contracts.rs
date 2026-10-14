@@ -422,11 +422,13 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
 #[test]
 /// # Panics
 ///
-/// Panics if fixture encoding fails or version 3 stops requiring one service
-/// login, a client allowlist and secret-file references, or accepts other
-/// versions, superseded fields, inline secrets or duplicate fields.
+/// Panics if fixture encoding fails or version 4 stops requiring one service
+/// login, a client allowlist, secret-file references and bounded admission
+/// limits, or accepts other versions, superseded fields, inline secrets or
+/// duplicate fields.
 fn configuration_requires_one_service_login_and_secret_file_references() {
-    let fields = json!({"version":"3","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
+    let fields = json!({"version":"4","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
+        "admission":{"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32},
         "issuer":"https://issuer.example","client_allowlist_file":"/synthetic/clients.json",
         "introspection_endpoint":"https://service.example/introspect",
         "execution_endpoint":"https://service.example/execute",
@@ -441,7 +443,7 @@ fn configuration_requires_one_service_login_and_secret_file_references() {
     assert!(!format!("{config:?}").contains("synthetic"));
     assert_eq!(config.client_allowlist_file, "/synthetic/clients.json");
     assert_eq!(config.service_secret_file, "/synthetic/service");
-    for version in ["1", "2", "4"] {
+    for version in ["1", "2", "3", "5"] {
         let mut changed = fields.clone();
         *changed.get_mut("version").expect("version") = json!(version);
         let _: logbrew_mcp::Failure = decode(&changed).unwrap_err();
@@ -476,5 +478,41 @@ fn configuration_requires_one_service_login_and_secret_file_references() {
         let _: logbrew_mcp::Failure = decode(&extra).unwrap_err();
     }
     let _: logbrew_mcp::Failure =
-        Config::decode(b"{\"version\":\"3\",\"version\":\"3\"}").unwrap_err();
+        Config::decode(b"{\"version\":\"4\",\"version\":\"4\"}").unwrap_err();
+    assert_eq!(config.admission.burst, 16);
+    assert_eq!(config.admission.trusted_proxy, None);
+    let limits = json!({"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32});
+    let mut proxied = fields.clone();
+    *proxied.pointer_mut("/admission").expect("admission") = json!({"burst":1_u32,"per_minute":1_u32,"tracked_clients":1_u32,"rejected_token_seconds":0_u32,"trusted_proxy":"127.0.0.1"});
+    assert!(
+        decode(&proxied)
+            .expect("proxied")
+            .admission
+            .trusted_proxy
+            .is_some()
+    );
+    let mut missing = fields.clone();
+    drop(missing.as_object_mut().expect("object").remove("admission"));
+    let _: logbrew_mcp::Failure = decode(&missing).unwrap_err();
+    for (field, value) in [
+        ("burst", json!(0_i32)),
+        ("burst", json!(65_i32)),
+        ("per_minute", json!(0_i32)),
+        ("tracked_clients", json!(0_i32)),
+        ("rejected_token_seconds", json!(301_i32)),
+        ("trusted_proxy", json!("proxy.example")),
+        ("burst", json!("16")),
+        ("unknown", json!(1_i32)),
+    ] {
+        let mut changed = fields.clone();
+        let mut admission = limits.clone();
+        drop(
+            admission
+                .as_object_mut()
+                .expect("limits")
+                .insert(field.to_owned(), value),
+        );
+        *changed.pointer_mut("/admission").expect("admission") = admission;
+        let _: logbrew_mcp::Failure = decode(&changed).unwrap_err();
+    }
 }

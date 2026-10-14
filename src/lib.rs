@@ -2,6 +2,7 @@
 
 extern crate alloc;
 
+pub mod admission;
 mod bearer;
 pub mod catalog;
 pub mod clients;

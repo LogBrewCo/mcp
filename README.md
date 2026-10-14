@@ -156,6 +156,14 @@ loopback-host heuristic is replaced by this configured-host check so a loopback
 proxy hop can preserve the public host. Browser cross-site protection remains
 enabled. This local test does not prove a deployed proxy configuration.
 
+`catalog/operations.json` is the operation catalog the hosted server loads. The
+LogBrew API generates it from the request and response types of its public
+read endpoints; this repository ships the generated file unchanged.
+`catalog/operations.json.sha256` pins its SHA-256 digest in `sha256sum` format.
+Deployments set `catalog_sha256` to that digest, and a test fails if the file,
+the pin, and the operation reference in `docs/operations.md` disagree. To
+update the catalog, replace both files in one change and update the reference.
+
 The draft catalog loader accepts format version 1 and requires an expected
 SHA-256 digest from trusted release configuration. It rejects files above 8 MiB,
 duplicate keys, unknown metadata fields, unsupported formats, and invalid

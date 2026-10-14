@@ -1,14 +1,15 @@
 # Operation reference
 
-This reference describes the current source implementation. There is no released
-MCP server or verified hosted endpoint yet. The current catalog contains reads
-only. It does not provide project changes, issue updates, billing changes, or
-other mutations.
+This reference describes the operation catalog shipped in
+`catalog/operations.json`. There is no released MCP server or verified hosted
+endpoint yet. The catalog contains reads only. It does not provide project
+changes, issue updates, billing changes, or other mutations.
 
 The server exposes two tools. `search` finds versioned operations and returns
-their input and output schemas. `execute` runs a selected operation. An operation
-identifier is also its exact delegated permission. Discovery does not grant
-permission or establish that data is available for a particular account.
+their input and output schemas. `execute` runs a selected operation. Every
+operation requires the delegated `read` scope and returns only data from the
+projects the signed-in user approved. Discovery does not grant permission or
+establish that data is available for a particular account.
 
 Use the returned schema for required fields, valid versions, filters, limits and
 pagination. Do not substitute CLI flags for JSON fields. Preserve the selected
@@ -61,15 +62,15 @@ population total.
 
 | Operation | What it reads |
 | --- | --- |
-| `analytics.overview.v2` | Classified activity, keeping identified and anonymous populations separate. |
-| `analytics.properties.v1` | Safe property keys and capture coverage, without property values or identities. |
+| `analytics.overview.v3` | Classified activity, keeping identified and anonymous populations separate. |
+| `analytics.properties.v2` | Safe property keys and capture coverage, without property values or identities. |
 | `analytics.funnel.v1` | Ordered conversion steps within an explicit subject boundary. |
 | `analytics.lifecycle.v1` | User lifecycle for one exact classified event. |
 | `analytics.lifecycle.v2` | User lifecycle across all classified activity, without choosing an event. |
 | `analytics.retention.v1` | Cohorts between explicit starting and returning events. |
 | `analytics.retention.v2` | Cohorts across all classified activity. |
 | `analytics.paths.v1` | Bounded session paths around an exact property-filtered anchor. |
-| `analytics.segments.compare.v1` | An exact outcome across explicit bounded segments. |
+| `analytics.segments.compare.v2` | An exact outcome across explicit bounded segments. |
 
 The lifecycle and retention versions have different population definitions.
 Do not substitute one for the other. Keep identity coverage, time windows,

@@ -1,2 +1,0 @@
-// Copyright 2018-2022 The OpenSSL Project Authors. All Rights Reserved.
-// SPDX-License-Identifier: Apache-2.0

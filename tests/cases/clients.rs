@@ -355,12 +355,11 @@ async fn client_allowlist_rejects_discovery_search_and_execution_and_recovers() 
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if setup fails, empty, wildcard or inexact client policies grant access,
+/// Panics if setup fails, wildcard or inexact client policies grant access,
 /// a denial returns data, or upstream work counts change.
 async fn client_allowlist_uses_exact_ids_and_never_interprets_wildcards() {
     for policy in [
-        br#"{"version":"1","clients":[]}"#.as_slice(),
-        br#"{"version":"1","clients":["*"]}"#,
+        br#"{"version":"1","clients":["*"]}"#.as_slice(),
         br#"{"version":"1","clients":["SYNTHETIC-CLIENT","synthetic-client/","synthetic-client.evil","https://synthetic-client"]}"#,
     ] {
         let fixture = Fixture::with_clients(ClientAllowlist::decode(policy).expect("policy"))

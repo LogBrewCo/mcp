@@ -59,7 +59,8 @@ One service login, `service_client_id` with the secret in
 `service_secret_file`, authenticates both introspection and execution. The
 issuer and API must hold the same pair. `issuer` must equal the authorization
 server's issuer identifier byte for byte, and `resource` must equal the audience
-the issuer binds into tokens. The server requires the single delegated scope
+the issuer binds into tokens. Startup rejects an issuer that ends with `/` and a
+client allowlist with no entries; either would deny every request. The server requires the single delegated scope
 `read`; it is not configurable. It publishes RFC 9728 protected resource
 metadata at `/.well-known/oauth-protected-resource` followed by the resource
 path. The document names the issuer as the only authorization server and `read`

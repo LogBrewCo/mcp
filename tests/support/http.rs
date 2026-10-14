@@ -226,7 +226,7 @@ impl Fixture {
         let listener = TcpListener::bind("127.0.0.1:0")?;
         listener.set_nonblocking(true)?;
         let address = listener.local_addr()?;
-        let issuer = format!("https://localhost:{}/", address.port());
+        let issuer = format!("https://localhost:{}", address.port());
         let certificate = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])?;
         let pem = certificate.cert.pem();
         let tls = axum_server::tls_rustls::RustlsConfig::from_pem(
@@ -255,8 +255,8 @@ impl Fixture {
         let handle = axum_server::Handle::new();
         let mut upstream = Upstream::with_certificate(
             UpstreamOptions {
-                introspection_endpoint: format!("{issuer}introspect"),
-                execution_endpoint: format!("{issuer}execute"),
+                introspection_endpoint: format!("{issuer}/introspect"),
+                execution_endpoint: format!("{issuer}/execute"),
                 issuer: issuer.clone(),
                 resource: resource.clone(),
                 service_credential: MachineCredential::new(

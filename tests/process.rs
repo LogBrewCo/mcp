@@ -106,7 +106,11 @@ impl Fixture {
             0o600,
         )?;
         let secret = directory.write("secret", b"SYNTHETIC_MACHINE_SECRET", 0o600)?;
-        let clients = directory.write("clients.json", br#"{"version":"1","clients":[]}"#, 0o600)?;
+        let clients = directory.write(
+            "clients.json",
+            br#"{"version":"1","clients":["synthetic-client"]}"#,
+            0o600,
+        )?;
         let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
             "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read",
                 "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
@@ -478,6 +482,24 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
             .code(),
         Some(1_i32)
     );
+    let mut config: serde_json::Value =
+        serde_json::from_slice(&fs::read(&fixture.config).expect("configuration"))
+            .expect("configuration JSON");
+    *config.get_mut("issuer").expect("issuer") = json!("https://issuer.example/");
+    let slash = fixture
+        .directory
+        .write(
+            "slash.json",
+            &serde_json::to_vec(&config).expect("encoded configuration"),
+            0o600,
+        )
+        .expect("trailing-slash issuer");
+    let mut issuer_process = Process::start(&slash).expect("native executable");
+    assert_eq!(
+        issuer_process.wait().await.expect("issuer exit").code(),
+        Some(1_i32)
+    );
+    drop(TcpListener::bind(fixture.address).expect("no listener on trailing-slash issuer"));
     let other =
         rcgen::generate_simple_self_signed(vec!["localhost".to_owned()]).expect("different key");
     drop(
@@ -495,7 +517,7 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
     drop(TcpListener::bind(fixture.address).expect("no listener on invalid startup"));
 }
 
-/// Reject invalid client-policy files and recover with a valid deny-all policy.
+/// Reject invalid or empty client-policy files and recover with a valid policy.
 ///
 /// # Panics
 /// Panics if fixture setup or policy replacement fails, invalid policies start
@@ -509,7 +531,11 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
             br#"{"version":"1","clients":["private-client","private-client"]}"#.as_slice(),
             0o600,
         ),
-        (br#"{"version":"1","clients":[]}"#.as_slice(), 0o644),
+        (br#"{"version":"1","clients":[]}"#.as_slice(), 0o600),
+        (
+            br#"{"version":"1","clients":["synthetic-client"]}"#.as_slice(),
+            0o644,
+        ),
         (b"{}".as_slice(), 0o600),
         (oversized.as_slice(), 0o600),
     ] {
@@ -540,7 +566,7 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
         .directory
         .write(
             "policy-target.json",
-            br#"{"version":"1","clients":[]}"#,
+            br#"{"version":"1","clients":["synthetic-client"]}"#,
             0o600,
         )
         .expect("symlink target");
@@ -560,8 +586,12 @@ async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() 
     drop(
         fixture
             .directory
-            .write("clients.json", br#"{"version":"1","clients":[]}"#, 0o600)
-            .expect("valid deny-all policy"),
+            .write(
+                "clients.json",
+                br#"{"version":"1","clients":["synthetic-client"]}"#,
+                0o600,
+            )
+            .expect("valid policy"),
     );
     let mut process = Process::start(&fixture.config).expect("native executable");
     fixture.ready(&mut process).await.expect("offline recovery");

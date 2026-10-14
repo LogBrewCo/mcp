@@ -141,7 +141,8 @@ An actual TLS HTTP/2 test covers configured authority, authorization, header
 validation, complete results, and cancellation. These are local protocol checks,
 not a supported-client compatibility claim.
 
-Authorization tests reject expired credentials, mismatched issuer or audience,
+Introspected `iat` and `nbf` times may lead the local clock by up to 60
+seconds; a later time is rejected. Authorization tests reject expired credentials, mismatched issuer or audience,
 missing required scopes, invalid identity references, and incomplete or malformed
 introspection responses before execution. Oversized introspection bodies and
 headers and unexpected media types also fail closed. Synthetic HTTPS fixtures
@@ -166,8 +167,9 @@ update the catalog, replace both files in one change and update the reference.
 
 The draft catalog loader accepts format version 1 and requires an expected
 SHA-256 digest from trusted release configuration. It rejects files above 8 MiB,
-duplicate keys, unknown metadata fields, unsupported formats, and invalid
-operation contracts. Loading a catalog does not grant access to its operations.
+duplicate keys, unknown metadata fields, unsupported formats, invalid operation
+contracts, and any operation that is not `read_only` under the `read` scope.
+Both tools therefore carry read-only, closed-world annotations. Loading a catalog does not grant access to its operations.
 
 The draft tools return a `data`/`error` envelope with catalog provenance.
 Operation input is limited to 4 KiB and output data to 2 MiB. Envelope metadata

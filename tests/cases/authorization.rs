@@ -25,6 +25,44 @@ fn issuer_type_case(pattern: u8) -> String {
 #[tokio::test]
 /// # Panics
 ///
+/// Panics if an issue or not-before time within 60 seconds of the local clock
+/// is rejected, or a later one reaches execution.
+async fn issuer_clock_lead_within_sixty_seconds_is_tolerated() {
+    let fixture = Fixture::new().await.expect("fixture");
+    let base = fixture.authority().expect("issuer claims");
+    let now = base
+        .get("iat")
+        .and_then(serde_json::Value::as_u64)
+        .expect("iat");
+    let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1","input":{}}});
+    for (field, lead, expected) in [
+        ("iat", 30, StatusCode::OK),
+        ("nbf", 30, StatusCode::OK),
+        ("iat", 120, StatusCode::UNAUTHORIZED),
+        ("nbf", 120, StatusCode::UNAUTHORIZED),
+    ] {
+        let mut claims = base.clone();
+        drop(
+            claims
+                .as_object_mut()
+                .expect("claims")
+                .insert(field.to_owned(), json!(now + lead)),
+        );
+        fixture
+            .introspection_reply(StatusCode::OK, claims.to_string(), HeaderMap::new())
+            .expect("issuer reply");
+        let (status, _) = fixture
+            .request("tools/call", params.clone(), TOKEN)
+            .await
+            .expect("response");
+        assert_eq!(status, expected, "{field} +{lead}s");
+    }
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
+}
+
+#[tokio::test]
+/// # Panics
+///
 /// Panics if a Bearer case variant fails, another token type permits execution,
 /// recovery or revocation fails, or telemetry discloses private authority.
 async fn issuer_token_type_case_variants_preserve_authorization() {

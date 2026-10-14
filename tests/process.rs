@@ -119,13 +119,13 @@ impl Fixture {
             write!(digest, "{byte:02x}")?;
         }
         let config = serde_json::to_vec(&json!({
-            "version":"2","listen":address.to_string(),"client_allowlist_file":clients,
+            "version":"3","listen":address.to_string(),"client_allowlist_file":clients,
             "resource":format!("https://localhost:{}/mcp", address.port()),
-            "issuer":"https://issuer.example", "required_scope":"mcp:read",
+            "issuer":"https://issuer.example",
             "introspection_endpoint":"https://127.0.0.1:1/introspect",
-            "introspection_client_id":"synthetic-introspection", "introspection_secret_file":secret,
-            "execution_endpoint":"https://127.0.0.1:1/execute", "execution_client_id":"synthetic-execution",
-            "execution_secret_file":secret,"catalog_file":catalog_file,"catalog_sha256":digest,
+            "execution_endpoint":"https://127.0.0.1:1/execute",
+            "service_client_id":"synthetic-service", "service_secret_file":secret,
+            "catalog_file":catalog_file,"catalog_sha256":digest,
             "certificate_file":certificate_file,"private_key_file":key
         }))?;
         let config = directory.write("config.json", &config, 0o600)?;

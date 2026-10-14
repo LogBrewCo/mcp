@@ -33,24 +33,16 @@ pub struct Config {
     pub resource: String,
     /// Expected authorization issuer.
     pub issuer: String,
-    /// Required delegated scope.
-    pub required_scope: String,
-    /// Private client allowlist file. Required by configuration version 2.
-    /// Version 1 without this file authorizes no client.
-    #[serde(default)]
-    pub client_allowlist_file: Option<String>,
+    /// Private client allowlist file.
+    pub client_allowlist_file: String,
     /// Fixed introspection service URL.
     pub introspection_endpoint: String,
-    /// Introspection machine client identifier.
-    pub introspection_client_id: String,
-    /// Introspection secret file reference.
-    pub introspection_secret_file: String,
     /// Fixed execution service URL.
     pub execution_endpoint: String,
-    /// Execution machine client identifier.
-    pub execution_client_id: String,
-    /// Execution secret file reference.
-    pub execution_secret_file: String,
+    /// Service login client identifier for introspection and execution.
+    pub service_client_id: String,
+    /// Service login secret file reference.
+    pub service_secret_file: String,
     /// Trusted operation catalog path.
     pub catalog_file: String,
     /// Expected artifact SHA-256.
@@ -71,9 +63,8 @@ impl Config {
     /// Decode exact fields without reading referenced files or making requests.
     ///
     /// # Errors
-    /// Rejects unknown, duplicate, missing, empty, or non-string fields.
-    /// Version 1 remains supported; version 2 requires a client allowlist file.
-    /// Loading version 1 without this file authorizes no client.
+    /// Rejects unknown, duplicate, missing, empty, or non-string fields and
+    /// any version other than 3.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
@@ -86,9 +77,7 @@ impl Config {
         }
         let config: Self =
             serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
-        if !matches!(config.version.as_str(), "1" | "2")
-            || (config.version == "2" && config.client_allowlist_file.is_none())
-        {
+        if config.version != "3" {
             return Err(Kind::Configuration.into());
         }
         Ok(config)
@@ -189,25 +178,17 @@ impl Service {
         let (address, digest) = config.address_digest()?;
         let catalog_bytes = read_file(Path::new(&config.catalog_file), 8 << 20, 0o644)?;
         let catalog = Catalog::load(&catalog_bytes, &digest)?;
-        let introspection_credential = credential(
-            &config.introspection_client_id,
-            &config.introspection_secret_file,
-        )?;
-        let execution_credential =
-            credential(&config.execution_client_id, &config.execution_secret_file)?;
-        let mut upstream = Upstream::new(UpstreamOptions {
+        let service_credential =
+            credential(&config.service_client_id, &config.service_secret_file)?;
+        let allowlist = read_file(Path::new(&config.client_allowlist_file), 16 << 10, 0o600)?;
+        let upstream = Upstream::new(UpstreamOptions {
             introspection_endpoint: config.introspection_endpoint,
             execution_endpoint: config.execution_endpoint,
             issuer: config.issuer.clone(),
             resource: config.resource.clone(),
-            required_scope: config.required_scope,
-            introspection_credential,
-            execution_credential,
-        })?;
-        if let Some(allowlist_path) = config.client_allowlist_file {
-            let allowlist_bytes = read_file(Path::new(&allowlist_path), 16 << 10, 0o600)?;
-            upstream = upstream.with_client_allowlist(ClientAllowlist::decode(&allowlist_bytes)?);
-        }
+            service_credential,
+        })?
+        .with_client_allowlist(ClientAllowlist::decode(&allowlist)?);
         let router = protocol::router(catalog, upstream, config.resource, config.issuer)?;
         let certificate = read_file(Path::new(&config.certificate_file), 256 << 10, 0o644)?;
         let key = read_file(Path::new(&config.private_key_file), 64 << 10, 0o600)?;

@@ -46,12 +46,24 @@ Startup file loading is under development for Linux and macOS. It requires
 operator-managed directories and absolute regular-file paths, checks byte and
 permission bounds, and rejects final-component symlinks. Files are opened
 without waiting for a FIFO writer and their identity is checked before reading.
-The draft configuration reader accepts a private file up to 16 KiB. Version
-`"2"` requires `client_allowlist_file`. Version `"1"` also accepts that field;
-without it, no client is authorized. Each supplied field must appear exactly once
-with a nonempty string value. It rejects unknown fields, case aliases, duplicate
-decoded keys, invalid UTF-8, trailing documents, and inline secret fields. It
-preserves secret-file references without opening them.
+The draft configuration reader accepts a private file up to 16 KiB with
+version `"3"` only. Every field is required and must appear exactly once with a
+nonempty string value: `listen`, `resource`, `issuer`, `client_allowlist_file`,
+`introspection_endpoint`, `execution_endpoint`, `service_client_id`,
+`service_secret_file`, `catalog_file`, `catalog_sha256`, `certificate_file` and
+`private_key_file`. It rejects unknown fields, case aliases, duplicate decoded
+keys, invalid UTF-8, trailing documents, and inline secret fields. It preserves
+secret-file references without opening them.
+
+One service login, `service_client_id` with the secret in
+`service_secret_file`, authenticates both introspection and execution. The
+issuer and API must hold the same pair. `issuer` must equal the authorization
+server's issuer identifier byte for byte, and `resource` must equal the audience
+the issuer binds into tokens. The server requires the single delegated scope
+`read`; it is not configurable. It publishes RFC 9728 protected resource
+metadata at `/.well-known/oauth-protected-resource` followed by the resource
+path. The document names the issuer as the only authorization server and `read`
+as the only scope, and every 401 and 403 challenge links to it.
 
 The separate service loader reads referenced material and constructs the
 authenticated handler without opening a listener or contacting upstream services.
@@ -133,8 +145,8 @@ Authorization tests reject expired credentials, mismatched issuer or audience,
 missing required scopes, invalid identity references, and incomplete or malformed
 introspection responses before execution. Oversized introspection bodies and
 headers and unexpected media types also fail closed. Synthetic HTTPS fixtures
-verify separate machine credentials and OAuth component encoding at both
-upstream endpoints. These checks do not prove the hosted issuer or backend policy.
+verify one service login and OAuth component encoding at both upstream
+endpoints. These checks do not prove the hosted issuer or backend policy.
 
 The request router requires the configured resource host, including its port,
 on every request. A supplied Origin must be the single configured HTTPS origin;

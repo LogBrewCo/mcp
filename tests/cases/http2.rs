@@ -35,17 +35,15 @@ fn request(client: &reqwest::Client, resource: &str) -> reqwest::RequestBuilder 
 /// Panics if setup fails, authenticated requests finish before backend release,
 /// response version, correlation or data changes, or work counts and drain fail.
 async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_http2_work() {
-    let address = TcpListener::bind("127.0.0.1:0")
-        .expect("frontend address")
-        .local_addr()
-        .expect("address");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("frontend address");
+    let address = listener.local_addr().expect("address");
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
     fixture.state().pause().store(true, Ordering::SeqCst);
-    let mut running = Running::at(address, fixture.router().clone(), &authority)
+    let mut running = Running::at(listener, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let clients = [
@@ -98,16 +96,14 @@ async fn protocol_detection_deadline_does_not_truncate_authenticated_http1_or_ht
 /// Panics if setup fails, HTTP/2 result, authority or routing checks change,
 /// cancellation fails to stop execution, or work counts and drain fail.
 async fn real_http2_preserves_authority_checks_and_cancels_authenticated_execution() {
-    let address = TcpListener::bind("127.0.0.1:0")
-        .expect("frontend address")
-        .local_addr()
-        .expect("address");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("frontend address");
+    let address = listener.local_addr().expect("address");
     let authority = format!("localhost:{}", address.port());
     let resource = format!("https://{authority}/mcp");
     let fixture = Fixture::for_resource(resource.clone())
         .await
         .expect("fixture");
-    let mut running = Running::at(address, fixture.router().clone(), &authority)
+    let mut running = Running::at(listener, fixture.router().clone(), &authority)
         .await
         .expect("HTTPS runtime");
     let client = running.http2_client().expect("HTTP/2 client");

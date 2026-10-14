@@ -396,55 +396,59 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
 #[test]
 /// # Panics
 ///
-/// Panics if fixture encoding fails or configuration defaults, secret-reference
-/// handling, debug privacy, versions or invalid-field rejection change.
-fn configuration_never_accepts_inline_secrets_or_duplicate_fields() {
-    let fields = json!({"version":"1","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
-        "issuer":"https://issuer.example/","required_scope":"mcp:read","introspection_endpoint":"https://issuer.example/introspect",
-        "introspection_client_id":"machine","introspection_secret_file":"/synthetic/introspection",
-        "execution_endpoint":"https://service.example/execute","execution_client_id":"machine-execution",
-        "execution_secret_file":"/synthetic/execution","catalog_file":"/synthetic/catalog",
-        "catalog_sha256":"00".repeat(32),"certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"});
-    let bytes = serde_json::to_vec(&fields).expect("configuration");
-    let config = Config::decode(&bytes).expect("secret references only");
+/// Panics if fixture encoding fails or version 3 stops requiring one service
+/// login, a client allowlist and secret-file references, or accepts other
+/// versions, superseded fields, inline secrets or duplicate fields.
+fn configuration_requires_one_service_login_and_secret_file_references() {
+    let fields = json!({"version":"3","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
+        "issuer":"https://issuer.example","client_allowlist_file":"/synthetic/clients.json",
+        "introspection_endpoint":"https://service.example/introspect",
+        "execution_endpoint":"https://service.example/execute",
+        "service_client_id":"machine","service_secret_file":"/synthetic/service",
+        "catalog_file":"/synthetic/catalog","catalog_sha256":"00".repeat(32),
+        "certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"});
+    let decode = |value: &serde_json::Value| {
+        Config::decode(&serde_json::to_vec(value).expect("configuration"))
+    };
+    let config = decode(&fields).expect("secret references only");
     let _: (core::net::SocketAddr, [u8; 32]) = config.address_digest().unwrap();
     assert!(!format!("{config:?}").contains("synthetic"));
-    assert!(config.client_allowlist_file.is_none());
-    let mut policy = fields.clone();
-    *policy.get_mut("version").expect("version") = json!("2");
-    let _: logbrew_mcp::Failure =
-        Config::decode(&serde_json::to_vec(&policy).expect("version 2")).unwrap_err();
-    for reference in [json!(""), json!(null), json!([]), json!(42_i32)] {
-        drop(
-            policy
-                .as_object_mut()
-                .expect("configuration")
-                .insert("client_allowlist_file".to_owned(), reference),
-        );
-        let _: logbrew_mcp::Failure =
-            Config::decode(&serde_json::to_vec(&policy).expect("invalid reference")).unwrap_err();
+    assert_eq!(config.client_allowlist_file, "/synthetic/clients.json");
+    assert_eq!(config.service_secret_file, "/synthetic/service");
+    for version in ["1", "2", "4"] {
+        let mut changed = fields.clone();
+        *changed.get_mut("version").expect("version") = json!(version);
+        let _: logbrew_mcp::Failure = decode(&changed).unwrap_err();
     }
-    *policy.get_mut("client_allowlist_file").expect("reference") = json!("/synthetic/clients.json");
-    let policy_bytes = serde_json::to_vec(&policy).expect("policy reference");
-    assert_eq!(
-        Config::decode(&policy_bytes)
-            .expect("version 2")
-            .client_allowlist_file
-            .as_deref(),
-        Some("/synthetic/clients.json")
-    );
-    *policy.get_mut("version").expect("version") = json!("1");
-    drop(Config::decode(&serde_json::to_vec(&policy).expect("additive policy")).unwrap());
-    *policy.get_mut("version").expect("version") = json!("3");
+    for field in [
+        "client_allowlist_file",
+        "service_client_id",
+        "service_secret_file",
+    ] {
+        let mut missing = fields.clone();
+        drop(missing.as_object_mut().expect("object").remove(field));
+        let _: logbrew_mcp::Failure = decode(&missing).unwrap_err();
+        for reference in [json!(""), json!(null), json!([]), json!(42_i32)] {
+            let mut invalid = fields.clone();
+            *invalid.get_mut(field).expect("field") = reference;
+            let _: logbrew_mcp::Failure = decode(&invalid).unwrap_err();
+        }
+    }
+    for (field, value) in [
+        ("required_scope", "read"),
+        ("introspection_client_id", "machine"),
+        ("execution_secret_file", "/synthetic/execution"),
+        ("client_secret", "SYNTHETIC_PRIVATE_MARKER"),
+    ] {
+        let mut extra = fields.clone();
+        drop(
+            extra
+                .as_object_mut()
+                .expect("object")
+                .insert(field.to_owned(), json!(value)),
+        );
+        let _: logbrew_mcp::Failure = decode(&extra).unwrap_err();
+    }
     let _: logbrew_mcp::Failure =
-        Config::decode(&serde_json::to_vec(&policy).expect("unsupported version")).unwrap_err();
-    let mut inline = fields;
-    drop(inline.as_object_mut().expect("object").insert(
-        "client_secret".to_owned(),
-        json!("SYNTHETIC_PRIVATE_MARKER"),
-    ));
-    let _: logbrew_mcp::Failure =
-        Config::decode(&serde_json::to_vec(&inline).expect("inline field")).unwrap_err();
-    let _: logbrew_mcp::Failure =
-        Config::decode(b"{\"version\":\"1\",\"version\":\"1\"}").unwrap_err();
+        Config::decode(b"{\"version\":\"3\",\"version\":\"3\"}").unwrap_err();
 }

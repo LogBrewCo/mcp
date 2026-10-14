@@ -22,6 +22,9 @@ use crate::{
     telemetry::{Outcome, Stage, Telemetry},
 };
 
+/// The only delegated scope. It grants reads of every catalog operation.
+pub const SCOPE: &str = "read";
+
 const TOKEN_BYTES: usize = 8 << 10;
 const CLAIM_BYTES: usize = 64 << 10;
 const HEADER_BYTES: usize = 16 << 10;
@@ -89,7 +92,7 @@ impl fmt::Debug for Principal {
     }
 }
 
-/// Separate machine credentials for a fixed trusted endpoint.
+/// The service login for the fixed introspection and execution endpoints.
 #[derive(Clone)]
 pub struct MachineCredential {
     id: String,
@@ -120,7 +123,7 @@ impl fmt::Debug for MachineCredential {
     }
 }
 
-/// Trusted authority locations and independently scoped machine identities.
+/// Trusted authority locations and the service login used at both.
 pub struct UpstreamOptions {
     /// Fixed RFC 7662 endpoint.
     pub introspection_endpoint: String,
@@ -130,12 +133,8 @@ pub struct UpstreamOptions {
     pub issuer: String,
     /// Expected audience identifier.
     pub resource: String,
-    /// Required delegated scope.
-    pub required_scope: String,
-    /// Introspection machine identity.
-    pub introspection_credential: MachineCredential,
-    /// Execution machine identity.
-    pub execution_credential: MachineCredential,
+    /// Service login shared by introspection and execution.
+    pub service_credential: MachineCredential,
 }
 
 /// Outbound clients do not inherit proxy, cookies, or caller-selected destinations.
@@ -151,7 +150,7 @@ impl Upstream {
     /// No client is authorized until an explicit allowlist is supplied.
     ///
     /// # Errors
-    /// Rejects invalid authority URLs, scope, or TLS client configuration.
+    /// Rejects invalid authority URLs or TLS client configuration.
     pub fn new(options: UpstreamOptions) -> Result<Self, Failure> {
         Self::with_certificate(options, None)
     }
@@ -173,9 +172,6 @@ impl Upstream {
             &options.resource,
         ] {
             drop(canonical_https(value)?);
-        }
-        if !valid_scope(&options.required_scope) || options.required_scope == "offline_access" {
-            return Err(Kind::Configuration.into());
         }
         let client = Outbound::new(certificate)?;
         Ok(Self {
@@ -209,10 +205,6 @@ impl Upstream {
     #[must_use]
     pub fn telemetry(&self) -> Telemetry {
         self.telemetry.clone()
-    }
-
-    pub(crate) fn required_scope(&self) -> &str {
-        &self.options.required_scope
     }
 
     /// Introspect each request. No positive or negative authorization cache exists.
@@ -254,12 +246,11 @@ impl Upstream {
         if !bearer::valid(token) {
             return Err(Kind::Unauthorized.into());
         }
-        let credential = &self.options.introspection_credential;
         let response = self
             .client
             .post(
                 &self.options.introspection_endpoint,
-                authorization(credential)?,
+                authorization(&self.options.service_credential)?,
                 "application/x-www-form-urlencoded",
                 format!(
                     "token={}&token_type_hint=access_token",
@@ -327,12 +318,11 @@ impl Upstream {
         self.authorize_client(principal)?;
         let input_bytes = serde_json::to_vec(input).map_err(Failure::redact(Kind::InvalidInput))?;
         drop(strict_json::object(&input_bytes, INPUT_BYTES)?);
-        let credential = &self.options.execution_credential;
         let response = self
             .client
             .post(
                 &self.options.execution_endpoint,
-                authorization(credential)?,
+                authorization(&self.options.service_credential)?,
                 "application/json",
                 serde_json::to_vec(
                     &json!({"token":token,"credential_id":principal.credential_id,
@@ -454,9 +444,7 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
     }
     Ok(Verified {
         principal,
-        scope_allowed: scope
-            .split(' ')
-            .any(|entry| entry == options.required_scope),
+        scope_allowed: scope.split(' ').any(|entry| entry == SCOPE),
     })
 }
 

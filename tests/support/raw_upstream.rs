@@ -164,9 +164,7 @@ impl Raw {
                 execution_endpoint: format!("{endpoint}/execute"),
                 issuer: "https://issuer.example".to_owned(),
                 resource: "https://resource.example/mcp".to_owned(),
-                required_scope: "mcp:read".to_owned(),
-                introspection_credential: credential()?,
-                execution_credential: credential()?,
+                service_credential: credential()?,
             },
             root,
         )?

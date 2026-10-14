@@ -209,7 +209,7 @@ async fn introspect(
 ) -> Result<axum::Json<Value>, StatusCode> {
     machine(
         &headers,
-        "synthetic-introspection",
+        "synthetic-service",
         "application/x-www-form-urlencoded",
     );
     let identity = identities()
@@ -239,7 +239,7 @@ async fn introspect(
         "exp": now.saturating_add(60),
         "iat": now,
         "token_type": "Bearer",
-        "scope": "mcp:read",
+        "scope": "read",
         "jti": identity.credential(),
         "client_id": identity.client()
     })))
@@ -262,7 +262,7 @@ async fn execute(
     headers: HeaderMap,
     bytes: Bytes,
 ) -> Result<axum::Json<Value>, (StatusCode, &'static str)> {
-    machine(&headers, "synthetic-execution", "application/json");
+    machine(&headers, "synthetic-service", "application/json");
     let denied = (StatusCode::FORBIDDEN, "SYNTHETIC_FOREIGN_PRIVATE_RESULT");
     let value: Value = serde_json::from_slice(&bytes).map_err(|_| denied)?;
     let identity = identities()

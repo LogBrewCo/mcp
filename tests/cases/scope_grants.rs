@@ -18,11 +18,11 @@ async fn scope_grants_require_complete_case_sensitive_tokens() {
     let params = json!({"name":"execute",
         "arguments":{"operation":"logs.read.v1","input":{}}});
     for scope in [
-        "mcp:read",
-        "mcp:read extra:scope",
-        "extra:scope mcp:read",
-        "extra:scope mcp:read another:scope",
-        "mcp:read mcp:read",
+        "read",
+        "read extra:scope",
+        "extra:scope read",
+        "extra:scope read another:scope",
+        "read read",
     ] {
         let mut claims = base.clone();
         *claims.get_mut("scope").expect("scope claim") = json!(scope);
@@ -41,13 +41,13 @@ async fn scope_grants_require_complete_case_sensitive_tokens() {
     }
     let mut executions = 5;
     for scope in [
-        "mcp:reader",
-        "prefix:mcp:read",
-        "mcp:read,extra:scope",
-        "MCP:READ",
-        "mcp:reaD",
+        "reader",
+        "prefix:read",
+        "read,extra:scope",
+        "READ",
+        "reaD",
         "offline_access",
-        "SYNTHETIC_PRIVATE_SCOPE mcp:reader",
+        "SYNTHETIC_PRIVATE_SCOPE reader",
     ] {
         let mut claims = base.clone();
         *claims.get_mut("scope").expect("scope claim") = json!(scope);
@@ -96,23 +96,23 @@ async fn malformed_scope_lists_cannot_be_rescued_by_complete_tokens() {
         "arguments":{"operation":"logs.read.v1","input":{}}});
     for scope in [
         "",
-        " mcp:read",
-        "mcp:read ",
-        "mcp:read  SYNTHETIC_PRIVATE_SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\tSCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\nSCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\rSCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\u{000b}SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\0SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\u{007f}SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\"SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\\SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\u{00a0}SCOPE",
-        "mcp:read SYNTHETIC_PRIVATE\u{00e9}SCOPE",
+        " read",
+        "read ",
+        "read  SYNTHETIC_PRIVATE_SCOPE",
+        "read SYNTHETIC_PRIVATE\tSCOPE",
+        "read SYNTHETIC_PRIVATE\nSCOPE",
+        "read SYNTHETIC_PRIVATE\rSCOPE",
+        "read SYNTHETIC_PRIVATE\u{000b}SCOPE",
+        "read SYNTHETIC_PRIVATE\0SCOPE",
+        "read SYNTHETIC_PRIVATE\u{007f}SCOPE",
+        "read SYNTHETIC_PRIVATE\"SCOPE",
+        "read SYNTHETIC_PRIVATE\\SCOPE",
+        "read SYNTHETIC_PRIVATE\u{00a0}SCOPE",
+        "read SYNTHETIC_PRIVATE\u{00e9}SCOPE",
     ]
     .map(str::to_owned)
     .into_iter()
-    .chain(core::iter::once(format!("mcp:read {}", "s".repeat(8193))))
+    .chain(core::iter::once(format!("read {}", "s".repeat(8193))))
     {
         let mut claims = base.clone();
         *claims.get_mut("scope").expect("scope claim") = json!(scope);
@@ -145,16 +145,16 @@ async fn malformed_scope_lists_cannot_be_rescued_by_complete_tokens() {
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if RFC scope punctuation or an exact-limit token is rejected, token
-/// placement changes access, or an accepted grant does not start one execution.
-async fn rfc_scope_characters_and_exact_token_byte_limit_allow_execution() {
+/// Panics if `read` beside RFC scope punctuation or an exact-limit token is
+/// rejected, its position changes access, or a grant does not start one execution.
+async fn read_beside_rfc_scope_characters_and_exact_token_byte_limit_allows_execution() {
     // RFC 6749 section 3.3: %x21 / %x23-5B / %x5D-7E.
     let alphabet = concat!(
         "!#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[",
         "]^_`abcdefghijklmnopqrstuvwxyz{|}~"
     );
-    for required in [alphabet.to_owned(), "s".repeat(8192)] {
-        assert_scope_positions(&required)
+    for extra in [alphabet.to_owned(), "s".repeat(8192)] {
+        assert_scope_positions(&extra)
             .await
             .expect("scope positions");
     }
@@ -167,13 +167,13 @@ async fn rfc_scope_characters_and_exact_token_byte_limit_allow_execution() {
 /// # Panics
 ///
 /// Panics if a permitted token fails in any position or execution totals change.
-async fn assert_scope_positions(required: &str) -> super::TestResult<()> {
-    let fixture = Fixture::with_scope(required.to_owned()).await?;
+async fn assert_scope_positions(extra: &str) -> super::TestResult<()> {
+    let fixture = Fixture::new().await?;
     let base = fixture.authority()?;
     for scope in [
-        format!("{required} extra:scope"),
-        format!("extra:scope {required} another:scope"),
-        format!("extra:scope {required}"),
+        format!("read {extra}"),
+        format!("{extra} read another:scope"),
+        format!("{extra} read"),
     ] {
         let mut claims = base.clone();
         *claims.get_mut("scope").ok_or("scope claim")? = json!(scope);

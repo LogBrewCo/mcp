@@ -39,8 +39,9 @@ pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
 const CLIENT_ID: &str = "synthetic-client";
 const MACHINE_SECRET: &str = "SYNTHETIC_MACHINE_SECRET +:%& ";
 // RFC 6749 section 2.3.1 encodes each component before HTTP Basic encoding.
-const INTROSPECTION_AUTH: &str = "Basic aW50cm9zcGVjdGlvbiUyQmNsaWVudCUyQytvbmU6U1lOVEhFVElDX01BQ0hJTkVfU0VDUkVUKyUyQiUzQSUyNSUyNis=";
-const EXECUTION_AUTH: &str = "Basic ZXhlY3V0aW9uJTNBY2xpZW50JTJDK3R3bzpTWU5USEVUSUNfTUFDSElORV9TRUNSRVQrJTJCJTNBJTI1JTI2Kw==";
+// One service login authenticates both introspection and execution.
+const SERVICE_AUTH: &str =
+    "Basic c2VydmljZSUyQmNsaWVudCUyQytvbmU6U1lOVEhFVElDX01BQ0hJTkVfU0VDUkVUKyUyQiUzQSUyNSUyNis=";
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -50,7 +51,6 @@ pub struct StateData {
     verifies: AtomicUsize,
     issuer: String,
     resource: String,
-    scope: String,
     token: String,
     client_id: String,
     reply: Mutex<Option<Reply>>,
@@ -156,15 +156,7 @@ impl Fixture {
     pub async fn for_resource(resource: String) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            resource,
-            Some(clients),
-            "mcp:read".to_owned(),
-            None,
-            TOKEN,
-            CLIENT_ID,
-        )
-        .await
+        Self::build(resource, Some(clients), None, TOKEN, CLIENT_ID).await
     }
 
     /// Start the fixture with no authorized client policy.
@@ -172,15 +164,7 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn without_clients() -> TestResult<Self> {
-        Self::build(
-            RESOURCE.to_owned(),
-            None,
-            "mcp:read".to_owned(),
-            None,
-            TOKEN,
-            CLIENT_ID,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), None, None, TOKEN, CLIENT_ID).await
     }
 
     /// Start the fixture with the supplied client allowlist.
@@ -196,33 +180,7 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn with_client_id(clients: ClientAllowlist, client_id: &str) -> TestResult<Self> {
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            "mcp:read".to_owned(),
-            None,
-            TOKEN,
-            client_id,
-        )
-        .await
-    }
-
-    /// Start the fixture with the supplied required scope and default client policy.
-    ///
-    /// # Errors
-    /// Propagates client-policy decoding, invalid scope or HTTPS fixture setup failures.
-    pub async fn with_scope(scope: String) -> TestResult<Self> {
-        let clients =
-            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            scope,
-            None,
-            TOKEN,
-            CLIENT_ID,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), Some(clients), None, TOKEN, client_id).await
     }
 
     /// Start the fixture with the supplied catalog bytes and their computed checksum.
@@ -235,7 +193,6 @@ impl Fixture {
         Self::build(
             RESOURCE.to_owned(),
             Some(clients),
-            "mcp:read".to_owned(),
             Some(artifact),
             TOKEN,
             CLIENT_ID,
@@ -250,15 +207,7 @@ impl Fixture {
     pub async fn with_token(token: &str) -> TestResult<Self> {
         let clients =
             ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            "mcp:read".to_owned(),
-            None,
-            token,
-            CLIENT_ID,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), Some(clients), None, token, CLIENT_ID).await
     }
 
     /// Assemble the synthetic backend, fixture certificate trust, catalog and protocol router.
@@ -270,7 +219,6 @@ impl Fixture {
     async fn build(
         resource: String,
         clients: Option<ClientAllowlist>,
-        scope: String,
         artifact: Option<Vec<u8>>,
         token: &str,
         client_id: &str,
@@ -292,7 +240,6 @@ impl Fixture {
             verifies: AtomicUsize::new(0),
             issuer: issuer.clone(),
             resource: resource.clone(),
-            scope: scope.clone(),
             token: token.to_owned(),
             client_id: client_id.to_owned(),
             reply: Mutex::new(None),
@@ -306,18 +253,16 @@ impl Fixture {
             .route("/execute", post(execute))
             .with_state(Arc::clone(&state));
         let handle = axum_server::Handle::new();
-        let credential = |id: &str| {
-            MachineCredential::new(id.to_owned(), Zeroizing::new(MACHINE_SECRET.to_owned()))
-        };
         let mut upstream = Upstream::with_certificate(
             UpstreamOptions {
                 introspection_endpoint: format!("{issuer}introspect"),
                 execution_endpoint: format!("{issuer}execute"),
                 issuer: issuer.clone(),
                 resource: resource.clone(),
-                required_scope: scope,
-                introspection_credential: credential("introspection+client, one")?,
-                execution_credential: credential("execution:client, two")?,
+                service_credential: MachineCredential::new(
+                    "service+client, one".to_owned(),
+                    Zeroizing::new(MACHINE_SECRET.to_owned()),
+                )?,
             },
             Some(CertificateDer::from_pem_slice(pem.as_bytes())?),
         )?;
@@ -513,7 +458,7 @@ async fn introspect(
         headers
             .get(header::AUTHORIZATION)
             .map(axum::http::HeaderValue::as_bytes),
-        Some(INTROSPECTION_AUTH.as_bytes())
+        Some(SERVICE_AUTH.as_bytes())
     );
     assert_eq!(
         headers
@@ -554,7 +499,7 @@ fn claims(state: &StateData) -> Result<Value, StatusCode> {
     Ok(
         json!({"active":state.active.load(Ordering::SeqCst),"iss":state.issuer,
         "aud":state.resource,"exp":now.saturating_add(60),"iat":now,"token_type":"Bearer",
-        "scope":state.scope,"jti":"synthetic-credential-reference","client_id":state.client_id}),
+        "scope":"read","jti":"synthetic-credential-reference","client_id":state.client_id}),
     )
 }
 
@@ -579,7 +524,7 @@ async fn execute(
         headers
             .get(header::AUTHORIZATION)
             .map(axum::http::HeaderValue::as_bytes),
-        Some(EXECUTION_AUTH.as_bytes())
+        Some(SERVICE_AUTH.as_bytes())
     );
     assert_eq!(
         headers

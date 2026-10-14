@@ -28,9 +28,10 @@ fn client_policy_rejects_invalid_and_ambiguous_documents() {
         b"{\"version\":\"1\",\"clients\":[\"client\",\"client\"]}",
         b"{\"version\":\"1\",\"clients\":[\"client\",\"\\u0063\\u006c\\u0069\\u0065\\u006e\\u0074\"]}",
         b"{\"version\":\"1\",\"clients\":[\"client, one\",\"client\\u002c\\u0020one\"]}",
-        b"{\"version\":\"1\",\"clients\":[],\"clients\":[]}",
-        b"{\"version\":\"1\",\"clients\":[],\"mode\":\"allow_all\"}",
-        b"{\"version\":\"1\",\"clients\":[]} trailing",
+        b"{\"version\":\"1\",\"clients\":[]}",
+        b"{\"version\":\"1\",\"clients\":[\"c\"],\"clients\":[\"c\"]}",
+        b"{\"version\":\"1\",\"clients\":[\"c\"],\"mode\":\"allow_all\"}",
+        b"{\"version\":\"1\",\"clients\":[\"c\"]} trailing",
     ] {
         let _: logbrew_mcp::Failure = ClientAllowlist::decode(document).unwrap_err();
     }
@@ -49,7 +50,7 @@ fn client_policy_has_exact_entry_id_and_document_bounds() {
             .collect();
         assert_eq!(
             ClientAllowlist::decode(&encode(clients).expect("policy")).is_ok(),
-            count <= 64_i32
+            (1_i32..=64_i32).contains(&count)
         );
     }
     for length in [2048, 2049] {

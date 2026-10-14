@@ -237,7 +237,8 @@ impl Tools {
 /// Construct a stateless router without contacting any service or opening a listener.
 ///
 /// # Errors
-/// Rejects invalid resource locations and root resource paths.
+/// Rejects invalid resource locations, root resource paths and issuers with a
+/// trailing slash.
 pub fn router(
     catalog: Arc<Catalog>,
     upstream: Upstream,
@@ -246,7 +247,8 @@ pub fn router(
 ) -> Result<Router, Failure> {
     let url = canonical_https(&resource)?;
     drop(canonical_https(&issuer)?);
-    if url.path() == "/" {
+    // Introspection compares `iss` byte for byte, and issuers omit the slash.
+    if url.path() == "/" || issuer.ends_with('/') {
         return Err(Kind::Configuration.into());
     }
     let host = resource

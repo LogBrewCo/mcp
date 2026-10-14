@@ -29,13 +29,14 @@ impl ClientAllowlist {
     /// IDs are compared exactly, including case, URL spelling, and trailing slashes.
     ///
     /// # Errors
-    /// Rejects duplicate fields or IDs, unknown fields, invalid IDs, more than
-    /// 64 entries, IDs above 2048 bytes, and documents above 16 KiB.
+    /// Rejects duplicate fields or IDs, unknown fields, invalid IDs, an empty
+    /// list or more than 64 entries, IDs above 2048 bytes, and documents above
+    /// 16 KiB. An empty list would start a server that denies every request.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let value = json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
         let document: Document =
             serde_json::from_value(value).map_err(Failure::redact(Kind::Configuration))?;
-        if document.version != "1" || document.clients.len() > 64 {
+        if document.version != "1" || !(1..=64).contains(&document.clients.len()) {
             return Err(Kind::Configuration.into());
         }
         decode_clients(document.clients).map(Self)

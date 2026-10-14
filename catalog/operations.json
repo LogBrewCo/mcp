@@ -2254,25 +2254,16 @@
         "properties": {
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "trace_id": {
             "pattern": "^[A-Za-z0-9-]{1,128}$",
@@ -4353,18 +4344,12 @@
           "occurrence_id": {
             "description": "Exact retained occurrence to select for schema version 2 and later.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "selection": {
             "anyOf": [
               {
                 "$ref": "#/$defs/IssueInvestigationOccurrenceSelectionMode"
-              },
-              {
-                "type": "null"
               }
             ],
             "description": "First, latest, or recommended occurrence selection for schema version 2 and later."
@@ -10524,77 +10509,47 @@
         "properties": {
           "environment": {
             "description": "Optional exact environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "group_by": {
             "description": "Optional fixed low-cardinality grouping dimension.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "interval": {
             "description": "Optional bounded bucket interval.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "name": {
             "description": "Required exact metric name.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Required project scope, represented as optional for actionable validation.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional exact release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "series_limit": {
             "description": "Optional maximum distinct series returned.",
             "format": "uint8",
-            "maximum": 255,
-            "minimum": 0,
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
           },
           "service_name": {
             "description": "Optional exact service filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Required inclusive lower bound, as a compact duration or RFC 3339 timestamp.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "until": {
             "description": "Optional exclusive RFC 3339 upper bound.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "MetricInvestigationQueryParams",
@@ -17114,111 +17069,68 @@
         "properties": {
           "attribute_filters": {
             "description": "Optional JSON array of up to four typed scalar attribute predicates.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_id": {
             "description": "Exclusive cursor row ID returned by a prior cursor page.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_time": {
             "description": "Exclusive cursor timestamp returned by a prior cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "level": {
             "description": "Optional log severity filter kept for compatibility with earlier clients.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of rows to return.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "search": {
             "description": "Optional substring search.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional logical service-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "severity": {
             "description": "Optional log severity filter using the canonical product vocabulary.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "status": {
             "description": "Rule visibility: `active` (default), `ignored`, or `all`.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "trace_id": {
             "description": "Optional trace ID filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "LogQueryParams",
@@ -17480,82 +17392,51 @@
           "cursor_id": {
             "description": "Exclusive cursor issue ID returned by a prior cursor page.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_time": {
             "description": "Exclusive cursor timestamp returned by a prior cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of rows to return.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional logical service-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "severity": {
             "description": "Optional effective issue severity filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "status": {
             "description": "Optional issue status filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "IssueQueryParams",
@@ -18104,83 +17985,52 @@
         "properties": {
           "cursor_time": {
             "description": "Exclusive cursor timestamp returned by a prior cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_trace_id": {
             "description": "Exclusive trace ID returned by a prior cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of traces returned.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "min_duration_ms": {
             "description": "Optional minimum end-to-end duration in milliseconds.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "type": "integer"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional service participating anywhere in the trace.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "status": {
             "description": "Optional trace health filter (`error` or `ok`).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "TraceOverviewQueryParams",
@@ -18468,82 +18318,51 @@
           "cursor_id": {
             "description": "Exclusive cursor action ID returned by a prior cursor page.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_time": {
             "description": "Exclusive cursor timestamp returned by a prior cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "distinct_id": {
             "description": "Optional actor filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of rows to return.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "name": {
             "description": "Optional action name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional logical service-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "ActionQueryParams",
@@ -18751,75 +18570,47 @@
           "cursor_id": {
             "description": "Stable metric ID returned by the previous cursor page.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_time": {
             "description": "Timestamp returned by the previous cursor page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of rows returned.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "name": {
             "description": "Optional metric-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional logical service-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "SdkMetricQueryParams",
@@ -19003,90 +18794,56 @@
         "properties": {
           "cursor_environment": {
             "description": "Environment returned by a prior release page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_project_id": {
             "description": "Project ID returned by a prior release page.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_release": {
             "description": "Release value returned by a prior release page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_service_name": {
             "description": "Service name returned by a prior release page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "cursor_time": {
             "description": "Last-seen timestamp returned by a prior release page.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "environment": {
             "description": "Optional environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum number of rows to return.",
             "format": "int64",
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
           },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_ids": {
             "description": "Optional comma-separated set of two to fifty project IDs.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "release": {
             "description": "Optional release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional logical service-name filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "title": "ReleaseQueryParams",
@@ -19401,24 +19158,15 @@
         "properties": {
           "environment": {
             "description": "Optional exact environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "group_by": {
             "description": "Optional fixed low-cardinality dimension (`none`, `service_name`, `release`, or\n`environment`).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "interval": {
             "description": "Optional bucket interval (`auto`, `1m`, `5m`, `15m`, `1h`, `6h`, or `1d`).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "name": {
             "description": "Required exact metric name.",
@@ -19431,27 +19179,18 @@
           },
           "release": {
             "description": "Optional exact release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "series_limit": {
             "description": "Optional maximum number of distinct series returned.",
             "format": "uint8",
             "maximum": 20,
             "minimum": 1,
-            "type": [
-              "integer",
-              "null"
-            ]
+            "type": "integer"
           },
           "service_name": {
             "description": "Optional exact service filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Required inclusive lower bound, as a compact duration or RFC 3339 timestamp.",
@@ -19459,10 +19198,7 @@
           },
           "until": {
             "description": "Optional exclusive RFC 3339 upper bound; defaults to the request time.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "required": [
@@ -19965,17 +19701,11 @@
         "properties": {
           "environment": {
             "description": "Optional exact environment filter applied to every included signal.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "interval": {
             "description": "Optional bucket interval (`auto`, `1m`, `5m`, `15m`, `1h`, `6h`, or `1d`).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Required owned project.",
@@ -19984,17 +19714,11 @@
           },
           "release": {
             "description": "Optional exact release filter applied to every included signal.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional exact service filter applied to every included signal.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Required inclusive lower bound, as a compact duration or RFC 3339 timestamp.",
@@ -20002,10 +19726,7 @@
           },
           "until": {
             "description": "Optional exclusive RFC 3339 upper bound; defaults to the request time.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "required": [
@@ -20527,17 +20248,11 @@
         "properties": {
           "environment": {
             "description": "Optional exact environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "interval": {
             "description": "Optional bucket interval (`auto`, `1m`, `5m`, `15m`, `1h`, `6h`, or `1d`).",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "project_id": {
             "description": "Required project scope, optional only for actionable validation.",
@@ -20546,17 +20261,11 @@
           },
           "release": {
             "description": "Optional exact release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional exact service filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Required inclusive lower bound, as a duration or RFC 3339 timestamp.",
@@ -20565,19 +20274,13 @@
           "top_limit": {
             "description": "Optional maximum top action, surface, and exact classified event names returned per list.",
             "format": "uint8",
-            "maximum": 255,
-            "minimum": 0,
-            "type": [
-              "integer",
-              "null"
-            ]
+            "maximum": 20,
+            "minimum": 1,
+            "type": "integer"
           },
           "until": {
             "description": "Optional exclusive RFC 3339 upper bound; defaults to request time.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "required": [
@@ -21585,20 +21288,14 @@
         "properties": {
           "environment": {
             "description": "Optional exact environment filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "limit": {
             "description": "Maximum returned property keys; defaults to 20 and cannot exceed 50.",
             "format": "uint8",
             "maximum": 50,
             "minimum": 1,
-            "type": [
-              "integer",
-              "null"
-            ]
+            "type": "integer"
           },
           "project_id": {
             "description": "Required project scope, optional only for actionable validation.",
@@ -21607,17 +21304,11 @@
           },
           "release": {
             "description": "Optional exact release filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "service_name": {
             "description": "Optional exact service filter.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           },
           "since": {
             "description": "Required inclusive lower bound, as a duration or RFC 3339 timestamp.",
@@ -21625,10 +21316,7 @@
           },
           "until": {
             "description": "Optional exclusive RFC 3339 upper bound; defaults to request time.",
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": "string"
           }
         },
         "required": [
@@ -24099,8 +23787,8 @@
           "path_limit": {
             "description": "Maximum highest-volume path aggregates returned.",
             "format": "uint8",
-            "maximum": 255,
-            "minimum": 0,
+            "maximum": 20,
+            "minimum": 1,
             "type": [
               "integer",
               "null"

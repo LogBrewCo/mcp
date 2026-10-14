@@ -12,8 +12,9 @@ projects the signed-in user approved. Discovery does not grant permission or
 establish that data is available for a particular account.
 
 Use the returned schema for required fields, valid versions, filters, limits and
-pagination. Do not substitute CLI flags for JSON fields. Preserve the selected
-project and filters when following a cursor. Related evidence may be missing,
+pagination. Do not substitute CLI flags for JSON fields. Omit an optional field
+rather than sending `null`. Preserve the selected project and filters when
+following a cursor. Related evidence may be missing,
 unavailable or truncated; none of those states means zero events.
 
 ## Investigations

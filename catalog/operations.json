@@ -4301,7 +4301,7 @@
       }
     },
     {
-      "id": "issues.investigate.v12",
+      "id": "issues.investigate.v13",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
         "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
@@ -7450,8 +7450,8 @@
             "description": "Stable cardinality methods exposed by issue user impact.",
             "oneOf": [
               {
-                "const": "approximate_uniq_combined64",
-                "description": "Bounded distinct-user estimate over project-scoped one-way identifiers.",
+                "const": "approximate_distinct",
+                "description": "Bounded distinct-user estimate over project-scoped one-way identifiers (version 13+).",
                 "type": "string"
               },
               {
@@ -15163,7 +15163,7 @@
       }
     },
     {
-      "id": "releases.investigate.v4",
+      "id": "releases.investigate.v5",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
         "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
@@ -15430,8 +15430,8 @@
             "description": "Stable approximate-cardinality methods used by release action evidence.",
             "oneOf": [
               {
-                "const": "approximate_uniq_combined64",
-                "description": "Bounded approximate distinct count.",
+                "const": "approximate_distinct",
+                "description": "Bounded approximate distinct count (version 5+).",
                 "type": "string"
               }
             ]

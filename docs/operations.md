@@ -21,13 +21,13 @@ unavailable or truncated; none of those states means zero events.
 
 | Operation | What it reads |
 | --- | --- |
-| `issues.investigate.v12` | One issue and its selected occurrence, reproduction, lifecycle, grouping and correction evidence. |
+| `issues.investigate.v13` | One issue and its selected occurrence, reproduction, lifecycle, grouping and correction evidence. |
 | `logs.investigate.v1` | One log, its captured context and bounded related evidence. |
 | `traces.investigate.v3` | One trace, its failure evidence and cross-signal links. |
 | `spans.investigate.v1` | One exact span and its diagnostic evidence. |
 | `actions.investigate.v1` | One recorded product action and its related evidence. This does not perform the action. |
 | `metrics.investigate.v2` | A metric's meaning, captured description and linked evidence. |
-| `releases.investigate.v4` | One release, deployment comparisons and captured release markers. |
+| `releases.investigate.v5` | One release, deployment comparisons and captured release markers. |
 
 An investigation may help locate a cause, but correlation alone does not prove
 one. Keep captured evidence separate from an inferred cause or a proposed fix.

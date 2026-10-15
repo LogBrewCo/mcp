@@ -125,7 +125,7 @@ fn shipped_input_contracts_reject_smuggled_fields() {
         ("logs.investigate.v1", json!({"log_id":"a?project_ids=x"})),
         ("logs.investigate.v1", json!({"log_id":"a/b"})),
         (
-            "issues.investigate.v12",
+            "issues.investigate.v13",
             json!({"issue_id":log,"response_version":1_u32}),
         ),
         ("logs.list.v1", json!({"pagination":"offset"})),

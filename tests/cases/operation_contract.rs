@@ -191,3 +191,48 @@ async fn nonstring_operation_identifiers_are_input_errors() {
     assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
 }
+
+#[tokio::test]
+/// # Panics
+///
+/// Panics if a tool input schema has a top-level combinator, which clients that
+/// pass tool schemas to a model can reject (they then drop the tool), or if search
+/// accepts arguments outside its two forms.
+async fn tool_input_schemas_have_no_top_level_combinators() {
+    let fixture = Fixture::new().await.expect("fixture");
+    let (status, reply) = fixture
+        .request("tools/list", json!({}), TOKEN)
+        .await
+        .expect("tool inventory");
+    assert_eq!(status, StatusCode::OK);
+    let tools = reply
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .expect("tools");
+    assert_eq!(tools.len(), 2);
+    for tool in tools {
+        let schema = tool
+            .get("inputSchema")
+            .and_then(Value::as_object)
+            .expect("input schema");
+        assert_eq!(schema.get("type"), Some(&json!("object")));
+        let combinators: Vec<_> = ["oneOf", "anyOf", "allOf", "not", "if", "enum", "const"]
+            .into_iter()
+            .filter(|keyword| schema.contains_key(*keyword))
+            .collect();
+        assert!(combinators.is_empty(), "top-level {combinators:?}");
+    }
+    for arguments in [
+        json!({}),
+        json!({"limit":1_i32}),
+        json!({"operation":"logs.read.v1","query":"logs"}),
+        json!({"operation":"logs.read.v1","after":"logs.read.v1"}),
+        json!({"operation":"logs.read.v1","limit":1_i32}),
+    ] {
+        let response = rejected(&fixture, "search", arguments)
+            .await
+            .expect("search");
+        check_rejected(&response, false);
+    }
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+}

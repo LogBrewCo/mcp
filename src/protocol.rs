@@ -569,13 +569,14 @@ fn envelope(result: Result<Value, Failure>, provenance: Option<&Value>) -> CallT
 fn definition(name: &str) -> Tool {
     let (description, schema) = if name == "search" {
         (
-            "Find operation contracts.",
+            "Find operation contracts. Send query (with optional after and limit) to list \
+             matches, or send operation alone to get one full contract.",
+            // No top-level oneOf, anyOf or allOf: some clients drop tools whose input
+            // schema has them. The search handler enforces the two argument forms.
             json!({"type":"object","additionalProperties":false,
             "properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32},
                 "query":{"type":"string","maxLength":256_u32},"after":{"type":"string","maxLength":128_u32},
-                "limit":{"type":"integer","minimum":1_u32,"maximum":10_u32}},
-            "oneOf":[{"required":["operation"],"not":{"anyOf":[{"required":["query"]},
-                {"required":["after"]},{"required":["limit"]}]}},{"required":["query"],"not":{"required":["operation"]}}]}),
+                "limit":{"type":"integer","minimum":1_u32,"maximum":10_u32}}}),
         )
     } else {
         (

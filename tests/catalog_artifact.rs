@@ -139,7 +139,8 @@ fn shipped_input_contracts_reject_smuggled_fields() {
 /// # Panics
 ///
 /// Panics if a shipped query input accepts `null`, which the API cannot send
-/// in a query string, or a list `limit` outside the API's 1 to 500 range.
+/// in a query string, a list `limit` outside the API's 1 to 500 range, or a
+/// list rejects a bounded `since` and `until` range.
 fn shipped_query_inputs_match_backend_validation() {
     let bytes = read("catalog/operations.json").expect("catalog");
     let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
@@ -156,11 +157,18 @@ fn shipped_query_inputs_match_backend_validation() {
                 .input(id, &json!({"limit":limit}))
                 .expect("limit in range");
         }
+        catalog
+            .input(
+                id,
+                &json!({"since":"2026-05-01T00:00:00Z","until":"2026-06-01T00:00:00Z"}),
+            )
+            .expect("bounded time range");
         for input in [
             json!({"limit":0_u32}),
             json!({"limit":501_u32}),
             json!({"limit":null}),
             json!({"since":null}),
+            json!({"until":null}),
         ] {
             let failure = catalog.input(id, &input).expect_err("rejected input");
             assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");

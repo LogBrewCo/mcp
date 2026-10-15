@@ -48,6 +48,10 @@ does not backfill historical events.
 A returned page is not the complete matching population. Use its continuation
 and coverage fields. Do not infer a total from the number of returned rows.
 
+To read a fixed time range, send `since` and `until` together. `since` is
+inclusive and `until` is exclusive, so consecutive ranges never count an event
+twice. `until` takes an RFC 3339 timestamp and must be later than `since`.
+
 ## Series and volume
 
 | Operation | What it reads |

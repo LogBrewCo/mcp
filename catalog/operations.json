@@ -17131,6 +17131,10 @@
           "trace_id": {
             "description": "Optional trace ID filter.",
             "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
           }
         },
         "title": "LogQueryParams",
@@ -17436,6 +17440,10 @@
           },
           "status": {
             "description": "Optional issue status filter.",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
             "type": "string"
           }
         },
@@ -18031,6 +18039,10 @@
           "status": {
             "description": "Optional trace health filter (`error` or `ok`).",
             "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
           }
         },
         "title": "TraceOverviewQueryParams",
@@ -18363,6 +18375,10 @@
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
             "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
           }
         },
         "title": "ActionQueryParams",
@@ -18611,6 +18627,10 @@
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
             "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
           }
         },
         "title": "SdkMetricQueryParams",
@@ -18843,6 +18863,10 @@
           },
           "since": {
             "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
             "type": "string"
           }
         },

@@ -129,6 +129,8 @@ fn shipped_input_contracts_reject_smuggled_fields() {
             json!({"issue_id":log,"response_version":1_u32}),
         ),
         ("logs.list.v1", json!({"pagination":"offset"})),
+        ("issues.list.v2", json!({"response_version":1_u32})),
+        ("issues.list.v2", json!({"priority":null})),
     ] {
         let failure = catalog.input(id, &input).expect_err("smuggled field");
         assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");
@@ -147,6 +149,7 @@ fn shipped_query_inputs_match_backend_validation() {
     for id in [
         "logs.list.v1",
         "issues.list.v1",
+        "issues.list.v2",
         "traces.list.v1",
         "actions.list.v1",
         "metrics.list.v1",
@@ -174,4 +177,10 @@ fn shipped_query_inputs_match_backend_validation() {
             assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");
         }
     }
+    catalog
+        .input(
+            "issues.list.v2",
+            &json!({"status":"archived","priority":"high"}),
+        )
+        .expect("archived status and priority filters");
 }

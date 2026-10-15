@@ -39,6 +39,7 @@ does not backfill historical events.
 | Operation | What it reads |
 | --- | --- |
 | `issues.list.v1` | Grouped issues through bounded cursor pages. |
+| `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
 | `logs.list.v1` | Logs through bounded cursor pages. |
 | `traces.list.v1` | Traces with naming-quality coverage and cursor pagination. |
 | `actions.list.v1` | Recorded product actions through bounded cursor pages. |

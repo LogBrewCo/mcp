@@ -17413,6 +17413,10 @@
             "minimum": 1,
             "type": "integer"
           },
+          "priority": {
+            "description": "Optional effective issue priority filter: `high`, `medium`, or `low`.",
+            "type": "string"
+          },
           "project_id": {
             "description": "Optional project filter.",
             "format": "uuid",
@@ -17439,7 +17443,7 @@
             "type": "string"
           },
           "status": {
-            "description": "Optional issue status filter.",
+            "description": "Optional issue status filter: `unresolved`, `resolved`, or `archived` (`ignored` is the\nsame state).",
             "type": "string"
           },
           "until": {
@@ -17973,6 +17977,653 @@
           "next_cursor"
         ],
         "title": "NativeIssuePageResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.list.v2",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find grouped issues with their priority; archived issues read as archived."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Query parameters for issue listing.",
+        "properties": {
+          "cursor_id": {
+            "description": "Exclusive cursor issue ID returned by a prior cursor page.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor timestamp returned by a prior cursor page.",
+            "type": "string"
+          },
+          "environment": {
+            "description": "Optional environment filter.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum number of rows to return.",
+            "format": "int64",
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "priority": {
+            "description": "Optional effective issue priority filter: `high`, `medium`, or `low`.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project filter.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "project_ids": {
+            "description": "Optional comma-separated set of two to fifty project IDs.",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional release filter.",
+            "type": "string"
+          },
+          "service_name": {
+            "description": "Optional logical service-name filter.",
+            "type": "string"
+          },
+          "severity": {
+            "description": "Optional effective issue severity filter.",
+            "type": "string"
+          },
+          "since": {
+            "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
+            "type": "string"
+          },
+          "status": {
+            "description": "Optional issue status filter: `unresolved`, `resolved`, or `archived` (`ignored` is the\nsame state).",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
+          }
+        },
+        "title": "IssueQueryParams",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "CorrelatedTelemetryNextActionCode": {
+            "description": "Stable correlation-aware investigation action code.",
+            "oneOf": [
+              {
+                "const": "inspect_trace",
+                "description": "Inspect the correlated distributed trace.",
+                "type": "string"
+              },
+              {
+                "const": "inspect_related_logs",
+                "description": "Inspect logs related by project, release, service, and environment.",
+                "type": "string"
+              }
+            ]
+          },
+          "CorrelatedTelemetryNextActionResponse": {
+            "description": "Correlation-aware next action shared by issues, logs, and product actions.",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionCode",
+                "description": "Stable action code."
+              },
+              "target": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionTarget",
+                "description": "Stable action target."
+              }
+            },
+            "required": [
+              "code",
+              "target"
+            ],
+            "type": "object"
+          },
+          "CorrelatedTelemetryNextActionTarget": {
+            "description": "Stable correlation-aware investigation target.",
+            "oneOf": [
+              {
+                "const": "trace_summary",
+                "description": "Privacy-safe trace summary endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_logs",
+                "description": "Native telemetry logs endpoint.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssuePriority": {
+            "description": "Triage priority of a grouped issue.",
+            "oneOf": [
+              {
+                "const": "high",
+                "description": "Needs attention first.",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "description": "Needs attention after high-priority issues.",
+                "type": "string"
+              },
+              {
+                "const": "low",
+                "description": "Can wait.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssuePrioritySource": {
+            "description": "Where an issue's priority comes from.",
+            "oneOf": [
+              {
+                "const": "manual",
+                "description": "A user set it; it no longer follows severity.",
+                "type": "string"
+              },
+              {
+                "const": "derived",
+                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueBreadcrumbResponse": {
+            "description": "One privacy-bounded step that happened before an issue occurrence.",
+            "properties": {
+              "category": {
+                "description": "Required low-cardinality source category.",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "description": "At most eight flat primitive fields.",
+                "type": "object"
+              },
+              "level": {
+                "description": "Optional canonical severity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "description": "Optional bounded display-safe description.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "timestamp": {
+                "description": "When this step occurred.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "type": {
+                "description": "Optional stable breadcrumb kind.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "timestamp",
+              "category"
+            ],
+            "type": "object"
+          },
+          "NativeIssueCursorResponse": {
+            "description": "Exclusive continuation cursor for a native issue page.",
+            "properties": {
+              "id": {
+                "description": "ID of the final issue in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Last-seen timestamp of the final issue in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "NativeIssueDiagnosticsResponse": {
+            "description": "Versioned structured diagnostics projected from one issue occurrence.",
+            "properties": {
+              "breadcrumbs": {
+                "description": "Oldest-to-newest bounded breadcrumb history.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueBreadcrumbResponse"
+                },
+                "type": "array"
+              },
+              "breadcrumbs_truncated": {
+                "default": false,
+                "description": "Whether older or invalid breadcrumb history was omitted.",
+                "type": "boolean"
+              },
+              "exception": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Structured exception identity when available."
+              },
+              "schema_version": {
+                "description": "Additive diagnostics response schema version.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "schema_version",
+              "breadcrumbs_truncated"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionMechanismResponse": {
+            "description": "Runtime path that captured an exception and whether it escaped that path.",
+            "properties": {
+              "handled": {
+                "description": "Whether the exception was handled by the capture boundary.",
+                "type": "boolean"
+              },
+              "type": {
+                "description": "Stable low-cardinality capture mechanism.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "handled"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionResponse": {
+            "description": "Structured runtime exception identity returned with issue details.",
+            "properties": {
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionMechanismResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Capture mechanism when the SDK could determine it."
+              },
+              "type": {
+                "description": "Bounded runtime exception class or error type.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "NativeIssueResolvedSourcePosition": {
+            "description": "Privacy-safe source position or native function resolved for an issue.",
+            "properties": {
+              "column": {
+                "description": "One-based source column when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "line": {
+                "description": "One-based source line when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Optional bounded source symbol name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "description": "Relative source path or filename when debug line information is available.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "NativeIssueSymbolicatedFrameResponse": {
+            "description": "One privacy-safe source-map result matched by structured stack-frame index.",
+            "properties": {
+              "index": {
+                "description": "Zero-based index in the SDK-provided `stackFrames` array.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when this frame resolves."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status for this frame."
+              }
+            },
+            "required": [
+              "index",
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationResponse": {
+            "description": "Safe issue-detail source-map resolution result.",
+            "properties": {
+              "frames": {
+                "description": "Ordered per-frame results for additive structured SDK stacks.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueSymbolicatedFrameResponse"
+                },
+                "type": "array"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when resolution succeeds."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status."
+              }
+            },
+            "required": [
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationStatus": {
+            "description": "Stable issue-detail source-map resolution status.",
+            "oneOf": [
+              {
+                "const": "resolved",
+                "description": "A matching retained artifact resolved a source position or native function.",
+                "type": "string"
+              },
+              {
+                "const": "invalid_metadata",
+                "description": "Release-artifact metadata was present but incomplete or inconsistent.",
+                "type": "string"
+              },
+              {
+                "const": "artifact_not_found",
+                "description": "No uploaded artifact matched the issue release identity and Debug ID.",
+                "type": "string"
+              },
+              {
+                "const": "source_not_resolved",
+                "description": "A matching artifact existed but did not resolve the generated frame.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "Artifact lookup or retained evidence was temporarily unavailable.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueV2Response": {
+            "description": "A grouped issue in response version 2.",
+            "properties": {
+              "attributes": {
+                "description": "Structured issue attributes."
+              },
+              "diagnostics": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueDiagnosticsResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Typed privacy-bounded diagnostic evidence projected from the latest occurrence."
+              },
+              "environment": {
+                "description": "Deployment environment.",
+                "type": "string"
+              },
+              "fingerprint": {
+                "description": "Stable grouping fingerprint.",
+                "type": "string"
+              },
+              "first_seen_at": {
+                "description": "First time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique issue identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "last_seen_at": {
+                "description": "Most recent time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "message": {
+                "description": "Human-readable issue message.",
+                "type": "string"
+              },
+              "next_action": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionResponse",
+                "description": "Machine-readable next investigation action."
+              },
+              "occurrence_count": {
+                "description": "Number of occurrences in this issue group.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "priority": {
+                "$ref": "#/$defs/IssuePriority",
+                "description": "Effective triage priority."
+              },
+              "priority_source": {
+                "$ref": "#/$defs/IssuePrioritySource",
+                "description": "Whether a user set the priority or it follows severity."
+              },
+              "project_id": {
+                "description": "Owning project ID.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Application release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Issue severity.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Exact span identifier within the distributed trace.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "stack_trace": {
+                "description": "Original stack trace text.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "description": "Issue status.",
+                "type": "string"
+              },
+              "symbolication": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueSymbolicationResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Original source position resolved from release artifacts on issue detail reads."
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              },
+              "trace_id": {
+                "description": "Distributed trace identifier.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "triage": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SignalTriageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Reversible user triage. `severity` remains the immutable captured value."
+              }
+            },
+            "required": [
+              "id",
+              "project_id",
+              "fingerprint",
+              "severity",
+              "title",
+              "message",
+              "stack_trace",
+              "attributes",
+              "environment",
+              "release",
+              "service_name",
+              "trace_id",
+              "next_action",
+              "status",
+              "occurrence_count",
+              "first_seen_at",
+              "last_seen_at",
+              "priority",
+              "priority_source"
+            ],
+            "type": "object"
+          },
+          "SignalTriageResponse": {
+            "description": "User-owned presentation rule layered over immutable captured telemetry.",
+            "properties": {
+              "effective_severity": {
+                "description": "Effective presentation severity after applying an optional user override.",
+                "type": "string"
+              },
+              "ignored": {
+                "description": "Whether the signal is excluded from the active view.",
+                "type": "boolean"
+              },
+              "rule_applied": {
+                "description": "Whether a non-default rule currently applies.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "effective_severity",
+              "ignored",
+              "rule_applied"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Cursor page of grouped issues in response version 2.",
+        "properties": {
+          "issues": {
+            "description": "Grouped issue rows in newest-first order.",
+            "items": {
+              "$ref": "#/$defs/NativeIssueV2Response"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NativeIssueCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exclusive continuation cursor when another page exists."
+          }
+        },
+        "required": [
+          "issues",
+          "next_cursor"
+        ],
+        "title": "NativeIssuePageV2Response",
         "type": "object"
       }
     },

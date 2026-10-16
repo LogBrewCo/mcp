@@ -40,6 +40,7 @@ does not backfill historical events.
 | --- | --- |
 | `issues.list.v1` | Grouped issues through bounded cursor pages. |
 | `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
+| `issues.list.v3` | The `issues.list.v2` fields plus each issue's assignee: user ID, name, and email, or `null` when nobody is assigned or the assignee can no longer read the project. Filter by `assignee`: `me`, `none`, or a user ID. |
 | `logs.list.v1` | Logs through bounded cursor pages. |
 | `traces.list.v1` | Traces with naming-quality coverage and cursor pagination. |
 | `actions.list.v1` | Recorded product actions through bounded cursor pages. |

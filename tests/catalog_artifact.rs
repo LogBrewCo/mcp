@@ -131,6 +131,8 @@ fn shipped_input_contracts_reject_smuggled_fields() {
         ("logs.list.v1", json!({"pagination":"offset"})),
         ("issues.list.v2", json!({"response_version":1_u32})),
         ("issues.list.v2", json!({"priority":null})),
+        ("issues.list.v3", json!({"response_version":2_u32})),
+        ("issues.list.v3", json!({"assignee":null})),
     ] {
         let failure = catalog.input(id, &input).expect_err("smuggled field");
         assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");
@@ -150,6 +152,7 @@ fn shipped_query_inputs_match_backend_validation() {
         "logs.list.v1",
         "issues.list.v1",
         "issues.list.v2",
+        "issues.list.v3",
         "traces.list.v1",
         "actions.list.v1",
         "metrics.list.v1",
@@ -183,4 +186,9 @@ fn shipped_query_inputs_match_backend_validation() {
             &json!({"status":"archived","priority":"high"}),
         )
         .expect("archived status and priority filters");
+    for assignee in ["me", "none", "00000000-0000-4000-8000-000000000001"] {
+        catalog
+            .input("issues.list.v3", &json!({"assignee":assignee}))
+            .expect("assignee filter");
+    }
 }

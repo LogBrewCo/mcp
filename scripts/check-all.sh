@@ -13,6 +13,9 @@ require_version() {
   fi
 }
 
+bash scripts/check-tool-matrix.sh
+bash scripts/test-check-tool-matrix.sh
+
 require_version cargo-deny "cargo-deny 0.20.2"
 require_version tombi "tombi 1.7.2"
 

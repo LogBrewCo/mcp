@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # test-check-tool-matrix.sh
+# Keep this file identical in every public LogBrew repository.
 # Proves that scripts/check-tool-matrix.sh passes on this repository and fails
 # on each seeded mistake: an unlisted gate command, a changed pin, a changed
 # action pin, an entry not checked for 30 days, and a missing field.
@@ -37,7 +38,12 @@ bash "$check" "$work/repo" >/dev/null
 printf 'ok: the current matrix passes\n'
 
 gate="$(sed -n 's/^gates = \["\([^"]*\)".*/\1/p' "$work/repo/quality/tool-matrix.toml")"
-printf '\nshellharden --check scripts/*.sh\n' >>"$work/repo/$gate"
+if [[ -n "$gate" ]]; then
+    printf '\nshellharden --check scripts/*.sh\n' >>"$work/repo/$gate"
+else
+    printf '\n      - name: Harden shell scripts\n        run: shellharden --check scripts/*.sh\n' \
+        >>"$work/repo/.github/workflows/tool-matrix.yml"
+fi
 expect_failure "an unlisted gate command" "\`shellharden\` has no tool-matrix entry"
 
 copy

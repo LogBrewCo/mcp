@@ -164,6 +164,7 @@ fn shipped_query_inputs_match_backend_validation() {
         "issues.list.v1",
         "issues.list.v2",
         "issues.list.v3",
+        "issues.list.v4",
         "traces.list.v1",
         "actions.list.v1",
         "metrics.list.v1",
@@ -215,4 +216,18 @@ fn shipped_query_inputs_match_backend_validation() {
     catalog
         .input("issues.ownership.v1", &json!({"project_id":issue}))
         .expect("project ownership");
+    for assignee in ["my_teams", "team:0b9f7c4e-2f2a-4a8e-9a65-2d2a7e8f1c11"] {
+        catalog
+            .input("issues.list.v4", &json!({"assignee":assignee}))
+            .expect("team filters");
+    }
+    catalog
+        .input("issues.owners.v2", &json!({"issue_id":issue}))
+        .expect("team owners");
+    catalog
+        .input(
+            "issues.activity.v2",
+            &json!({"issue_id":issue,"limit":10_u32}),
+        )
+        .expect("team activity");
 }

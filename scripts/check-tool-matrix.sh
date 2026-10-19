@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
 # check-tool-matrix.sh
+# Keep this file identical in every public LogBrew repository.
 # Checks quality/tool-matrix.toml against the repository's gates. Fails when:
 # - a command a gate runs is neither a tool's `commands` entry nor in `utilities`;
 # - a workflow `uses:` line is not exactly a tool's `uses` pin (action, commit, version);

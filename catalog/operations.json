@@ -17394,7 +17394,7 @@
         "description": "Query parameters for issue listing.",
         "properties": {
           "assignee": {
-            "description": "Optional assignee filter: `me`, `none`, or a user ID.",
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
             "type": "string"
           },
           "cursor_id": {
@@ -18000,7 +18000,7 @@
         "description": "Query parameters for issue listing.",
         "properties": {
           "assignee": {
-            "description": "Optional assignee filter: `me`, `none`, or a user ID.",
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
             "type": "string"
           },
           "cursor_id": {
@@ -18651,7 +18651,7 @@
         "description": "Query parameters for issue listing.",
         "properties": {
           "assignee": {
-            "description": "Optional assignee filter: `me`, `none`, or a user ID.",
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
             "type": "string"
           },
           "cursor_id": {
@@ -19326,6 +19326,753 @@
       }
     },
     {
+      "id": "issues.list.v4",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find grouped issues with their priority and assignee, an account or a team; filter by assignee=me, none, a user ID, team:<team_id>, or my_teams."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Query parameters for issue listing.",
+        "properties": {
+          "assignee": {
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
+            "type": "string"
+          },
+          "cursor_id": {
+            "description": "Exclusive cursor issue ID returned by a prior cursor page.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor timestamp returned by a prior cursor page.",
+            "type": "string"
+          },
+          "environment": {
+            "description": "Optional environment filter.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum number of rows to return.",
+            "format": "int64",
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "priority": {
+            "description": "Optional effective issue priority filter: `high`, `medium`, or `low`.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project filter.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "project_ids": {
+            "description": "Optional comma-separated set of two to fifty project IDs.",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional release filter.",
+            "type": "string"
+          },
+          "service_name": {
+            "description": "Optional logical service-name filter.",
+            "type": "string"
+          },
+          "severity": {
+            "description": "Optional effective issue severity filter.",
+            "type": "string"
+          },
+          "since": {
+            "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
+            "type": "string"
+          },
+          "status": {
+            "description": "Optional issue status filter: `unresolved`, `resolved`, or `archived` (`ignored` is the\nsame state).",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
+          }
+        },
+        "title": "IssueQueryParams",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "CorrelatedTelemetryNextActionCode": {
+            "description": "Stable correlation-aware investigation action code.",
+            "oneOf": [
+              {
+                "const": "inspect_trace",
+                "description": "Inspect the correlated distributed trace.",
+                "type": "string"
+              },
+              {
+                "const": "inspect_related_logs",
+                "description": "Inspect logs related by project, release, service, and environment.",
+                "type": "string"
+              }
+            ]
+          },
+          "CorrelatedTelemetryNextActionResponse": {
+            "description": "Correlation-aware next action shared by issues, logs, and product actions.",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionCode",
+                "description": "Stable action code."
+              },
+              "target": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionTarget",
+                "description": "Stable action target."
+              }
+            },
+            "required": [
+              "code",
+              "target"
+            ],
+            "type": "object"
+          },
+          "CorrelatedTelemetryNextActionTarget": {
+            "description": "Stable correlation-aware investigation target.",
+            "oneOf": [
+              {
+                "const": "trace_summary",
+                "description": "Privacy-safe trace summary endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_logs",
+                "description": "Native telemetry logs endpoint.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueAssigneeV4Response": {
+            "description": "Who an issue is assigned to in response version 4.",
+            "oneOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeResponse",
+                "description": "An account that can read the project.",
+                "properties": {
+                  "type": {
+                    "const": "user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "$ref": "#/$defs/IssueTeamResponse",
+                "description": "A team of the project's organization.",
+                "properties": {
+                  "type": {
+                    "const": "team",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "IssuePriority": {
+            "description": "Triage priority of a grouped issue.",
+            "oneOf": [
+              {
+                "const": "high",
+                "description": "Needs attention first.",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "description": "Needs attention after high-priority issues.",
+                "type": "string"
+              },
+              {
+                "const": "low",
+                "description": "Can wait.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssuePrioritySource": {
+            "description": "Where an issue's priority comes from.",
+            "oneOf": [
+              {
+                "const": "manual",
+                "description": "A user set it; it no longer follows severity.",
+                "type": "string"
+              },
+              {
+                "const": "derived",
+                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueTeamResponse": {
+            "description": "An organization team that issues can be assigned to.",
+            "properties": {
+              "name": {
+                "description": "Display name.",
+                "type": "string"
+              },
+              "slug": {
+                "description": "Unique handle in the organization.",
+                "type": "string"
+              },
+              "team_id": {
+                "description": "Team ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "team_id",
+              "slug",
+              "name"
+            ],
+            "type": "object"
+          },
+          "NativeIssueBreadcrumbResponse": {
+            "description": "One privacy-bounded step that happened before an issue occurrence.",
+            "properties": {
+              "category": {
+                "description": "Required low-cardinality source category.",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "description": "At most eight flat primitive fields.",
+                "type": "object"
+              },
+              "level": {
+                "description": "Optional canonical severity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "description": "Optional bounded display-safe description.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "timestamp": {
+                "description": "When this step occurred.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "type": {
+                "description": "Optional stable breadcrumb kind.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "timestamp",
+              "category"
+            ],
+            "type": "object"
+          },
+          "NativeIssueCursorResponse": {
+            "description": "Exclusive continuation cursor for a native issue page.",
+            "properties": {
+              "id": {
+                "description": "ID of the final issue in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Last-seen timestamp of the final issue in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "NativeIssueDiagnosticsResponse": {
+            "description": "Versioned structured diagnostics projected from one issue occurrence.",
+            "properties": {
+              "breadcrumbs": {
+                "description": "Oldest-to-newest bounded breadcrumb history.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueBreadcrumbResponse"
+                },
+                "type": "array"
+              },
+              "breadcrumbs_truncated": {
+                "default": false,
+                "description": "Whether older or invalid breadcrumb history was omitted.",
+                "type": "boolean"
+              },
+              "exception": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Structured exception identity when available."
+              },
+              "schema_version": {
+                "description": "Additive diagnostics response schema version.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "schema_version",
+              "breadcrumbs_truncated"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionMechanismResponse": {
+            "description": "Runtime path that captured an exception and whether it escaped that path.",
+            "properties": {
+              "handled": {
+                "description": "Whether the exception was handled by the capture boundary.",
+                "type": "boolean"
+              },
+              "type": {
+                "description": "Stable low-cardinality capture mechanism.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "handled"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionResponse": {
+            "description": "Structured runtime exception identity returned with issue details.",
+            "properties": {
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionMechanismResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Capture mechanism when the SDK could determine it."
+              },
+              "type": {
+                "description": "Bounded runtime exception class or error type.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "NativeIssueResolvedSourcePosition": {
+            "description": "Privacy-safe source position or native function resolved for an issue.",
+            "properties": {
+              "column": {
+                "description": "One-based source column when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "line": {
+                "description": "One-based source line when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Optional bounded source symbol name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "description": "Relative source path or filename when debug line information is available.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "NativeIssueSymbolicatedFrameResponse": {
+            "description": "One privacy-safe source-map result matched by structured stack-frame index.",
+            "properties": {
+              "index": {
+                "description": "Zero-based index in the SDK-provided `stackFrames` array.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when this frame resolves."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status for this frame."
+              }
+            },
+            "required": [
+              "index",
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationResponse": {
+            "description": "Safe issue-detail source-map resolution result.",
+            "properties": {
+              "frames": {
+                "description": "Ordered per-frame results for additive structured SDK stacks.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueSymbolicatedFrameResponse"
+                },
+                "type": "array"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when resolution succeeds."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status."
+              }
+            },
+            "required": [
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationStatus": {
+            "description": "Stable issue-detail source-map resolution status.",
+            "oneOf": [
+              {
+                "const": "resolved",
+                "description": "A matching retained artifact resolved a source position or native function.",
+                "type": "string"
+              },
+              {
+                "const": "invalid_metadata",
+                "description": "Release-artifact metadata was present but incomplete or inconsistent.",
+                "type": "string"
+              },
+              {
+                "const": "artifact_not_found",
+                "description": "No uploaded artifact matched the issue release identity and Debug ID.",
+                "type": "string"
+              },
+              {
+                "const": "source_not_resolved",
+                "description": "A matching artifact existed but did not resolve the generated frame.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "Artifact lookup or retained evidence was temporarily unavailable.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueV4Response": {
+            "description": "A grouped issue in response version 4.",
+            "properties": {
+              "assignee": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeV4Response"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Current assignee: an account, a team, or null when the issue is unassigned, its\naccount can no longer read the project, or its team was deleted."
+              },
+              "attributes": {
+                "description": "Structured issue attributes."
+              },
+              "diagnostics": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueDiagnosticsResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Typed privacy-bounded diagnostic evidence projected from the latest occurrence."
+              },
+              "environment": {
+                "description": "Deployment environment.",
+                "type": "string"
+              },
+              "fingerprint": {
+                "description": "Stable grouping fingerprint.",
+                "type": "string"
+              },
+              "first_seen_at": {
+                "description": "First time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique issue identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "last_seen_at": {
+                "description": "Most recent time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "message": {
+                "description": "Human-readable issue message.",
+                "type": "string"
+              },
+              "next_action": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionResponse",
+                "description": "Machine-readable next investigation action."
+              },
+              "occurrence_count": {
+                "description": "Number of occurrences in this issue group.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "priority": {
+                "$ref": "#/$defs/IssuePriority",
+                "description": "Effective triage priority."
+              },
+              "priority_source": {
+                "$ref": "#/$defs/IssuePrioritySource",
+                "description": "Whether a user set the priority or it follows severity."
+              },
+              "project_id": {
+                "description": "Owning project ID.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Application release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Issue severity.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Exact span identifier within the distributed trace.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "stack_trace": {
+                "description": "Original stack trace text.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "description": "Issue status.",
+                "type": "string"
+              },
+              "symbolication": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueSymbolicationResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Original source position resolved from release artifacts on issue detail reads."
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              },
+              "trace_id": {
+                "description": "Distributed trace identifier.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "triage": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SignalTriageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Reversible user triage. `severity` remains the immutable captured value."
+              }
+            },
+            "required": [
+              "id",
+              "project_id",
+              "fingerprint",
+              "severity",
+              "title",
+              "message",
+              "stack_trace",
+              "attributes",
+              "environment",
+              "release",
+              "service_name",
+              "trace_id",
+              "next_action",
+              "status",
+              "occurrence_count",
+              "first_seen_at",
+              "last_seen_at",
+              "priority",
+              "priority_source",
+              "assignee"
+            ],
+            "type": "object"
+          },
+          "SignalTriageResponse": {
+            "description": "User-owned presentation rule layered over immutable captured telemetry.",
+            "properties": {
+              "effective_severity": {
+                "description": "Effective presentation severity after applying an optional user override.",
+                "type": "string"
+              },
+              "ignored": {
+                "description": "Whether the signal is excluded from the active view.",
+                "type": "boolean"
+              },
+              "rule_applied": {
+                "description": "Whether a non-default rule currently applies.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "effective_severity",
+              "ignored",
+              "rule_applied"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Cursor page of grouped issues in response version 4.",
+        "properties": {
+          "issues": {
+            "description": "Grouped issue rows in newest-first order.",
+            "items": {
+              "$ref": "#/$defs/NativeIssueV4Response"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NativeIssueCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exclusive continuation cursor when another page exists."
+          }
+        },
+        "required": [
+          "issues",
+          "next_cursor"
+        ],
+        "title": "NativeIssuePageV4Response",
+        "type": "object"
+      }
+    },
+    {
       "id": "issues.owners.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
@@ -19548,6 +20295,303 @@
           "inputs"
         ],
         "title": "IssueOwnersResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.owners.v2",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find who owns one issue like issues.owners.v1, with teams that ownership rules name by #slug and CODEOWNERS names by @org/slug."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Response version for an issue's suggested owners.",
+        "properties": {
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueOwnersQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueAssigneeV4Response": {
+            "description": "Who an issue is assigned to in response version 4.",
+            "oneOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeResponse",
+                "description": "An account that can read the project.",
+                "properties": {
+                  "type": {
+                    "const": "user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "$ref": "#/$defs/IssueTeamResponse",
+                "description": "A team of the project's organization.",
+                "properties": {
+                  "type": {
+                    "const": "team",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "IssueOwnerInputsResponse": {
+            "description": "What the owner match examined, so an empty result can be told apart from missing evidence.",
+            "properties": {
+              "codeowners_rules": {
+                "description": "CODEOWNERS lines configured for the project.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "context_tags": {
+                "description": "Context tags on the issue.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "frame_modules": {
+                "description": "Distinct modules from application stack frames.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "frame_paths": {
+                "description": "Distinct source paths from application stack frames, symbolicated ones included.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "ownership_rules": {
+                "description": "Ownership rules configured for the project.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "route_template": {
+                "description": "Whether the issue has a request route template.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "frame_paths",
+              "frame_modules",
+              "route_template",
+              "context_tags",
+              "ownership_rules",
+              "codeowners_rules"
+            ],
+            "type": "object"
+          },
+          "IssueOwnerSource": {
+            "description": "Why an account is a suggested owner of an issue.",
+            "oneOf": [
+              {
+                "const": "ownership_rule",
+                "description": "A matching ownership rule names the account.",
+                "type": "string"
+              },
+              {
+                "const": "codeowners",
+                "description": "A matching CODEOWNERS line names the account.",
+                "type": "string"
+              },
+              {
+                "const": "recent_activity",
+                "description": "The account changed the issue's status, priority, assignee, or severity rule, or was\nassigned to it.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueOwnerV2Response": {
+            "description": "One suggested owner of an issue in response version 2: an account or a team.",
+            "oneOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeResponse",
+                "description": "An account that can read the project.",
+                "properties": {
+                  "type": {
+                    "const": "user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "$ref": "#/$defs/IssueTeamResponse",
+                "description": "A team of the project's organization.",
+                "properties": {
+                  "type": {
+                    "const": "team",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ],
+            "properties": {
+              "line": {
+                "description": "One-based line of that rule in its text, or null for recent activity.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "matched": {
+                "description": "What the rule matched, or null for recent activity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rule": {
+                "description": "The matching rule or CODEOWNERS line as written, or null for recent activity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "$ref": "#/$defs/IssueOwnerSource",
+                "description": "Why it is suggested."
+              }
+            },
+            "required": [
+              "source",
+              "rule",
+              "line",
+              "matched"
+            ],
+            "type": "object"
+          },
+          "IssueTeamResponse": {
+            "description": "An organization team that issues can be assigned to.",
+            "properties": {
+              "name": {
+                "description": "Display name.",
+                "type": "string"
+              },
+              "slug": {
+                "description": "Unique handle in the organization.",
+                "type": "string"
+              },
+              "team_id": {
+                "description": "Team ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "team_id",
+              "slug",
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "An issue's suggested owners in response version 2: accounts and teams, best first.",
+        "properties": {
+          "inputs": {
+            "$ref": "#/$defs/IssueOwnerInputsResponse",
+            "description": "What the match examined."
+          },
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "owners": {
+            "description": "Suggested owners, best first.",
+            "items": {
+              "$ref": "#/$defs/IssueOwnerV2Response"
+            },
+            "type": "array"
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "suggested_assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeV4Response"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The first suggested owner, or null when there is none."
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "suggested_assignee",
+          "owners",
+          "inputs"
+        ],
+        "title": "IssueOwnersV2Response",
         "type": "object"
       }
     },
@@ -19792,6 +20836,286 @@
           "next_cursor"
         ],
         "title": "IssueActivityPageResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.activity.v2",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Read one issue's history like issues.activity.v1, with the team of each team assignment."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Page selection for an issue's activity.",
+        "properties": {
+          "cursor_id": {
+            "description": "Exclusive cursor ID from a previous page's `next_cursor`.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor time from a previous page's `next_cursor`.",
+            "type": "string"
+          },
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Most entries to return; defaults to 50.",
+            "format": "int64",
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueActivityQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "IssueActivityCursorResponse": {
+            "description": "Exclusive continuation cursor for an activity page.",
+            "properties": {
+              "id": {
+                "description": "ID of the last entry in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Time of the last entry in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "IssueActivityType": {
+            "description": "What happened to an issue.",
+            "oneOf": [
+              {
+                "const": "first_seen",
+                "description": "The first occurrence was captured.",
+                "type": "string"
+              },
+              {
+                "const": "status",
+                "description": "Someone set the status; `value` is `unresolved`, `resolved`, or `archived`.",
+                "type": "string"
+              },
+              {
+                "const": "priority",
+                "description": "Someone set the priority; `value` is `high`, `medium`, or `low`.",
+                "type": "string"
+              },
+              {
+                "const": "assigned",
+                "description": "Someone assigned the issue; `assignee_id` names the account.",
+                "type": "string"
+              },
+              {
+                "const": "unassigned",
+                "description": "Someone removed the assignee.",
+                "type": "string"
+              },
+              {
+                "const": "severity_rule",
+                "description": "Someone set the severity rule; `value` is a severity, or `source` for the captured one.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueActivityV2Response": {
+            "description": "One entry of an issue's activity in response version 2.",
+            "properties": {
+              "actor": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "actor_id": {
+                "description": "Account that made the change; null for `first_seen`.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "assignee": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "assignee_id": {
+                "description": "Account the issue was assigned to; null for the other types.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "description": "When it happened.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Entry ID; the issue ID for `first_seen`.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "team": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueTeamResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The team an `assigned` entry names while it exists, otherwise null."
+              },
+              "type": {
+                "$ref": "#/$defs/IssueActivityType",
+                "description": "What happened."
+              },
+              "value": {
+                "description": "The new status, priority, or severity; null for the other types.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "value",
+              "actor_id",
+              "actor",
+              "assignee_id",
+              "assignee",
+              "at",
+              "team"
+            ],
+            "type": "object"
+          },
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueTeamResponse": {
+            "description": "An organization team that issues can be assigned to.",
+            "properties": {
+              "name": {
+                "description": "Display name.",
+                "type": "string"
+              },
+              "slug": {
+                "description": "Unique handle in the organization.",
+                "type": "string"
+              },
+              "team_id": {
+                "description": "Team ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "team_id",
+              "slug",
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "One page of an issue's activity in response version 2.",
+        "properties": {
+          "activity": {
+            "description": "Entries, newest first.",
+            "items": {
+              "$ref": "#/$defs/IssueActivityV2Response"
+            },
+            "type": "array"
+          },
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueActivityCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cursor for the next page, or null on the last page."
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "activity",
+          "next_cursor"
+        ],
+        "title": "IssueActivityPageV2Response",
         "type": "object"
       }
     },

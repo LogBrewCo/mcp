@@ -133,6 +133,17 @@ fn shipped_input_contracts_reject_smuggled_fields() {
         ("issues.list.v2", json!({"priority":null})),
         ("issues.list.v3", json!({"response_version":2_u32})),
         ("issues.list.v3", json!({"assignee":null})),
+        ("issues.owners.v1", json!({})),
+        ("issues.owners.v1", json!({"issue_id":log,"limit":5_u32})),
+        (
+            "issues.activity.v1",
+            json!({"issue_id":log,"limit":201_u32}),
+        ),
+        (
+            "issues.activity.v1",
+            json!({"issue_id":log,"pagination":"cursor"}),
+        ),
+        ("issues.ownership.v1", json!({})),
     ] {
         let failure = catalog.input(id, &input).expect_err("smuggled field");
         assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");
@@ -191,4 +202,17 @@ fn shipped_query_inputs_match_backend_validation() {
             .input("issues.list.v3", &json!({"assignee":assignee}))
             .expect("assignee filter");
     }
+    let issue = "0b9f7c4e-2f2a-4a8e-9a65-2d2a7e8f1c11";
+    catalog
+        .input("issues.owners.v1", &json!({"issue_id":issue}))
+        .expect("issue owners");
+    catalog
+        .input(
+            "issues.activity.v1",
+            &json!({"issue_id":issue,"limit":200_u32,"cursor_time":"2026-10-19T00:00:00Z","cursor_id":issue}),
+        )
+        .expect("activity page");
+    catalog
+        .input("issues.ownership.v1", &json!({"project_id":issue}))
+        .expect("project ownership");
 }

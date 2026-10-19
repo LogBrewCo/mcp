@@ -29,6 +29,19 @@ unavailable or truncated; none of those states means zero events.
 | `metrics.investigate.v2` | A metric's meaning, captured description and linked evidence. |
 | `releases.investigate.v5` | One release, deployment comparisons and captured release markers. |
 
+## Ownership and activity
+
+| Operation | What it reads |
+| --- | --- |
+| `issues.owners.v1` | Suggested owners of one issue, best first: matching ownership rules, then matching CODEOWNERS lines, then people who recently changed or were assigned the issue. Each owner names the rule, its line and what it matched. `inputs` counts the frame paths, modules, route template, tags and rules that were checked. |
+| `issues.activity.v1` | One issue's history, newest first: status, priority, assignee and severity rule changes, each with the account that made it, ending with when the issue was first seen. Follow `next_cursor` with `cursor_time` and `cursor_id`. |
+| `issues.ownership.v1` | A project's ownership rules and CODEOWNERS text, and the owners in them that name nobody with access to the project. |
+
+Owners and actors show a name and email only while that account can read the
+project. An account that lost access keeps only its ID in the activity and no
+longer appears as an owner. No owner means no rule matched the captured
+evidence; check `inputs` before you conclude that nobody owns the code.
+
 An investigation may help locate a cause, but correlation alone does not prove
 one. Keep captured evidence separate from an inferred cause or a proposed fix.
 An absent description or source location remains absent. A later SDK upgrade

@@ -19326,6 +19326,547 @@
       }
     },
     {
+      "id": "issues.owners.v1",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find who owns one issue: matching ownership rules and CODEOWNERS lines, then people who recently triaged it, with what each rule matched."
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueOwnerInputsResponse": {
+            "description": "What the owner match examined, so an empty result can be told apart from missing evidence.",
+            "properties": {
+              "codeowners_rules": {
+                "description": "CODEOWNERS lines configured for the project.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "context_tags": {
+                "description": "Context tags on the issue.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "frame_modules": {
+                "description": "Distinct modules from application stack frames.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "frame_paths": {
+                "description": "Distinct source paths from application stack frames, symbolicated ones included.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "ownership_rules": {
+                "description": "Ownership rules configured for the project.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "route_template": {
+                "description": "Whether the issue has a request route template.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "frame_paths",
+              "frame_modules",
+              "route_template",
+              "context_tags",
+              "ownership_rules",
+              "codeowners_rules"
+            ],
+            "type": "object"
+          },
+          "IssueOwnerResponse": {
+            "description": "One suggested owner of an issue.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "line": {
+                "description": "One-based line of that rule in its text, or null for recent activity.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "matched": {
+                "description": "What the rule matched: the end of a frame path, a module, a route template, a service,\nor a tag value. Null for recent activity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rule": {
+                "description": "The matching rule or CODEOWNERS line as written, or null for recent activity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "$ref": "#/$defs/IssueOwnerSource",
+                "description": "Why the account is suggested."
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email",
+              "source",
+              "rule",
+              "line",
+              "matched"
+            ],
+            "type": "object"
+          },
+          "IssueOwnerSource": {
+            "description": "Why an account is a suggested owner of an issue.",
+            "oneOf": [
+              {
+                "const": "ownership_rule",
+                "description": "A matching ownership rule names the account.",
+                "type": "string"
+              },
+              {
+                "const": "codeowners",
+                "description": "A matching CODEOWNERS line names the account.",
+                "type": "string"
+              },
+              {
+                "const": "recent_activity",
+                "description": "The account changed the issue's status, priority, assignee, or severity rule, or was\nassigned to it.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "An issue's suggested owners, best first: ownership rules, then CODEOWNERS, then recent\nactivity. Only accounts that can read the project appear, each once.",
+        "properties": {
+          "inputs": {
+            "$ref": "#/$defs/IssueOwnerInputsResponse",
+            "description": "What the match examined."
+          },
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "owners": {
+            "description": "Suggested owners, best first.",
+            "items": {
+              "$ref": "#/$defs/IssueOwnerResponse"
+            },
+            "type": "array"
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "suggested_assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The first suggested owner, or null when there is none."
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "suggested_assignee",
+          "owners",
+          "inputs"
+        ],
+        "title": "IssueOwnersResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.activity.v1",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Read one issue's history, newest first: status, priority, assignee, and severity rule changes with who made them, ending with when it was first seen."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Page selection for an issue's activity.",
+        "properties": {
+          "cursor_id": {
+            "description": "Exclusive cursor ID from a previous page's `next_cursor`.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor time from a previous page's `next_cursor`.",
+            "type": "string"
+          },
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Most entries to return; defaults to 50.",
+            "format": "int64",
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueActivityQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "IssueActivityCursorResponse": {
+            "description": "Exclusive continuation cursor for an activity page.",
+            "properties": {
+              "id": {
+                "description": "ID of the last entry in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Time of the last entry in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "IssueActivityResponse": {
+            "description": "One entry of an issue's activity.",
+            "properties": {
+              "actor": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "actor_id": {
+                "description": "Account that made the change; null for `first_seen`.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "assignee": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "assignee_id": {
+                "description": "Account the issue was assigned to; null for the other types.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "description": "When it happened.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Entry ID; the issue ID for `first_seen`.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "type": {
+                "$ref": "#/$defs/IssueActivityType",
+                "description": "What happened."
+              },
+              "value": {
+                "description": "The new status, priority, or severity; null for the other types.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "value",
+              "actor_id",
+              "actor",
+              "assignee_id",
+              "assignee",
+              "at"
+            ],
+            "type": "object"
+          },
+          "IssueActivityType": {
+            "description": "What happened to an issue.",
+            "oneOf": [
+              {
+                "const": "first_seen",
+                "description": "The first occurrence was captured.",
+                "type": "string"
+              },
+              {
+                "const": "status",
+                "description": "Someone set the status; `value` is `unresolved`, `resolved`, or `archived`.",
+                "type": "string"
+              },
+              {
+                "const": "priority",
+                "description": "Someone set the priority; `value` is `high`, `medium`, or `low`.",
+                "type": "string"
+              },
+              {
+                "const": "assigned",
+                "description": "Someone assigned the issue; `assignee_id` names the account.",
+                "type": "string"
+              },
+              {
+                "const": "unassigned",
+                "description": "Someone removed the assignee.",
+                "type": "string"
+              },
+              {
+                "const": "severity_rule",
+                "description": "Someone set the severity rule; `value` is a severity, or `source` for the captured one.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "One page of an issue's activity, newest first. The last page ends with `first_seen`.",
+        "properties": {
+          "activity": {
+            "description": "Entries, newest first.",
+            "items": {
+              "$ref": "#/$defs/IssueActivityResponse"
+            },
+            "type": "array"
+          },
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueActivityCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cursor for the next page, or null on the last page."
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "activity",
+          "next_cursor"
+        ],
+        "title": "IssueActivityPageResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.ownership.v1",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Read a project's ownership rules and CODEOWNERS text, and owners that name nobody with access."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Project whose ownership to read.",
+        "properties": {
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "title": "IssueOwnershipQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "A project's ownership rules and CODEOWNERS text.",
+        "properties": {
+          "codeowners": {
+            "description": "CODEOWNERS text, or an empty string.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "rules": {
+            "description": "Ownership rules, or an empty string.",
+            "type": "string"
+          },
+          "unresolved_owners": {
+            "description": "Owners, as written, that name no account that can read the project. Rules that name\nonly such owners suggest nobody.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updated_at": {
+            "description": "When either text last changed, or null when neither was ever set.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "rules",
+          "codeowners",
+          "updated_at",
+          "unresolved_owners"
+        ],
+        "title": "IssueOwnershipResponse",
+        "type": "object"
+      }
+    },
+    {
       "id": "traces.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",

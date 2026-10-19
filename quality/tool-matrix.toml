@@ -1,0 +1,159 @@
+# Tool matrix: every gate, guard, and quality tool this repository runs, with its
+# version, checksum, rules, conflicts, exceptions, runtime, findings, and the date
+# its releases, advisories, and rules were last checked. scripts/check-tool-matrix.sh
+# enforces it (see its header); scripts/check-all.sh runs that check.
+#
+# Runtimes come from GitHub Actions step timings since 2026-09-19 on ubuntu-latest.
+# Every run starts from an empty runner, so pushes and pull requests are both cold.
+# p99 needs 100 runs; below that an entry gives the run count and the maximum.
+# Format: one `key = value` per line, arrays on one line, pins as "file::text"
+# where @VERSION@ stands for the entry's version.
+
+gates = ["scripts/check-all.sh"]
+utilities = ["[[", "cd", "curl", "dirname", "echo", "exit", "export", "local", "mkdir", "printf", "set", "sha256sum", "tar"]
+
+[[tool]]
+id = "rust"
+risk = "Rust compile errors, compiler lints, and test failures"
+tool = "rustc, cargo, and libtest"
+version = "1.99.0"
+pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
+commands = ["cargo test", "rustup"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "Cargo.toml lints; rust-toolchain.toml (minimal profile with clippy and rustfmt)"
+conflicts = "none known"
+exceptions = "none"
+runtime = "the whole check step: push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
+findings = "unknown: test failures are fixed before merge and not recorded; count them from failed runs at the next check"
+replaces = "none"
+status = "behind: Rust 1.99.1 released 2026-10-13"
+checked = 2026-10-19
+
+[[tool]]
+id = "clippy"
+risk = "Rust correctness, suspicious, complexity, performance, and style lints"
+tool = "Clippy"
+version = "1.99.0"
+pins = ["rust-toolchain.toml::channel = \"@VERSION@\"", "scripts/check-all.sh::cargo clippy --locked --all-targets -- -D warnings"]
+commands = ["cargo clippy"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "Cargo.toml [lints], clippy.toml; every warning fails"
+conflicts = "none known"
+exceptions = "none"
+runtime = "inside the check step (see rust); separate timing not yet recorded"
+findings = "unknown: lints are fixed before merge; record them from failed runs at the next check"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "rustfmt"
+risk = "Rust formatting drift"
+tool = "rustfmt"
+version = "1.99.0"
+pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
+commands = ["cargo fmt"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "defaults; cargo fmt --all -- --check"
+conflicts = "none known"
+exceptions = "none"
+runtime = "inside the check step (see rust)"
+findings = "unknown: formatting is fixed before merge"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "cargo-deny"
+risk = "dependency licenses, bans, duplicate versions, and sources"
+tool = "cargo-deny"
+version = "0.20.2"
+pins = ["scripts/check-all.sh::require_version cargo-deny \"cargo-deny @VERSION@\"", ".github/workflows/ci.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
+commands = ["cargo deny"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "deny.toml; cargo deny --locked check --deny warnings licenses bans sources"
+conflicts = "none known"
+exceptions = "advisories are not checked here; see the open question in findings"
+runtime = "inside the check step (see rust); installing all pinned tools takes at most 2 s (n=31)"
+findings = "unknown: no recorded finding; open question: add the advisories check"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "tombi"
+risk = "TOML formatting and schema errors in manifests and configuration"
+tool = "Tombi CLI (native Rust)"
+version = "1.7.2"
+pins = ["scripts/check-all.sh::require_version tombi \"tombi @VERSION@\"", ".github/workflows/ci.yml::70d702da0bb92758469c4f85761935b93c8172598b2682d9c89d7ab383a23a4c  tombi-cli-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
+commands = ["tombi"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "tombi.toml; bundled offline schema graph in tools/quality/schemastore; lint --error-on-warnings and format --check"
+conflicts = "none known"
+exceptions = "array-order exceptions recorded with the bundled schema graph"
+runtime = "inside the check step (see rust)"
+findings = "unknown: no recorded finding"
+replaces = "none"
+status = "behind: 1.8.7 released 2026-10-18; upgrading needs a recheck of the bundled schema graph"
+checked = 2026-10-19
+
+[[tool]]
+id = "check-all"
+risk = "a required check skipped or run in a different order locally and in CI"
+tool = "scripts/check-all.sh"
+version = "repository"
+unpinned = "repository script, versioned by commit"
+commands = ["scripts/check-all.sh"]
+runs_in = "CI check job; locally before every change"
+config = "checks each tool version before use"
+conflicts = "none known"
+exceptions = "none"
+runtime = "push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
+findings = "see the tools it runs"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "public-guard"
+risk = "secrets or non-public text in commits, paths, branch names, and pull request text"
+tool = "gitleaks with the public guard rules"
+version = "8.30.1"
+pins = ["scripts/public-guard.sh::readonly gitleaks_version=\"@VERSION@\"", "scripts/public-guard.sh::e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080", "scripts/public-guard.sh::551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"]
+commands = ["scripts/public-guard.sh", "scripts/test-public-guard.sh"]
+runs_in = "Public guard workflow (required status) on every pull request and push"
+config = "scripts/public-guard.toml"
+conflicts = "none known"
+exceptions = "false positives are fixed in their own pull request"
+runtime = "scan: n=11, max 6 s; self-test: push n=6, max 30 s; pull request n=7, max 29 s; p99 unsupported"
+findings = "unknown: findings are fixed before merge; one self-test case flaked once"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "actions-checkout"
+risk = "CI source checkout supply chain"
+tool = "actions/checkout"
+version = "7.0.1"
+unpinned = "pinned by commit in every workflow (see uses)"
+uses = ["actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1"]
+runs_in = "every workflow"
+config = "persist-credentials: false where the job needs no push"
+conflicts = "none known"
+exceptions = "none"
+runtime = "at most 2 s per run"
+findings = "not a check; supply-chain pin"
+replaces = "none"
+checked = 2026-10-19
+
+[[tool]]
+id = "tool-matrix"
+risk = "a gate tool without an entry, a pin that differs from its entry, an entry not checked for 30 days"
+tool = "scripts/check-tool-matrix.sh and its seeded tests"
+version = "repository"
+unpinned = "repository script, versioned by commit"
+commands = ["scripts/check-tool-matrix.sh", "scripts/test-check-tool-matrix.sh"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "this file"
+conflicts = "reads commands with a small shell reader; a command built at run time is invisible to it"
+exceptions = "none"
+runtime = "new; record from CI runs at the next check"
+findings = "seeded: an unlisted command, a changed pin, a changed action commit, a stale or future date, and a missing field each fail"
+replaces = "none"
+checked = 2026-10-19

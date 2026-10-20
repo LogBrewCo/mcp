@@ -128,6 +128,10 @@ fn shipped_input_contracts_reject_smuggled_fields() {
             "issues.investigate.v13",
             json!({"issue_id":log,"response_version":1_u32}),
         ),
+        (
+            "issues.investigate.v14",
+            json!({"issue_id":log,"response_version":13_u32}),
+        ),
         ("logs.list.v1", json!({"pagination":"offset"})),
         ("issues.list.v2", json!({"response_version":1_u32})),
         ("issues.list.v2", json!({"priority":null})),

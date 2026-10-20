@@ -21,7 +21,8 @@ unavailable or truncated; none of those states means zero events.
 
 | Operation | What it reads |
 | --- | --- |
-| `issues.investigate.v13` | One issue and its selected occurrence, reproduction, lifecycle, grouping and correction evidence. |
+| `issues.investigate.v14` | One issue and its selected occurrence, reproduction, lifecycle, grouping and correction evidence. Each breadcrumb has `data` with `method`, `url` (no query or fragment) and `status_code` for an HTTP call, `from` and `to` for a route change, and `logger` for a log record; a field the breadcrumb does not have is `null`. |
+| `issues.investigate.v13` | The `issues.investigate.v14` result without typed breadcrumb `data`. |
 | `logs.investigate.v1` | One log, its captured context and bounded related evidence. |
 | `traces.investigate.v3` | One trace, its failure evidence and cross-signal links. |
 | `spans.investigate.v1` | One exact span and its diagnostic evidence. |

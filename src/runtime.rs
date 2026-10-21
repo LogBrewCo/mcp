@@ -32,6 +32,9 @@ where
 {
     let listener =
         TcpListener::bind(service.address).map_err(Failure::redact(Kind::Unavailable))?;
+    if let Some(exporter) = service.telemetry {
+        drop(tokio::spawn(exporter.run()));
+    }
     serve_listener(listener, service.router, service.tls, shutdown).await
 }
 

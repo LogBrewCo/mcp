@@ -56,6 +56,21 @@ rejects unknown fields, case aliases, duplicate decoded keys, invalid UTF-8,
 trailing documents, and inline secret fields. It preserves secret-file
 references without opening them.
 
+Two optional fields send request telemetry to a LogBrew project. They must
+appear together: `telemetry_endpoint`, the HTTPS ingest URL, and
+`telemetry_key_file`, a private file that holds the project's ingest key with
+no trailing newline. Each finished request, search, and execution becomes one
+span with its duration and a fixed outcome such as `completed`,
+`unauthorized`, or `unavailable`. An execution also names its operation, but
+only when the catalog contains it. An outcome that this server or the API
+caused (`configuration`, `invalid_output`, `unavailable`, or `deadline`) also
+opens an issue, such as `mcp execute logs.read.v1 unavailable`. Telemetry never
+contains tool arguments, results, tokens, client identity, or error text. At
+most 1,024 records wait for delivery, and the server sends at most one request
+per second. When the queue is full or a request fails, the server drops those
+records and reports how many in its next request. Telemetry never delays or
+rejects an MCP request.
+
 `admission` limits requests that have not proven authority, per client:
 
 ```json

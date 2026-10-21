@@ -74,7 +74,7 @@ fn labels_are_frozen_to_the_verified_bounded_inventory() {
         .collect();
     let catalog = catalog(&ids);
     telemetry.register_catalog(&catalog);
-    let measurement = telemetry.begin(Stage::Execute);
+    let mut measurement = telemetry.begin(Stage::Execute);
     for n in 0_i32..2_048_i32 {
         assert!(
             measurement
@@ -194,7 +194,7 @@ fn operation_distributions_preserve_a_slow_operation_hidden_by_aggregate_p99() {
 fn contention_is_nonblocking_and_loss_stays_with_the_selected_operation() {
     let telemetry = observer();
     let inventory = telemetry.0.operations.get().expect("catalog inventory");
-    let parent = telemetry.begin(Stage::Execute);
+    let mut parent = telemetry.begin(Stage::Execute);
     let start_stats = inventory.stats.lock().expect("controlled lock");
     parent
         .operation("logs.fast.v1")

@@ -156,7 +156,7 @@ impl ServerHandler for Tools {
             ToolKind::Search => Stage::Search,
             ToolKind::Execute => Stage::Execute,
         };
-        let measurement = self.0.telemetry.begin(stage);
+        let mut measurement = self.0.telemetry.begin(stage);
         let arguments = context
             .extensions
             .get::<axum::http::request::Parts>()

@@ -7,14 +7,17 @@ use alloc::sync::Arc;
 use core::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::{
     sync::{Mutex, OnceLock},
-    time::Instant,
+    time::{Instant, SystemTime},
 };
 
+use rustls::pki_types::CertificateDer;
 use serde::Serialize;
 
 use crate::{Failure, catalog::Catalog, error::Kind};
 
+mod export;
 mod operations;
+pub use export::Exporter;
 pub use operations::{CatalogSnapshot, OperationSnapshot};
 
 #[cfg(test)]
@@ -256,6 +259,7 @@ struct Inner {
     stats: Mutex<[Stats; STAGES.len()]>,
     losses: [Loss; STAGES.len()],
     operations: OnceLock<operations::Inventory>,
+    export: OnceLock<export::Sender>,
 }
 
 /// A bounded observer. Updates never wait for a lock or reject customer work.
@@ -269,6 +273,7 @@ impl Default for Telemetry {
             stats: Mutex::new([Stats::EMPTY; STAGES.len()]),
             losses: core::array::from_fn(|_| Loss::default()),
             operations: OnceLock::new(),
+            export: OnceLock::new(),
         }))
     }
 }
@@ -279,6 +284,26 @@ impl Telemetry {
             .0
             .operations
             .get_or_init(|| operations::Inventory::new(catalog));
+    }
+
+    /// Also send each finished request, search, and execution to a `LogBrew`
+    /// ingest endpoint. Run the returned exporter on the serving runtime.
+    ///
+    /// # Errors
+    /// Rejects a second exporter, a non-canonical HTTPS endpoint, an unusable
+    /// key, and TLS client configuration failures.
+    pub fn export(
+        &self,
+        endpoint: &str,
+        key: &[u8],
+        certificate: Option<CertificateDer<'static>>,
+    ) -> Result<Exporter, Failure> {
+        let (sender, exporter) = export::channel(endpoint, key, certificate)?;
+        self.0
+            .export
+            .set(sender)
+            .map_err(|_unused| Failure::from(Kind::Configuration))?;
+        Ok(exporter)
     }
 
     pub(crate) fn begin(&self, stage: Stage) -> Measurement {
@@ -297,6 +322,7 @@ impl Telemetry {
             start,
             recorded,
             outcome: Outcome::Cancelled,
+            operation: None,
         }
     }
 
@@ -349,18 +375,23 @@ pub(crate) struct Measurement {
     start: Instant,
     recorded: bool,
     outcome: Outcome,
+    /// Verified catalog identifier of an execution.
+    operation: Option<String>,
 }
 
 impl Measurement {
-    pub(crate) fn operation(&self, id: &str) -> Option<operations::Measurement> {
+    pub(crate) fn operation(&mut self, id: &str) -> Option<operations::Measurement> {
         if self.stage != Stage::Execute {
             return None;
         }
-        self.telemetry
-            .0
-            .operations
-            .get()?
-            .begin(&self.telemetry, id, self.start)
+        let measurement =
+            self.telemetry
+                .0
+                .operations
+                .get()?
+                .begin(&self.telemetry, id, self.start)?;
+        self.operation = Some(id.to_owned());
+        Some(measurement)
     }
 
     pub(crate) fn finish(mut self, outcome: Outcome) {
@@ -370,13 +401,23 @@ impl Measurement {
 
 impl Drop for Measurement {
     fn drop(&mut self) {
+        let elapsed = elapsed_since(self.start);
+        if let Some(sender) = self.telemetry.0.export.get() {
+            sender.send(export::Record::new(
+                self.stage,
+                self.operation.take(),
+                self.outcome,
+                elapsed,
+                SystemTime::now(),
+            ));
+        }
         if !self.recorded {
             return;
         }
         if let Ok(mut stats) = self.telemetry.0.stats.try_lock()
             && let Some(stats) = stats.get_mut(self.stage.index())
         {
-            stats.finish(self.outcome, elapsed_since(self.start));
+            stats.finish(self.outcome, elapsed);
         } else {
             self.telemetry.loss(self.stage);
         }

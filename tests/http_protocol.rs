@@ -54,6 +54,8 @@ mod scopes;
 mod search_contract;
 #[path = "cases/telemetry.rs"]
 mod telemetry;
+#[path = "cases/telemetry_export.rs"]
+mod telemetry_export;
 #[path = "cases/transport.rs"]
 mod transport;
 #[path = "cases/upstream_encoding.rs"]

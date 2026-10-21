@@ -19,6 +19,7 @@ use crate::{
     clients::ClientAllowlist,
     error::Kind,
     json as strict_json, protocol,
+    telemetry::Exporter,
     upstream::{MachineCredential, Upstream, UpstreamOptions},
 };
 
@@ -54,6 +55,12 @@ pub struct Config {
     pub private_key_file: String,
     /// Per-client limits for requests without verified authority.
     pub admission: Admission,
+    /// Optional `LogBrew` ingest URL for request telemetry; needs `telemetry_key_file`.
+    #[serde(default)]
+    pub telemetry_endpoint: Option<String>,
+    /// Ingest key file reference for `telemetry_endpoint`.
+    #[serde(default)]
+    pub telemetry_key_file: Option<String>,
 }
 
 impl core::fmt::Debug for Config {
@@ -67,8 +74,9 @@ impl Config {
     ///
     /// # Errors
     /// Rejects unknown, duplicate, missing, empty, or non-string fields other
-    /// than the `admission` object, admission limits outside their ranges and
-    /// any version other than 4.
+    /// than the `admission` object, admission limits outside their ranges, a
+    /// telemetry endpoint without its key file or the reverse, and any version
+    /// other than 4.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
@@ -80,7 +88,9 @@ impl Config {
         }
         let config: Self =
             serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
-        if config.version != "4" {
+        if config.version != "4"
+            || config.telemetry_endpoint.is_some() != config.telemetry_key_file.is_some()
+        {
             return Err(Kind::Configuration.into());
         }
         let _validated: Admission = config.admission.validate()?;
@@ -174,6 +184,8 @@ pub struct Service {
     pub router: axum::Router,
     /// Validated certificate and matching private key.
     pub tls: axum_server::tls_rustls::RustlsConfig,
+    /// Request telemetry delivery, when configured.
+    pub telemetry: Option<Exporter>,
 }
 
 impl Service {
@@ -198,6 +210,17 @@ impl Service {
             service_credential,
         })?
         .with_client_allowlist(ClientAllowlist::decode(&allowlist)?);
+        let telemetry = match (
+            config.telemetry_endpoint.as_ref(),
+            config.telemetry_key_file.as_ref(),
+        ) {
+            (Some(endpoint), Some(key_file)) => Some(upstream.telemetry().export(
+                endpoint,
+                &read_file(Path::new(key_file), 8 << 10, 0o600)?,
+                None,
+            )?),
+            _ => None,
+        };
         let router = protocol::router(
             catalog,
             upstream,
@@ -227,6 +250,7 @@ impl Service {
             address,
             router,
             tls,
+            telemetry,
         })
     }
 }

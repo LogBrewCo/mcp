@@ -419,6 +419,53 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
     }
 }
 
+/// A complete version 4 configuration with synthetic file references.
+fn configuration_fields() -> serde_json::Value {
+    json!({"version":"4","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
+        "admission":{"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32},
+        "issuer":"https://issuer.example","client_allowlist_file":"/synthetic/clients.json",
+        "introspection_endpoint":"https://service.example/introspect",
+        "execution_endpoint":"https://service.example/execute",
+        "service_client_id":"machine","service_secret_file":"/synthetic/service",
+        "catalog_file":"/synthetic/catalog","catalog_sha256":"00".repeat(32),
+        "certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"})
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if a telemetry endpoint is accepted without its key file or the
+/// reverse, or if a complete pair is rejected or changed.
+fn telemetry_export_needs_an_endpoint_and_a_key_file_together() {
+    let fields = configuration_fields();
+    let decode = |value: &serde_json::Value| {
+        Config::decode(&serde_json::to_vec(value).expect("configuration"))
+    };
+    let config = decode(&fields).expect("no telemetry export");
+    assert_eq!(config.telemetry_endpoint, None);
+    let mut exported = fields.clone();
+    for (field, value) in [
+        ("telemetry_endpoint", "https://ingest.example/v1/events"),
+        ("telemetry_key_file", "/synthetic/ingest-key"),
+    ] {
+        let mut alone = fields.clone();
+        let object = alone.as_object_mut().expect("object");
+        drop(object.insert(field.to_owned(), json!(value)));
+        let _: logbrew_mcp::Failure = decode(&alone).unwrap_err();
+        drop(
+            exported
+                .as_object_mut()
+                .expect("object")
+                .insert(field.to_owned(), json!(value)),
+        );
+    }
+    let exported = decode(&exported).expect("telemetry export");
+    assert_eq!(
+        exported.telemetry_key_file.as_deref(),
+        Some("/synthetic/ingest-key")
+    );
+}
+
 #[test]
 /// # Panics
 ///
@@ -427,14 +474,7 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
 /// limits, or accepts other versions, superseded fields, inline secrets or
 /// duplicate fields.
 fn configuration_requires_one_service_login_and_secret_file_references() {
-    let fields = json!({"version":"4","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
-        "admission":{"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32},
-        "issuer":"https://issuer.example","client_allowlist_file":"/synthetic/clients.json",
-        "introspection_endpoint":"https://service.example/introspect",
-        "execution_endpoint":"https://service.example/execute",
-        "service_client_id":"machine","service_secret_file":"/synthetic/service",
-        "catalog_file":"/synthetic/catalog","catalog_sha256":"00".repeat(32),
-        "certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"});
+    let fields = configuration_fields();
     let decode = |value: &serde_json::Value| {
         Config::decode(&serde_json::to_vec(value).expect("configuration"))
     };

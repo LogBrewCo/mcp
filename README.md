@@ -172,6 +172,14 @@ are rejected before execution.
 Handler validation errors use HTTP 200 with a JSON-RPC error response. Missing
 required request metadata remains an HTTP 400 error.
 
+The server accepts MCP `2026-07-28`, `2025-11-25`, and `2025-06-18`. A client
+on `2025-11-25` or `2025-06-18` starts with `initialize` and then sends the
+negotiated version in the `MCP-Protocol-Version` header. The server answers
+these clients without sessions: it returns no `Mcp-Session-Id`, and every
+request carries its own bearer token and gets the same authorization as a
+`2026-07-28` request. Versions before `2025-06-18` are not supported, because
+they have no OAuth resource indicator and no structured tool results.
+
 Content negotiation parses complete media types, accepts case variants and
 repeated Accept fields, and requires both JSON and event-stream support with
 positive quality values. Current-version GET and DELETE requests receive HTTP

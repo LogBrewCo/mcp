@@ -28,6 +28,8 @@ mod http2;
 mod http2_stalls;
 #[path = "cases/identifiers.rs"]
 mod identifiers;
+#[path = "cases/legacy.rs"]
+mod legacy;
 #[path = "cases/lifecycle.rs"]
 mod lifecycle;
 #[path = "cases/methods.rs"]
@@ -93,7 +95,7 @@ async fn discovery_and_tool_inventory_are_self_contained() {
     assert_eq!(discovery_status, StatusCode::OK);
     assert_eq!(
         discovery_response.pointer("/result/supportedVersions"),
-        Some(&json!(["2026-07-28"]))
+        Some(&json!(["2026-07-28", "2025-11-25", "2025-06-18"]))
     );
     assert_eq!(
         discovery_response.pointer("/result/capabilities"),

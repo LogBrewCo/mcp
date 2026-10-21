@@ -43,7 +43,14 @@ use crate::{
     upstream::{AuthorizationFailure, Principal, SCOPE, Upstream, canonical_https},
 };
 
-const SUPPORTED_PROTOCOL_VERSIONS: &[ProtocolVersion] = &[ProtocolVersion::V_2026_07_28];
+// 2025-06-18 and 2025-11-25 clients use the `initialize` handshake and are served
+// statelessly, without sessions. Older versions lack the OAuth resource indicator
+// and structured tool results, so they stay unsupported.
+const SUPPORTED_PROTOCOL_VERSIONS: &[ProtocolVersion] = &[
+    ProtocolVersion::V_2026_07_28,
+    ProtocolVersion::V_2025_11_25,
+    ProtocolVersion::V_2025_06_18,
+];
 
 #[derive(Clone)]
 struct Authority {

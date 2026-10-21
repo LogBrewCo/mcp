@@ -8,7 +8,7 @@ include-build = true
 unused-allowed-license = "deny"
 unused-license-exception = "deny"
 allow = ["Apache-2.0", "BSD-3-Clause", "ISC", "MIT", "MIT-0", "Unicode-3.0", "Zlib"]
-exceptions = [{ crate = "webpki-root-certs@1.0.9", allow = ["CDLA-Permissive-2.0"] }]
+exceptions = [{ crate = "webpki-root-certs@1.0.10", allow = ["CDLA-Permissive-2.0"] }]
 
 [licenses.private]
 ignore = false

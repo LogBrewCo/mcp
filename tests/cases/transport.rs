@@ -60,13 +60,7 @@ async fn response(
 /// or supported versions, start execution, or prevent supported-version recovery.
 async fn unsupported_versions_return_modern_negotiation_errors() {
     let fixture = Fixture::new().await.expect("fixture");
-    for version in [
-        "1900-01-01",
-        "2024-11-05",
-        "2025-03-26",
-        "2025-06-18",
-        "2025-11-25",
-    ] {
+    for version in ["1900-01-01", "2024-11-05", "2025-03-26"] {
         let mut value = body();
         *value
             .pointer_mut("/params/_meta/io.modelcontextprotocol~1protocolVersion")
@@ -87,7 +81,7 @@ async fn unsupported_versions_return_modern_negotiation_errors() {
         );
         assert_eq!(
             response.pointer("/error/data/supported"),
-            Some(&json!(["2026-07-28"]))
+            Some(&json!(["2026-07-28", "2025-11-25", "2025-06-18"]))
         );
         assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }

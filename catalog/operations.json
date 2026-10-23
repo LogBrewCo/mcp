@@ -5071,7 +5071,12 @@
               },
               {
                 "const": "ignored",
-                "description": "Explicitly ignored issue.",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
                 "type": "string"
               },
               {
@@ -6694,7 +6699,12 @@
               },
               {
                 "const": "ignored",
-                "description": "Issue explicitly ignored.",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
                 "type": "string"
               }
             ]
@@ -8192,7 +8202,7 @@
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
-        "summary": "Inspect one issue, its selected occurrence, breadcrumbs with HTTP calls and route changes, reproduction and correction evidence."
+        "summary": "Earlier issue investigation that reports an archived issue as ignored; prefer issues.investigate.v15."
       },
       "input_schema": {
         "$defs": {
@@ -8955,7 +8965,12 @@
               },
               {
                 "const": "ignored",
-                "description": "Explicitly ignored issue.",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
                 "type": "string"
               },
               {
@@ -10578,7 +10593,3906 @@
               },
               {
                 "const": "ignored",
-                "description": "Issue explicitly ignored.",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationReappearedOccurrenceResponse": {
+            "description": "Privacy-safe scope of the first occurrence observed after resolution.",
+            "properties": {
+              "environment": {
+                "description": "Exact deployment environment captured for the occurrence.",
+                "type": "string"
+              },
+              "id": {
+                "description": "Stable retained occurrence identity for exact follow-up selection.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "ingested_at": {
+                "description": "Server ingestion timestamp used for the recurrence decision.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence timestamp.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "release": {
+                "description": "Exact release captured for the occurrence.",
+                "type": "string"
+              },
+              "sdk": {
+                "$ref": "#/$defs/InvestigationSdkResponse",
+                "description": "SDK package identity that captured the occurrence."
+              },
+              "service_name": {
+                "description": "Exact logical service captured for the occurrence.",
+                "type": "string"
+              },
+              "trace_id": {
+                "description": "Exact distributed trace identifier when captured.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "occurred_at",
+              "ingested_at",
+              "environment",
+              "release",
+              "service_name",
+              "trace_id",
+              "sdk"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationRegressionReason": {
+            "description": "Stable regression assessment reasons.",
+            "oneOf": [
+              {
+                "const": "occurrence_ingested_after_resolution",
+                "description": "A retained occurrence was first ingested after the latest resolution.",
+                "type": "string"
+              },
+              {
+                "const": "no_resolution_recorded",
+                "description": "No persisted resolution exists for an unresolved issue.",
+                "type": "string"
+              },
+              {
+                "const": "current_status_not_resolved",
+                "description": "The persisted state is not resolved, so no current regression override is needed.",
+                "type": "string"
+              },
+              {
+                "const": "no_occurrence_ingested_after_resolution",
+                "description": "No retained occurrence was ingested after the latest resolution.",
+                "type": "string"
+              },
+              {
+                "const": "status_history_unavailable",
+                "description": "Persisted status activity could not be read.",
+                "type": "string"
+              },
+              {
+                "const": "recurrence_read_unavailable",
+                "description": "The recurrence read failed after a resolution was identified.",
+                "type": "string"
+              },
+              {
+                "const": "status_snapshot_inconsistent",
+                "description": "The grouped status snapshot and its latest activity cannot be reconciled.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationRegressionResponse": {
+            "description": "Current recurrence assessment relative to the latest persisted resolution.",
+            "properties": {
+              "first_reappeared_occurrence": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationReappearedOccurrenceResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "First retained occurrence ingested after the latest resolution."
+              },
+              "reason": {
+                "$ref": "#/$defs/IssueInvestigationRegressionReason",
+                "description": "Stable reason for the assessment."
+              },
+              "resolution_changed_at": {
+                "description": "Latest resolution timestamp used as the server-owned recurrence boundary.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationRegressionStatus",
+                "description": "Whether a current regression was detected, ruled out, or unavailable."
+              }
+            },
+            "required": [
+              "status",
+              "reason",
+              "resolution_changed_at",
+              "first_reappeared_occurrence"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationRegressionStatus": {
+            "description": "Regression assessment states.",
+            "oneOf": [
+              {
+                "const": "detected",
+                "description": "A retained occurrence was ingested after the latest persisted resolution.",
+                "type": "string"
+              },
+              {
+                "const": "not_detected",
+                "description": "Available evidence does not show a current regression.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "Required lifecycle evidence could not be read or was contradictory.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationReleaseResponse": {
+            "description": "Release scope for follow-up queries and comparisons.",
+            "properties": {
+              "deployment": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationDeploymentResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Latest exact-scope deployment completed before the selected occurrence in version 8 and\nlater."
+              },
+              "deployment_causality": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationCausalityStatus"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Deployment timing is correlation evidence, never an asserted cause."
+              },
+              "deployment_status": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationAvailabilityStatus"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact completed-deployment read state in schema version 8 and later."
+              },
+              "environment": {
+                "description": "Deployment environment.",
+                "type": "string"
+              },
+              "release": {
+                "description": "Application release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "time_since_deployment_ms": {
+                "description": "Milliseconds from deployment finish to the selected occurrence in version 8 and later.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "release",
+              "environment",
+              "service_name"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationReportedImpactResponse": {
+            "description": "Bounded application-reported user impact.",
+            "properties": {
+              "affected_user_segment": {
+                "description": "Bounded segment label rather than a raw user identifier.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "failed_action": {
+                "description": "Stable failed action name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "provenance": {
+                "$ref": "#/$defs/InvestigationEvidenceProvenance",
+                "description": "Explicit unverified provenance."
+              },
+              "user_visible_outcome": {
+                "description": "Bounded user-visible outcome description.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "affected_user_segment",
+              "failed_action",
+              "user_visible_outcome",
+              "provenance"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationReproductionResponse": {
+            "description": "Readiness of the privacy-bounded reproduction evidence already present in this bundle.",
+            "properties": {
+              "baseline_occurrence_id": {
+                "description": "Exact retained occurrence that anchors this evidence.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "evidence": {
+                "$ref": "#/$defs/InvestigationEvidenceCoverageResponse",
+                "description": "Explicit receipt for trigger, expected-failure, and source evidence elsewhere in the\nbundle."
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationReproductionStatus",
+                "description": "Whether captured trigger, expected failure, and code-location evidence are all present."
+              }
+            },
+            "required": [
+              "status",
+              "baseline_occurrence_id",
+              "evidence"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationReproductionStatus": {
+            "description": "Honest sufficiency of captured evidence for building a reproducer.",
+            "oneOf": [
+              {
+                "const": "ready",
+                "description": "Trigger, expected failure, and source evidence are all captured.",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "description": "Trigger and expected-failure evidence exist, but a code location is missing.",
+                "type": "string"
+              },
+              {
+                "const": "insufficient_evidence",
+                "description": "Captured telemetry does not identify both a trigger and expected failure.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationRequestResponse": {
+            "description": "Bounded HTTP request evidence; coverage receipts distinguish omission states.",
+            "properties": {
+              "method": {
+                "description": "Normalized HTTP method.",
+                "type": "string"
+              },
+              "response_status_code": {
+                "description": "Response status observed at the capture boundary, when available.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "route_template": {
+                "description": "Parameterized route template without URL, query, fragment, or host data.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "method",
+              "route_template",
+              "response_status_code"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationResourceContextResponse": {
+            "description": "Typed resource identity shared by `LogBrew` telemetry signals.",
+            "properties": {
+              "application": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationApplicationContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Application identity."
+              },
+              "deployment": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationDeploymentContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Deployment environment and release."
+              },
+              "device": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationDeviceContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Privacy-bounded device or host class."
+              },
+              "framework": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationNamedVersionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Framework identity."
+              },
+              "operating_system": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationOperatingSystemContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Operating-system identity."
+              },
+              "runtime": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationNamedVersionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Language runtime identity."
+              },
+              "service": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationNamedVersionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Logical service identity."
+              }
+            },
+            "required": [
+              "service",
+              "deployment",
+              "runtime",
+              "framework",
+              "operating_system",
+              "device",
+              "application"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationSessionContextResponse": {
+            "description": "Opaque session correlation context.",
+            "properties": {
+              "id": {
+                "description": "Safe opaque session identifier, or null when defensive projection redacted it.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "previous_id": {
+                "description": "Safe prior session identifier, or null when absent or redacted.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "previous_id"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationSourceLocatorResponse": {
+            "description": "Repository and revision evidence that narrows a fix location to customer source.",
+            "properties": {
+              "component_path": {
+                "description": "Repository-relative selected component root.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "evidence": {
+                "$ref": "#/$defs/InvestigationEvidenceCoverageResponse",
+                "description": "Explicit completeness and omission receipt for this locator."
+              },
+              "repository_full_name": {
+                "description": "Owner-qualified repository name captured during project setup.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "repository_provider": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/RepositoryProvider"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Source-control provider for the selected project repository."
+              },
+              "repository_relative_file": {
+                "description": "Exact repository-relative file only when the captured path proves that relation.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "revision": {
+                "description": "Best available immutable provider revision.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "revision_source": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationSourceRevisionSource"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Whether the revision is deployed evidence or only the setup snapshot."
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Linkage read state; partial available evidence is explained by `evidence`."
+              }
+            },
+            "required": [
+              "status",
+              "repository_provider",
+              "repository_full_name",
+              "component_path",
+              "revision",
+              "revision_source",
+              "repository_relative_file",
+              "evidence"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationSourceRevisionSource": {
+            "description": "Provenance of the immutable revision in a source locator.",
+            "oneOf": [
+              {
+                "const": "deployment_commit",
+                "description": "Commit captured on the exact preceding deployment.",
+                "type": "string"
+              },
+              {
+                "const": "setup_snapshot",
+                "description": "Provider revision selected during project setup; not a deployment claim.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationStatusChangeResponse": {
+            "description": "One privacy-safe persisted status change.",
+            "properties": {
+              "changed_at": {
+                "description": "Server timestamp when the status changed.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Stable status-event identity for deterministic activity ordering.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationPersistedStatus",
+                "description": "Persisted state written by this event."
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "changed_at"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationSubjectContextKind": {
+            "description": "Stable subject kinds accepted by the shared telemetry context.",
+            "oneOf": [
+              {
+                "const": "anonymous",
+                "description": "Rotatable anonymous application identity.",
+                "type": "string"
+              },
+              {
+                "const": "user",
+                "description": "Opaque identified-user correlation identity.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationSubjectContextResponse": {
+            "description": "Opaque subject correlation context.",
+            "properties": {
+              "id": {
+                "description": "Safe opaque subject identifier, or null when defensive projection redacted it.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "kind": {
+                "$ref": "#/$defs/IssueInvestigationSubjectContextKind",
+                "description": "Whether the application classified the opaque subject as anonymous or identified."
+              }
+            },
+            "required": [
+              "id",
+              "kind"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationSubjectKind": {
+            "description": "Kinds supported by the issue-investigation subject contract.",
+            "oneOf": [
+              {
+                "const": "issue",
+                "description": "Grouped issue.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationSubjectResponse": {
+            "description": "Stable grouped issue identity and observed failure summary.",
+            "properties": {
+              "fingerprint": {
+                "description": "Stable issue fingerprint.",
+                "type": "string"
+              },
+              "first_seen_at": {
+                "description": "Earliest retained occurrence.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Grouped issue identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "kind": {
+                "$ref": "#/$defs/IssueInvestigationSubjectKind",
+                "description": "Stable subject kind."
+              },
+              "last_seen_at": {
+                "description": "Latest retained occurrence.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "message": {
+                "description": "Human-readable failure message.",
+                "type": "string"
+              },
+              "occurrence_count": {
+                "description": "Exact number of retained occurrences in the group.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "project_id": {
+                "description": "Owning project identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Canonical severity.",
+                "type": "string"
+              },
+              "status": {
+                "description": "Current issue state.",
+                "type": "string"
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "id",
+              "project_id",
+              "fingerprint",
+              "status",
+              "severity",
+              "title",
+              "message",
+              "occurrence_count",
+              "first_seen_at",
+              "last_seen_at"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationTraceContextResponse": {
+            "description": "Exact W3C correlation context from one occurrence.",
+            "properties": {
+              "parent_span_id": {
+                "description": "Non-zero 16-character parent span identifier when supplied.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sampled": {
+                "description": "Sampling decision when supplied.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "span_id": {
+                "description": "Non-zero 16-character span identifier when supplied.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "trace_id": {
+                "description": "Non-zero 32-character trace identifier.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "trace_id",
+              "span_id",
+              "parent_span_id",
+              "sampled"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationTraceResponse": {
+            "description": "Exact linked trace summary and availability.",
+            "properties": {
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Trace read state."
+              },
+              "summary": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/TraceSummaryResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Bounded trace summary when retained evidence was found."
+              },
+              "trace_id": {
+                "description": "Linked trace identifier when supplied by the occurrence.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "truncated": {
+                "description": "Whether more trace spans existed than this bundle analyzed.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "trace_id",
+              "summary",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationUserImpactCountMethod": {
+            "description": "Stable cardinality methods exposed by issue user impact.",
+            "oneOf": [
+              {
+                "const": "approximate_distinct",
+                "description": "Bounded distinct-user estimate over project-scoped one-way identifiers (version 13+).",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "No defensible known-user cardinality is available.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationUserImpactCoverageResponse": {
+            "description": "Exact occurrence-level subject capture coverage.",
+            "properties": {
+              "anonymous_subject_occurrences": {
+                "description": "Indexed occurrences explicitly classified as anonymous.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_occurrences": {
+                "description": "Historical occurrences that predate the subject index.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_coverage_basis_points": {
+                "description": "Identified-user share of indexed occurrences; null when the denominator is zero.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "identified_user_occurrences": {
+                "description": "Indexed occurrences carrying a privacy-screened identified-user key.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_coverage_basis_points": {
+                "description": "Indexed share of all retained occurrences, from zero through ten thousand.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "indexed_occurrences": {
+                "description": "Occurrences written by the supported subject-index contract.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_occurrences": {
+                "description": "Indexed occurrences without subject context.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "privacy_filtered_subject_occurrences": {
+                "description": "Indexed occurrences whose subject context was unsafe or malformed.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "retained_occurrences": {
+                "description": "All retained occurrences in the grouped issue.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "retained_occurrences",
+              "indexed_occurrences",
+              "historical_unindexed_occurrences",
+              "identified_user_occurrences",
+              "anonymous_subject_occurrences",
+              "missing_subject_occurrences",
+              "privacy_filtered_subject_occurrences",
+              "index_coverage_basis_points",
+              "identified_user_coverage_basis_points"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationUserImpactLimitation": {
+            "description": "Stable issue user-impact limitation codes.",
+            "oneOf": [
+              {
+                "const": "approximate_distinct_count",
+                "description": "Distinct users are estimated and must be presented with approximate wording.",
+                "type": "string"
+              },
+              {
+                "const": "historical_occurrences_unindexed",
+                "description": "Some retained occurrences predate the subject index.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subjects_excluded",
+                "description": "Anonymous subjects intentionally do not contribute to known-user cardinality.",
+                "type": "string"
+              },
+              {
+                "const": "missing_subject_context",
+                "description": "Some indexed occurrences did not carry subject context.",
+                "type": "string"
+              },
+              {
+                "const": "privacy_filtered_subject_context",
+                "description": "Some subject context was unsafe or malformed and excluded from the index.",
+                "type": "string"
+              },
+              {
+                "const": "user_impact_read_unavailable",
+                "description": "The optional aggregate could not be read or validated.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationUserImpactResponse": {
+            "description": "Privacy-safe affected-user cardinality and capture quality.",
+            "properties": {
+              "count_method": {
+                "$ref": "#/$defs/IssueInvestigationUserImpactCountMethod",
+                "description": "Cardinality method used for the known count."
+              },
+              "coverage": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationUserImpactCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact occurrence-level capture coverage; null only when the optional read is unavailable."
+              },
+              "known_affected_users": {
+                "description": "Approximate known identified-user cardinality; null when none can be supported.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "limitations": {
+                "description": "Stable deterministic quality limitations for localization and agent reasoning.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationUserImpactLimitation"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationUserImpactStatus",
+                "description": "Whether retained occurrence coverage can support a known-user estimate."
+              }
+            },
+            "required": [
+              "status",
+              "known_affected_users",
+              "count_method",
+              "coverage",
+              "limitations"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationUserImpactStatus": {
+            "description": "Truthful availability states for privacy-safe affected-user impact.",
+            "oneOf": [
+              {
+                "const": "complete",
+                "description": "Every retained occurrence has an indexed identified-user subject.",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "description": "A known-user estimate exists, but some retained occurrences cannot contribute.",
+                "type": "string"
+              },
+              {
+                "const": "not_captured",
+                "description": "The aggregate read succeeded but no identified-user subject was captured.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "The optional aggregate read failed or contradicted the grouped issue.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueBreadcrumbResponse": {
+            "description": "One privacy-bounded step that happened before an issue occurrence.",
+            "properties": {
+              "category": {
+                "description": "Required low-cardinality source category.",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "description": "At most eight flat primitive fields.",
+                "type": "object"
+              },
+              "level": {
+                "description": "Optional canonical severity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "description": "Optional bounded display-safe description.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "timestamp": {
+                "description": "When this step occurred.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "type": {
+                "description": "Optional stable breadcrumb kind.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "timestamp",
+              "category"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionMechanismResponse": {
+            "description": "Runtime path that captured an exception and whether it escaped that path.",
+            "properties": {
+              "handled": {
+                "description": "Whether the exception was handled by the capture boundary.",
+                "type": "boolean"
+              },
+              "type": {
+                "description": "Stable low-cardinality capture mechanism.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "handled"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionResponse": {
+            "description": "Structured runtime exception identity returned with issue details.",
+            "properties": {
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionMechanismResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Capture mechanism when the SDK could determine it."
+              },
+              "type": {
+                "description": "Bounded runtime exception class or error type.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "RepositoryProvider": {
+            "description": "Source-control provider supported by repository-assisted project setup.",
+            "oneOf": [
+              {
+                "const": "github",
+                "description": "GitHub repository.",
+                "type": "string"
+              },
+              {
+                "const": "gitlab",
+                "description": "GitLab project repository.",
+                "type": "string"
+              },
+              {
+                "const": "bitbucket",
+                "description": "Bitbucket repository.",
+                "type": "string"
+              }
+            ]
+          },
+          "TraceInvestigationIssueResponse": {
+            "description": "One privacy-bounded issue occurrence linked to the trace.",
+            "properties": {
+              "cause": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationCauseResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Bounded cause assessment in schema version 2."
+              },
+              "environment": {
+                "description": "Deployment environment.",
+                "type": "string"
+              },
+              "fix": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationFixResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Bounded fix assessment in schema version 2."
+              },
+              "id": {
+                "description": "Occurrence row identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "issue_id": {
+                "description": "Grouped issue identifier for deeper investigation.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "message": {
+                "description": "Bounded failure message.",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence timestamp.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "project_id": {
+                "description": "Owning project identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Application release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Canonical severity.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Exact span identifier in schema version 3 when supplied.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "issue_id",
+              "project_id",
+              "severity",
+              "title",
+              "message",
+              "occurred_at",
+              "service_name",
+              "environment",
+              "release"
+            ],
+            "type": "object"
+          },
+          "TraceServiceSummaryResponse": {
+            "description": "Per-service trace health and latency summary.",
+            "properties": {
+              "error_span_count": {
+                "description": "Number of spans with `error` status.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "max_duration_ms": {
+                "description": "Longest span duration for this service.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "span_count": {
+                "description": "Number of spans emitted by this service.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "service_name",
+              "span_count",
+              "error_span_count",
+              "max_duration_ms"
+            ],
+            "type": "object"
+          },
+          "TraceSpanSummaryResponse": {
+            "description": "Privacy-safe trace span metadata used by trace summaries.",
+            "properties": {
+              "duration_ms": {
+                "description": "Span duration in milliseconds.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "name": {
+                "description": "Human-readable span name.",
+                "type": "string"
+              },
+              "operation": {
+                "description": "Operation category.",
+                "type": "string"
+              },
+              "parent_span_id": {
+                "description": "Parent span ID when the parent was supplied.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Span ID unique within the trace.",
+                "type": "string"
+              },
+              "started_at": {
+                "description": "Span start timestamp.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "status": {
+                "description": "Span status.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "span_id",
+              "parent_span_id",
+              "name",
+              "operation",
+              "status",
+              "started_at",
+              "duration_ms",
+              "service_name"
+            ],
+            "type": "object"
+          },
+          "TraceSummaryResponse": {
+            "description": "Agent-friendly summary of one distributed trace.",
+            "properties": {
+              "duration_ms": {
+                "description": "Wall-clock duration from the earliest start to the latest span end.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "environments": {
+                "description": "Distinct environments represented by the trace.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "error_span_count": {
+                "description": "Number of spans with `error` status.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "error_spans": {
+                "description": "Longest error spans, bounded by the API.",
+                "items": {
+                  "$ref": "#/$defs/TraceSpanSummaryResponse"
+                },
+                "type": "array"
+              },
+              "project_count": {
+                "description": "Number of distinct projects represented by the trace.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "releases": {
+                "description": "Distinct releases represented by the trace.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "root_span": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/TraceSpanSummaryResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Earliest span without a known parent, or the earliest span as a fallback."
+              },
+              "service_count": {
+                "description": "Number of distinct services represented by the trace.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "services": {
+                "description": "Per-service trace health and latency summaries.",
+                "items": {
+                  "$ref": "#/$defs/TraceServiceSummaryResponse"
+                },
+                "type": "array"
+              },
+              "slowest_child_span": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/TraceSpanSummaryResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Longest non-root span, when one exists."
+              },
+              "slowest_path": {
+                "description": "Known parent chain from a root toward the slowest child span.",
+                "items": {
+                  "$ref": "#/$defs/TraceSpanSummaryResponse"
+                },
+                "type": "array"
+              },
+              "span_count": {
+                "description": "Total number of spans included in this summary.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "started_at": {
+                "description": "Earliest observed span start.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "trace_id": {
+                "description": "Distributed trace ID.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "trace_id",
+              "span_count",
+              "error_span_count",
+              "service_count",
+              "project_count",
+              "started_at",
+              "duration_ms",
+              "root_span",
+              "slowest_child_span",
+              "slowest_path",
+              "error_spans",
+              "services",
+              "releases",
+              "environments"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "One complete bounded issue investigation bundle.",
+        "properties": {
+          "cause": {
+            "$ref": "#/$defs/IssueInvestigationCauseResponse",
+            "description": "Honest root-cause assessment."
+          },
+          "correlations": {
+            "$ref": "#/$defs/IssueInvestigationCorrelationsResponse",
+            "description": "Cross-signal trace, log, action, metric, and release evidence."
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationEventResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Retained occurrence selected for detailed evidence."
+          },
+          "evidence": {
+            "$ref": "#/$defs/InvestigationEvidenceCoverageResponse",
+            "description": "Explicit evidence completeness and omission state."
+          },
+          "fix": {
+            "$ref": "#/$defs/IssueInvestigationFixResponse",
+            "description": "Best available next-fix location."
+          },
+          "grouping": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationGroupingResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Deterministic grouping strategy and safe inputs in schema version 7."
+          },
+          "impact": {
+            "$ref": "#/$defs/IssueInvestigationImpactResponse",
+            "description": "Exact observed and application-reported impact."
+          },
+          "lifecycle": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationLifecycleResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Bounded status activity and server-observed recurrence evidence in schema versions 3\nthrough 10."
+          },
+          "next_actions": {
+            "description": "Backend-generated next actions in priority order.",
+            "items": {
+              "$ref": "#/$defs/IssueInvestigationNextActionResponse"
+            },
+            "type": "array"
+          },
+          "occurrence_analysis": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceAnalysisResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact occurrence trend and bounded release, environment, service, and SDK distributions in\nschema version 4 and later."
+          },
+          "occurrence_selection": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSelectionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicit selected, first, latest, and recommended occurrence receipt in versions 2 through\n10."
+          },
+          "reproduction": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationReproductionResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reproducer readiness and explicit evidence receipt in schema version 11."
+          },
+          "schema_version": {
+            "description": "Additive response schema version.",
+            "format": "uint8",
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "source_locator": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationSourceLocatorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Repository, component, revision, and exact source path evidence in schema version 10."
+          },
+          "subject": {
+            "$ref": "#/$defs/IssueInvestigationSubjectResponse",
+            "description": "Stable grouped issue identity and observed failure summary."
+          }
+        },
+        "required": [
+          "schema_version",
+          "subject",
+          "event",
+          "cause",
+          "fix",
+          "impact",
+          "correlations",
+          "evidence",
+          "next_actions"
+        ],
+        "title": "IssueInvestigationResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.investigate.v15",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Inspect one issue, its selected occurrence, breadcrumbs with HTTP calls and route changes, reproduction and correction evidence."
+      },
+      "input_schema": {
+        "$defs": {
+          "IssueInvestigationOccurrenceSelectionMode": {
+            "description": "Named occurrence selectors accepted by schema version 2 and later.",
+            "oneOf": [
+              {
+                "const": "recommended",
+                "description": "Select the deterministic context-rich recommendation.",
+                "type": "string"
+              },
+              {
+                "const": "first",
+                "description": "Select the earliest retained occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "latest",
+                "description": "Select the latest retained occurrence.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Optional version and occurrence selector for one grouped issue investigation.",
+        "properties": {
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          },
+          "occurrence_id": {
+            "description": "Exact retained occurrence to select for schema version 2 and later.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "selection": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSelectionMode"
+              }
+            ],
+            "description": "First, latest, or recommended occurrence selection for schema version 2 and later."
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueInvestigationQueryParams",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "InvestigationAvailabilityStatus": {
+            "description": "Availability of one optional evidence source in an investigation bundle.",
+            "oneOf": [
+              {
+                "const": "available",
+                "description": "Evidence was queried and is included.",
+                "type": "string"
+              },
+              {
+                "const": "not_linked",
+                "description": "The subject did not carry the identifier required for exact correlation.",
+                "type": "string"
+              },
+              {
+                "const": "not_found",
+                "description": "An exact correlation identifier was present but no evidence was retained.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "The evidence source could not be read without failing the primary subject read.",
+                "type": "string"
+              }
+            ]
+          },
+          "InvestigationCausalityStatus": {
+            "description": "Causal confidence shared by evidence-only investigation analyses.",
+            "oneOf": [
+              {
+                "const": "evidence_only",
+                "description": "Correlated telemetry does not independently prove cause or remediation.",
+                "type": "string"
+              }
+            ]
+          },
+          "InvestigationCollectionResponse": {
+            "description": "Bounded optional evidence with an explicit read receipt.",
+            "properties": {
+              "items": {
+                "description": "Privacy-bounded evidence in the endpoint's documented order.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationLogResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Exact evidence or link availability."
+              },
+              "truncated": {
+                "description": "Whether the owning boundary omitted one or more items.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "items",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "InvestigationCollectionResponse2": {
+            "description": "Bounded optional evidence with an explicit read receipt.",
+            "properties": {
+              "items": {
+                "description": "Privacy-bounded evidence in the endpoint's documented order.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationActionResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Exact evidence or link availability."
+              },
+              "truncated": {
+                "description": "Whether the owning boundary omitted one or more items.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "items",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "InvestigationCollectionResponse3": {
+            "description": "Bounded optional evidence with an explicit read receipt.",
+            "properties": {
+              "items": {
+                "description": "Privacy-bounded evidence in the endpoint's documented order.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationMetricResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Exact evidence or link availability."
+              },
+              "truncated": {
+                "description": "Whether the owning boundary omitted one or more items.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "items",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "InvestigationCollectionResponse4": {
+            "description": "Bounded optional evidence with an explicit read receipt.",
+            "properties": {
+              "items": {
+                "description": "Privacy-bounded evidence in the endpoint's documented order.",
+                "items": {
+                  "$ref": "#/$defs/TraceInvestigationIssueResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationAvailabilityStatus",
+                "description": "Exact evidence or link availability."
+              },
+              "truncated": {
+                "description": "Whether the owning boundary omitted one or more items.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "items",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "InvestigationDeploymentResponse": {
+            "description": "One completed deployment boundary reused by investigation contracts.",
+            "properties": {
+              "commit_sha": {
+                "description": "Lowercase source commit identity when captured.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "deployment_id": {
+                "description": "Caller-owned external deployment identifier.",
+                "type": "string"
+              },
+              "environment": {
+                "description": "Exact deployment environment.",
+                "type": "string"
+              },
+              "finished_at": {
+                "description": "Inclusive deployment-attempt finish.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "release": {
+                "description": "Exact deployed release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Exact logical service.",
+                "type": "string"
+              },
+              "started_at": {
+                "description": "Inclusive deployment-attempt start.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "status": {
+                "description": "Terminal deployment result.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "deployment_id",
+              "release",
+              "environment",
+              "service_name",
+              "status",
+              "started_at",
+              "finished_at",
+              "commit_sha"
+            ],
+            "type": "object"
+          },
+          "InvestigationEvidenceCoverageResponse": {
+            "description": "Explicit captured, missing, redacted, and truncated evidence state.",
+            "properties": {
+              "captured_fields": {
+                "description": "Stable normalized field identifiers present in the bundle.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "missing_fields": {
+                "description": "Stable normalized field identifiers that were required but unavailable.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "redacted_fields": {
+                "description": "Stable normalized field identifiers intentionally withheld before ingestion.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/InvestigationEvidenceStatus",
+                "description": "Truthful aggregate status derived by the backend."
+              },
+              "truncated_fields": {
+                "description": "Stable normalized field identifiers whose bounded history is incomplete.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "status",
+              "captured_fields",
+              "missing_fields",
+              "redacted_fields",
+              "truncated_fields"
+            ],
+            "type": "object"
+          },
+          "InvestigationEvidenceProvenance": {
+            "description": "Provenance of a cause, impact, or fix assessment.",
+            "oneOf": [
+              {
+                "const": "backend_observed",
+                "description": "Directly observed and normalized by the `LogBrew` backend.",
+                "type": "string"
+              },
+              {
+                "const": "application_reported",
+                "description": "Reported by application telemetry and not independently verified by `LogBrew`.",
+                "type": "string"
+              }
+            ]
+          },
+          "InvestigationEvidenceStatus": {
+            "description": "Overall completeness of an investigation evidence bundle.",
+            "oneOf": [
+              {
+                "const": "complete",
+                "description": "All required fields for this version were captured and no omission was reported.",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "description": "One or more required fields are missing, redacted, truncated, or unavailable.",
+                "type": "string"
+              }
+            ]
+          },
+          "InvestigationSdkResponse": {
+            "description": "SDK package identity attached to retained telemetry.",
+            "properties": {
+              "name": {
+                "description": "Public SDK package name.",
+                "type": "string"
+              },
+              "version": {
+                "description": "Public SDK semantic version.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "version"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationActionResponse": {
+            "description": "One privacy-safe action correlated by exact trace identity.",
+            "properties": {
+              "id": {
+                "description": "Action row identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "name": {
+                "description": "Stable action name.",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence time.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "occurred_at",
+              "service_name"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationApplicationContextResponse": {
+            "description": "Application identity attached by the SDK or application.",
+            "properties": {
+              "build": {
+                "description": "Application build identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Application name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "version": {
+                "description": "Application version.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "version",
+              "build"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationCauseResponse": {
+            "description": "Root-cause assessment without presenting telemetry as verified fact.",
+            "properties": {
+              "provenance": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationEvidenceProvenance"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Provenance of the summary."
+              },
+              "signals": {
+                "description": "Backend-observed signals that support further investigation.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationCauseSignal"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationCauseStatus",
+                "description": "Strength of the available cause assessment."
+              },
+              "summary": {
+                "description": "Bounded application-reported hypothesis when present.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "summary",
+              "provenance",
+              "signals"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationCauseSignal": {
+            "description": "Stable causal evidence codes.",
+            "oneOf": [
+              {
+                "const": "reported_root_cause",
+                "description": "Application telemetry supplied a root-cause hypothesis.",
+                "type": "string"
+              },
+              {
+                "const": "unhandled_exception",
+                "description": "The exception escaped its capture boundary.",
+                "type": "string"
+              },
+              {
+                "const": "handled_exception",
+                "description": "The exception was handled by its capture boundary.",
+                "type": "string"
+              },
+              {
+                "const": "runtime_exception_chain",
+                "description": "The runtime reported at least one explicit underlying exception relationship.",
+                "type": "string"
+              },
+              {
+                "const": "error_trace_span",
+                "description": "At least one correlated trace span has error status.",
+                "type": "string"
+              },
+              {
+                "const": "error_log",
+                "description": "At least one correlated log has error or critical severity.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationCauseStatus": {
+            "description": "Truthful states for a likely-cause assessment.",
+            "oneOf": [
+              {
+                "const": "reported_hypothesis",
+                "description": "The application supplied a hypothesis; `LogBrew` has not independently verified it.",
+                "type": "string"
+              },
+              {
+                "const": "evidence_only",
+                "description": "Observable failure signals exist, but they do not prove a root cause.",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "description": "No safe causal signal was available.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationCodeLocationResponse": {
+            "description": "Normalized privacy-safe code location.",
+            "properties": {
+              "column": {
+                "description": "One-based source column.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "component": {
+                "description": "Low-cardinality component identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "file": {
+                "description": "Basename or safe relative source path.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "function": {
+                "description": "Function or method identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "in_app": {
+                "description": "SDK application-code classification.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "line": {
+                "description": "One-based source line.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "module": {
+                "description": "Module, namespace, package, or crate identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source_exception_id": {
+                "description": "Version-5 exception node that supplied this location.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "component",
+              "module",
+              "function",
+              "file",
+              "line",
+              "column",
+              "in_app"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationContextResponse": {
+            "description": "Versioned privacy-bounded resource and correlation context for one occurrence.",
+            "properties": {
+              "resource": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationResourceContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Service, deployment, runtime, framework, OS, device, and app identity."
+              },
+              "schema_version": {
+                "description": "Shared telemetry-context schema version.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "session": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationSessionContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Opaque application session identity."
+              },
+              "subject": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationSubjectContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Opaque application subject identity and kind."
+              },
+              "tags": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "Bounded low-cardinality dimensions in deterministic key order.",
+                "type": "object"
+              },
+              "trace": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationTraceContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact W3C correlation identifiers supplied by the occurrence."
+              }
+            },
+            "required": [
+              "schema_version",
+              "resource",
+              "trace",
+              "session",
+              "subject",
+              "tags"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationCorrelationsResponse": {
+            "description": "Correlated trace, logs, actions, metric exemplars, and release identity.",
+            "properties": {
+              "actions": {
+                "$ref": "#/$defs/InvestigationCollectionResponse2",
+                "description": "Bounded privacy-safe product actions from the exact linked trace."
+              },
+              "logs": {
+                "$ref": "#/$defs/InvestigationCollectionResponse",
+                "description": "Bounded adjacent log evidence."
+              },
+              "metrics": {
+                "$ref": "#/$defs/InvestigationCollectionResponse3",
+                "description": "Bounded privacy-safe metric exemplars from the exact linked trace."
+              },
+              "related_issues": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationCollectionResponse4"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Bounded sibling issues from the exact linked trace in schema version 9 and later."
+              },
+              "release": {
+                "$ref": "#/$defs/IssueInvestigationReleaseResponse",
+                "description": "Exact release scope shared by the subject and correlation reads."
+              },
+              "trace": {
+                "$ref": "#/$defs/IssueInvestigationTraceResponse",
+                "description": "Exact distributed-trace evidence."
+              }
+            },
+            "required": [
+              "trace",
+              "logs",
+              "actions",
+              "metrics",
+              "release"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationDeploymentContextResponse": {
+            "description": "Deployment identity carried by the selected event.",
+            "properties": {
+              "environment": {
+                "description": "Deployment environment.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "release": {
+                "description": "Application release.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "environment",
+              "release"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationDeviceContextResponse": {
+            "description": "Privacy-bounded device or host class without a unique identifier.",
+            "properties": {
+              "architecture": {
+                "description": "CPU architecture.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "family": {
+                "description": "Broad device family.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "model": {
+                "description": "Bounded model or runtime host class.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "family",
+              "model",
+              "architecture"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationEffectiveStatus": {
+            "description": "Effective current issue states after recurrence evaluation.",
+            "oneOf": [
+              {
+                "const": "unresolved",
+                "description": "New or explicitly reopened issue.",
+                "type": "string"
+              },
+              {
+                "const": "resolved",
+                "description": "Resolved with no newer server-observed occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "ignored",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
+                "type": "string"
+              },
+              {
+                "const": "regressed",
+                "description": "Persisted as resolved but observed again after that resolution.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationEventResponse": {
+            "description": "Detailed evidence from the selected issue occurrence.",
+            "properties": {
+              "breadcrumbs": {
+                "description": "Oldest-to-newest bounded breadcrumb timeline. In schema version 14 and later, each\nbreadcrumb's `data` has exactly the nullable fields `method`, `url` (no query or\nfragment), `status_code`, `from`, `to`, and `logger`.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueBreadcrumbResponse"
+                },
+                "type": "array"
+              },
+              "breadcrumbs_truncated": {
+                "description": "Whether earlier or invalid breadcrumb history was omitted.",
+                "type": "boolean"
+              },
+              "context": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationContextResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Strict shared telemetry context projected from the selected occurrence."
+              },
+              "exception": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Typed exception identity when available."
+              },
+              "exception_chain": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationExceptionChainResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Parent-first exception tree in schema version 5 and later."
+              },
+              "id": {
+                "description": "Occurrence identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence time.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "request": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationRequestResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Bounded request evidence in schema version 6."
+              },
+              "sdk": {
+                "$ref": "#/$defs/InvestigationSdkResponse",
+                "description": "SDK identity that captured the occurrence."
+              },
+              "stack_frames": {
+                "description": "Newest-first privacy-safe code frames.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationFrameResponse"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "id",
+              "occurred_at",
+              "sdk",
+              "context",
+              "exception",
+              "stack_frames",
+              "breadcrumbs",
+              "breadcrumbs_truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationExceptionChainEntryResponse": {
+            "description": "One parent-first runtime exception node.",
+            "properties": {
+              "id": {
+                "description": "Contiguous zero-based node identifier.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionMechanismResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Runtime capture path and handled state when available."
+              },
+              "message": {
+                "description": "Bounded privacy-safe message when captured.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message_state": {
+                "$ref": "#/$defs/IssueInvestigationExceptionMessageState",
+                "description": "Exact capture, truncation, redaction, or absence state for the message."
+              },
+              "module": {
+                "description": "Bounded module, namespace, package, or crate identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "parent_id": {
+                "description": "Earlier parent node, or null for the reported exception.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "relationship": {
+                "$ref": "#/$defs/IssueInvestigationExceptionRelationship",
+                "description": "How this node relates to its parent."
+              },
+              "stack_frames": {
+                "description": "Newest-first privacy-safe frames for this exact exception.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationFrameResponse"
+                },
+                "type": "array"
+              },
+              "stack_frames_state": {
+                "$ref": "#/$defs/IssueInvestigationExceptionStackFramesState",
+                "description": "Exact capture, truncation, or absence state for this exception stack."
+              },
+              "type": {
+                "description": "Bounded runtime exception class or error type.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "parent_id",
+              "relationship",
+              "type",
+              "message",
+              "message_state",
+              "module",
+              "mechanism",
+              "stack_frames",
+              "stack_frames_state"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationExceptionChainResponse": {
+            "description": "Bounded runtime exception tree with explicit capture validity and omission state.",
+            "properties": {
+              "entries": {
+                "description": "Parent-first exception nodes. Empty unless status is `captured`.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationExceptionChainEntryResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationExceptionChainStatus",
+                "description": "Whether the SDK field was captured, absent, or rejected by defensive projection."
+              },
+              "truncated": {
+                "description": "Whether the SDK omitted additional nodes or the backend rejected part of the tree.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "entries",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationExceptionChainStatus": {
+            "description": "Capture status of one version-5 runtime exception tree.",
+            "oneOf": [
+              {
+                "const": "captured",
+                "description": "The complete returned shape passed defensive projection.",
+                "type": "string"
+              },
+              {
+                "const": "not_captured",
+                "description": "The retained occurrence did not contain this additive SDK field.",
+                "type": "string"
+              },
+              {
+                "const": "invalid",
+                "description": "The SDK field existed but contradicted the bounded public contract.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationExceptionMessageState": {
+            "description": "Message evidence states carried by one exception node.",
+            "oneOf": [
+              {
+                "const": "captured",
+                "description": "Complete bounded message captured.",
+                "type": "string"
+              },
+              {
+                "const": "truncated",
+                "description": "A bounded prefix was captured and additional text was omitted.",
+                "type": "string"
+              },
+              {
+                "const": "redacted",
+                "description": "The SDK intentionally withheld the message.",
+                "type": "string"
+              },
+              {
+                "const": "not_captured",
+                "description": "The runtime or SDK did not capture a message.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationExceptionRelationship": {
+            "description": "Supported parent-to-child runtime exception relationships.",
+            "oneOf": [
+              {
+                "const": "reported",
+                "description": "Parentless exception reported to the capture boundary.",
+                "type": "string"
+              },
+              {
+                "const": "cause",
+                "description": "Explicit underlying cause.",
+                "type": "string"
+              },
+              {
+                "const": "context",
+                "description": "Implicit exception raised while another exception was handled.",
+                "type": "string"
+              },
+              {
+                "const": "aggregate_member",
+                "description": "Member of an aggregate or exception group.",
+                "type": "string"
+              },
+              {
+                "const": "suppressed",
+                "description": "Runtime-suppressed exception attached to its parent.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationExceptionStackFramesState": {
+            "description": "Stack evidence states carried by one exception node.",
+            "oneOf": [
+              {
+                "const": "captured",
+                "description": "Complete bounded stack captured.",
+                "type": "string"
+              },
+              {
+                "const": "truncated",
+                "description": "Frames were omitted by the SDK cap.",
+                "type": "string"
+              },
+              {
+                "const": "not_captured",
+                "description": "The runtime or SDK did not capture a structured stack.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationFixResponse": {
+            "description": "Best available next-fix location.",
+            "properties": {
+              "location": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationCodeLocationResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Normalized code location when available."
+              },
+              "provenance": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/InvestigationEvidenceProvenance"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Provenance of the location."
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationFixStatus",
+                "description": "Strength and source of the location."
+              }
+            },
+            "required": [
+              "status",
+              "location",
+              "provenance"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationFixStatus": {
+            "description": "Truthful states for a likely-fix location.",
+            "oneOf": [
+              {
+                "const": "reported_location",
+                "description": "Application telemetry supplied the location as a likely fix area.",
+                "type": "string"
+              },
+              {
+                "const": "observed_application_frame",
+                "description": "`LogBrew` observed an application-owned frame.",
+                "type": "string"
+              },
+              {
+                "const": "observed_frame",
+                "description": "`LogBrew` observed a frame but cannot prove application ownership.",
+                "type": "string"
+              },
+              {
+                "const": "observed_underlying_exception_frame",
+                "description": "`LogBrew` observed the location on an underlying runtime exception.",
+                "type": "string"
+              },
+              {
+                "const": "unknown",
+                "description": "No safe code location was available.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationFrameResponse": {
+            "description": "One normalized privacy-safe code frame.",
+            "properties": {
+              "column": {
+                "description": "One-based source column.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "file": {
+                "description": "Basename or safe relative source path.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "function": {
+                "description": "Function or method identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "in_app": {
+                "description": "SDK application-code classification.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "index": {
+                "description": "Zero-based frame index in SDK order.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "line": {
+                "description": "One-based source line.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "module": {
+                "description": "Module, namespace, package, or crate identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "$ref": "#/$defs/IssueInvestigationFrameSource",
+                "description": "Whether the location was captured or symbolicated."
+              }
+            },
+            "required": [
+              "index",
+              "module",
+              "function",
+              "file",
+              "line",
+              "column",
+              "in_app",
+              "source"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationFrameSource": {
+            "description": "Provenance of one normalized code frame.",
+            "oneOf": [
+              {
+                "const": "captured",
+                "description": "Captured directly by an SDK.",
+                "type": "string"
+              },
+              {
+                "const": "symbolicated",
+                "description": "Resolved from an exact release artifact.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationGroupingComponent": {
+            "description": "Safe input classes used by one grouping strategy.",
+            "oneOf": [
+              {
+                "const": "sdk_fingerprint",
+                "description": "Opaque SDK-provided grouping fingerprint already present on the subject.",
+                "type": "string"
+              },
+              {
+                "const": "exception_type_or_title",
+                "description": "Runtime exception type, falling back to the issue title.",
+                "type": "string"
+              },
+              {
+                "const": "title",
+                "description": "Issue title.",
+                "type": "string"
+              },
+              {
+                "const": "message",
+                "description": "Issue message.",
+                "type": "string"
+              },
+              {
+                "const": "frame_module",
+                "description": "Frame module or namespace.",
+                "type": "string"
+              },
+              {
+                "const": "frame_function",
+                "description": "Frame function or method.",
+                "type": "string"
+              },
+              {
+                "const": "frame_filename",
+                "description": "Frame filename.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationGroupingResponse": {
+            "description": "Why the selected occurrence belongs to this issue group.",
+            "properties": {
+              "components": {
+                "description": "Safe field classes used by that strategy; values remain in their existing evidence fields.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationGroupingComponent"
+                },
+                "type": "array"
+              },
+              "stack": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationGroupingStackResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Default-stack bounds when stack identity participated in grouping."
+              },
+              "strategy": {
+                "$ref": "#/$defs/IssueInvestigationGroupingStrategy",
+                "description": "Proven grouping strategy, or an explicit historical/custom fallback."
+              }
+            },
+            "required": [
+              "strategy",
+              "components",
+              "stack"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationGroupingStackResponse": {
+            "description": "Exact default-stack grouping bound for the selected occurrence.",
+            "properties": {
+              "additional_frames_ignored": {
+                "description": "Whether additional captured frames were intentionally excluded.",
+                "type": "boolean"
+              },
+              "considered_frame_count": {
+                "description": "Captured frames included in the grouping digest.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "frame_limit": {
+                "description": "Stable maximum captured frames included in the grouping digest.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "considered_frame_count",
+              "frame_limit",
+              "additional_frames_ignored"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationGroupingStrategy": {
+            "description": "Grouping strategies distinguish SDK overrides from `LogBrew`'s deterministic defaults.",
+            "oneOf": [
+              {
+                "const": "sdk_fingerprint",
+                "description": "The retained SDK fingerprint exactly matches the grouped fingerprint.",
+                "type": "string"
+              },
+              {
+                "const": "default_exception_stack_v1",
+                "description": "Default exception type/title plus the first bounded stack frames.",
+                "type": "string"
+              },
+              {
+                "const": "default_exception_title_message_v1",
+                "description": "Default exception type/title plus title and message when no frames exist.",
+                "type": "string"
+              },
+              {
+                "const": "custom_or_legacy",
+                "description": "The retained group predates or does not expose enough evidence to prove its custom rule.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationImpactResponse": {
+            "description": "Exact retained counts plus optional application-reported impact.",
+            "properties": {
+              "affected_users": {
+                "description": "Backward-compatible approximate affected-user count, populated only with complete capture.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "first_seen_at": {
+                "description": "Earliest retained occurrence.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "last_seen_at": {
+                "description": "Latest retained occurrence.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "occurrence_count": {
+                "description": "Exact number of retained occurrences.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "reported": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationReportedImpactResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Application-reported impact context, explicitly unverified."
+              },
+              "user_impact": {
+                "$ref": "#/$defs/IssueInvestigationUserImpactResponse",
+                "description": "Privacy-safe affected-user cardinality with explicit coverage and limitations."
+              }
+            },
+            "required": [
+              "occurrence_count",
+              "first_seen_at",
+              "last_seen_at",
+              "affected_users",
+              "user_impact",
+              "reported"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationLifecycleActivityResponse": {
+            "description": "Newest-first bounded status activity.",
+            "properties": {
+              "changes": {
+                "description": "Newest-first bounded status changes; actor identity is intentionally excluded.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationStatusChangeResponse"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationLifecycleActivityStatus",
+                "description": "Whether persisted status activity was readable."
+              },
+              "truncated": {
+                "description": "Whether older status changes were outside the response window.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "status",
+              "changes",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationLifecycleActivityStatus": {
+            "description": "Availability of bounded status activity.",
+            "oneOf": [
+              {
+                "const": "available",
+                "description": "The status history read succeeded, including a truthful empty result.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "The optional status history could not be read.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationLifecycleResponse": {
+            "description": "Bounded issue lifecycle and current regression assessment.",
+            "properties": {
+              "activity": {
+                "$ref": "#/$defs/IssueInvestigationLifecycleActivityResponse",
+                "description": "Newest-first persisted status activity."
+              },
+              "effective_status": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationEffectiveStatus"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Effective current state after bounded recurrence evaluation, or unknown when unavailable."
+              },
+              "persisted_status": {
+                "$ref": "#/$defs/IssueInvestigationPersistedStatus",
+                "description": "Last persisted status read with the grouped issue snapshot."
+              },
+              "regression": {
+                "$ref": "#/$defs/IssueInvestigationRegressionResponse",
+                "description": "Current regression assessment relative to the latest persisted resolution."
+              }
+            },
+            "required": [
+              "persisted_status",
+              "effective_status",
+              "activity",
+              "regression"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationLogResponse": {
+            "description": "One bounded related log item.",
+            "properties": {
+              "id": {
+                "description": "Log row identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "message": {
+                "description": "Log message.",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence time.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Canonical severity.",
+                "type": "string"
+              },
+              "source": {
+                "description": "Log source.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Exact span identifier when available.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "severity",
+              "source",
+              "message",
+              "occurred_at",
+              "service_name",
+              "span_id"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationMetricResponse": {
+            "description": "One privacy-safe metric exemplar correlated by exact trace identity.",
+            "properties": {
+              "id": {
+                "description": "Metric row identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "kind": {
+                "description": "Metric aggregation kind.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Stable metric name.",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence time.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "temporality": {
+                "description": "Optional aggregation temporality.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "unit": {
+                "description": "Optional metric unit.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "value": {
+                "description": "Observed exemplar value; this is evidence, not an inferred anomaly or cause.",
+                "format": "double",
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "kind",
+              "value",
+              "unit",
+              "temporality",
+              "occurred_at",
+              "service_name"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationNamedVersionResponse": {
+            "description": "Bounded name and optional version pair.",
+            "properties": {
+              "name": {
+                "description": "Stable product, runtime, framework, or service name.",
+                "type": "string"
+              },
+              "version": {
+                "description": "Optional version identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "version"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationNextActionCode": {
+            "description": "Stable next-action codes for issue investigation.",
+            "oneOf": [
+              {
+                "const": "inspect_code_location",
+                "description": "Inspect the likely fix location in source control.",
+                "type": "string"
+              },
+              {
+                "const": "inspect_trace",
+                "description": "Inspect the linked trace summary and waterfall.",
+                "type": "string"
+              },
+              {
+                "const": "review_related_logs",
+                "description": "Review related logs in causal order.",
+                "type": "string"
+              },
+              {
+                "const": "review_related_actions",
+                "description": "Review related product actions in causal order.",
+                "type": "string"
+              },
+              {
+                "const": "review_related_metrics",
+                "description": "Review related metric exemplars without assuming they prove a cause.",
+                "type": "string"
+              },
+              {
+                "const": "compare_release",
+                "description": "Compare this release with adjacent releases.",
+                "type": "string"
+              },
+              {
+                "const": "verify_correction",
+                "description": "Verify a candidate deployment against the exact captured baseline.",
+                "type": "string"
+              },
+              {
+                "const": "improve_capture",
+                "description": "Improve SDK capture for explicitly missing evidence.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationNextActionReason": {
+            "description": "Stable reason codes for issue investigation actions.",
+            "oneOf": [
+              {
+                "const": "likely_fix_location_available",
+                "description": "A likely fix location is available.",
+                "type": "string"
+              },
+              {
+                "const": "linked_trace_available",
+                "description": "A linked trace is available.",
+                "type": "string"
+              },
+              {
+                "const": "related_logs_available",
+                "description": "Related logs are available.",
+                "type": "string"
+              },
+              {
+                "const": "related_actions_available",
+                "description": "Related product actions are available.",
+                "type": "string"
+              },
+              {
+                "const": "related_metrics_available",
+                "description": "Related metric exemplars are available.",
+                "type": "string"
+              },
+              {
+                "const": "release_identity_available",
+                "description": "Exact release identity is available.",
+                "type": "string"
+              },
+              {
+                "const": "reproduction_ready",
+                "description": "Captured trigger, expected failure, and source evidence make a reproducer ready.",
+                "type": "string"
+              },
+              {
+                "const": "evidence_incomplete",
+                "description": "Evidence completeness is partial.",
+                "type": "string"
+              },
+              {
+                "const": "regression_detected",
+                "description": "A persisted resolution was followed by a newly ingested occurrence.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationNextActionResponse": {
+            "description": "One backend-generated next investigation action.",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/IssueInvestigationNextActionCode",
+                "description": "Stable action code."
+              },
+              "priority": {
+                "description": "One-based priority.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "reason": {
+                "$ref": "#/$defs/IssueInvestigationNextActionReason",
+                "description": "Stable reason for recommending the action."
+              },
+              "target": {
+                "$ref": "#/$defs/IssueInvestigationNextActionTarget",
+                "description": "Stable action target."
+              }
+            },
+            "required": [
+              "priority",
+              "code",
+              "target",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationNextActionTarget": {
+            "description": "Stable next-action targets for issue investigation.",
+            "oneOf": [
+              {
+                "const": "source_code",
+                "description": "Application source code or linked repository.",
+                "type": "string"
+              },
+              {
+                "const": "trace_summary",
+                "description": "Trace summary endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_logs",
+                "description": "Native telemetry log reads.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_actions",
+                "description": "Native telemetry action reads.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_metrics",
+                "description": "SDK metric reads.",
+                "type": "string"
+              },
+              {
+                "const": "release_summary",
+                "description": "Release summary reads.",
+                "type": "string"
+              },
+              {
+                "const": "issue_correction_verification",
+                "description": "Evidence-only issue correction verification.",
+                "type": "string"
+              },
+              {
+                "const": "sdk_configuration",
+                "description": "SDK configuration and capture contract.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceAnalysisCoverageResponse": {
+            "description": "Exact coverage and hard response limits for occurrence analysis.",
+            "properties": {
+              "available_distribution_count": {
+                "description": "Supported distributions that were available and self-consistent.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "expected_distribution_count": {
+                "description": "Stable number of supported distributions evaluated by this schema.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "max_buckets": {
+                "description": "Maximum fixed UTC buckets returned by the trend.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "max_values_per_dimension": {
+                "description": "Maximum named values returned for each distribution.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "retained_occurrences": {
+                "description": "Retained occurrences in the authorized grouped issue snapshot.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "trend_occurrences": {
+                "description": "Occurrences represented by the trend, or null when that read was unavailable.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "retained_occurrences",
+              "trend_occurrences",
+              "available_distribution_count",
+              "expected_distribution_count",
+              "max_buckets",
+              "max_values_per_dimension"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceAnalysisLimitation": {
+            "description": "Stable reasons schema-version-4 occurrence analysis is incomplete.",
+            "oneOf": [
+              {
+                "const": "trend_read_unavailable",
+                "description": "The bounded occurrence-trend read failed or contradicted the grouped snapshot.",
+                "type": "string"
+              },
+              {
+                "const": "release_distribution_unavailable",
+                "description": "The release distribution failed or contradicted the grouped snapshot.",
+                "type": "string"
+              },
+              {
+                "const": "environment_distribution_unavailable",
+                "description": "The environment distribution failed or contradicted the grouped snapshot.",
+                "type": "string"
+              },
+              {
+                "const": "service_distribution_unavailable",
+                "description": "The service distribution failed or contradicted the grouped snapshot.",
+                "type": "string"
+              },
+              {
+                "const": "sdk_distribution_unavailable",
+                "description": "The SDK name-and-version distribution failed or contradicted the grouped snapshot.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceAnalysisResponse": {
+            "description": "Exact retained occurrence volume and bounded low-cardinality distributions.",
+            "properties": {
+              "coverage": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceAnalysisCoverageResponse",
+                "description": "Exact grouped-snapshot and response-bound receipt."
+              },
+              "distributions": {
+                "description": "Available distributions in stable dimension order.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationOccurrenceDistributionResponse"
+                },
+                "type": "array"
+              },
+              "limitations": {
+                "description": "Stable limitations derived from unavailable analysis reads.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationOccurrenceAnalysisLimitation"
+                },
+                "type": "array"
+              },
+              "status": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceAnalysisStatus",
+                "description": "Whether every analysis component was available, some were available, or none were usable."
+              },
+              "trend": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueInvestigationOccurrenceTrendResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Zero-filled fixed UTC trend when the optional aggregate read was usable."
+              }
+            },
+            "required": [
+              "status",
+              "coverage",
+              "trend",
+              "distributions",
+              "limitations"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceAnalysisStatus": {
+            "description": "Overall availability of schema-version-4 occurrence analysis.",
+            "oneOf": [
+              {
+                "const": "complete",
+                "description": "Trend and all four supported distributions are available and self-consistent.",
+                "type": "string"
+              },
+              {
+                "const": "partial",
+                "description": "At least one component is available and at least one is unavailable.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "No occurrence-analysis component could be used safely.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceBreadcrumbSummaryResponse": {
+            "description": "Bounded breadcrumb coverage for one occurrence summary.",
+            "properties": {
+              "count": {
+                "description": "Number of bounded breadcrumbs available for comparison.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "truncated": {
+                "description": "Whether earlier or invalid breadcrumbs were omitted.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "count",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceDistributionDimension": {
+            "description": "Supported low-cardinality occurrence distribution dimensions.",
+            "oneOf": [
+              {
+                "const": "release",
+                "description": "Application release captured for each occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "environment",
+                "description": "Deployment environment captured for each occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "service",
+                "description": "Logical service captured for each occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "sdk",
+                "description": "SDK package name and version captured for each occurrence.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceDistributionResponse": {
+            "description": "One exact distribution with a bounded named-value projection and explicit remainder.",
+            "properties": {
+              "dimension": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceDistributionDimension",
+                "description": "Stable occurrence field grouped by this distribution."
+              },
+              "distinct_value_count": {
+                "description": "Exact number of distinct full values observed for the dimension.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "other_occurrence_count": {
+                "description": "Exact occurrences represented by values outside the bounded named projection.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "values": {
+                "description": "Highest-volume values in deterministic order.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationOccurrenceDistributionValueResponse"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "dimension",
+              "distinct_value_count",
+              "values",
+              "other_occurrence_count"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceDistributionValueResponse": {
+            "description": "One named value in a bounded occurrence distribution.",
+            "properties": {
+              "occurrence_count": {
+                "description": "Exact retained occurrences carrying this full value.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "share_basis_points": {
+                "description": "Truncated occurrence share from zero through ten thousand basis points.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "value": {
+                "description": "Exact release, environment, service, or SDK package name.",
+                "type": "string"
+              },
+              "version": {
+                "description": "Exact SDK package version; null for every non-SDK dimension.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "value",
+              "version",
+              "occurrence_count",
+              "share_basis_points"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceRecommendationResponse": {
+            "description": "Bounded recommendation algorithm and coverage receipt.",
+            "properties": {
+              "algorithm_version": {
+                "description": "Stable algorithm version for deterministic consumer validation.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "candidate_count": {
+                "description": "Number of newest retained occurrences evaluated.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "candidate_limit": {
+                "description": "Maximum newest retained occurrences the algorithm may evaluate.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "candidate_window_truncated": {
+                "description": "Whether older retained occurrences were outside the recommendation window.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "algorithm_version",
+              "candidate_count",
+              "candidate_limit",
+              "candidate_window_truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceSelectionReason": {
+            "description": "Stable reason for one occurrence-selection decision.",
+            "oneOf": [
+              {
+                "const": "only_retained_occurrence",
+                "description": "The only retained occurrence is necessarily every boundary and recommendation.",
+                "type": "string"
+              },
+              {
+                "const": "context_rich_recent_occurrence",
+                "description": "The recommendation had the strongest bounded investigative evidence, with recency as\ntie-breaker.",
+                "type": "string"
+              },
+              {
+                "const": "latest_occurrence_fallback",
+                "description": "No candidate carried stronger investigative evidence, so the latest occurrence was selected.",
+                "type": "string"
+              },
+              {
+                "const": "first_occurrence_requested",
+                "description": "The caller explicitly requested the earliest retained occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "latest_occurrence_requested",
+                "description": "The caller explicitly requested the latest retained occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "exact_occurrence_requested",
+                "description": "The caller explicitly requested one exact retained occurrence identifier.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceSelectionResponse": {
+            "description": "Deterministic occurrence-selection receipt for humans and software agents.",
+            "properties": {
+              "first": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSummaryResponse",
+                "description": "Earliest retained occurrence in the grouped issue snapshot."
+              },
+              "latest": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSummaryResponse",
+                "description": "Latest retained occurrence in the grouped issue snapshot."
+              },
+              "reason": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSelectionReason",
+                "description": "Stable reason the selected event was chosen."
+              },
+              "recommendation": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceRecommendationResponse",
+                "description": "Recommendation algorithm and candidate-window coverage."
+              },
+              "recommended": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSummaryResponse",
+                "description": "Deterministic recommendation from the bounded newest retained candidate window."
+              },
+              "requested": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSelectionSource",
+                "description": "Selector that produced the detailed event."
+              },
+              "selected": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceSummaryResponse",
+                "description": "Exact occurrence used for detailed evidence and cross-signal correlation."
+              }
+            },
+            "required": [
+              "requested",
+              "reason",
+              "selected",
+              "first",
+              "latest",
+              "recommended",
+              "recommendation"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceSelectionSource": {
+            "description": "Selector that produced one version-2 or version-3 detailed occurrence.",
+            "oneOf": [
+              {
+                "const": "recommended",
+                "description": "Backend-selected context-rich recent occurrence.",
+                "type": "string"
+              },
+              {
+                "const": "first",
+                "description": "Earliest retained occurrence requested by the caller.",
+                "type": "string"
+              },
+              {
+                "const": "latest",
+                "description": "Latest retained occurrence requested by the caller.",
+                "type": "string"
+              },
+              {
+                "const": "exact",
+                "description": "Exact retained occurrence identifier requested by the caller.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueInvestigationOccurrenceStackSummaryResponse": {
+            "description": "Bounded structured-stack coverage for one occurrence summary.",
+            "properties": {
+              "frame_count": {
+                "description": "Number of valid bounded structured frames available for comparison.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "truncated": {
+                "description": "Whether structured frames were invalid or exceeded the response cap.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "frame_count",
+              "truncated"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceSummaryResponse": {
+            "description": "Privacy-safe summary used to compare occurrence boundaries and recommendations.",
+            "properties": {
+              "breadcrumbs": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceBreadcrumbSummaryResponse",
+                "description": "Bounded breadcrumb availability and truncation."
+              },
+              "context_captured": {
+                "description": "Whether privacy-bounded typed resource, trace, session, subject, or tag context exists.",
+                "type": "boolean"
+              },
+              "environment": {
+                "description": "Exact deployment environment captured for this occurrence.",
+                "type": "string"
+              },
+              "exception_type": {
+                "description": "Bounded exception type when typed exception evidence exists.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "id": {
+                "description": "Stable retained occurrence identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "occurred_at": {
+                "description": "Client occurrence time.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "release": {
+                "description": "Exact release captured for this occurrence.",
+                "type": "string"
+              },
+              "sdk": {
+                "$ref": "#/$defs/InvestigationSdkResponse",
+                "description": "SDK identity that captured this occurrence."
+              },
+              "service_name": {
+                "description": "Exact logical service captured for this occurrence.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Canonical severity captured for this occurrence.",
+                "type": "string"
+              },
+              "stack": {
+                "$ref": "#/$defs/IssueInvestigationOccurrenceStackSummaryResponse",
+                "description": "Bounded structured-stack availability and truncation."
+              },
+              "trace_linked": {
+                "description": "Whether any exact distributed-trace identifier was captured.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "occurred_at",
+              "severity",
+              "environment",
+              "release",
+              "service_name",
+              "sdk",
+              "exception_type",
+              "trace_linked",
+              "stack",
+              "breadcrumbs",
+              "context_captured"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceTrendBucketResponse": {
+            "description": "One fixed UTC issue occurrence bucket.",
+            "properties": {
+              "bucket_end": {
+                "description": "Exclusive UTC bucket end.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "bucket_start": {
+                "description": "Inclusive UTC bucket start.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "occurrence_count": {
+                "description": "Exact retained occurrences inside the grouped issue scope and bucket.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "bucket_start",
+              "bucket_end",
+              "occurrence_count"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOccurrenceTrendResponse": {
+            "description": "One exact zero-filled fixed UTC occurrence trend.",
+            "properties": {
+              "buckets": {
+                "description": "Ordered fixed UTC buckets, including zero-count gaps.",
+                "items": {
+                  "$ref": "#/$defs/IssueInvestigationOccurrenceTrendBucketResponse"
+                },
+                "type": "array"
+              },
+              "interval_seconds": {
+                "description": "Fixed UTC bucket width selected to honor the response cap.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "scope_end": {
+                "description": "Exact grouped issue upper occurrence bound included by the aggregate.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "scope_start": {
+                "description": "Exact grouped issue lower occurrence bound included by the aggregate.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "scope_start",
+              "scope_end",
+              "interval_seconds",
+              "buckets"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationOperatingSystemContextResponse": {
+            "description": "Operating-system identity without host name or unique device identifiers.",
+            "properties": {
+              "build": {
+                "description": "Optional bounded build identity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Operating-system family or distribution.",
+                "type": "string"
+              },
+              "version": {
+                "description": "Optional user-space version.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "version",
+              "build"
+            ],
+            "type": "object"
+          },
+          "IssueInvestigationPersistedStatus": {
+            "description": "Persisted issue states accepted by status mutations.",
+            "oneOf": [
+              {
+                "const": "unresolved",
+                "description": "New or explicitly reopened issue.",
+                "type": "string"
+              },
+              {
+                "const": "resolved",
+                "description": "Issue explicitly marked resolved.",
+                "type": "string"
+              },
+              {
+                "const": "ignored",
+                "description": "Archived issue, in versions 1 through 14.",
+                "type": "string"
+              },
+              {
+                "const": "archived",
+                "description": "Archived issue, in version 15 and later.",
                 "type": "string"
               }
             ]
@@ -23957,6 +27871,827 @@
       }
     },
     {
+      "id": "issues.list.v5",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find grouped issues like issues.list.v4, with the condition that reopens each archived issue: escalating, a time, or a number of new events or users."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Query parameters for issue listing.",
+        "properties": {
+          "assignee": {
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
+            "type": "string"
+          },
+          "cursor_id": {
+            "description": "Exclusive cursor issue ID returned by a prior cursor page.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor timestamp returned by a prior cursor page.",
+            "type": "string"
+          },
+          "environment": {
+            "description": "Optional environment filter.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum number of rows to return.",
+            "format": "int64",
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "priority": {
+            "description": "Optional effective issue priority filter: `high`, `medium`, or `low`.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project filter.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "project_ids": {
+            "description": "Optional comma-separated set of two to fifty project IDs.",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional release filter.",
+            "type": "string"
+          },
+          "service_name": {
+            "description": "Optional logical service-name filter.",
+            "type": "string"
+          },
+          "severity": {
+            "description": "Optional effective issue severity filter.",
+            "type": "string"
+          },
+          "since": {
+            "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
+            "type": "string"
+          },
+          "status": {
+            "description": "Optional issue status filter: `unresolved`, `resolved`, or `archived` (`ignored` is the\nsame state).",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
+          }
+        },
+        "title": "IssueQueryParams",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "CorrelatedTelemetryNextActionCode": {
+            "description": "Stable correlation-aware investigation action code.",
+            "oneOf": [
+              {
+                "const": "inspect_trace",
+                "description": "Inspect the correlated distributed trace.",
+                "type": "string"
+              },
+              {
+                "const": "inspect_related_logs",
+                "description": "Inspect logs related by project, release, service, and environment.",
+                "type": "string"
+              }
+            ]
+          },
+          "CorrelatedTelemetryNextActionResponse": {
+            "description": "Correlation-aware next action shared by issues, logs, and product actions.",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionCode",
+                "description": "Stable action code."
+              },
+              "target": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionTarget",
+                "description": "Stable action target."
+              }
+            },
+            "required": [
+              "code",
+              "target"
+            ],
+            "type": "object"
+          },
+          "CorrelatedTelemetryNextActionTarget": {
+            "description": "Stable correlation-aware investigation target.",
+            "oneOf": [
+              {
+                "const": "trace_summary",
+                "description": "Privacy-safe trace summary endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_logs",
+                "description": "Native telemetry logs endpoint.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueArchiveResponse": {
+            "description": "How an archived issue reopens by itself.",
+            "properties": {
+              "count": {
+                "description": "For `events` or `users`, how many new ones reopen the issue; for `escalating`, the events\nin one hour that count as escalating; otherwise null.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "reopen_at": {
+                "description": "For `time`, when the issue reopens; otherwise null.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "until": {
+                "$ref": "#/$defs/IssueArchiveUntil",
+                "description": "What reopens the issue."
+              }
+            },
+            "required": [
+              "until",
+              "reopen_at",
+              "count"
+            ],
+            "type": "object"
+          },
+          "IssueArchiveUntil": {
+            "description": "What reopens an archived issue by itself.",
+            "oneOf": [
+              {
+                "const": "forever",
+                "description": "Nothing: the issue stays archived until someone changes its status.",
+                "type": "string"
+              },
+              {
+                "const": "escalating",
+                "description": "One hour with at least twice the events of the issue's busiest hour in the week before\nit was archived, and at least 10.",
+                "type": "string"
+              },
+              {
+                "const": "time",
+                "description": "A point in time.",
+                "type": "string"
+              },
+              {
+                "const": "events",
+                "description": "A number of new events.",
+                "type": "string"
+              },
+              {
+                "const": "users",
+                "description": "A number of new distinct identified users.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueAssigneeV4Response": {
+            "description": "Who an issue is assigned to in response version 4.",
+            "oneOf": [
+              {
+                "$ref": "#/$defs/IssueAssigneeResponse",
+                "description": "An account that can read the project.",
+                "properties": {
+                  "type": {
+                    "const": "user",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              },
+              {
+                "$ref": "#/$defs/IssueTeamResponse",
+                "description": "A team of the project's organization.",
+                "properties": {
+                  "type": {
+                    "const": "team",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "IssuePriority": {
+            "description": "Triage priority of a grouped issue.",
+            "oneOf": [
+              {
+                "const": "high",
+                "description": "Needs attention first.",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "description": "Needs attention after high-priority issues.",
+                "type": "string"
+              },
+              {
+                "const": "low",
+                "description": "Can wait.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssuePrioritySource": {
+            "description": "Where an issue's priority comes from.",
+            "oneOf": [
+              {
+                "const": "manual",
+                "description": "A user set it; it no longer follows severity.",
+                "type": "string"
+              },
+              {
+                "const": "derived",
+                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueTeamResponse": {
+            "description": "An organization team that issues can be assigned to.",
+            "properties": {
+              "name": {
+                "description": "Display name.",
+                "type": "string"
+              },
+              "slug": {
+                "description": "Unique handle in the organization.",
+                "type": "string"
+              },
+              "team_id": {
+                "description": "Team ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "team_id",
+              "slug",
+              "name"
+            ],
+            "type": "object"
+          },
+          "NativeIssueBreadcrumbResponse": {
+            "description": "One privacy-bounded step that happened before an issue occurrence.",
+            "properties": {
+              "category": {
+                "description": "Required low-cardinality source category.",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "description": "At most eight flat primitive fields.",
+                "type": "object"
+              },
+              "level": {
+                "description": "Optional canonical severity.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "message": {
+                "description": "Optional bounded display-safe description.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "timestamp": {
+                "description": "When this step occurred.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "type": {
+                "description": "Optional stable breadcrumb kind.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "timestamp",
+              "category"
+            ],
+            "type": "object"
+          },
+          "NativeIssueCursorResponse": {
+            "description": "Exclusive continuation cursor for a native issue page.",
+            "properties": {
+              "id": {
+                "description": "ID of the final issue in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Last-seen timestamp of the final issue in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "NativeIssueDiagnosticsResponse": {
+            "description": "Versioned structured diagnostics projected from one issue occurrence.",
+            "properties": {
+              "breadcrumbs": {
+                "description": "Oldest-to-newest bounded breadcrumb history.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueBreadcrumbResponse"
+                },
+                "type": "array"
+              },
+              "breadcrumbs_truncated": {
+                "default": false,
+                "description": "Whether older or invalid breadcrumb history was omitted.",
+                "type": "boolean"
+              },
+              "exception": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Structured exception identity when available."
+              },
+              "schema_version": {
+                "description": "Additive diagnostics response schema version.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "schema_version",
+              "breadcrumbs_truncated"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionMechanismResponse": {
+            "description": "Runtime path that captured an exception and whether it escaped that path.",
+            "properties": {
+              "handled": {
+                "description": "Whether the exception was handled by the capture boundary.",
+                "type": "boolean"
+              },
+              "type": {
+                "description": "Stable low-cardinality capture mechanism.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "handled"
+            ],
+            "type": "object"
+          },
+          "NativeIssueExceptionResponse": {
+            "description": "Structured runtime exception identity returned with issue details.",
+            "properties": {
+              "mechanism": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueExceptionMechanismResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Capture mechanism when the SDK could determine it."
+              },
+              "type": {
+                "description": "Bounded runtime exception class or error type.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "type": "object"
+          },
+          "NativeIssueResolvedSourcePosition": {
+            "description": "Privacy-safe source position or native function resolved for an issue.",
+            "properties": {
+              "column": {
+                "description": "One-based source column when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "line": {
+                "description": "One-based source line when debug line information is available.",
+                "format": "uint32",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Optional bounded source symbol name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "source": {
+                "description": "Relative source path or filename when debug line information is available.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "NativeIssueSymbolicatedFrameResponse": {
+            "description": "One privacy-safe source-map result matched by structured stack-frame index.",
+            "properties": {
+              "index": {
+                "description": "Zero-based index in the SDK-provided `stackFrames` array.",
+                "format": "uint",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when this frame resolves."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status for this frame."
+              }
+            },
+            "required": [
+              "index",
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationResponse": {
+            "description": "Safe issue-detail source-map resolution result.",
+            "properties": {
+              "frames": {
+                "description": "Ordered per-frame results for additive structured SDK stacks.",
+                "items": {
+                  "$ref": "#/$defs/NativeIssueSymbolicatedFrameResponse"
+                },
+                "type": "array"
+              },
+              "resolved": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueResolvedSourcePosition"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Safe source position or native function identity when resolution succeeds."
+              },
+              "status": {
+                "$ref": "#/$defs/NativeIssueSymbolicationStatus",
+                "description": "Stable resolution status."
+              }
+            },
+            "required": [
+              "status",
+              "resolved"
+            ],
+            "type": "object"
+          },
+          "NativeIssueSymbolicationStatus": {
+            "description": "Stable issue-detail source-map resolution status.",
+            "oneOf": [
+              {
+                "const": "resolved",
+                "description": "A matching retained artifact resolved a source position or native function.",
+                "type": "string"
+              },
+              {
+                "const": "invalid_metadata",
+                "description": "Release-artifact metadata was present but incomplete or inconsistent.",
+                "type": "string"
+              },
+              {
+                "const": "artifact_not_found",
+                "description": "No uploaded artifact matched the issue release identity and Debug ID.",
+                "type": "string"
+              },
+              {
+                "const": "source_not_resolved",
+                "description": "A matching artifact existed but did not resolve the generated frame.",
+                "type": "string"
+              },
+              {
+                "const": "unavailable",
+                "description": "Artifact lookup or retained evidence was temporarily unavailable.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueV5Response": {
+            "description": "A grouped issue in response version 5.",
+            "properties": {
+              "archive": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueArchiveResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "How the issue reopens by itself while it is archived; null for other statuses."
+              },
+              "assignee": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeV4Response"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Current assignee: an account, a team, or null when the issue is unassigned, its\naccount can no longer read the project, or its team was deleted."
+              },
+              "attributes": {
+                "description": "Structured issue attributes."
+              },
+              "diagnostics": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueDiagnosticsResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Typed privacy-bounded diagnostic evidence projected from the latest occurrence."
+              },
+              "environment": {
+                "description": "Deployment environment.",
+                "type": "string"
+              },
+              "fingerprint": {
+                "description": "Stable grouping fingerprint.",
+                "type": "string"
+              },
+              "first_seen_at": {
+                "description": "First time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Unique issue identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "last_seen_at": {
+                "description": "Most recent time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "message": {
+                "description": "Human-readable issue message.",
+                "type": "string"
+              },
+              "next_action": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionResponse",
+                "description": "Machine-readable next investigation action."
+              },
+              "occurrence_count": {
+                "description": "Number of occurrences in this issue group.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "priority": {
+                "$ref": "#/$defs/IssuePriority",
+                "description": "Effective triage priority."
+              },
+              "priority_source": {
+                "$ref": "#/$defs/IssuePrioritySource",
+                "description": "Whether a user set the priority or it follows severity."
+              },
+              "project_id": {
+                "description": "Owning project ID.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Application release.",
+                "type": "string"
+              },
+              "service_name": {
+                "description": "Logical service name.",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Issue severity.",
+                "type": "string"
+              },
+              "span_id": {
+                "description": "Exact span identifier within the distributed trace.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "stack_trace": {
+                "description": "Original stack trace text.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "status": {
+                "description": "Issue status.",
+                "type": "string"
+              },
+              "symbolication": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/NativeIssueSymbolicationResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Original source position resolved from release artifacts on issue detail reads."
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              },
+              "trace_id": {
+                "description": "Distributed trace identifier.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "triage": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SignalTriageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Reversible user triage. `severity` remains the immutable captured value."
+              }
+            },
+            "required": [
+              "id",
+              "project_id",
+              "fingerprint",
+              "severity",
+              "title",
+              "message",
+              "stack_trace",
+              "attributes",
+              "environment",
+              "release",
+              "service_name",
+              "trace_id",
+              "next_action",
+              "status",
+              "occurrence_count",
+              "first_seen_at",
+              "last_seen_at",
+              "priority",
+              "priority_source",
+              "assignee",
+              "archive"
+            ],
+            "type": "object"
+          },
+          "SignalTriageResponse": {
+            "description": "User-owned presentation rule layered over immutable captured telemetry.",
+            "properties": {
+              "effective_severity": {
+                "description": "Effective presentation severity after applying an optional user override.",
+                "type": "string"
+              },
+              "ignored": {
+                "description": "Whether the signal is excluded from the active view.",
+                "type": "boolean"
+              },
+              "rule_applied": {
+                "description": "Whether a non-default rule currently applies.",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "effective_severity",
+              "ignored",
+              "rule_applied"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Cursor page of grouped issues in response version 5.",
+        "properties": {
+          "issues": {
+            "description": "Grouped issue rows in newest-first order.",
+            "items": {
+              "$ref": "#/$defs/NativeIssueV5Response"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NativeIssueCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exclusive continuation cursor when another page exists."
+          }
+        },
+        "required": [
+          "issues",
+          "next_cursor"
+        ],
+        "title": "NativeIssuePageV5Response",
+        "type": "object"
+      }
+    },
+    {
       "id": "issues.owners.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
@@ -24558,7 +29293,7 @@
                 "description": "That account's name and email while it can read the project, otherwise null."
               },
               "actor_id": {
-                "description": "Account that made the change; null for `first_seen`.",
+                "description": "Account that made the change; null for `first_seen` and for an archive that ended by\nitself.",
                 "format": "uuid",
                 "type": [
                   "string",
@@ -24628,7 +29363,7 @@
               },
               {
                 "const": "status",
-                "description": "Someone set the status; `value` is `unresolved`, `resolved`, or `archived`.",
+                "description": "Someone set the status, or an archive ended by itself; `value` is `unresolved`,\n`resolved`, or `archived`.",
                 "type": "string"
               },
               {
@@ -24797,7 +29532,7 @@
               },
               {
                 "const": "status",
-                "description": "Someone set the status; `value` is `unresolved`, `resolved`, or `archived`.",
+                "description": "Someone set the status, or an archive ended by itself; `value` is `unresolved`,\n`resolved`, or `archived`.",
                 "type": "string"
               },
               {
@@ -24837,7 +29572,7 @@
                 "description": "That account's name and email while it can read the project, otherwise null."
               },
               "actor_id": {
-                "description": "Account that made the change; null for `first_seen`.",
+                "description": "Account that made the change; null for `first_seen` and for an archive that ended by\nitself.",
                 "format": "uuid",
                 "type": [
                   "string",
@@ -25000,6 +29735,360 @@
           "next_cursor"
         ],
         "title": "IssueActivityPageV2Response",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.activity.v3",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Read one issue's history like issues.activity.v2, with each archive's reopen condition and automatic reopens that have no actor."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Page selection for an issue's activity.",
+        "properties": {
+          "cursor_id": {
+            "description": "Exclusive cursor ID from a previous page's `next_cursor`.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor time from a previous page's `next_cursor`.",
+            "type": "string"
+          },
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Most entries to return; defaults to 50.",
+            "format": "int64",
+            "maximum": 200,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueActivityQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "IssueActivityCursorResponse": {
+            "description": "Exclusive continuation cursor for an activity page.",
+            "properties": {
+              "id": {
+                "description": "ID of the last entry in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Time of the last entry in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "IssueActivityType": {
+            "description": "What happened to an issue.",
+            "oneOf": [
+              {
+                "const": "first_seen",
+                "description": "The first occurrence was captured.",
+                "type": "string"
+              },
+              {
+                "const": "status",
+                "description": "Someone set the status, or an archive ended by itself; `value` is `unresolved`,\n`resolved`, or `archived`.",
+                "type": "string"
+              },
+              {
+                "const": "priority",
+                "description": "Someone set the priority; `value` is `high`, `medium`, or `low`.",
+                "type": "string"
+              },
+              {
+                "const": "assigned",
+                "description": "Someone assigned the issue; `assignee_id` names the account.",
+                "type": "string"
+              },
+              {
+                "const": "unassigned",
+                "description": "Someone removed the assignee.",
+                "type": "string"
+              },
+              {
+                "const": "severity_rule",
+                "description": "Someone set the severity rule; `value` is a severity, or `source` for the captured one.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueActivityV3Response": {
+            "description": "One entry of an issue's activity in response version 3.",
+            "properties": {
+              "actor": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "actor_id": {
+                "description": "Account that made the change; null for `first_seen` and for an archive that ended by\nitself.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "archive": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueArchiveResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "On a `status` entry with `value` `archived`, how the issue reopens by itself. On an\nautomatic reopen (`value` `unresolved` with a null `actor_id`), the condition that was\nmet. Otherwise null."
+              },
+              "assignee": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueAssigneeResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "That account's name and email while it can read the project, otherwise null."
+              },
+              "assignee_id": {
+                "description": "Account the issue was assigned to; null for the other types.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "at": {
+                "description": "When it happened.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "id": {
+                "description": "Entry ID; the issue ID for `first_seen`.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "team": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/IssueTeamResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "The team an `assigned` entry names while it exists, otherwise null."
+              },
+              "type": {
+                "$ref": "#/$defs/IssueActivityType",
+                "description": "What happened."
+              },
+              "value": {
+                "description": "The new status, priority, or severity; null for the other types.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "value",
+              "actor_id",
+              "actor",
+              "assignee_id",
+              "assignee",
+              "at",
+              "team",
+              "archive"
+            ],
+            "type": "object"
+          },
+          "IssueArchiveResponse": {
+            "description": "How an archived issue reopens by itself.",
+            "properties": {
+              "count": {
+                "description": "For `events` or `users`, how many new ones reopen the issue; for `escalating`, the events\nin one hour that count as escalating; otherwise null.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "reopen_at": {
+                "description": "For `time`, when the issue reopens; otherwise null.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "until": {
+                "$ref": "#/$defs/IssueArchiveUntil",
+                "description": "What reopens the issue."
+              }
+            },
+            "required": [
+              "until",
+              "reopen_at",
+              "count"
+            ],
+            "type": "object"
+          },
+          "IssueArchiveUntil": {
+            "description": "What reopens an archived issue by itself.",
+            "oneOf": [
+              {
+                "const": "forever",
+                "description": "Nothing: the issue stays archived until someone changes its status.",
+                "type": "string"
+              },
+              {
+                "const": "escalating",
+                "description": "One hour with at least twice the events of the issue's busiest hour in the week before\nit was archived, and at least 10.",
+                "type": "string"
+              },
+              {
+                "const": "time",
+                "description": "A point in time.",
+                "type": "string"
+              },
+              {
+                "const": "events",
+                "description": "A number of new events.",
+                "type": "string"
+              },
+              {
+                "const": "users",
+                "description": "A number of new distinct identified users.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssueAssigneeResponse": {
+            "description": "The account an issue is assigned to.",
+            "properties": {
+              "email": {
+                "description": "Account email.",
+                "type": "string"
+              },
+              "name": {
+                "description": "Display name, or null when the account has none.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "user_id": {
+                "description": "Account ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "user_id",
+              "name",
+              "email"
+            ],
+            "type": "object"
+          },
+          "IssueTeamResponse": {
+            "description": "An organization team that issues can be assigned to.",
+            "properties": {
+              "name": {
+                "description": "Display name.",
+                "type": "string"
+              },
+              "slug": {
+                "description": "Unique handle in the organization.",
+                "type": "string"
+              },
+              "team_id": {
+                "description": "Team ID.",
+                "format": "uuid",
+                "type": "string"
+              }
+            },
+            "required": [
+              "team_id",
+              "slug",
+              "name"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "One page of an issue's activity in response version 3.",
+        "properties": {
+          "activity": {
+            "description": "Entries, newest first.",
+            "items": {
+              "$ref": "#/$defs/IssueActivityV3Response"
+            },
+            "type": "array"
+          },
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/IssueActivityCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cursor for the next page, or null on the last page."
+          },
+          "project_id": {
+            "description": "Project ID.",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "activity",
+          "next_cursor"
+        ],
+        "title": "IssueActivityPageV3Response",
         "type": "object"
       }
     },

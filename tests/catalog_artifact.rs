@@ -132,6 +132,11 @@ fn shipped_input_contracts_reject_smuggled_fields() {
             "issues.investigate.v14",
             json!({"issue_id":log,"response_version":13_u32}),
         ),
+        (
+            "issues.investigate.v15",
+            json!({"issue_id":log,"response_version":14_u32}),
+        ),
+        ("issues.list.v5", json!({"response_version":4_u32})),
         ("logs.list.v1", json!({"pagination":"offset"})),
         ("issues.list.v2", json!({"response_version":1_u32})),
         ("issues.list.v2", json!({"priority":null})),
@@ -169,6 +174,7 @@ fn shipped_query_inputs_match_backend_validation() {
         "issues.list.v2",
         "issues.list.v3",
         "issues.list.v4",
+        "issues.list.v5",
         "traces.list.v1",
         "actions.list.v1",
         "metrics.list.v1",
@@ -234,4 +240,13 @@ fn shipped_query_inputs_match_backend_validation() {
             &json!({"issue_id":issue,"limit":10_u32}),
         )
         .expect("team activity");
+    catalog
+        .input(
+            "issues.activity.v3",
+            &json!({"issue_id":issue,"limit":10_u32}),
+        )
+        .expect("archive activity");
+    catalog
+        .input("issues.investigate.v15", &json!({"issue_id":issue}))
+        .expect("archived investigation");
 }

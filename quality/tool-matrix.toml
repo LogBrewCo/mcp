@@ -11,7 +11,7 @@
 # workflows hold each pin (a full commit and a version comment).
 
 gates = ["scripts/check-all.sh"]
-utilities = ["[[", "cd", "curl", "dirname", "echo", "exit", "export", "local", "mkdir", "printf", "set", "sha256sum", "tar"]
+utilities = ["[[", "cat", "cd", "curl", "dirname", "echo", "exit", "export", "local", "mkdir", "printf", "set", "sha256sum", "tail", "tar"]
 
 [[tool]]
 id = "rust"
@@ -63,19 +63,19 @@ checked = 2026-10-25
 
 [[tool]]
 id = "cargo-deny"
-risk = "dependency licenses, bans, duplicate versions, and sources"
-tool = "cargo-deny"
+risk = "dependency licenses, bans, duplicate versions, and sources; advisories, including ones published after the change that locked a dependency merged"
+tool = "cargo-deny, and scripts/advisory-issue.sh for the daily scan"
 version = "0.20.2"
-pins = ["scripts/check-all.sh::require_version cargo-deny \"cargo-deny @VERSION@\"", ".github/workflows/ci.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
-commands = ["cargo deny"]
-runs_in = "CI check job (scripts/check-all.sh)"
-config = "deny.toml; cargo deny --locked check --deny warnings licenses bans sources"
+pins = ["scripts/check-all.sh::require_version cargo-deny \"cargo-deny @VERSION@\"", ".github/workflows/ci.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz", ".github/workflows/advisories.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
+commands = ["cargo deny", "scripts/advisory-issue.sh"]
+runs_in = "CI check job (scripts/check-all.sh); Advisories workflow every day at 05:17 UTC and on manual runs (opens, updates, or closes the issue \"Dependency advisories\")"
+config = "deny.toml; CI: cargo deny --locked check --deny warnings licenses bans sources; Advisories: cargo deny --locked check --deny warnings advisories"
 conflicts = "none known"
-exceptions = "advisories are not checked here; see the open question in findings"
+exceptions = "none; advisories run daily in the Advisories workflow, not in the check job"
 runtime = "inside the check step (see rust); installing all pinned tools takes at most 2 s (n=31)"
-findings = "unknown: no recorded finding; open question: add the advisories check"
+findings = "local run 2026-10-25 on main: RUSTSEC-2026-0346, -0347, -0348, -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2)"
 replaces = "none"
-checked = 2026-10-19
+checked = 2026-10-25
 
 [[tool]]
 id = "tombi"

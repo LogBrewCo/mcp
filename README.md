@@ -12,7 +12,7 @@ documentation, not a released capability list.
 
 ## Development
 
-Use Rust 1.99.0, cargo-deny 0.20.2 and Tombi 1.7.2. Run every required gate
+Use Rust 1.99.1, cargo-deny 0.20.2 and Tombi 1.7.2. Run every required gate
 from the repository root:
 
 ```sh
@@ -29,7 +29,7 @@ versions. Five exact duplicate version exceptions preserve incompatible upstream
 APIs; no dependency subtree is excluded. Unused license and source allowances
 fail the check, and every warning fails.
 
-The toolchain file pins rustfmt and Clippy with Rust 1.99.0. The server uses
+The toolchain file pins rustfmt and Clippy with Rust 1.99.1. The server uses
 the official MCP Rust SDK, rmcp 3.5.1, with Axum and Tokio. Cargo.lock records
 the resolved dependency graph. All diagnostics must be resolved
 before release. Authorization, operation discovery, execution isolation and

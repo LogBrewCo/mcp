@@ -21,7 +21,7 @@ is requested. Keep changes within this repository's public responsibilities.
   layout so a repository move does not require client reconfiguration.
 
 `scripts/check-all.sh` is the required gate. CI runs the same script. It
-needs Rust 1.99.0 from `rust-toolchain.toml`, cargo-deny 0.20.2 and the native
+needs Rust 1.99.1 from `rust-toolchain.toml`, cargo-deny 0.20.2 and the native
 Rust Tombi 1.7.2 CLI from their official releases, and it checks each tool
 version before use.
 

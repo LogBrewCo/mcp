@@ -17,7 +17,7 @@ utilities = ["[[", "cd", "curl", "dirname", "echo", "exit", "export", "local", "
 id = "rust"
 risk = "Rust compile errors, compiler lints, and test failures"
 tool = "rustc, cargo, and libtest"
-version = "1.99.0"
+version = "1.99.1"
 pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
 commands = ["cargo test", "rustup"]
 runs_in = "CI check job (scripts/check-all.sh)"
@@ -27,14 +27,13 @@ exceptions = "none"
 runtime = "the whole check step: push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
 findings = "unknown: test failures are fixed before merge and not recorded; count them from failed runs at the next check"
 replaces = "none"
-status = "behind: Rust 1.99.1 released 2026-10-13"
-checked = 2026-10-19
+checked = 2026-10-25
 
 [[tool]]
 id = "clippy"
 risk = "Rust correctness, suspicious, complexity, performance, and style lints"
 tool = "Clippy"
-version = "1.99.0"
+version = "1.99.1"
 pins = ["rust-toolchain.toml::channel = \"@VERSION@\"", "scripts/check-all.sh::cargo clippy --locked --all-targets -- -D warnings"]
 commands = ["cargo clippy"]
 runs_in = "CI check job (scripts/check-all.sh)"
@@ -44,13 +43,13 @@ exceptions = "none"
 runtime = "inside the check step (see rust); separate timing not yet recorded"
 findings = "unknown: lints are fixed before merge; record them from failed runs at the next check"
 replaces = "none"
-checked = 2026-10-19
+checked = 2026-10-25
 
 [[tool]]
 id = "rustfmt"
 risk = "Rust formatting drift"
 tool = "rustfmt"
-version = "1.99.0"
+version = "1.99.1"
 pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
 commands = ["cargo fmt"]
 runs_in = "CI check job (scripts/check-all.sh)"
@@ -60,7 +59,7 @@ exceptions = "none"
 runtime = "inside the check step (see rust)"
 findings = "unknown: formatting is fixed before merge"
 replaces = "none"
-checked = 2026-10-19
+checked = 2026-10-25
 
 [[tool]]
 id = "cargo-deny"

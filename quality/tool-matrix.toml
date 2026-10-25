@@ -73,7 +73,7 @@ config = "deny.toml; CI: cargo deny --locked check --deny warnings licenses bans
 conflicts = "none known"
 exceptions = "none; advisories run daily in the Advisories workflow, not in the check job"
 runtime = "inside the check step (see rust); installing all pinned tools takes at most 2 s (n=31)"
-findings = "local run 2026-10-25 on main: RUSTSEC-2026-0346, -0347, -0348, -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2)"
+findings = "seeded 2026-10-25: a throwaway branch pinning base64 0.5.1 failed with RUSTSEC-2017-0004 and opened issue #30 (run 40185029251; branch deleted); before #28 main carried RUSTSEC-2026-0346 to -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2), which the check job never checked"
 replaces = "none"
 checked = 2026-10-25
 

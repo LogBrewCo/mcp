@@ -1,9 +1,10 @@
 # Operation reference
 
 This reference describes the operation catalog shipped in
-`catalog/operations.json`. There is no released MCP server or verified hosted
-endpoint yet. The catalog contains reads only. It does not provide project
-changes, issue updates, billing changes, or other mutations.
+`catalog/operations.json`, which the hosted server at
+`https://mcp.logbrew.co/mcp` loads. The catalog contains reads only. It does
+not provide project changes, issue updates, billing changes, or other
+mutations.
 
 The server exposes two tools. `search` finds versioned operations and returns
 their input and output schemas. `execute` runs a selected operation. Every
@@ -111,7 +112,7 @@ and result metadata have separate bounded allowances. Individual schemas impose
 additional limits. The server rejects an oversized result rather than silently
 cutting it into apparently complete evidence.
 
-There is no verified per-operation cost estimate in this draft. Read-only does
+There is no verified per-operation cost estimate. Read-only does
 not mean free, cheap or unlimited. Preserve returned limits and retry guidance;
 do not turn missing cost measurements into zero cost.
 

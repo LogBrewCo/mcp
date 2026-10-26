@@ -251,10 +251,14 @@ fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
             tools.get(1).and_then(|tool| tool.get("name")),
             Some(&json!("execute"))
         );
-        for tool in tools {
+        for (tool, title) in tools
+            .iter()
+            .zip(["Search LogBrew Operations", "Run a LogBrew Operation"])
+        {
+            assert_eq!(tool.get("title"), Some(&json!(title)));
             assert_eq!(
                 tool.get("annotations"),
-                Some(&json!({"readOnlyHint":true,"openWorldHint":false}))
+                Some(&json!({"title":title,"readOnlyHint":true,"openWorldHint":false}))
             );
         }
     }

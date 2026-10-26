@@ -574,8 +574,9 @@ fn envelope(result: Result<Value, Failure>, provenance: Option<&Value>) -> CallT
 }
 
 fn definition(name: &str) -> Tool {
-    let (description, schema) = if name == "search" {
+    let (title, description, schema) = if name == "search" {
         (
+            "Search LogBrew Operations",
             "Find operation contracts. Send query (with optional after and limit) to list \
              matches, or send operation alone to get one full contract.",
             // No top-level oneOf, anyOf or allOf: some clients drop tools whose input
@@ -587,6 +588,7 @@ fn definition(name: &str) -> Tool {
         )
     } else {
         (
+            "Run a LogBrew Operation",
             "Run a discovered operation.",
             json!({"type":"object","additionalProperties":false,
             "required":["operation","input"],"properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32},
@@ -596,10 +598,15 @@ fn definition(name: &str) -> Tool {
     let object = schema.as_object().cloned().unwrap_or_default();
     // The catalog loader admits only read-only operations, so both tools only read.
     Tool::new(name.to_owned(), description, Arc::new(object))
+        .with_title(title)
         .with_raw_output_schema(Arc::new(
             output_schema().as_object().cloned().unwrap_or_default(),
         ))
-        .with_annotations(ToolAnnotations::new().read_only(true).open_world(false))
+        .with_annotations(
+            ToolAnnotations::with_title(title)
+                .read_only(true)
+                .open_world(false),
+        )
 }
 
 fn output_schema() -> Value {

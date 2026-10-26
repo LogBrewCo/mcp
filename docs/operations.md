@@ -22,6 +22,7 @@ unavailable or truncated; none of those states means zero events.
 
 | Operation | What it reads |
 | --- | --- |
+| `issues.investigate.v16` | The `issues.investigate.v15` result, where `correlations.related_issues` lists other issues from the same project, environment and release, one per issue, oldest first, up to 20. An issue is listed when it is unresolved and its first in-app frame has the same module, function and file, or when it occurred on the same trace within 5 minutes. Each item has `basis` (`first_in_app_frame`, `same_trace`), `occurrence_count`, `first_seen_at` and `last_seen_at` in that environment and release. |
 | `issues.investigate.v15` | The `issues.investigate.v14` result, with an archived issue reading `archived` instead of `ignored` in `subject.status`, the lifecycle's persisted and effective status, and each status change. |
 | `issues.investigate.v14` | One issue and its selected occurrence, reproduction, lifecycle, grouping and correction evidence. Each breadcrumb has `data` with `method`, `url` (no query or fragment) and `status_code` for an HTTP call, `from` and `to` for a route change, and `logger` for a log record; a field the breadcrumb does not have is `null`. |
 | `issues.investigate.v13` | The `issues.investigate.v14` result without typed breadcrumb `data`. |

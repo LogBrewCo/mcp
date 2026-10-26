@@ -136,6 +136,10 @@ fn shipped_input_contracts_reject_smuggled_fields() {
             "issues.investigate.v15",
             json!({"issue_id":log,"response_version":14_u32}),
         ),
+        (
+            "issues.investigate.v16",
+            json!({"issue_id":log,"response_version":15_u32}),
+        ),
         ("issues.list.v5", json!({"response_version":4_u32})),
         ("logs.list.v1", json!({"pagination":"offset"})),
         ("issues.list.v2", json!({"response_version":1_u32})),
@@ -249,4 +253,7 @@ fn shipped_query_inputs_match_backend_validation() {
     catalog
         .input("issues.investigate.v15", &json!({"issue_id":issue}))
         .expect("archived investigation");
+    catalog
+        .input("issues.investigate.v16", &json!({"issue_id":issue}))
+        .expect("related issue investigation");
 }

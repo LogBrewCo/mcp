@@ -284,12 +284,15 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
 /// # Panics
 ///
 /// Panics if the loader admits an operation that needs a scope other than
-/// `read` or that is not read-only.
-fn catalog_admits_only_read_only_operations_under_the_read_scope() {
+/// `read` or `write`, or that is not read-only, or rejects a `write` permission.
+fn catalog_admits_read_or_write_permissions_and_only_read_only_operations() {
     for (field, value) in [
         ("permission", "logs:read"),
         ("permission", "READ"),
+        ("permission", "WRITE"),
         ("permission", "read write"),
+        ("permission", "write read"),
+        ("permission", "admin"),
         ("safety", "write"),
         ("safety", "destructive"),
     ] {
@@ -304,6 +307,20 @@ fn catalog_admits_only_read_only_operations_under_the_read_scope() {
             .expect("rejected catalog");
         assert_eq!(failure.kind, logbrew_mcp::error::Kind::Configuration);
     }
+    let mut document: Value =
+        serde_json::from_slice(&artifact(&json!({"type":"object"}))).expect("artifact");
+    *document
+        .pointer_mut("/operations/0/info/permission")
+        .expect("permission") = json!("write");
+    let bytes = serde_json::to_vec(&document).expect("encoded artifact");
+    let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("write catalog");
+    assert_eq!(
+        catalog
+            .search(&json!({"operation":"logs.read.v1"}))
+            .expect("contract")
+            .pointer("/info/permission"),
+        Some(&json!("write"))
+    );
 }
 
 #[test]

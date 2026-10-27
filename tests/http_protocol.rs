@@ -66,6 +66,8 @@ mod upstream_encoding;
 mod upstream_trailers;
 #[path = "cases/upstream_transport.rs"]
 mod upstream_transport;
+#[path = "cases/write_scope.rs"]
+mod write_scope;
 
 use alloc::sync::Arc;
 use core::sync::atomic::Ordering;

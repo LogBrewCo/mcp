@@ -265,6 +265,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
     let principal = Principal {
         credential_id: "synthetic-credential-reference".to_owned(),
         client_id: "synthetic-client".to_owned(),
+        write: false,
     };
     for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "\u{e9}"] {
         assert_eq!(

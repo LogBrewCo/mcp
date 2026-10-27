@@ -26,10 +26,10 @@ const METADATA: &str = "https://resource.example/.well-known/oauth-protected-res
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if the initial challenge or the protected resource metadata differs
-/// from the exact RFC 9728 document naming the issuer and the `read` scope, or
-/// if either starts upstream work.
-async fn initial_challenge_and_metadata_name_the_issuer_and_read_scope() {
+/// Panics if the initial challenge asks for more than the `read` scope, the
+/// protected resource metadata differs from the exact RFC 9728 document naming
+/// the issuer and the `read` and `write` scopes, or either starts upstream work.
+async fn initial_challenge_asks_for_read_and_metadata_lists_both_scopes() {
     let fixture = Fixture::new().await.expect("fixture");
     let challenge_request = Request::builder()
         .method("POST")
@@ -73,7 +73,7 @@ async fn initial_challenge_and_metadata_name_the_issuer_and_read_scope() {
     assert_eq!(
         value,
         json!({"resource":"https://resource.example/mcp","authorization_servers":[issuer],
-            "bearer_methods_supported":["header"],"scopes_supported":["read"]})
+            "bearer_methods_supported":["header"],"scopes_supported":["read","write"]})
     );
     assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
     assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);

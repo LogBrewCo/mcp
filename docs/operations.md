@@ -58,6 +58,7 @@ does not backfill historical events.
 
 | Operation | What it reads |
 | --- | --- |
+| `projects.list.v2` | The projects this connection can read: each project's ID, name, creation time, setup status, last release and environment, and the signed-in user's access. It takes no input and returns every approved project in one response. Use it to find the `project_id` that other operations take. |
 | `issues.list.v1` | Grouped issues through bounded cursor pages. |
 | `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
 | `issues.list.v3` | The `issues.list.v2` fields plus each issue's assignee: user ID, name, and email, or `null` when nobody is assigned or the assignee can no longer read the project. Filter by `assignee`: `me`, `none`, or a user ID. |

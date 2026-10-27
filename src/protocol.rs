@@ -1,23 +1,21 @@
 //! Exactly two tools behind request-bound authorization and host checks.
 
 use alloc::{borrow::Cow, sync::Arc};
-use core::{net::SocketAddr, time::Duration};
 
 use axum::{
     Router,
-    body::{Body, to_bytes},
-    extract::{ConnectInfo, Request, State},
+    extract::{Request, State},
     http::{StatusCode, header},
-    middleware::{self, Next},
+    middleware,
     response::{IntoResponse as _, Response},
     routing::any,
 };
 use rmcp::{
     ErrorData, RoleServer, ServerHandler,
     model::{
-        CallToolRequestParams, CallToolResponse, CallToolResult, CustomRequest, CustomResult,
-        ErrorCode, ListToolsResult, PaginatedRequestParams, ProtocolVersion, ServerCapabilities,
-        ServerConfig, Tool, ToolAnnotations,
+        CallToolRequestParams, CallToolResponse, CustomRequest, CustomResult, ErrorCode,
+        ListToolsResult, PaginatedRequestParams, ProtocolVersion, ServerCapabilities, ServerConfig,
+        Tool,
     },
     service::RequestContext,
     transport::streamable_http_server::{
@@ -29,20 +27,19 @@ use tokio::sync::Semaphore;
 use zeroize::Zeroizing;
 
 mod authority;
+mod boundary;
+mod tools;
+
+use boundary::boundary;
+use tools::{definition, envelope};
 
 use crate::{
-    ENVELOPE_BYTES, Failure, REQUEST_BYTES,
-    admission::{Admission, Limiter, Ticket},
-    bearer,
+    Failure, REQUEST_BYTES,
+    admission::{Admission, Limiter},
     catalog::Catalog,
-    deadline,
     error::Kind,
-    json as strict_json, responses,
     telemetry::{Outcome, Stage, Telemetry},
-    transport,
-    upstream::{
-        AuthorizationFailure, Principal, READ_SCOPE, Upstream, WRITE_SCOPE, canonical_https,
-    },
+    upstream::{Principal, READ_SCOPE, Upstream, WRITE_SCOPE, canonical_https},
 };
 
 // 2025-06-18 and 2025-11-25 clients use the `initialize` handshake and are served
@@ -353,365 +350,4 @@ async fn metadata(State(shared): State<Arc<Shared>>, request: Request) -> Respon
         "bearer_methods_supported":["header"],"scopes_supported":[READ_SCOPE,WRITE_SCOPE]}),
     )
     .into_response()
-}
-
-async fn boundary(State(shared): State<Arc<Shared>>, request: Request, next: Next) -> Response {
-    let measurement = shared.telemetry.begin(Stage::RequestPrepared);
-    let mut response = guarded(&shared, request, next).await;
-    drop(response.headers_mut().insert(
-        header::CACHE_CONTROL,
-        header::HeaderValue::from_static("no-store"),
-    ));
-    drop(response.headers_mut().insert(
-        header::X_CONTENT_TYPE_OPTIONS,
-        header::HeaderValue::from_static("nosniff"),
-    ));
-    measurement.finish(Outcome::status(response.status().as_u16()));
-    response
-}
-
-async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
-    if !valid_host_origin(shared, &request) {
-        return (StatusCode::FORBIDDEN, "invalid host or origin").into_response();
-    }
-    if request.uri().path() != shared.path {
-        return next.run(request).await;
-    }
-    if request.uri().query().is_some() {
-        return (StatusCode::BAD_REQUEST, "query parameters are not accepted").into_response();
-    }
-    // Admission comes before a request slot or introspection is spent.
-    let peer = request
-        .extensions()
-        .get::<ConnectInfo<SocketAddr>>()
-        .map(|info| info.0);
-    let client = shared.limiter.client(peer, request.headers());
-    let ticket = match shared.limiter.reserve(client) {
-        Ok(ticket) => ticket,
-        Err(wait) => return throttled(wait),
-    };
-    let Ok(permit) = Arc::clone(&shared.slots).try_acquire_owned() else {
-        return (
-            StatusCode::TOO_MANY_REQUESTS,
-            [(header::RETRY_AFTER, "1")],
-            "request capacity reached",
-        )
-            .into_response();
-    };
-    let connection = request
-        .extensions()
-        .get::<crate::delivery::Connection>()
-        .cloned();
-    let response = authorized(shared, request, next, ticket).await;
-    responses::hold(response, permit, connection, &shared.telemetry)
-}
-
-async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: Ticket) -> Response {
-    let token = match bearer::parse(request.headers()) {
-        Ok(token) => Zeroizing::new(token.to_owned()),
-        Err(bearer::Rejection::Missing) => return unauthorized(shared),
-        Err(bearer::Rejection::Malformed) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                [(
-                    header::WWW_AUTHENTICATE,
-                    shared.invalid_request_challenge.clone(),
-                )],
-                "invalid authorization request",
-            )
-                .into_response();
-        }
-    };
-    let work = async {
-        let principal = match shared.upstream.verify_request(&token).await {
-            Ok(principal) if principal.valid() => {
-                shared.limiter.refund(ticket);
-                principal
-            }
-            Err(failure) => return authorization_failure(shared, failure),
-            _ => {
-                return (StatusCode::SERVICE_UNAVAILABLE, "authorization unavailable")
-                    .into_response();
-            }
-        };
-        let write = principal.write;
-        drop(request.extensions_mut().insert(Authority {
-            principal,
-            token: Arc::new(token),
-        }));
-        prepared_request(shared, write, request, next).await
-    };
-    deadline::within(Duration::from_secs(10), work)
-        .await
-        .unwrap_or_else(|| {
-            (StatusCode::GATEWAY_TIMEOUT, "request deadline exceeded").into_response()
-        })
-}
-
-/// Validate and bind a request body before SDK dispatch. `write` says whether
-/// the verified token carries the `write` scope.
-async fn prepared_request(
-    shared: &Shared,
-    write: bool,
-    mut request: Request,
-    next: Next,
-) -> Response {
-    let mut original_id = None;
-    if request.method() == axum::http::Method::POST {
-        if !crate::media::unencoded(request.headers()) {
-            return (
-                StatusCode::UNSUPPORTED_MEDIA_TYPE,
-                [(header::ACCEPT_ENCODING, "identity")],
-                "unsupported content encoding",
-            )
-                .into_response();
-        }
-        let (mut parts, body) = request.into_parts();
-        if let Some(response) = transport::prepare_media(&mut parts.headers) {
-            return response;
-        }
-        let Ok(bytes) = to_bytes(body, REQUEST_BYTES).await else {
-            return (StatusCode::PAYLOAD_TOO_LARGE, "request body rejected").into_response();
-        };
-        let Ok(mut value) = strict_json::object(&bytes, REQUEST_BYTES) else {
-            return transport::rejected_json(&bytes);
-        };
-        if let Some(response) = transport::prepare(&parts.headers, &value) {
-            return response;
-        }
-        // MCP runtime insufficient-scope handling: refuse a write operation
-        // without the `write` scope before the tool runs or the API is contacted.
-        if !write
-            && value.get("method").and_then(Value::as_str) == Some("tools/call")
-            && value.pointer("/params/name").and_then(Value::as_str) == Some("execute")
-            && value
-                .pointer("/params/arguments/operation")
-                .and_then(Value::as_str)
-                .is_some_and(|operation| shared.catalog.needs_write(operation))
-        {
-            return (
-                StatusCode::FORBIDDEN,
-                [(
-                    header::WWW_AUTHENTICATE,
-                    shared.write_scope_challenge.clone(),
-                )],
-                "insufficient scope",
-            )
-                .into_response();
-        }
-        original_id = transport::prepare_id(&mut value);
-        // Keep cursor presence when the SDK drops a malformed optional value.
-        if value.get("method").and_then(Value::as_str) == Some("tools/list")
-            && value.pointer("/params/cursor").is_some()
-        {
-            let _previous_cursor = parts.extensions.insert(ToolCursorSupplied);
-        }
-        // The SDK deserializes tool data through serde's internal value
-        // representation. Bind the exact validated arguments separately so
-        // ordinary object keys cannot become private serializer records.
-        if value.get("method").and_then(Value::as_str) == Some("tools/call")
-            && matches!(
-                value.pointer("/params/name").and_then(Value::as_str),
-                Some("search" | "execute")
-            )
-            && let Some(arguments) = value.pointer_mut("/params/arguments")
-            && arguments.is_object()
-        {
-            drop(
-                parts
-                    .extensions
-                    .insert(OriginalArguments(arguments.clone())),
-            );
-            *arguments = json!({});
-        }
-        request = Request::from_parts(parts, Body::from(value.to_string()));
-    }
-    let response = transport::restore_id(original_id, next.run(request).await).await;
-    transport::fixed_header_error(response).await
-}
-
-fn valid_host_origin(shared: &Shared, request: &Request) -> bool {
-    if !matches!(
-        *request.method(),
-        axum::http::Method::GET | axum::http::Method::HEAD
-    ) && request
-        .headers()
-        .get_all("Sec-Fetch-Site")
-        .iter()
-        .any(|value| value == "cross-site")
-    {
-        return false;
-    }
-    shared.authority.allows(request)
-}
-
-/// A stable 429 for a client that spent its unauthenticated budget.
-fn throttled(wait: Duration) -> Response {
-    let seconds = wait
-        .as_secs()
-        .saturating_add(u64::from(wait.subsec_nanos() > 0))
-        .max(1);
-    (
-        StatusCode::TOO_MANY_REQUESTS,
-        [(header::RETRY_AFTER, seconds.to_string())],
-        "too many unauthenticated requests",
-    )
-        .into_response()
-}
-
-fn unauthorized(shared: &Shared) -> Response {
-    (
-        StatusCode::UNAUTHORIZED,
-        [(header::WWW_AUTHENTICATE, shared.challenge.clone())],
-        "unauthorized",
-    )
-        .into_response()
-}
-
-fn authorization_failure(shared: &Shared, failure: AuthorizationFailure) -> Response {
-    match failure {
-        AuthorizationFailure::InsufficientScope => (
-            StatusCode::FORBIDDEN,
-            [(
-                header::WWW_AUTHENTICATE,
-                shared.insufficient_scope_challenge.clone(),
-            )],
-            "insufficient scope",
-        )
-            .into_response(),
-        AuthorizationFailure::Rejected(failure) if failure.kind == Kind::Unauthorized => (
-            StatusCode::UNAUTHORIZED,
-            [(
-                header::WWW_AUTHENTICATE,
-                shared.invalid_token_challenge.clone(),
-            )],
-            "unauthorized",
-        )
-            .into_response(),
-        AuthorizationFailure::Rejected(_) => {
-            (StatusCode::SERVICE_UNAVAILABLE, "authorization unavailable").into_response()
-        }
-    }
-}
-
-fn envelope(result: Result<Value, Failure>, provenance: Option<&Value>) -> CallToolResult {
-    let (data, error) = match result {
-        Ok(data) => (data, Value::Null),
-        Err(failure) => (
-            Value::Null,
-            json!({"code":failure.kind.code(),
-            "next_action":failure.kind.next_action(),"retry_after_ms":failure.retry_after_ms}),
-        ),
-    };
-    let value = json!({"data":data,"error":error,"provenance":provenance});
-    if value.to_string().len() > ENVELOPE_BYTES {
-        return CallToolResult::structured_error(json!({"data":null,"provenance":null,
-            "error":{"code":"unavailable","next_action":"check_operation_status","retry_after_ms":null}}));
-    }
-    if value.get("error").is_some_and(Value::is_null) {
-        CallToolResult::structured(value)
-    } else {
-        CallToolResult::structured_error(value)
-    }
-}
-
-/// One tool definition. `effects` says whether any catalog operation writes,
-/// and whether any may delete or overwrite data; `execute` declares them.
-fn definition(name: &str, (writes, destroys): (bool, bool)) -> Tool {
-    let (title, description, schema) = if name == "search" {
-        (
-            "Search LogBrew Operations",
-            "Find the LogBrew operations that execute runs. Use this before execute; it never \
-             changes data. Send query, with optional after and limit, to list matching \
-             operations with their summary, permission, safety, cost and stability. Send \
-             operation alone to get one operation's full contract, including its input_schema.",
-            // No top-level oneOf, anyOf or allOf: some clients drop tools whose input
-            // schema has them. The search handler enforces the two argument forms.
-            json!({"type":"object","additionalProperties":false,
-            "properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32,
-                    "description":"Exact operation name. Returns its full contract. Send no other field with it."},
-                "query":{"type":"string","maxLength":256_u32,
-                    "description":"Words to find in operation names and summaries, ignoring case. Every word must match; empty text lists all operations."},
-                "after":{"type":"string","maxLength":128_u32,
-                    "description":"next_cursor from the previous page. Leave out for the first page; an empty next_cursor means the last page."},
-                "limit":{"type":"integer","minimum":1_u32,"maximum":10_u32,
-                    "description":"Operations per page, from 1 to 10. Defaults to 10."}}}),
-        )
-    } else {
-        (
-            "Run a LogBrew Operation",
-            "Run one LogBrew operation that search returned. Call search first for the operation \
-             name and its input contract, then send that name as operation and a matching object \
-             as input. Read operations return projects, issues, logs, traces, spans, metrics, \
-             releases and product analytics from the projects this connection can read. Write \
-             operations (resolve, reopen, archive, prioritize or assign issues, create projects \
-             or keys, revoke keys, send a test event, load or remove sample data) need the write \
-             scope, which a project read key never has, and act as the signed-in user within that \
-             user's permissions. Archiving, key revocation and sample-data removal change nothing \
-             until a second call sends, within 5 minutes, the confirmation the first call \
-             returned. Repeating an issue change, a revocation or a sample-data change gives the \
-             same result. A create repeats safely only with the same idempotency_key, and each \
-             test event call sends a new event. Returns data and provenance, or an error with a \
-             stable code, next_action and retry_after_ms.",
-            json!({"type":"object","additionalProperties":false,
-            "required":["operation","input"],"properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32,
-                    "description":"Operation name exactly as search returned it."},
-                "input":{"type":"object",
-                    "description":"Arguments matching that operation's input_schema from search; {} when it takes none."}}}),
-        )
-    };
-    let object = schema.as_object().cloned().unwrap_or_default();
-    // search only reads; execute writes when the catalog has write operations.
-    let annotations = ToolAnnotations::with_title(title).open_world(false);
-    let annotations = if name == "execute" && writes {
-        annotations
-            .read_only(false)
-            .destructive(destroys)
-            .idempotent(false)
-    } else {
-        annotations.read_only(true)
-    };
-    Tool::new(name.to_owned(), description, Arc::new(object))
-        .with_title(title)
-        .with_raw_output_schema(Arc::new(
-            output_schema().as_object().cloned().unwrap_or_default(),
-        ))
-        .with_annotations(annotations)
-}
-
-fn output_schema() -> Value {
-    let errors: Vec<_> = [
-        Kind::Configuration,
-        Kind::UnknownOperation,
-        Kind::Unauthorized,
-        Kind::PermissionDenied,
-        Kind::InvalidInput,
-        Kind::InvalidOutput,
-        Kind::Throttled,
-        Kind::NotFound,
-        Kind::Unavailable,
-    ]
-    .into_iter()
-    .map(|kind| {
-        json!({"properties":{
-        "code":{"const":kind.code()},"next_action":{"const":kind.next_action()}}})
-    })
-    .collect();
-    json!({"$schema":"https://json-schema.org/draft/2020-12/schema",
-        "type":"object","required":["data","error","provenance"],"additionalProperties":false,
-        "properties":{"data":{},"error":{},"provenance":{}},
-    "$defs":{
-        "provenance":{"type":"object","required":["definition_sha256"],"additionalProperties":false,
-            "properties":{"definition_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}}},
-        "error":{"type":"object","required":["code","next_action","retry_after_ms"],
-            "additionalProperties":false,"properties":{"code":{"type":"string"},
-                "next_action":{"type":"string"},"retry_after_ms":{"type":["integer","null"],
-                        "minimum":0,"maximum":2_147_483_647_000_u64}},"oneOf":errors}
-    },
-    "oneOf":[
-        {"properties":{"data":{"type":"object"},"error":{"type":"null"},
-            "provenance":{"$ref":"#/$defs/provenance"}}},
-        {"properties":{"data":{"type":"null"},"error":{"$ref":"#/$defs/error"},
-            "provenance":{"anyOf":[{"$ref":"#/$defs/provenance"},{"type":"null"}]}}}
-    ]})
 }

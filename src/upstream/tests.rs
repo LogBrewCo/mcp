@@ -3,7 +3,7 @@
 use core::time::Duration;
 use std::time::UNIX_EPOCH;
 
-use super::{MachineCredential, retry_after_at};
+use super::{MachineCredential, exchange::retry_after_at};
 use crate::error::Kind;
 use zeroize::Zeroizing;
 

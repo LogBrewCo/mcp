@@ -1,6 +1,6 @@
 //! Controlled distributions and collector loss are exact tests, not benchmarks.
 
-use super::*;
+use super::{snapshot::percentile, *};
 
 /// Reproduce p99 from retained distribution buckets and preserve the slow maximum.
 ///

@@ -22,7 +22,8 @@ const SCHEMA_BYTES: usize = 256 << 10;
 pub struct OperationInfo {
     /// Public operation purpose.
     pub summary: String,
-    /// Required delegated scope, not a grant of access: `read` or `write`.
+    /// Required delegated scope, not a grant of access: `read`, or `write`
+    /// for an operation that changes data.
     pub permission: String,
     /// Public documentation URL.
     pub documentation: String,
@@ -30,8 +31,26 @@ pub struct OperationInfo {
     pub stability: String,
     /// Public cost description.
     pub cost: String,
-    /// Operation semantics. The server loads only `read_only` operations.
+    /// Operation semantics: `read_only`, or `write` with the `write` permission.
     pub safety: String,
+    /// Human-readable title. Required for write operations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+    /// Behavior hints with MCP tool annotation names. Required for write operations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hints: Option<OperationHints>,
+}
+
+/// Behavior hints for one operation, named like MCP tool annotations.
+#[derive(Clone, Copy, Deserialize, Serialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct OperationHints {
+    /// The operation changes nothing.
+    pub read_only_hint: bool,
+    /// The operation may delete or overwrite data.
+    pub destructive_hint: bool,
+    /// Repeating the operation with the same input has no further effect.
+    pub idempotent_hint: bool,
 }
 
 /// One versioned operation and its self-contained schemas.
@@ -97,6 +116,19 @@ impl Catalog {
 
     pub(crate) fn definition_digest(&self) -> &str {
         &self.digest
+    }
+
+    /// Whether any operation writes, and whether any may delete or overwrite data.
+    pub(crate) fn effects(&self) -> (bool, bool) {
+        self.entries
+            .values()
+            .filter_map(|entry| entry.operation.info.hints)
+            .fold((false, false), |(writes, destroys), hints| {
+                (
+                    writes || !hints.read_only_hint,
+                    destroys || hints.destructive_hint,
+                )
+            })
     }
 
     /// Return one exact definition or a small deterministic discovery page.
@@ -337,11 +369,32 @@ impl jsonschema::Retrieve for DenyRetrieval {
 /// Check the identifier and public discovery metadata.
 ///
 /// # Errors
-/// Rejects invalid text, any permission other than `read` or `write`, any
-/// safety other than `read_only`, invalid stability values and documentation
-/// URLs outside the accepted HTTPS contract.
+/// Rejects invalid text, a permission other than `read` or `write`, safety
+/// that does not match the permission, a write operation without a title and
+/// write hints, invalid stability values and documentation URLs outside the
+/// accepted HTTPS contract.
 fn validate_operation(operation: &Operation) -> Result<(), Failure> {
     let info = &operation.info;
+    let write = info.permission == WRITE_SCOPE;
+    let effects_match = if write {
+        info.safety == "write"
+            && info.title.is_some()
+            && info.hints.is_some_and(|hints| !hints.read_only_hint)
+    } else {
+        info.permission == READ_SCOPE
+            && info.safety == "read_only"
+            && info
+                .hints
+                .is_none_or(|hints| hints.read_only_hint && !hints.destructive_hint)
+    };
+    if !effects_match
+        || info
+            .title
+            .as_deref()
+            .is_some_and(|title| !valid_text(title) || title.len() > 64)
+    {
+        return Err(Kind::Configuration.into());
+    }
     if !valid_id(&operation.id)
         || [
             &info.summary,
@@ -353,8 +406,6 @@ fn validate_operation(operation: &Operation) -> Result<(), Failure> {
         ]
         .iter()
         .any(|text| !valid_text(text))
-        || ![READ_SCOPE, WRITE_SCOPE].contains(&info.permission.as_str())
-        || info.safety != "read_only"
         || !matches!(
             info.stability.as_str(),
             "experimental" | "stable" | "deprecated"

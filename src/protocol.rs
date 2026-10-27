@@ -119,14 +119,15 @@ impl ServerHandler for Tools {
                 None,
             )));
         }
+        let effects = self.0.catalog.effects();
         core::future::ready(Ok(ListToolsResult::with_all_items(vec![
-            definition("search"),
-            definition("execute"),
+            definition("search", effects),
+            definition("execute", effects),
         ])))
     }
 
     fn get_tool(&self, name: &str) -> Option<Tool> {
-        matches!(name, "search" | "execute").then(|| definition(name))
+        matches!(name, "search" | "execute").then(|| definition(name, self.0.catalog.effects()))
     }
 
     fn on_custom_request(
@@ -613,7 +614,9 @@ fn envelope(result: Result<Value, Failure>, provenance: Option<&Value>) -> CallT
     }
 }
 
-fn definition(name: &str) -> Tool {
+/// One tool definition. `effects` says whether any catalog operation writes,
+/// and whether any may delete or overwrite data; `execute` declares them.
+fn definition(name: &str, (writes, destroys): (bool, bool)) -> Tool {
     let (title, description, schema) = if name == "search" {
         (
             "Search LogBrew Operations",
@@ -636,17 +639,22 @@ fn definition(name: &str) -> Tool {
         )
     };
     let object = schema.as_object().cloned().unwrap_or_default();
-    // The catalog loader admits only read-only operations, so both tools only read.
+    // search only reads; execute writes when the catalog has write operations.
+    let annotations = ToolAnnotations::with_title(title).open_world(false);
+    let annotations = if name == "execute" && writes {
+        annotations
+            .read_only(false)
+            .destructive(destroys)
+            .idempotent(false)
+    } else {
+        annotations.read_only(true)
+    };
     Tool::new(name.to_owned(), description, Arc::new(object))
         .with_title(title)
         .with_raw_output_schema(Arc::new(
             output_schema().as_object().cloned().unwrap_or_default(),
         ))
-        .with_annotations(
-            ToolAnnotations::with_title(title)
-                .read_only(true)
-                .open_world(false),
-        )
+        .with_annotations(annotations)
 }
 
 fn output_schema() -> Value {

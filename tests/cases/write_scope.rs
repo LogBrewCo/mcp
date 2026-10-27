@@ -23,18 +23,27 @@ const WRITE_CHALLENGE: &str = "Bearer error=\"insufficient_scope\", scope=\"read
 /// # Errors
 /// Returns a JSON serialization error for the synthetic catalog.
 fn catalog() -> TestResult<Vec<u8>> {
-    let operation = |id: &str, permission: &str| {
-        json!({"id":id,"info":{"summary":"Synthetic operation","permission":permission,
-            "documentation":"https://docs.example/operations","stability":"stable",
-            "cost":"one request","safety":"read_only"},
+    let operation = |id: &str, info: Value| {
+        let mut operation = json!({"id":id,"info":{"summary":"Synthetic operation",
+            "permission":"read","documentation":"https://docs.example/operations",
+            "stability":"stable","cost":"one request","safety":"read_only"},
         "input_schema":{"type":"object","additionalProperties":false},
         "output_schema":{"type":"object","additionalProperties":false,"required":["count"],
-            "properties":{"count":{"type":"integer"}}}})
+            "properties":{"count":{"type":"integer"}}}});
+        if let (Some(target), Some(changes)) = (
+            operation.get_mut("info").and_then(Value::as_object_mut),
+            info.as_object(),
+        ) {
+            target.extend(changes.clone());
+        }
+        operation
     };
     Ok(serde_json::to_vec(
         &json!({"format_version":1_i32,"operations":[
-            operation("logs.read.v1", "read"),
-            operation("issues.update.v1", "write"),
+            operation("logs.read.v1", json!({})),
+            operation("issues.update.v1", json!({"permission":"write","safety":"write",
+                "title":"Update an Issue","hints":{"readOnlyHint":false,
+                "destructiveHint":false,"idempotentHint":true}})),
         ]}),
     )?)
 }

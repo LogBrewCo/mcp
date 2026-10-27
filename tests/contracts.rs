@@ -283,44 +283,69 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
 #[test]
 /// # Panics
 ///
-/// Panics if the loader admits an operation that needs a scope other than
-/// `read` or `write`, or that is not read-only, or rejects a `write` permission.
-fn catalog_admits_read_or_write_permissions_and_only_read_only_operations() {
-    for (field, value) in [
-        ("permission", "logs:read"),
-        ("permission", "READ"),
-        ("permission", "WRITE"),
-        ("permission", "read write"),
-        ("permission", "write read"),
-        ("permission", "admin"),
-        ("safety", "write"),
-        ("safety", "destructive"),
-    ] {
+/// Panics if the loader admits an operation whose scope, safety, title and
+/// hints disagree: reads need `read` and `read_only`; writes need `write`,
+/// `write`, a title and hints that are not read-only.
+fn catalog_admits_reads_under_read_and_titled_writes_under_write() {
+    let write = json!({"permission":"write","safety":"write","title":"Resolve an Issue",
+        "hints":{"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true}});
+    let with = |changes: &Value| {
         let mut document: Value =
             serde_json::from_slice(&artifact(&json!({"type":"object"}))).expect("artifact");
-        *document
-            .pointer_mut(&format!("/operations/0/info/{field}"))
-            .expect("field") = json!(value);
-        let bytes = serde_json::to_vec(&document).expect("encoded artifact");
-        let failure = Catalog::load(&bytes, &Sha256::digest(&bytes).into())
-            .err()
-            .expect("rejected catalog");
-        assert_eq!(failure.kind, logbrew_mcp::error::Kind::Configuration);
+        let info = document
+            .pointer_mut("/operations/0/info")
+            .and_then(Value::as_object_mut)
+            .expect("info");
+        for (field, value) in changes.as_object().expect("changes") {
+            if value.is_null() {
+                drop(info.remove(field));
+            } else {
+                drop(info.insert(field.clone(), value.clone()));
+            }
+        }
+        serde_json::to_vec(&document).expect("encoded artifact")
+    };
+    let load = |bytes: &[u8]| Catalog::load(bytes, &Sha256::digest(bytes).into());
+    for accepted in [
+        json!({}),
+        json!({"title":"Read Logs","hints":{"readOnlyHint":true,"destructiveHint":false,
+            "idempotentHint":true}}),
+        write.clone(),
+    ] {
+        assert!(load(&with(&accepted)).is_ok(), "{accepted}");
     }
-    let mut document: Value =
-        serde_json::from_slice(&artifact(&json!({"type":"object"}))).expect("artifact");
-    *document
-        .pointer_mut("/operations/0/info/permission")
-        .expect("permission") = json!("write");
-    let bytes = serde_json::to_vec(&document).expect("encoded artifact");
-    let catalog = Catalog::load(&bytes, &Sha256::digest(&bytes).into()).expect("write catalog");
-    assert_eq!(
-        catalog
-            .search(&json!({"operation":"logs.read.v1"}))
-            .expect("contract")
-            .pointer("/info/permission"),
-        Some(&json!("write"))
-    );
+    for rejected in [
+        json!({"permission":"logs:read"}),
+        json!({"permission":"READ"}),
+        json!({"permission":"WRITE"}),
+        json!({"permission":"read write"}),
+        json!({"permission":"write read"}),
+        json!({"permission":"admin"}),
+        json!({"safety":"write"}),
+        json!({"safety":"destructive"}),
+        json!({"permission":"write"}),
+        json!({"hints":{"readOnlyHint":false,"destructiveHint":false,"idempotentHint":false}}),
+        json!({"hints":{"readOnlyHint":true,"destructiveHint":true,"idempotentHint":true}}),
+        json!({"title":" padded "}),
+        json!({"title":"x".repeat(65)}),
+        json!({"permission":"write","safety":"write","title":"No Hints"}),
+        json!({"permission":"write","safety":"write","hints":write["hints"]}),
+        json!({"permission":"write","safety":"read_only","title":"T","hints":write["hints"]}),
+        json!({"permission":"write","safety":"write","title":"T",
+            "hints":{"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true}}),
+        json!({"permission":"write","safety":"write","title":"T",
+            "hints":{"readOnlyHint":false,"destructiveHint":false}}),
+        json!({"permission":"write","safety":"write","title":"T",
+            "hints":{"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true,
+                "extra":true}}),
+    ] {
+        let failure = load(&with(&rejected)).err().expect("rejected catalog");
+        assert_eq!(
+            failure.kind,
+            logbrew_mcp::error::Kind::Configuration,
+            "{rejected}"
+        );
+    }
 }
 
 #[test]

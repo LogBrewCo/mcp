@@ -10,8 +10,9 @@ https://mcp.logbrew.co/mcp
 - **Transport:** Streamable HTTP. The server accepts MCP protocol versions
   `2026-07-28`, `2025-11-25` and `2025-06-18`.
 - **Authorization:** OAuth. Your client opens the LogBrew authorization page,
-  you sign in, and you select the projects that the agent can read. The server
-  requires the single `read` scope.
+  you sign in, and you select the projects that the agent can read. The `read`
+  scope lets the agent read. Operations that change data need the separate
+  `write` scope, which you can decline when you approve the connection.
 - **Read-only:** The agent cannot change issues, projects or account settings.
   A read of a project that you did not approve returns `permission_denied`.
 - **Connection lifetime:** An access token is valid for 1 hour, and the client
@@ -137,11 +138,16 @@ server's issuer identifier byte for byte, and `resource` must equal the audience
 the issuer binds into tokens. Startup rejects an issuer that ends with `/`,
 because it would deny every request. Introspection alone decides which clients
 can connect. The server accepts any client ID that the authorization server
-confirms, if it has 1 to 2048 printable ASCII characters. The server
-requires the single delegated scope `read`; it is not configurable. It
+confirms, if it has 1 to 2048 printable ASCII characters. Every request
+needs the delegated `read` scope. An operation whose permission is `write`
+also needs the separately granted `write` scope. Without it, `execute`
+answers HTTP 403 before contacting the API, with an `insufficient_scope`
+challenge that asks for `read write`. Scopes are not configurable. The server
 publishes RFC 9728 protected resource metadata at
-`/.well-known/oauth-protected-resource` followed by the resource path. The document names the issuer as the only authorization server and `read`
-as the only scope, and every 401 and 403 challenge links to it.
+`/.well-known/oauth-protected-resource` followed by the resource path. The
+document names the issuer as the only authorization server and lists the
+`read` and `write` scopes. The 401 challenge asks for `read` only, and every
+401 and 403 challenge links to the document.
 
 The separate service loader reads referenced material and constructs the
 authenticated handler without opening a listener or contacting upstream services.
@@ -247,7 +253,8 @@ update the catalog, replace both files in one change and update the reference.
 The catalog loader accepts format version 1 and requires an expected
 SHA-256 digest from trusted release configuration. It rejects files above 8 MiB,
 duplicate keys, unknown metadata fields, unsupported formats, invalid operation
-contracts, and any operation that is not `read_only` under the `read` scope.
+contracts, any permission other than `read` or `write`, and any operation that
+is not `read_only`.
 Both tools therefore carry read-only, closed-world annotations. Loading a catalog does not grant access to its operations.
 
 The tools return a `data`/`error` envelope with catalog provenance.

@@ -40,7 +40,9 @@ use crate::{
     json as strict_json, responses,
     telemetry::{Outcome, Stage, Telemetry},
     transport,
-    upstream::{AuthorizationFailure, Principal, SCOPE, Upstream, canonical_https},
+    upstream::{
+        AuthorizationFailure, Principal, READ_SCOPE, Upstream, WRITE_SCOPE, canonical_https,
+    },
 };
 
 // 2025-06-18 and 2025-11-25 clients use the `initialize` handshake and are served
@@ -75,6 +77,7 @@ struct Shared {
     invalid_token_challenge: header::HeaderValue,
     invalid_request_challenge: header::HeaderValue,
     insufficient_scope_challenge: header::HeaderValue,
+    write_scope_challenge: header::HeaderValue,
     slots: Arc<Semaphore>,
     limiter: Limiter,
     telemetry: Telemetry,
@@ -234,6 +237,11 @@ impl Tools {
             .get::<axum::http::request::Parts>()
             .and_then(|parts| parts.extensions.get::<Authority>())
             .ok_or(Kind::Unavailable)?;
+        // The HTTP boundary already answers this with a scope challenge; keep the
+        // check beside the API call so no other path can run a write operation.
+        if self.0.catalog.needs_write(operation) && !authority.principal.write {
+            return Err(Kind::PermissionDenied.into());
+        }
         let data = self
             .0
             .upstream
@@ -272,8 +280,9 @@ pub fn router(
     let path = url.path().to_owned();
     let authority = authority::HttpsAuthority::parse(&host).ok_or(Kind::Configuration)?;
     let metadata_path = format!("/.well-known/oauth-protected-resource{path}");
-    let challenge =
-        format!("Bearer resource_metadata=\"https://{host}{metadata_path}\", scope=\"{SCOPE}\"");
+    let metadata_url = format!("https://{host}{metadata_path}");
+    // Clients start with least privilege: only `read` is requested up front.
+    let challenge = format!("Bearer resource_metadata=\"{metadata_url}\", scope=\"{READ_SCOPE}\"");
     let value = |text: &str| {
         header::HeaderValue::from_str(text).map_err(Failure::redact(Kind::Configuration))
     };
@@ -281,6 +290,11 @@ pub fn router(
     let invalid_request_challenge = value(&format!("{challenge}, error=\"invalid_request\""))?;
     let insufficient_scope_challenge =
         value(&format!("{challenge}, error=\"insufficient_scope\""))?;
+    let write_scope_challenge = value(&format!(
+        "Bearer error=\"insufficient_scope\", scope=\"{READ_SCOPE} {WRITE_SCOPE}\", \
+         resource_metadata=\"{metadata_url}\", \
+         error_description=\"This operation needs the {WRITE_SCOPE} scope.\""
+    ))?;
     let challenge = value(&challenge)?;
     let config = StreamableHttpServerConfig::default()
         .with_legacy_session_mode(false)
@@ -301,6 +315,7 @@ pub fn router(
         invalid_token_challenge,
         invalid_request_challenge,
         insufficient_scope_challenge,
+        write_scope_challenge,
         slots: Arc::new(Semaphore::new(64)),
         limiter,
         telemetry,
@@ -332,7 +347,7 @@ async fn metadata(State(shared): State<Arc<Shared>>, request: Request) -> Respon
     }
     axum::Json(
         json!({"resource":shared.resource,"authorization_servers":[shared.issuer],
-        "bearer_methods_supported":["header"],"scopes_supported":[SCOPE]}),
+        "bearer_methods_supported":["header"],"scopes_supported":[READ_SCOPE,WRITE_SCOPE]}),
     )
     .into_response()
 }
@@ -416,12 +431,13 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
                     .into_response();
             }
         };
+        let write = principal.write;
         drop(
             request
                 .extensions_mut()
                 .insert(Authority { principal, token }),
         );
-        prepared_request(request, next).await
+        prepared_request(shared, write, request, next).await
     };
     deadline::within(Duration::from_secs(10), work)
         .await
@@ -430,7 +446,14 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
         })
 }
 
-async fn prepared_request(mut request: Request, next: Next) -> Response {
+/// Validate and bind a request body before SDK dispatch. `write` says whether
+/// the verified token carries the `write` scope.
+async fn prepared_request(
+    shared: &Shared,
+    write: bool,
+    mut request: Request,
+    next: Next,
+) -> Response {
     let mut original_id = None;
     if request.method() == axum::http::Method::POST {
         if !crate::media::unencoded(request.headers()) {
@@ -453,6 +476,26 @@ async fn prepared_request(mut request: Request, next: Next) -> Response {
         };
         if let Some(response) = transport::prepare(&parts.headers, &value) {
             return response;
+        }
+        // MCP runtime insufficient-scope handling: refuse a write operation
+        // without the `write` scope before the tool runs or the API is contacted.
+        if !write
+            && value.get("method").and_then(Value::as_str) == Some("tools/call")
+            && value.pointer("/params/name").and_then(Value::as_str) == Some("execute")
+            && value
+                .pointer("/params/arguments/operation")
+                .and_then(Value::as_str)
+                .is_some_and(|operation| shared.catalog.needs_write(operation))
+        {
+            return (
+                StatusCode::FORBIDDEN,
+                [(
+                    header::WWW_AUTHENTICATE,
+                    shared.write_scope_challenge.clone(),
+                )],
+                "insufficient scope",
+            )
+                .into_response();
         }
         original_id = transport::prepare_id(&mut value);
         // Keep cursor presence when the SDK drops a malformed optional value.

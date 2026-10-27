@@ -43,6 +43,7 @@ pub async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure
         let principal = Principal {
             credential_id: "synthetic-credential".to_owned(),
             client_id: "synthetic-client".to_owned(),
+            write: false,
         };
         let value = upstream
             .execute(&principal, TOKEN, "logs.read.v1", &json!({}))

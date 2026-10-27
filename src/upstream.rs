@@ -26,8 +26,10 @@ use crate::{
     telemetry::{Outcome, Stage, Telemetry},
 };
 
-/// The only delegated scope. It grants reads of every catalog operation.
-pub const SCOPE: &str = "read";
+/// Required on every request. It grants reads of every `read` catalog operation.
+pub const READ_SCOPE: &str = "read";
+/// Separately granted; an operation whose permission is `write` also needs it.
+pub const WRITE_SCOPE: &str = "write";
 
 const TOKEN_BYTES: usize = 8 << 10;
 /// Accepted issuer clock lead for `iat` and `nbf`, in seconds.
@@ -75,13 +77,15 @@ struct Verified {
     scope_allowed: bool,
 }
 
-/// Verified identity references. These are not bearer credentials.
+/// Verified identity references and write grant. These are not bearer credentials.
 #[derive(Clone)]
 pub struct Principal {
     /// Issuer credential reference.
     pub credential_id: String,
     /// Delegated client identifier.
     pub client_id: String,
+    /// Whether the token also carries the `write` scope.
+    pub write: bool,
 }
 
 impl Principal {
@@ -474,9 +478,11 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
             return Err(Kind::Unauthorized.into());
         }
     }
+    let scope = text("scope")?;
     let principal = Principal {
         credential_id: text("jti")?.to_owned(),
         client_id: text("client_id")?.to_owned(),
+        write: scope.split(' ').any(|entry| entry == WRITE_SCOPE),
     };
     let audience = value.get("aud").ok_or(Kind::Unavailable)?;
     let audience_matches = if let Some(single) = audience.as_str() {
@@ -489,7 +495,6 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
     } else {
         return Err(Kind::Unavailable.into());
     };
-    let scope = text("scope")?;
     if expires <= now
         || !principal.valid()
         || text("iss")? != options.issuer
@@ -501,7 +506,7 @@ fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure>
     }
     Ok(Verified {
         principal,
-        scope_allowed: scope.split(' ').any(|entry| entry == SCOPE),
+        scope_allowed: scope.split(' ').any(|entry| entry == READ_SCOPE),
     })
 }
 

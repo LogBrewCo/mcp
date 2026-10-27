@@ -419,16 +419,42 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
     }
 }
 
-/// A complete version 4 configuration with synthetic file references.
+/// A complete version 5 configuration with synthetic file references.
 fn configuration_fields() -> serde_json::Value {
-    json!({"version":"4","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
+    json!({"version":"5","listen":"127.0.0.1:8080","resource":"https://resource.example/mcp",
         "admission":{"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32},
-        "issuer":"https://issuer.example","client_allowlist_file":"/synthetic/clients.json",
+        "issuer":"https://issuer.example",
         "introspection_endpoint":"https://service.example/introspect",
         "execution_endpoint":"https://service.example/execute",
         "service_client_id":"machine","service_secret_file":"/synthetic/service",
         "catalog_file":"/synthetic/catalog","catalog_sha256":"00".repeat(32),
         "certificate_file":"/synthetic/certificate","private_key_file":"/synthetic/key"})
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if fixture encoding fails, or if a version 4 configuration or a
+/// `client_allowlist_file` field is accepted, with or without the other change.
+fn configuration_rejects_version_4_and_the_removed_client_allowlist_file() {
+    let decode = |value: &serde_json::Value| {
+        Config::decode(&serde_json::to_vec(value).expect("configuration"))
+    };
+    let current = configuration_fields();
+    drop(decode(&current).expect("version 5 without a client allowlist"));
+    let mut previous = current.clone();
+    *previous.get_mut("version").expect("version") = json!("4");
+    let mut listed = current;
+    drop(listed.as_object_mut().expect("object").insert(
+        "client_allowlist_file".to_owned(),
+        json!("/synthetic/clients.json"),
+    ));
+    let mut previous_listed = listed.clone();
+    *previous_listed.get_mut("version").expect("version") = json!("4");
+    for rejected in [previous, listed, previous_listed] {
+        let failure = decode(&rejected).unwrap_err();
+        assert_eq!(failure.kind, logbrew_mcp::error::Kind::Configuration);
+    }
 }
 
 #[test]
@@ -469,10 +495,9 @@ fn telemetry_export_needs_an_endpoint_and_a_key_file_together() {
 #[test]
 /// # Panics
 ///
-/// Panics if fixture encoding fails or version 4 stops requiring one service
-/// login, a client allowlist, secret-file references and bounded admission
-/// limits, or accepts other versions, superseded fields, inline secrets or
-/// duplicate fields.
+/// Panics if fixture encoding fails or version 5 stops requiring one service
+/// login, secret-file references and bounded admission limits, or accepts other
+/// versions, superseded fields, inline secrets or duplicate fields.
 fn configuration_requires_one_service_login_and_secret_file_references() {
     let fields = configuration_fields();
     let decode = |value: &serde_json::Value| {
@@ -481,18 +506,13 @@ fn configuration_requires_one_service_login_and_secret_file_references() {
     let config = decode(&fields).expect("secret references only");
     let _: (core::net::SocketAddr, [u8; 32]) = config.address_digest().unwrap();
     assert!(!format!("{config:?}").contains("synthetic"));
-    assert_eq!(config.client_allowlist_file, "/synthetic/clients.json");
     assert_eq!(config.service_secret_file, "/synthetic/service");
-    for version in ["1", "2", "3", "5"] {
+    for version in ["1", "2", "3", "4", "6"] {
         let mut changed = fields.clone();
         *changed.get_mut("version").expect("version") = json!(version);
         let _: logbrew_mcp::Failure = decode(&changed).unwrap_err();
     }
-    for field in [
-        "client_allowlist_file",
-        "service_client_id",
-        "service_secret_file",
-    ] {
+    for field in ["service_client_id", "service_secret_file"] {
         let mut missing = fields.clone();
         drop(missing.as_object_mut().expect("object").remove(field));
         let _: logbrew_mcp::Failure = decode(&missing).unwrap_err();
@@ -518,7 +538,7 @@ fn configuration_requires_one_service_login_and_secret_file_references() {
         let _: logbrew_mcp::Failure = decode(&extra).unwrap_err();
     }
     let _: logbrew_mcp::Failure =
-        Config::decode(b"{\"version\":\"4\",\"version\":\"4\"}").unwrap_err();
+        Config::decode(b"{\"version\":\"5\",\"version\":\"5\"}").unwrap_err();
     assert_eq!(config.admission.burst, 16);
     assert_eq!(config.admission.trusted_proxy, None);
     let limits = json!({"burst":16_u32,"per_minute":600_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":30_u32});

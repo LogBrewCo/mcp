@@ -543,9 +543,6 @@ fn authorization_failure(shared: &Shared, failure: AuthorizationFailure) -> Resp
             "unauthorized",
         )
             .into_response(),
-        AuthorizationFailure::Rejected(failure) if failure.kind == Kind::PermissionDenied => {
-            (StatusCode::FORBIDDEN, "client access denied").into_response()
-        }
         AuthorizationFailure::Rejected(_) => {
             (StatusCode::SERVICE_UNAVAILABLE, "authorization unavailable").into_response()
         }

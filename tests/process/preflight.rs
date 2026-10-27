@@ -171,7 +171,7 @@ async fn configuration_check_leaves_the_running_service_and_upstreams_untouched(
 /// or the configured address remains bound after the check.
 #[tokio::test]
 async fn configuration_check_rejects_invalid_material_without_disclosing_it() {
-    for invalid in ["configuration", "catalog", "key", "policy", "secret"] {
+    for invalid in ["configuration", "catalog", "key", "secret"] {
         let fixture = Fixture::new().expect("fixture");
         invalid_material(&fixture, invalid).expect("invalid material");
         let mut process = check(&fixture.config).expect("native executable");
@@ -199,10 +199,6 @@ fn invalid_material(fixture: &Fixture, invalid: &str) -> TestResult<()> {
                 other.signing_key.serialize_pem(),
             )?;
         }
-        "policy" => fs::write(
-            fixture.directory.0.join("clients.json"),
-            br#"{"version":"1","clients":["private-client","private-client"]}"#,
-        )?,
         _ => fs::set_permissions(
             fixture.directory.0.join("secret"),
             fs::Permissions::from_mode(0o644),

@@ -7,10 +7,7 @@ use core::{
 };
 use std::io;
 
-use logbrew_mcp::{
-    clients::ClientAllowlist,
-    upstream::{MachineCredential, Upstream, UpstreamOptions},
-};
+use logbrew_mcp::upstream::{MachineCredential, Upstream, UpstreamOptions};
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject as _};
 use tokio::{
     io::{AsyncReadExt as _, AsyncWriteExt as _},
@@ -167,10 +164,7 @@ impl Raw {
                 service_credential: credential()?,
             },
             root,
-        )?
-        .with_client_allowlist(ClientAllowlist::decode(
-            br#"{"version":"1","clients":["synthetic-client"]}"#,
-        )?);
+        )?;
         let (sender, receiver) = mpsc::channel::<Exchange>(1);
         let handshakes = Arc::new(AtomicUsize::new(0));
         let accepted = Arc::clone(&handshakes);

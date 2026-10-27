@@ -8,7 +8,6 @@ use axum::{
     http::{HeaderMap, Request, StatusCode},
 };
 use logbrew_mcp::{
-    clients::ClientAllowlist,
     error::Kind,
     telemetry::{Outcome, Stage},
 };
@@ -205,39 +204,17 @@ fn scope_observations(fixture: &Fixture) -> TestResult<()> {
 #[tokio::test]
 /// # Panics
 ///
-/// Panics if missing scope overrides credential or client-policy denials, changes
+/// Panics if missing scope overrides credential or client ID denials, changes
 /// their challenge and body contracts, or permits execution.
-async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denials() {
-    let policy = ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)
-        .expect("policy");
-    let fixture = Fixture::with_clients(policy).await.expect("fixture");
+async fn missing_scope_does_not_mask_invalid_credentials_or_client_ids() {
+    let fixture = Fixture::new().await.expect("fixture");
     let mut claims = fixture.authority().expect("valid claims");
     *claims.get_mut("scope").expect("scope") = json!("other:scope");
-    for (field, value, expected, body) in [
-        (
-            "exp",
-            json!(0_i32),
-            StatusCode::UNAUTHORIZED,
-            "unauthorized",
-        ),
-        (
-            "iss",
-            json!("https://foreign.example"),
-            StatusCode::UNAUTHORIZED,
-            "unauthorized",
-        ),
-        (
-            "aud",
-            json!("https://foreign.example/mcp"),
-            StatusCode::UNAUTHORIZED,
-            "unauthorized",
-        ),
-        (
-            "client_id",
-            json!("SYNTHETIC_PRIVATE_CLIENT"),
-            StatusCode::FORBIDDEN,
-            "client access denied",
-        ),
+    for (field, value) in [
+        ("exp", json!(0_i32)),
+        ("iss", json!("https://foreign.example")),
+        ("aud", json!("https://foreign.example/mcp")),
+        ("client_id", json!("SYNTHETIC_PRIVATE_CLIENT\t")),
     ] {
         let mut invalid = claims.clone();
         *invalid.get_mut(field).expect("claim") = value;
@@ -250,14 +227,14 @@ async fn missing_scope_does_not_mask_invalid_credentials_or_client_policy_denial
             .oneshot(request_message(1, "tools/list", json!({}), TOKEN).expect("request"))
             .await
             .expect("denial");
-        assert_eq!(response.status(), expected);
-        assert_token_or_client_challenge(response.headers(), expected).expect("denial challenge");
+        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        assert_invalid_token_challenge(response.headers()).expect("denial challenge");
         assert_eq!(
             to_bytes(response.into_body(), 1024)
                 .await
                 .expect("denial body")
                 .as_ref(),
-            body.as_bytes()
+            b"unauthorized"
         );
     }
     drop(claims.as_object_mut().expect("claims").remove("scope"));
@@ -310,24 +287,19 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
 ///
 /// # Panics
 ///
-/// Panics if credential denial advertises insufficient scope or omits `invalid_token`,
-/// or if a client-policy denial includes an authentication challenge.
+/// Panics if credential denial advertises insufficient scope or omits `invalid_token`.
 // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
 #[expect(
     clippy::panic_in_result_fn,
     reason = "Test assertions must retain their failure and comparison diagnostics."
 )]
-fn assert_token_or_client_challenge(headers: &HeaderMap, status: StatusCode) -> TestResult<()> {
-    if status == StatusCode::UNAUTHORIZED {
-        let challenge = headers
-            .get("WWW-Authenticate")
-            .ok_or("challenge")?
-            .to_str()?;
-        assert!(!challenge.contains("insufficient_scope"));
-        assert!(challenge.contains("error=\"invalid_token\""));
-    } else {
-        assert!(headers.get("WWW-Authenticate").is_none());
-    }
+fn assert_invalid_token_challenge(headers: &HeaderMap) -> TestResult<()> {
+    let challenge = headers
+        .get("WWW-Authenticate")
+        .ok_or("challenge")?
+        .to_str()?;
+    assert!(!challenge.contains("insufficient_scope"));
+    assert!(challenge.contains("error=\"invalid_token\""));
     Ok(())
 }
 

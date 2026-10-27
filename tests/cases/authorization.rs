@@ -3,7 +3,6 @@
 use core::sync::atomic::Ordering;
 
 use axum::http::{HeaderMap, StatusCode};
-use logbrew_mcp::clients::ClientAllowlist;
 use serde_json::json;
 
 use super::http::{Fixture, RESOURCE, TOKEN};
@@ -157,9 +156,7 @@ async fn issuer_token_type_case_variants_preserve_authorization() {
 /// Panics if fixture construction or introspection fails, invalid authority has
 /// the wrong rejection status, or any rejected claim reaches execution.
 async fn invalid_authority_claims_fail_closed_before_execution() {
-    let clients = ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)
-        .expect("trusted client policy");
-    let fixture = Fixture::with_clients(clients).await.expect("fixture");
+    let fixture = Fixture::new().await.expect("fixture");
     let base = fixture.authority().expect("valid synthetic authority");
     for (field, value, expected) in [
         ("active", json!(false), StatusCode::UNAUTHORIZED),

@@ -106,11 +106,6 @@ impl Fixture {
             0o600,
         )?;
         let secret = directory.write("secret", b"SYNTHETIC_MACHINE_SECRET", 0o600)?;
-        let clients = directory.write(
-            "clients.json",
-            br#"{"version":"1","clients":["synthetic-client"]}"#,
-            0o600,
-        )?;
         let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
             "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read",
                 "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
@@ -123,7 +118,7 @@ impl Fixture {
             write!(digest, "{byte:02x}")?;
         }
         let config = serde_json::to_vec(&json!({
-            "version":"4","listen":address.to_string(),"client_allowlist_file":clients,
+            "version":"5","listen":address.to_string(),
             "admission":{"burst":64_u32,"per_minute":60_000_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":0_u32},
             "resource":format!("https://localhost:{}/mcp", address.port()),
             "issuer":"https://issuer.example",
@@ -516,89 +511,6 @@ async fn invalid_configuration_and_mismatched_tls_keys_exit_without_listening() 
     let mut process = Process::start(&fixture.config).expect("native executable");
     assert_eq!(process.wait().await.expect("TLS exit").code(), Some(1_i32));
     drop(TcpListener::bind(fixture.address).expect("no listener on invalid startup"));
-}
-
-/// Reject invalid or empty client-policy files and recover with a valid policy.
-///
-/// # Panics
-/// Panics if fixture setup or policy replacement fails, invalid policies start
-/// listening or return the wrong status, or valid recovery and shutdown fail.
-#[tokio::test]
-async fn invalid_client_policy_exits_before_binding_and_valid_policy_recovers() {
-    let fixture = Fixture::new().expect("fixture");
-    let oversized = vec![b' '; (16 << 10) + 1];
-    for (bytes, mode) in [
-        (
-            br#"{"version":"1","clients":["private-client","private-client"]}"#.as_slice(),
-            0o600,
-        ),
-        (br#"{"version":"1","clients":[]}"#.as_slice(), 0o600),
-        (
-            br#"{"version":"1","clients":["synthetic-client"]}"#.as_slice(),
-            0o644,
-        ),
-        (b"{}".as_slice(), 0o600),
-        (oversized.as_slice(), 0o600),
-    ] {
-        drop(
-            fixture
-                .directory
-                .write("clients.json", bytes, mode)
-                .expect("invalid policy"),
-        );
-        let mut process = Process::start(&fixture.config).expect("native executable");
-        assert_eq!(
-            process.wait().await.expect("bounded private exit").code(),
-            Some(1_i32)
-        );
-        drop(TcpListener::bind(fixture.address).expect("invalid policy did not bind"));
-    }
-    fs::remove_file(fixture.directory.0.join("clients.json")).expect("remove disposable policy");
-    let mut missing_policy_process = Process::start(&fixture.config).expect("native executable");
-    assert_eq!(
-        missing_policy_process
-            .wait()
-            .await
-            .expect("missing policy exit")
-            .code(),
-        Some(1_i32)
-    );
-    let target = fixture
-        .directory
-        .write(
-            "policy-target.json",
-            br#"{"version":"1","clients":["synthetic-client"]}"#,
-            0o600,
-        )
-        .expect("symlink target");
-    std::os::unix::fs::symlink(target, fixture.directory.0.join("clients.json"))
-        .expect("disposable policy symlink");
-    let mut symlink_process = Process::start(&fixture.config).expect("native executable");
-    assert_eq!(
-        symlink_process
-            .wait()
-            .await
-            .expect("symlink rejection")
-            .code(),
-        Some(1_i32)
-    );
-    drop(TcpListener::bind(fixture.address).expect("no listener on symlink policy"));
-    fs::remove_file(fixture.directory.0.join("clients.json")).expect("remove disposable symlink");
-    drop(
-        fixture
-            .directory
-            .write(
-                "clients.json",
-                br#"{"version":"1","clients":["synthetic-client"]}"#,
-                0o600,
-            )
-            .expect("valid policy"),
-    );
-    let mut process = Process::start(&fixture.config).expect("native executable");
-    fixture.ready(&mut process).await.expect("offline recovery");
-    process.signal(Signal::TERM).expect("shutdown");
-    assert!(process.wait().await.expect("clean exit").success());
-    drop(TcpListener::bind(fixture.address).expect("listener released"));
 }
 
 /// Close excess connections before TLS and recover after admitted peers leave.

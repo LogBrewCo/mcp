@@ -193,27 +193,22 @@ The check uses the same loader as startup, then exits without binding a listener
 or contacting either upstream service. It can run while the server is listening
 on the configured address. Exit status 0 means local validation passed; status 1
 means it failed. The executable prints no configuration or credential values.
-This check does not prove upstream availability, authorization, certificate
-renewal or client connectivity. Startup checks the files again when serving.
+It does not check upstream availability, authorization, certificate renewal or
+client connectivity. Startup checks the files again when serving.
 
-Native process tests cover offline startup, both shutdown signals, listener
-release, mismatched certificate/key rejection, and stalled connections. The
-process admits at most 64 connections, including TLS negotiation, and closes
+The server starts offline, stops on both shutdown signals, and rejects a
+mismatched certificate and key. The process admits at most 64 connections, including TLS negotiation, and closes
 excess connections without queueing them. TLS negotiation and HTTP/1 header
 reading each have a five-second deadline. Authenticated requests have a
 ten-second deadline; graceful shutdown waits up to twelve seconds. An incomplete
 drain exits nonzero.
 
-Local HTTPS tests cover pending execution
-cancellation, current-request authorization, revocation, and response boundaries.
-The standalone process and HTTPS regression tests share the same serving code.
-Tests verify that graceful shutdown closes the listener before active execution
-finishes, preserves the complete response, and releases the connection. Cancelling
-the serving future closes active requests and stops their upstream work. Request
-capacity recovers after cancellation without starting excess introspection work.
+Graceful shutdown closes the listener first, lets active requests finish with
+complete responses, and then releases their connections. Cancelling the server
+closes active requests and stops their upstream work.
 
-Current-version request tests require protocol version and client capabilities
-on each request. Client identity is optional. Missing or mismatched routing
+Current-version requests must carry the protocol version and client
+capabilities. Client identity is optional. Missing or mismatched routing
 headers receive HTTP 400 with a `HeaderMismatch` error. Unsupported versions
 receive the supported-version list; unknown methods receive HTTP 404 with a
 JSON-RPC method error. Client response messages, batches, and invalid request IDs
@@ -233,23 +228,17 @@ Content negotiation parses complete media types, accepts case variants and
 repeated Accept fields, and requires both JSON and event-stream support with
 positive quality values. Current-version GET and DELETE requests receive HTTP
 405. Incoming legacy session and event IDs are ignored without creating sessions.
-An actual TLS HTTP/2 test covers configured authority, authorization, header
-validation, complete results, and cancellation.
 
 Introspected `iat` and `nbf` times may lead the local clock by up to 60
-seconds; a later time is rejected. Authorization tests reject expired credentials, mismatched issuer or audience,
+seconds; a later time is rejected. Authorization rejects expired credentials, mismatched issuer or audience,
 missing required scopes, invalid identity references, and incomplete or malformed
 introspection responses before execution. Oversized introspection bodies and
-headers and unexpected media types also fail closed. Synthetic HTTPS fixtures
-verify one service login and OAuth component encoding at both upstream
-endpoints.
+headers and unexpected media types also fail closed.
 
 The request router requires the configured resource host, including its port,
 on every request. A supplied Origin must be the single configured HTTPS origin;
 empty, null, duplicate, foreign, or different-scheme origins are rejected even
-for metadata reads. Forwarded headers do not change either check. The SDK's
-loopback-host heuristic is replaced by this configured-host check so a loopback
-proxy hop can preserve the public host. Browser cross-site protection remains
+for metadata reads. Forwarded headers do not change either check. Browser cross-site protection remains
 enabled.
 
 `catalog/operations.json` is the operation catalog the hosted server loads. The
@@ -273,11 +262,10 @@ data. Loading a catalog does not grant access to its operations.
 The tools return a `data`/`error` envelope with catalog provenance.
 Operation input is limited to 4 KiB and output data to 2 MiB. Envelope metadata
 has a separate bounded allowance so it does not consume the operation's budget.
-Local HTTPS tests verify complete maximum-size results in both structured JSON
-and text content, and rejection of output one byte over its limit.
 `provenance.definition_sha256` identifies the sorted serialized operation
 definitions used for discovery or execution. It is not the raw catalog-file
-digest, a deployment receipt, or proof that returned telemetry is current.
+digest, and it does not identify the deployed version or show that returned data
+is current.
 Provenance is null when a request fails before catalog handling or a result
 cannot be encoded within its limit. Raw artifact integrity remains a separate
 startup check against the configured SHA-256.

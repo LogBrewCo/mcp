@@ -8,9 +8,17 @@ mutations.
 
 The server exposes two tools. `search` finds versioned operations and returns
 their input and output schemas. `execute` runs a selected operation. Every
-operation requires the delegated `read` scope and returns only data from the
-projects the signed-in user approved. Discovery does not grant permission or
-establish that data is available for a particular account.
+operation returns only data from the projects the signed-in user approved.
+Discovery does not grant permission or establish that data is available for a
+particular account.
+
+Each operation's `info.permission` names the delegated scope it needs: `read`,
+or `write` for an operation that changes data. A write operation also has
+`safety: write`, a `title`, and `hints` with the MCP tool annotation names
+`readOnlyHint`, `destructiveHint`, and `idempotentHint`. When the catalog holds
+a write operation, the `execute` tool declares `readOnlyHint: false`, and
+`destructiveHint: true` if any operation may delete or overwrite data. The
+authorization server checks the scope again on every call.
 
 Use the returned schema for required fields, valid versions, filters, limits and
 pagination. Do not substitute CLI flags for JSON fields. Omit an optional field

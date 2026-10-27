@@ -224,6 +224,64 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
     Ok(())
 }
 
+#[tokio::test]
+/// # Errors
+///
+/// Returns a catalog, fixture, request, HTTP or JSON error.
+///
+/// # Panics
+///
+/// Panics if a catalog with write operations leaves execute read-only, or
+/// changes search's read-only annotations.
+// Reviewed 2026-10-27; review by 2026-11-27 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
+async fn write_operations_make_execute_a_destructive_tool() -> TestResult<()> {
+    let operation = |id: &str, destructive: bool| {
+        json!({"id":id,"info":{"summary":"Change one issue","permission":"write",
+            "documentation":"https://docs.example/issues","stability":"stable",
+            "cost":"one write","safety":"write","title":"Change an Issue",
+            "hints":{"readOnlyHint":false,"destructiveHint":destructive,"idempotentHint":true}},
+            "input_schema":{"type":"object"},"output_schema":{"type":"object"}})
+    };
+    for (destructive, operations) in [
+        (false, vec![operation("issues.resolve.v1", false)]),
+        (
+            true,
+            vec![
+                operation("issues.resolve.v1", false),
+                operation("projects.delete.v1", true),
+            ],
+        ),
+    ] {
+        let artifact = serde_json::to_vec(&json!({"format_version":1,"operations":operations}))?;
+        let fixture = Fixture::with_catalog(artifact).await?;
+        let response = fixture
+            .router()
+            .clone()
+            .oneshot(packet("tools/list", json!({}), &json!(1_i32)).await?)
+            .await?;
+        let result: Value = serde_json::from_slice(&to_bytes(response.into_body(), 0x8000).await?)?;
+        assert_eq!(
+            result.pointer("/result/tools/0/annotations"),
+            Some(
+                &json!({"title":"Search LogBrew Operations","readOnlyHint":true,
+                "openWorldHint":false})
+            )
+        );
+        assert_eq!(
+            result.pointer("/result/tools/1/annotations"),
+            Some(
+                &json!({"title":"Run a LogBrew Operation","readOnlyHint":false,
+                "destructiveHint":destructive,"idempotentHint":false,"openWorldHint":false})
+            )
+        );
+    }
+    Ok(())
+}
+
 /// # Errors
 ///
 /// Returns an error if the tools/list inventory is absent or is not an array.

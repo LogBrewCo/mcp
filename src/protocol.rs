@@ -54,10 +54,12 @@ const SUPPORTED_PROTOCOL_VERSIONS: &[ProtocolVersion] = &[
     ProtocolVersion::V_2025_06_18,
 ];
 
+// Request extensions are cloned while the SDK dispatches a request, so every
+// clone shares the one zeroized token buffer instead of copying the secret.
 #[derive(Clone)]
 struct Authority {
     principal: Principal,
-    token: Zeroizing<String>,
+    token: Arc<Zeroizing<String>>,
 }
 
 #[derive(Clone)]
@@ -433,11 +435,10 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
             }
         };
         let write = principal.write;
-        drop(
-            request
-                .extensions_mut()
-                .insert(Authority { principal, token }),
-        );
+        drop(request.extensions_mut().insert(Authority {
+            principal,
+            token: Arc::new(token),
+        }));
         prepared_request(shared, write, request, next).await
     };
     deadline::within(Duration::from_secs(10), work)

@@ -256,7 +256,7 @@ async fn write_operations_make_execute_a_destructive_tool() -> TestResult<()> {
             ],
         ),
     ] {
-        let artifact = serde_json::to_vec(&json!({"format_version":1,"operations":operations}))?;
+        let artifact = serde_json::to_vec(&json!({"format_version":1_u8,"operations":operations}))?;
         let fixture = Fixture::with_catalog(artifact).await?;
         let response = fixture
             .router()

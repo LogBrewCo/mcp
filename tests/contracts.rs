@@ -287,8 +287,9 @@ fn malformed_catalog_structure_cannot_replace_or_extend_declared_contract_fields
 /// hints disagree: reads need `read` and `read_only`; writes need `write`,
 /// `write`, a title and hints that are not read-only.
 fn catalog_admits_reads_under_read_and_titled_writes_under_write() {
+    let hints = json!({"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true});
     let write = json!({"permission":"write","safety":"write","title":"Resolve an Issue",
-        "hints":{"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true}});
+        "hints":hints});
     let with = |changes: &Value| {
         let mut document: Value =
             serde_json::from_slice(&artifact(&json!({"type":"object"}))).expect("artifact");
@@ -297,11 +298,7 @@ fn catalog_admits_reads_under_read_and_titled_writes_under_write() {
             .and_then(Value::as_object_mut)
             .expect("info");
         for (field, value) in changes.as_object().expect("changes") {
-            if value.is_null() {
-                drop(info.remove(field));
-            } else {
-                drop(info.insert(field.clone(), value.clone()));
-            }
+            drop(info.insert(field.clone(), value.clone()));
         }
         serde_json::to_vec(&document).expect("encoded artifact")
     };
@@ -310,7 +307,7 @@ fn catalog_admits_reads_under_read_and_titled_writes_under_write() {
         json!({}),
         json!({"title":"Read Logs","hints":{"readOnlyHint":true,"destructiveHint":false,
             "idempotentHint":true}}),
-        write.clone(),
+        write,
     ] {
         assert!(load(&with(&accepted)).is_ok(), "{accepted}");
     }
@@ -329,8 +326,8 @@ fn catalog_admits_reads_under_read_and_titled_writes_under_write() {
         json!({"title":" padded "}),
         json!({"title":"x".repeat(65)}),
         json!({"permission":"write","safety":"write","title":"No Hints"}),
-        json!({"permission":"write","safety":"write","hints":write["hints"]}),
-        json!({"permission":"write","safety":"read_only","title":"T","hints":write["hints"]}),
+        json!({"permission":"write","safety":"write","hints":hints}),
+        json!({"permission":"write","safety":"read_only","title":"T","hints":hints}),
         json!({"permission":"write","safety":"write","title":"T",
             "hints":{"readOnlyHint":true,"destructiveHint":false,"idempotentHint":true}}),
         json!({"permission":"write","safety":"write","title":"T",

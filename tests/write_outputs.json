@@ -1,0 +1,286 @@
+{
+  "issues.resolve.v1": {
+    "archive": null,
+    "assignee": null,
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "derived",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "resolved",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": false,
+      "rule_applied": false
+    }
+  },
+  "issues.reopen.v1": {
+    "archive": null,
+    "assignee": null,
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "manual",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "unresolved",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": false,
+      "rule_applied": false
+    }
+  },
+  "issues.set_priority.v1": {
+    "archive": null,
+    "assignee": null,
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "manual",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "resolved",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": false,
+      "rule_applied": false
+    }
+  },
+  "issues.assign.v1": {
+    "archive": null,
+    "assignee": {
+      "email": "owner@example.com",
+      "name": "Owner",
+      "type": "user",
+      "user_id": "684f2e44-5a58-45fc-a210-e20eadab4c49"
+    },
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "manual",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "resolved",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": false,
+      "rule_applied": false
+    }
+  },
+  "issues.unassign.v1": {
+    "archive": null,
+    "assignee": null,
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "9995adae-fe15-4108-b206-0ab5c0c7b721",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "manual",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "resolved",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": false,
+      "rule_applied": false
+    }
+  },
+  "issues.archive.v1": {
+    "archive": {
+      "count": 10,
+      "reopen_at": null,
+      "until": "escalating"
+    },
+    "assignee": null,
+    "attributes": {},
+    "environment": "production",
+    "fingerprint": "fbc7cc3c-569c-410e-a6e8-9ac2862882cf",
+    "first_seen_at": "2026-10-27T14:12:24.525Z",
+    "id": "fbc7cc3c-569c-410e-a6e8-9ac2862882cf",
+    "last_seen_at": "2026-10-27T14:12:24.525Z",
+    "message": "m",
+    "next_action": {
+      "code": "inspect_related_logs",
+      "target": "telemetry_logs"
+    },
+    "occurrence_count": 1,
+    "priority": "high",
+    "priority_source": "derived",
+    "project_id": "66389593-99c5-4cdc-a5e6-dbf0ad84bc0a",
+    "release": "1",
+    "service_name": "checkout-api",
+    "severity": "error",
+    "stack_trace": null,
+    "status": "archived",
+    "title": "t",
+    "trace_id": null,
+    "triage": {
+      "effective_severity": "error",
+      "ignored": true,
+      "rule_applied": true
+    }
+  },
+  "projects.create.v1": {
+    "ingest": {
+      "created_at": "2026-10-27T14:12:26Z",
+      "expires_at": null,
+      "id": "68783ee3-5544-579b-ac8e-9654d1626b14",
+      "kind": "sdk",
+      "label": "Default SDK ingest key",
+      "next": "configure this ingest key in an SDK or client",
+      "next_action": {
+        "code": "send_first_telemetry",
+        "target": "telemetry_ingest"
+      },
+      "token": "lbw_ingest_example"
+    },
+    "project": {
+      "access": {
+        "kind": "owner",
+        "organization_id": null,
+        "permissions": [
+          "project_read",
+          "issue_manage",
+          "project_access_manage"
+        ],
+        "role_id": null,
+        "role_name": null
+      },
+      "created_at": "2026-10-27T14:12:26Z",
+      "first_telemetry_seen_at": null,
+      "id": "00abdc67-eff7-5618-a7c5-e6679a1de72f",
+      "is_active": true,
+      "language": "node",
+      "last_environment": null,
+      "last_release": null,
+      "last_seen_at": null,
+      "name": "Agent Project",
+      "provider": "native",
+      "provider_project_id": "00abdc67-eff7-5618-a7c5-e6679a1de72f",
+      "provider_project_slug": "Agent Project",
+      "setup_started_at": "2026-10-27T14:12:26Z",
+      "setup_status": "setup_started"
+    },
+    "setup": {
+      "created_at": "2026-10-27T14:12:26Z",
+      "first_telemetry_seen_at": null,
+      "last_environment": null,
+      "last_release": null,
+      "last_seen_at": null,
+      "last_signal": null,
+      "next": "send the first telemetry event for this project",
+      "next_action": {
+        "code": "send_first_telemetry",
+        "target": "telemetry_ingest"
+      },
+      "project_id": "00abdc67-eff7-5618-a7c5-e6679a1de72f",
+      "runtime": "node",
+      "setup_started_at": "2026-10-27T14:12:26Z",
+      "source": "sdk",
+      "status": "setup_started"
+    }
+  },
+  "projects.keys.create.v1": {
+    "created_at": "2026-10-27T14:12:26Z",
+    "expires_at": null,
+    "id": "3d23d5f3-d638-56f2-9402-4f1bb96d8ffd",
+    "kind": "sdk",
+    "label": "CI",
+    "next": "configure this ingest key in an SDK or client",
+    "next_action": {
+      "code": "send_first_telemetry",
+      "target": "telemetry_ingest"
+    },
+    "token": "lbw_ingest_example"
+  },
+  "projects.keys.revoke.v1": {
+    "created_at": "2026-10-27T14:12:26Z",
+    "expires_at": null,
+    "id": "3d23d5f3-d638-56f2-9402-4f1bb96d8ffd",
+    "kind": "sdk",
+    "label": "CI",
+    "revoked_at": "2026-10-27T14:12:26Z",
+    "status": "revoked",
+    "token_prefix": "lbw_ingest_exampl"
+  },
+  "confirmation": {
+    "confirmation": "0b9f7c4e2f2a4a8e9a652d2a7e8f1c11.1793110345.exampleexampleexampleexampleexampleexample00",
+    "confirmation_required": true,
+    "expires_at": "2026-10-27T14:17:25Z",
+    "next": "Nothing changed yet. To make this change, call issues.archive.v1 again within 5 minutes with the same input and this confirmation."
+  }
+}

@@ -1,7 +1,8 @@
 # LogBrew MCP
 
 The hosted LogBrew MCP server lets an AI agent read telemetry from your
-LogBrew projects. You do not install it. Add its URL to your MCP client:
+LogBrew projects and, if you allow it, triage issues and set up projects. You
+do not install it. Add its URL to your MCP client:
 
 ```text
 https://mcp.logbrew.co/mcp
@@ -13,27 +14,35 @@ https://mcp.logbrew.co/mcp
   you sign in, and you select the projects that the agent can read. The `read`
   scope lets the agent read. Operations that change data need the separate
   `write` scope, which you can decline when you approve the connection.
-- **Read-only:** The agent cannot change issues, projects or account settings.
-  A read of a project that you did not approve returns `permission_denied`.
+- **Changes:** Without the `write` scope, the agent cannot change anything.
+  With it, the agent can resolve, reopen, archive, prioritize and assign
+  issues, and create projects and project keys, acting as you and within your
+  permissions. Archiving an issue and revoking a key take a second, confirming
+  call. The agent cannot change billing, members or account settings. A call
+  on a project that you did not approve returns `permission_denied`.
 - **Connection lifetime:** An access token is valid for 1 hour, and the client
   refreshes it while you use the connection. A connection ends after 30 days
   without use, or 90 days after you approved it. Revoke a connection in the
   LogBrew dashboard under Settings > MCP connections, or with
   `logbrew mcp revoke`.
 
-## What an agent can read
+## What an agent can do
 
-The server has 2 tools, both annotated read-only:
+The server has 2 tools. `search` is annotated read-only. `execute` is annotated
+as able to change data, because the catalog has write operations:
 
 | Tool | What it does |
 | --- | --- |
-| `search` | Finds read operations and returns the contract of one operation: its input and output schemas, permission, cost, safety and stability. |
+| `search` | Finds operations and returns the contract of one operation: its input and output schemas, permission, cost, safety and stability. |
 | `execute` | Runs one operation that `search` found and returns structured data, or an error with a stable code and a next action. |
 
 The operations read issues (investigation, lists, activity, owners and
 ownership rules), logs, traces, spans, metrics, product actions, releases,
-signal volume and product analytics. The [operation reference](docs/operations.md)
-lists every operation in the shipped catalog and its limits.
+signal volume and product analytics. With the `write` scope, operations also
+resolve, reopen, archive, prioritize, assign and unassign issues, create
+projects, and create and revoke project keys. The
+[operation reference](docs/operations.md) lists every operation in the shipped
+catalog and its limits.
 
 ## Supported clients
 
@@ -244,7 +253,7 @@ enabled.
 
 `catalog/operations.json` is the operation catalog the hosted server loads. The
 LogBrew API generates it from the request and response types of its public
-read endpoints; this repository ships the generated file unchanged.
+endpoints; this repository ships the generated file unchanged.
 `catalog/operations.json.sha256` pins its SHA-256 digest in `sha256sum` format.
 Deployments set `catalog_sha256` to that digest, and a test fails if the file,
 the pin, and the operation reference in `docs/operations.md` disagree. To

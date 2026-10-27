@@ -82,8 +82,20 @@ fn shipped_catalog_matches_its_pin_and_the_operation_reference() {
     }
     let operations = discovered(&catalog).expect("operations");
     for operation in &operations {
-        assert_eq!(operation.pointer("/info/permission"), Some(&json!("read")));
-        assert_eq!(operation.pointer("/info/safety"), Some(&json!("read_only")));
+        let effects = (
+            operation.pointer("/info/permission"),
+            operation.pointer("/info/safety"),
+        );
+        if operation.pointer("/info/hints/readOnlyHint") == Some(&json!(false)) {
+            assert_eq!(effects, (Some(&json!("write")), Some(&json!("write"))));
+            assert!(
+                operation
+                    .pointer("/info/title")
+                    .is_some_and(Value::is_string)
+            );
+        } else {
+            assert_eq!(effects, (Some(&json!("read")), Some(&json!("read_only"))));
+        }
     }
     let ids: BTreeSet<&str> = operations
         .iter()
@@ -256,4 +268,164 @@ fn shipped_query_inputs_match_backend_validation() {
     catalog
         .input("issues.investigate.v16", &json!({"issue_id":issue}))
         .expect("related issue investigation");
+}
+
+/// Every shipped write operation: identifier, whether it asks for
+/// confirmation first, and whether it takes an idempotency key.
+const WRITES: [(&str, bool, bool); 9] = [
+    ("issues.archive.v1", true, false),
+    ("issues.assign.v1", false, false),
+    ("issues.reopen.v1", false, false),
+    ("issues.resolve.v1", false, false),
+    ("issues.set_priority.v1", false, false),
+    ("issues.unassign.v1", false, false),
+    ("projects.create.v1", false, true),
+    ("projects.keys.create.v1", false, true),
+    ("projects.keys.revoke.v1", true, false),
+];
+
+#[test]
+/// # Panics
+///
+/// Panics if a write operation is missing, declares the wrong hints, offers a
+/// confirmation or idempotency key it does not use, a confirmation answers an
+/// operation that changes data at once, or its output contract rejects a
+/// result the API returns.
+fn shipped_write_contracts_confirm_destructive_changes() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    let writes: Vec<Value> = discovered(&catalog)
+        .expect("operations")
+        .into_iter()
+        .filter(|operation| operation.pointer("/info/permission") == Some(&json!("write")))
+        .collect();
+    let ids: Vec<&str> = writes
+        .iter()
+        .filter_map(|operation| operation.get("id").and_then(Value::as_str))
+        .collect();
+    assert_eq!(ids, WRITES.map(|(id, _, _)| id));
+    let outputs: Value =
+        serde_json::from_slice(&read("tests/write_outputs.json").expect("outputs")).expect("JSON");
+    let confirmation = outputs.get("confirmation").expect("confirmation");
+    for (id, destructive, keyed) in WRITES {
+        let contract = catalog.search(&json!({"operation":id})).expect(id);
+        assert_eq!(
+            contract.pointer("/info/hints/destructiveHint"),
+            Some(&json!(destructive)),
+            "{id}"
+        );
+        let title = contract.pointer("/info/title").and_then(Value::as_str);
+        assert!(title.is_some_and(|title| title.len() <= 64), "{id}");
+        let properties = contract
+            .pointer("/input_schema/properties")
+            .and_then(Value::as_object)
+            .expect(id);
+        assert_eq!(properties.contains_key("confirmation"), destructive, "{id}");
+        assert_eq!(properties.contains_key("idempotency_key"), keyed, "{id}");
+        assert_eq!(
+            catalog.output(id, confirmation).is_ok(),
+            destructive,
+            "{id}"
+        );
+        // A result recorded from the API, with synthetic names and secrets.
+        let result = outputs.get(id).expect(id);
+        catalog
+            .output(id, result)
+            .unwrap_or_else(|_| panic!("{id} result"));
+    }
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if a write input accepts a missing required field, a field another
+/// operation sets, a confirmation where none is asked, or an idempotency key
+/// on an operation that cannot create twice.
+fn shipped_write_inputs_take_only_their_own_fields() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    let issue = "0b9f7c4e-2f2a-4a8e-9a65-2d2a7e8f1c11";
+    for (id, input) in [
+        ("issues.resolve.v1", json!({"issue_id":issue})),
+        ("issues.archive.v1", json!({"issue_id":issue})),
+        (
+            "issues.archive.v1",
+            json!({"issue_id":issue,"archive":{"until":"time","duration":"24h"},"confirmation":"a.b.c"}),
+        ),
+        (
+            "issues.set_priority.v1",
+            json!({"issue_id":issue,"priority":"high"}),
+        ),
+        (
+            "issues.assign.v1",
+            json!({"issue_id":issue,"assignee":"me"}),
+        ),
+        (
+            "issues.assign.v1",
+            json!({"issue_id":issue,"assignee":format!("team:{issue}")}),
+        ),
+        (
+            "projects.create.v1",
+            json!({"name":"Checkout","runtime":"node","source":"sdk"}),
+        ),
+        (
+            "projects.keys.create.v1",
+            json!({"project_id":issue,"label":"CI","kind":"server","idempotency_key":"ci-1"}),
+        ),
+        (
+            "projects.keys.revoke.v1",
+            json!({"project_id":issue,"key_id":issue}),
+        ),
+    ] {
+        catalog
+            .input(id, &input)
+            .unwrap_or_else(|_| panic!("{id} {input}"));
+    }
+    for (id, input) in [
+        (
+            "issues.resolve.v1",
+            json!({"issue_id":issue,"status":"archived"}),
+        ),
+        (
+            "issues.resolve.v1",
+            json!({"issue_id":issue,"confirmation":"a.b.c"}),
+        ),
+        (
+            "issues.resolve.v1",
+            json!({"issue_id":issue,"idempotency_key":"k"}),
+        ),
+        (
+            "issues.unassign.v1",
+            json!({"issue_id":issue,"assignee":"me"}),
+        ),
+        ("issues.set_priority.v1", json!({"issue_id":issue})),
+        (
+            "issues.set_priority.v1",
+            json!({"issue_id":issue,"priority":"urgent"}),
+        ),
+        (
+            "issues.assign.v1",
+            json!({"issue_id":issue,"assignee":"everyone"}),
+        ),
+        (
+            "issues.archive.v1",
+            json!({"issue_id":issue,"archive":{"until":"later"}}),
+        ),
+        (
+            "projects.create.v1",
+            json!({"name":"Checkout","source":"sdk"}),
+        ),
+        (
+            "projects.create.v1",
+            json!({"name":"Checkout","runtime":"node","source":"sdk","idempotency_key":"line\nbreak"}),
+        ),
+        (
+            "projects.keys.create.v1",
+            json!({"project_id":issue,"label":"CI"}),
+        ),
+        ("projects.keys.revoke.v1", json!({"project_id":issue})),
+    ] {
+        let failure = catalog.input(id, &input).expect_err("rejected input");
+        assert_eq!(failure.kind, Kind::InvalidInput, "{id} {input}");
+    }
 }

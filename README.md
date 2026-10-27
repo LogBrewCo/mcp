@@ -253,9 +253,12 @@ update the catalog, replace both files in one change and update the reference.
 The catalog loader accepts format version 1 and requires an expected
 SHA-256 digest from trusted release configuration. It rejects files above 8 MiB,
 duplicate keys, unknown metadata fields, unsupported formats, invalid operation
-contracts, any permission other than `read` or `write`, and any operation that
-is not `read_only`.
-Both tools therefore carry read-only, closed-world annotations. Loading a catalog does not grant access to its operations.
+contracts, and any permission other than `read` or `write`. A `read` operation
+must be `read_only`. A `write` operation must declare `safety: write`, a title,
+and hints that are not read-only. `search` is always read-only. `execute` is
+read-only unless the catalog has a write operation; then it declares
+`readOnlyHint: false`, and `destructiveHint: true` if any operation may delete
+data. Loading a catalog does not grant access to its operations.
 
 The tools return a `data`/`error` envelope with catalog provenance.
 Operation input is limited to 4 KiB and output data to 2 MiB. Envelope metadata

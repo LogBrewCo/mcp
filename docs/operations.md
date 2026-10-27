@@ -2,15 +2,16 @@
 
 This reference describes the operation catalog shipped in
 `catalog/operations.json`, which the hosted server at
-`https://mcp.logbrew.co/mcp` loads. The catalog contains reads only. It does
-not provide project changes, issue updates, billing changes, or other
-mutations.
+`https://mcp.logbrew.co/mcp` loads. Most operations read. A connection with
+the `write` scope can also triage issues and create projects and project keys
+(see [Changes](#changes)). The catalog has no operations for billing,
+organization members, account settings, or deleting a project.
 
 The server exposes two tools. `search` finds versioned operations and returns
 their input and output schemas. `execute` runs a selected operation. Every
-operation returns only data from the projects the signed-in user approved.
-Discovery does not grant permission or establish that data is available for a
-particular account.
+operation works only on the projects the signed-in user approved, and on
+projects created through the same connection. Discovery does not grant
+permission or establish that data is available for a particular account.
 
 Each operation's `info.permission` names the delegated scope it needs: `read`,
 or `write` for an operation that changes data. A write operation also has
@@ -85,6 +86,42 @@ To read a fixed time range, send `since` and `until` together. `since` is
 inclusive and `until` is exclusive, so consecutive ranges never count an event
 twice. `until` takes an RFC 3339 timestamp and must be later than `since`.
 
+## Changes
+
+These operations need the `write` scope. Each one acts as the signed-in user,
+with that user's own permission on the project, and LogBrew records every
+change with the name of the app that made it.
+
+| Operation | What it changes |
+| --- | --- |
+| `issues.resolve.v1` | Marks one issue resolved. Returns the issue as `issues.list.v5` lists it, like every issue change. |
+| `issues.reopen.v1` | Marks one resolved or archived issue unresolved. |
+| `issues.archive.v1` | Archives one issue. The optional `archive` condition says when it reopens: `until` is `forever`, `escalating`, `time` (with `duration` such as `24h`), `events` or `users` (with `count`). Asks for confirmation. |
+| `issues.set_priority.v1` | Sets one issue's priority to `high`, `medium`, or `low`. A priority set this way stays when the captured severity changes. |
+| `issues.assign.v1` | Assigns one issue to `me`, to the user ID of an account that can read the project, or to `team:<team_id>`. |
+| `issues.unassign.v1` | Removes one issue's assignee. |
+| `projects.create.v1` | Creates a project owned by the signed-in user from `name`, `runtime`, `source` (`sdk`, `api`, or `cli`) and an optional `environment`. Returns the project and a setup key that is shown once. The connection can then read and change the new project. |
+| `projects.keys.create.v1` | Creates a key for a project the signed-in user owns, from `label`, `kind` (`sdk`, `browser`, `server`, `cli`, `artifact`, or `read`) and an optional `expires_at`. Returns the secret once. |
+| `projects.keys.revoke.v1` | Revokes one key of a project the signed-in user owns. Anything that uses the key stops working. Asks for confirmation. |
+
+Issue changes need permission to manage the project's issues. Key changes need
+ownership of the project. Without that permission, or on a project the user did
+not approve, a call returns `permission_denied` or `not_found` and changes
+nothing. A connection without the `write` scope gets `permission_denied`.
+
+An operation with `destructiveHint: true` takes two calls. The first call,
+without `confirmation`, changes nothing and returns `confirmation_required:
+true`, a `confirmation`, its `expires_at`, and `next`. Show the user what will
+change. To make the change, call the same operation again within 5 minutes
+with the same input plus that `confirmation`. A confirmation works once, and
+only for the same operation, input and connection; otherwise the call returns
+`invalid_input` and changes nothing.
+
+`projects.create.v1` and `projects.keys.create.v1` take an optional
+`idempotency_key`. A retry with the same key and input within 24 hours returns
+the first result instead of creating another project or key. Without a key,
+retry a create only after you check that the first call did not succeed.
+
 ## Series and volume
 
 | Operation | What it reads |
@@ -122,7 +159,7 @@ and result metadata have separate bounded allowances. Individual schemas impose
 additional limits. The server rejects an oversized result rather than silently
 cutting it into apparently complete evidence.
 
-There is no verified per-operation cost estimate. Read-only does
+There is no verified per-operation cost estimate. A read does
 not mean free, cheap or unlimited. Preserve returned limits and retry guidance;
 do not turn missing cost measurements into zero cost.
 

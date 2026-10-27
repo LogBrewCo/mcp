@@ -284,111 +284,31 @@ containers, 256 characters per number, and decimal exponents from -1024 to
 1024. Input, output, and schema byte limits apply before parsing. Schemas use
 JSON Schema 2020-12 by default with format assertions and no external loading.
 
-Startup file loading supports Linux and macOS. It requires
-operator-managed directories and absolute regular-file paths, checks byte and
-permission bounds, and rejects final-component symlinks. Files are opened
-without waiting for a FIFO writer and their identity is checked before reading.
-The configuration reader accepts a private file up to 16 KiB with
-version `"5"` only. Every field is required and must appear exactly once with a
-nonempty string value: `listen`, `resource`, `issuer`,
-`introspection_endpoint`, `execution_endpoint`, `service_client_id`,
-`service_secret_file`, `catalog_file`, `catalog_sha256`, `certificate_file` and
-`private_key_file`. The `admission` object is also required (see below). It
-rejects unknown fields, case aliases, duplicate decoded keys, invalid UTF-8,
-trailing documents, and inline secret fields. It preserves secret-file
-references without opening them.
+The server records the duration and a fixed outcome of each request, search,
+and execution, such as `completed`, `unauthorized`, or `unavailable`, to watch
+its own health. These records never contain tool arguments, results, tokens,
+client identity, or error text, and recording them never delays or rejects an
+MCP request.
 
-Two optional fields send request telemetry to a LogBrew project. They must
-appear together: `telemetry_endpoint`, the HTTPS ingest URL, and
-`telemetry_key_file`, a private file that holds the project's ingest key with
-no trailing newline. Each finished request, search, and execution becomes one
-span with its duration and a fixed outcome such as `completed`,
-`unauthorized`, or `unavailable`. An execution also names its operation, but
-only when the catalog contains it. An outcome that this server or the API
-caused (`configuration`, `invalid_output`, `unavailable`, or `deadline`) also
-opens an issue, such as `mcp execute logs.read.v1 unavailable`. Telemetry never
-contains tool arguments, results, tokens, client identity, or error text. At
-most 1,024 records wait for delivery, and the server sends at most one request
-per second. When the queue is full or a request fails, the server drops those
-records and reports how many in its next request. Telemetry never delays or
-rejects an MCP request.
+Requests that have not proven authority are limited per client. Beyond the
+limit the server answers HTTP 429 with `Retry-After` in whole seconds and the
+body `too many unauthenticated requests`. A request whose token verifies does
+not count against the limit. A token that the authorization server rejected
+is refused for a short time without asking again. The server keeps token
+digests for this, never tokens.
 
-`admission` limits requests that have not proven authority, per client:
-
-```json
-"admission": {"burst": 16, "per_minute": 600, "tracked_clients": 10000,
-  "rejected_token_seconds": 30, "trusted_proxy": "127.0.0.1"}
-```
-
-Each MCP request reserves one unit of its client's budget before it takes a
-request slot or starts introspection; a request whose token verifies gets the
-unit back. A client may start `burst` (1 to 64) unverified requests at once,
-refilled at `per_minute` (1 to 60000). Beyond that the server answers HTTP 429
-with `Retry-After` in whole seconds and the body
-`too many unauthenticated requests`, without introspection. Up to
-`tracked_clients` (1 to 100000) clients get their own budget; idle clients are
-evicted, and the rest share one overflow budget, so memory stays bounded. IPv6
-clients are grouped by /64. The client is the TCP peer, or the single
-`X-Real-IP` address when the peer is the optional `trusted_proxy`. A token that
-introspection rejected (inactive, invalid or missing scope) is
-refused for `rejected_token_seconds` (0 to 300, 0 disables) without asking
-again; up to 4096 token digests are kept, never tokens. Unavailable
-introspection is never remembered.
-
-One service login, `service_client_id` with the secret in
-`service_secret_file`, authenticates both introspection and execution. The
-issuer and API must hold the same pair. `issuer` must equal the authorization
-server's issuer identifier byte for byte, and `resource` must equal the audience
-the issuer binds into tokens. Startup rejects an issuer that ends with `/`,
-because it would deny every request. Introspection alone decides which clients
-can connect. The server accepts any client ID that the authorization server
-confirms, if it has 1 to 2048 printable ASCII characters. Every request
-needs the delegated `read` scope. An operation whose permission is `write`
-also needs the separately granted `write` scope. Without it, `execute`
-answers HTTP 403 before contacting the API, with an `insufficient_scope`
-challenge that asks for `read write`. Scopes are not configurable. The server
-publishes RFC 9728 protected resource metadata at
-`/.well-known/oauth-protected-resource` followed by the resource path. The
-document names the issuer as the only authorization server and lists the
-`read` and `write` scopes. The 401 challenge asks for `read` only, and every
-401 and 403 challenge links to the document.
-
-The separate service loader reads referenced material and constructs the
-authenticated handler without opening a listener or contacting upstream services.
-It requires a numeric IP and nonzero port, verifies the catalog SHA-256, parses
-the matching TLS certificate/key pair, and applies service endpoint and credential
-validation. File limits are 8 MiB for the catalog, 256 KiB for certificates,
-64 KiB for the private key, and 8 KiB per machine secret. Key and secret files
-must have no group or other permissions. Secret bytes are used exactly as stored,
-without newline trimming. Temporary loaded key/secret buffers are cleared after
-assembly; the service retains the credentials it needs.
-
-The server can run from source with an operator-provided configuration:
-
-```sh
-cargo run --locked -- /absolute/path/to/config.json
-```
-
-It validates startup material before binding the configured address. Outbound
-connections use system TLS trust, with no inherited proxy or custom dial hooks.
-SIGINT and SIGTERM request graceful shutdown. Startup and serving failures exit
-nonzero without printing paths, credentials, or upstream responses. Source builds
-identify themselves as `development`. Use `cargo run --locked -- --version` to
-check the package version without loading configuration.
-
-Check the configuration and its referenced files before starting or replacing
-a process:
-
-```sh
-cargo run --locked -- --check-config /absolute/path/to/config.json
-```
-
-The check uses the same loader as startup, then exits without binding a listener
-or contacting either upstream service. It can run while the server is listening
-on the configured address. Exit status 0 means local validation passed; status 1
-means it failed. The executable prints no configuration or credential values.
-It does not check upstream availability, authorization, certificate renewal or
-client connectivity. Startup checks the files again when serving.
+A token must come from the LogBrew authorization server and name this server
+as its audience. The server accepts any client ID that the authorization server confirms, if it
+has 1 to 2048 printable ASCII characters. Every request needs the delegated
+`read` scope. An operation whose permission is `write` also needs the
+separately granted `write` scope. Without it, `execute` answers HTTP 403
+before contacting the API, with an `insufficient_scope` challenge that asks
+for `read write`. Scopes are not configurable. The server publishes RFC 9728
+protected resource metadata at `/.well-known/oauth-protected-resource`
+followed by the resource path. The document names the issuer as the only
+authorization server and lists the `read` and `write` scopes. The 401
+challenge asks for `read` only, and every 401 and 403 challenge links to the
+document.
 
 The server starts offline, stops on both shutdown signals, and rejects a
 mismatched certificate and key. The process admits at most 64 connections, including TLS negotiation, and closes
@@ -439,12 +359,13 @@ enabled.
 LogBrew API generates it from the request and response types of its public
 endpoints; this repository ships the generated file unchanged.
 `catalog/operations.json.sha256` pins its SHA-256 digest in `sha256sum` format.
-Deployments set `catalog_sha256` to that digest, and a test fails if the file,
-the pin, and the [operation reference](#operation-reference) disagree. To
+The server loads the catalog only when it matches that digest, and a test fails
+if the file, the pin, and the [operation reference](#operation-reference)
+disagree. To
 update the catalog, replace both files in one change and update the reference.
 
-The catalog loader accepts format version 1 and requires an expected
-SHA-256 digest from trusted release configuration. It rejects files above 8 MiB,
+The catalog loader accepts format version 1 and requires the expected SHA-256
+digest. It rejects files above 8 MiB,
 duplicate keys, unknown metadata fields, unsupported formats, invalid operation
 contracts, and any permission other than `read` or `write`. A `read` operation
 must be `read_only`. A `write` operation must declare `safety: write`, a title,

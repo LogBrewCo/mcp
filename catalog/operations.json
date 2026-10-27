@@ -43486,6 +43486,263 @@
         "title": "SdkProductAnalyticsSegmentComparisonResponse",
         "type": "object"
       }
+    },
+    {
+      "id": "projects.list.v2",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "List the projects this connection can read, with each project's ID, name, creation time, setup status, and latest release and environment."
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "OrganizationProjectPermission": {
+            "description": "Stable project-scoped permissions assignable through an organization role.",
+            "oneOf": [
+              {
+                "const": "project_read",
+                "description": "Discover the project and read its retained telemetry and investigation evidence.",
+                "type": "string"
+              },
+              {
+                "const": "issue_manage",
+                "description": "Triage the project's issues and logs: change issue status, priority, and assignee, and\nedit issue and log rules.",
+                "type": "string"
+              },
+              {
+                "const": "project_access_manage",
+                "description": "Grant or revoke roles on this project without exceeding the actor's own permissions.",
+                "type": "string"
+              }
+            ]
+          },
+          "ProjectAccessKind": {
+            "description": "Source of current project access.",
+            "oneOf": [
+              {
+                "const": "owner",
+                "description": "Account owns the project and its additional credential and lifecycle authority.",
+                "type": "string"
+              },
+              {
+                "const": "organization_role",
+                "description": "Active organization membership and project-role assignment provide access.",
+                "type": "string"
+              }
+            ]
+          },
+          "ProjectAccessResponse": {
+            "description": "Effective project access disclosed without exposing unrelated organization projects.",
+            "properties": {
+              "kind": {
+                "$ref": "#/$defs/ProjectAccessKind",
+                "description": "Whether the authenticated account owns credentials and destructive lifecycle actions."
+              },
+              "organization_id": {
+                "description": "Organization providing shared access, when applicable.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "permissions": {
+                "description": "Current effective shared-project permissions in canonical order.",
+                "items": {
+                  "$ref": "#/$defs/OrganizationProjectPermission"
+                },
+                "type": "array"
+              },
+              "role_id": {
+                "description": "Organization-owned title identifier, when applicable.",
+                "format": "uuid",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "role_name": {
+                "description": "Current organization-owned title, when applicable.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "organization_id",
+              "role_id",
+              "role_name",
+              "permissions"
+            ],
+            "type": "object"
+          },
+          "ProjectResponse": {
+            "description": "Project shown in API project lists and live catalog events.",
+            "properties": {
+              "access": {
+                "$ref": "#/$defs/ProjectAccessResponse",
+                "description": "Current caller-independent owner access for live events, or caller-effective list access."
+              },
+              "created_at": {
+                "description": "Time the project was first created in `LogBrew`.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "first_telemetry_seen_at": {
+                "description": "First telemetry timestamp, when telemetry has arrived.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "id": {
+                "description": "Stable `LogBrew` project ID.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "is_active": {
+                "description": "Whether the project is active.",
+                "type": "boolean"
+              },
+              "language": {
+                "description": "Best-known setup framework or implementation language.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_environment": {
+                "description": "Most recent environment observed or selected for the project.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_release": {
+                "description": "Most recent release observed for the project.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_seen_at": {
+                "description": "Most recent telemetry timestamp, when telemetry has arrived.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "name": {
+                "description": "Human-readable project name.",
+                "type": "string"
+              },
+              "provider": {
+                "description": "Provider key, such as `native` or another catalog source.",
+                "type": "string"
+              },
+              "provider_project_id": {
+                "description": "Provider-side project identifier.",
+                "type": "string"
+              },
+              "provider_project_slug": {
+                "description": "Provider-side project slug when available.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "setup_started_at": {
+                "description": "Most recent explicit setup timestamp, when setup has started.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "setup_status": {
+                "$ref": "#/$defs/ProjectSetupStatus",
+                "description": "Backend-owned setup status for list and live catalog rendering."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "provider_project_id",
+              "provider_project_slug",
+              "provider",
+              "is_active",
+              "access",
+              "language",
+              "setup_status",
+              "setup_started_at",
+              "first_telemetry_seen_at",
+              "last_seen_at",
+              "last_release",
+              "last_environment",
+              "created_at"
+            ],
+            "type": "object"
+          },
+          "ProjectSetupStatus": {
+            "description": "Canonical setup status for project onboarding.",
+            "oneOf": [
+              {
+                "const": "created",
+                "description": "Project exists but no setup path has started.",
+                "type": "string"
+              },
+              {
+                "const": "setup_started",
+                "description": "User selected a setup path or runtime.",
+                "type": "string"
+              },
+              {
+                "const": "sdk_seen",
+                "description": "SDK or CLI identity was observed without telemetry.",
+                "type": "string"
+              },
+              {
+                "const": "first_telemetry_seen",
+                "description": "First telemetry was received.",
+                "type": "string"
+              },
+              {
+                "const": "active",
+                "description": "Project has active telemetry.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Response version 2 of `GET /api/projects`.",
+        "properties": {
+          "projects": {
+            "description": "Active projects the caller can read, each with its name and creation time.",
+            "items": {
+              "$ref": "#/$defs/ProjectResponse"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "projects"
+        ],
+        "title": "ProjectListResponse",
+        "type": "object"
+      }
     }
   ]
 }

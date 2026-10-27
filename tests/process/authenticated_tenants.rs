@@ -18,11 +18,6 @@ use super::{
 /// Returns a configuration, file, JSON, digest-formatting or missing-field error.
 fn configure_projects(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
     configure(fixture, endpoint)?;
-    drop(fixture.directory.write(
-        "clients.json",
-        br#"{"version":"1","clients":["synthetic-alpha-client","synthetic-beta-client"]}"#,
-        0o600,
-    )?);
     let catalog = serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{
         "id":"logs.read.v1","info":{"summary":"Read logs","permission":"read",
             "documentation":"https://docs.example/logs","stability":"stable","cost":"one read","safety":"read_only"},
@@ -91,7 +86,7 @@ impl Execution<'_> {
         let context = match identity {
             Identity::Alpha => json!({"token":Identity::Beta.token(),
                 "client_id":"synthetic-beta-client","credential_id":"synthetic-beta-credential"}),
-            Identity::Beta | Identity::Rejected => json!({"token":Identity::Alpha.token(),
+            Identity::Beta | Identity::Unknown => json!({"token":Identity::Alpha.token(),
                 "client_id":"synthetic-alpha-client","credential_id":"synthetic-alpha-credential"}),
         };
         let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
@@ -196,8 +191,9 @@ async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> Test
 ///
 /// # Panics
 ///
-/// Panics if overlapping identities, project denial, revocation, client rejection,
-/// recovery, call counts or executable shutdown changes.
+/// Panics if overlapping identities, project denial, revocation, an unknown
+/// client's execution and project denial, recovery, call counts or executable
+/// shutdown changes.
 async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let fixture = Fixture::new()?;
     let resource = format!("https://localhost:{}/mcp", fixture.address.port());
@@ -229,8 +225,14 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     let (healthy_status, beta) = execution.run(Identity::Beta, "beta").await?;
     assert_eq!(healthy_status, reqwest::StatusCode::OK);
     result(&beta, "beta")?;
-    let (rejected_status, _) = execution.run(Identity::Rejected, "alpha").await?;
-    assert_eq!(rejected_status, reqwest::StatusCode::FORBIDDEN);
+    // Any client the authorization server confirms reaches execution; the API
+    // still refuses a project that its credential does not cover.
+    let (unknown_status, unknown) = execution.run(Identity::Unknown, "alpha").await?;
+    assert_eq!(unknown_status, reqwest::StatusCode::OK);
+    assert_eq!(
+        envelope(&unknown, Some("permission_denied"))?.get("data"),
+        Some(&Value::Null)
+    );
     upstream
         .observations()
         .alpha_active()
@@ -252,7 +254,7 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
             .executes()
             .each_ref()
             .map(|counter| counter.load(Ordering::SeqCst)),
-        [2, 3, 0]
+        [2, 3, 1]
     );
     fixture.ready(&mut process).await?;
     if let Transport::SharedHttp2(ref mut connection) = execution.transport {

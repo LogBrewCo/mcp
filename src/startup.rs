@@ -16,7 +16,6 @@ use crate::{
     Failure,
     admission::Admission,
     catalog::Catalog,
-    clients::ClientAllowlist,
     error::Kind,
     json as strict_json, protocol,
     telemetry::Exporter,
@@ -35,8 +34,6 @@ pub struct Config {
     pub resource: String,
     /// Expected authorization issuer.
     pub issuer: String,
-    /// Private client allowlist file.
-    pub client_allowlist_file: String,
     /// Fixed introspection service URL.
     pub introspection_endpoint: String,
     /// Fixed execution service URL.
@@ -76,7 +73,7 @@ impl Config {
     /// Rejects unknown, duplicate, missing, empty, or non-string fields other
     /// than the `admission` object, admission limits outside their ranges, a
     /// telemetry endpoint without its key file or the reverse, and any version
-    /// other than 4.
+    /// other than 5.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
@@ -88,7 +85,7 @@ impl Config {
         }
         let config: Self =
             serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
-        if config.version != "4"
+        if config.version != "5"
             || config.telemetry_endpoint.is_some() != config.telemetry_key_file.is_some()
         {
             return Err(Kind::Configuration.into());
@@ -201,15 +198,13 @@ impl Service {
         let catalog = Catalog::load(&catalog_bytes, &digest)?;
         let service_credential =
             credential(&config.service_client_id, &config.service_secret_file)?;
-        let allowlist = read_file(Path::new(&config.client_allowlist_file), 16 << 10, 0o600)?;
         let upstream = Upstream::new(UpstreamOptions {
             introspection_endpoint: config.introspection_endpoint,
             execution_endpoint: config.execution_endpoint,
             issuer: config.issuer.clone(),
             resource: config.resource.clone(),
             service_credential,
-        })?
-        .with_client_allowlist(ClientAllowlist::decode(&allowlist)?);
+        })?;
         let telemetry = match (
             config.telemetry_endpoint.as_ref(),
             config.telemetry_key_file.as_ref(),

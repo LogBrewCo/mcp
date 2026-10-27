@@ -24,7 +24,8 @@ use super::{TestResult, backend::machine};
 pub(super) enum Identity {
     Alpha,
     Beta,
-    Rejected,
+    /// A client the authorization server confirms but the MCP server never saw before.
+    Unknown,
 }
 
 impl Identity {
@@ -32,7 +33,7 @@ impl Identity {
         match self {
             Self::Alpha => "SYNTHETIC_ALPHA_TOKEN",
             Self::Beta => "SYNTHETIC_BETA_TOKEN",
-            Self::Rejected => "SYNTHETIC_REJECTED_TOKEN",
+            Self::Unknown => "SYNTHETIC_UNKNOWN_TOKEN",
         }
     }
 
@@ -40,7 +41,7 @@ impl Identity {
         match self {
             Self::Alpha => "synthetic-alpha-client",
             Self::Beta => "synthetic-beta-client",
-            Self::Rejected => "synthetic-rejected-client",
+            Self::Unknown => "synthetic-unknown-client",
         }
     }
 
@@ -48,7 +49,7 @@ impl Identity {
         match self {
             Self::Alpha => "synthetic-alpha-credential",
             Self::Beta => "synthetic-beta-credential",
-            Self::Rejected => "synthetic-rejected-credential",
+            Self::Unknown => "synthetic-unknown-credential",
         }
     }
 
@@ -56,7 +57,7 @@ impl Identity {
         match self {
             Self::Alpha => "alpha",
             Self::Beta => "beta",
-            Self::Rejected => "rejected",
+            Self::Unknown => "unknown",
         }
     }
 
@@ -64,7 +65,7 @@ impl Identity {
         match self {
             Self::Alpha => 0,
             Self::Beta => 1,
-            Self::Rejected => 2,
+            Self::Unknown => 2,
         }
     }
 }
@@ -187,7 +188,7 @@ impl Backend {
 }
 
 const fn identities() -> [Identity; 3] {
-    [Identity::Alpha, Identity::Beta, Identity::Rejected]
+    [Identity::Alpha, Identity::Beta, Identity::Unknown]
 }
 
 /// # Errors

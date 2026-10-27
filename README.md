@@ -36,13 +36,11 @@ lists every operation in the shipped catalog and its limits.
 
 ## Supported clients
 
-LogBrew accepts these clients: Claude Code, Claude (claude.ai, Claude Desktop
-and the Claude mobile apps), Codex, Visual Studio Code with GitHub Copilot,
-Cursor, Gemini CLI, ChatGPT, GitHub Copilot CLI, Zed, opencode, goose, Cline and
-Amp. Other clients get `client access denied`.
+Any MCP client that completes LogBrew authorization can connect. The client can
+publish a client ID metadata document or register dynamically.
 
 [Connect an AI agent with MCP](https://docs.logbrew.co/guides/mcp) shows the
-setup for each client. For example, in Claude Code:
+setup for many clients. For example, in Claude Code:
 
 ```sh
 claude mcp add --transport http logbrew https://mcp.logbrew.co/mcp
@@ -86,8 +84,8 @@ operator-managed directories and absolute regular-file paths, checks byte and
 permission bounds, and rejects final-component symlinks. Files are opened
 without waiting for a FIFO writer and their identity is checked before reading.
 The configuration reader accepts a private file up to 16 KiB with
-version `"4"` only. Every field is required and must appear exactly once with a
-nonempty string value: `listen`, `resource`, `issuer`, `client_allowlist_file`,
+version `"5"` only. Every field is required and must appear exactly once with a
+nonempty string value: `listen`, `resource`, `issuer`,
 `introspection_endpoint`, `execution_endpoint`, `service_client_id`,
 `service_secret_file`, `catalog_file`, `catalog_sha256`, `certificate_file` and
 `private_key_file`. The `admission` object is also required (see below). It
@@ -127,7 +125,7 @@ with `Retry-After` in whole seconds and the body
 evicted, and the rest share one overflow budget, so memory stays bounded. IPv6
 clients are grouped by /64. The client is the TCP peer, or the single
 `X-Real-IP` address when the peer is the optional `trusted_proxy`. A token that
-introspection rejected (inactive, invalid, unlisted client or missing scope) is
+introspection rejected (inactive, invalid or missing scope) is
 refused for `rejected_token_seconds` (0 to 300, 0 disables) without asking
 again; up to 4096 token digests are kept, never tokens. Unavailable
 introspection is never remembered.
@@ -136,8 +134,10 @@ One service login, `service_client_id` with the secret in
 `service_secret_file`, authenticates both introspection and execution. The
 issuer and API must hold the same pair. `issuer` must equal the authorization
 server's issuer identifier byte for byte, and `resource` must equal the audience
-the issuer binds into tokens. Startup rejects an issuer that ends with `/` and a
-client allowlist with no entries; either would deny every request. The server
+the issuer binds into tokens. Startup rejects an issuer that ends with `/`,
+because it would deny every request. Introspection alone decides which clients
+can connect. The server accepts any client ID that the authorization server
+confirms, if it has 1 to 2048 printable ASCII characters. The server
 requires the single delegated scope `read`; it is not configurable. It
 publishes RFC 9728 protected resource metadata at
 `/.well-known/oauth-protected-resource` followed by the resource path. The document names the issuer as the only authorization server and `read`

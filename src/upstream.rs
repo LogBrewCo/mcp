@@ -19,9 +19,7 @@ use url::Url;
 use zeroize::Zeroizing;
 
 use crate::{
-    Failure, INPUT_BYTES, OUTPUT_BYTES, bearer,
-    clients::{ClientAllowlist, valid_client_id},
-    deadline,
+    Failure, INPUT_BYTES, OUTPUT_BYTES, bearer, deadline,
     error::Kind,
     json as strict_json,
     outbound::{Outbound, Response},
@@ -152,7 +150,6 @@ pub struct Upstream {
     client: Outbound,
     options: UpstreamOptions,
     telemetry: Telemetry,
-    clients: ClientAllowlist,
     rejected_ttl: Duration,
     /// SHA-256 of recently rejected tokens, never the tokens themselves.
     rejected: Mutex<BTreeMap<[u8; 32], (Instant, AuthorizationFailure)>>,
@@ -160,7 +157,6 @@ pub struct Upstream {
 
 impl Upstream {
     /// Construct TLS-verified clients without opening a connection.
-    /// No client is authorized until an explicit allowlist is supplied.
     ///
     /// # Errors
     /// Rejects invalid authority URLs or TLS client configuration.
@@ -170,7 +166,6 @@ impl Upstream {
 
     /// Add one explicitly trusted certificate, for isolated local HTTPS tests.
     /// The certificate must use DER encoding and contain at most 256 KiB.
-    /// No client is authorized until an explicit allowlist is supplied.
     ///
     /// # Errors
     /// Rejects invalid configuration. This does not disable certificate validation.
@@ -191,7 +186,6 @@ impl Upstream {
             client,
             options,
             telemetry: Telemetry::default(),
-            clients: ClientAllowlist::default(),
             rejected_ttl: Duration::ZERO,
             rejected: Mutex::new(BTreeMap::new()),
         })
@@ -203,25 +197,6 @@ impl Upstream {
     pub(crate) const fn with_rejected_token_ttl(mut self, ttl: Duration) -> Self {
         self.rejected_ttl = ttl;
         self
-    }
-
-    /// Restrict issuer-confirmed client IDs before discovery or execution.
-    /// This policy adds to token validation and does not grant scopes or permissions.
-    #[must_use]
-    pub fn with_client_allowlist(mut self, clients: ClientAllowlist) -> Self {
-        self.clients = clients;
-        self
-    }
-
-    /// Check the issuer-confirmed client against the configured exact allowlist.
-    ///
-    /// # Errors
-    /// Returns `PermissionDenied` when the client is absent from the allowlist.
-    fn authorize_client(&self, principal: &Principal) -> Result<(), Failure> {
-        if !self.clients.contains(&principal.client_id) {
-            return Err(Kind::PermissionDenied.into());
-        }
-        Ok(())
     }
 
     /// Retain an operator observer without exposing a protocol tool or endpoint.
@@ -245,7 +220,7 @@ impl Upstream {
     /// configured window is refused again without introspection.
     ///
     /// # Errors
-    /// Preserves credential, scope and client denials; returns Unavailable for
+    /// Preserves credential and scope denials; returns Unavailable for
     /// authorization service failures or an exceeded introspection deadline.
     pub(crate) async fn verify_request(
         &self,
@@ -314,10 +289,11 @@ impl Upstream {
         result
     }
 
-    /// Introspect an opaque token and validate its claims and client authority.
+    /// Introspect an opaque token and validate its claims. Any client the
+    /// authorization server confirms is accepted; no local client policy applies.
     ///
     /// # Errors
-    /// Rejects invalid tokens, claims, clients and insufficient scopes; fails
+    /// Rejects invalid tokens, claims, client IDs and insufficient scopes; fails
     /// closed on transport, header, body or introspection response errors.
     async fn verify_inner(&self, token: &str) -> Result<Principal, AuthorizationFailure> {
         if !bearer::valid(token) {
@@ -344,7 +320,6 @@ impl Upstream {
         let value =
             strict_json::object(&bytes, CLAIM_BYTES).map_err(Failure::redact(Kind::Unavailable))?;
         let verified = claims(&value, &self.options)?;
-        self.authorize_client(&verified.principal)?;
         if !verified.scope_allowed {
             return Err(AuthorizationFailure::InsufficientScope);
         }
@@ -376,7 +351,7 @@ impl Upstream {
     /// Send bounded operation input with validated delegated authority.
     ///
     /// # Errors
-    /// Rejects invalid authority or input, denied clients, transport failures,
+    /// Rejects invalid authority or input, transport failures,
     /// invalid response framing and output outside the exact JSON budget.
     async fn execute_inner(
         &self,
@@ -392,7 +367,6 @@ impl Upstream {
         {
             return Err(Kind::Unavailable.into());
         }
-        self.authorize_client(principal)?;
         let input_bytes = serde_json::to_vec(input).map_err(Failure::redact(Kind::InvalidInput))?;
         drop(strict_json::object(&input_bytes, INPUT_BYTES)?);
         let response = self
@@ -418,6 +392,12 @@ impl Upstream {
         let bytes = bounded_response(response, OUTPUT_BYTES).await?;
         strict_json::object(&bytes, OUTPUT_BYTES).map_err(Failure::redact(Kind::InvalidOutput))
     }
+}
+
+/// Check bounded printable ASCII without normalizing an OAuth client ID.
+fn valid_client_id(id: &str, maximum: usize) -> bool {
+    // RFC 6749 Appendix A.1 uses VSCHAR, including space and comma.
+    !id.is_empty() && id.len() <= maximum && id.bytes().all(|byte| (b' '..=b'~').contains(&byte))
 }
 
 pub(crate) fn valid_token(value: &str) -> bool {

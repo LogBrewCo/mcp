@@ -7,7 +7,7 @@ use axum::{
     body::to_bytes,
     http::{HeaderValue, StatusCode, header},
 };
-use logbrew_mcp::{clients::ClientAllowlist, error::Kind, upstream::Principal};
+use logbrew_mcp::{error::Kind, upstream::Principal};
 use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
@@ -290,13 +290,8 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
     }
     assert_eq!(raw.handshakes().load(Ordering::SeqCst), 0);
     assert_eq!(raw.requests().load(Ordering::SeqCst), 0);
-    let client_id = "https://client.example/mcp?key=a:b+c";
-    let clients = ClientAllowlist::decode(&serde_json::to_vec(
-        &json!({"version":"1","clients":[client_id]}),
-    )?)?;
-    let references = Fixture::with_clients(clients).await?;
+    let references = Fixture::with_client_id("https://client.example/mcp?key=a:b+c").await?;
     let mut claims = references.authority()?;
-    *claims.get_mut("client_id").ok_or("missing client")? = json!(client_id);
     *claims
         .get_mut("jti")
         .ok_or("missing credential reference")? = json!("reference:one+two");

@@ -5,7 +5,6 @@ extern crate alloc;
 pub mod admission;
 mod bearer;
 pub mod catalog;
-pub mod clients;
 mod connections;
 mod deadline;
 mod delivery;

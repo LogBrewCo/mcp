@@ -22,7 +22,6 @@ use axum::{
 use logbrew_mcp::{
     admission::Admission,
     catalog::Catalog,
-    clients::ClientAllowlist,
     protocol,
     telemetry::Telemetry,
     upstream::{MachineCredential, Upstream, UpstreamOptions},
@@ -153,105 +152,49 @@ impl Fixture {
     /// Start the default synthetic HTTPS backend and authenticated request router.
     ///
     /// # Errors
-    /// Propagates synthetic client-policy decoding or HTTPS fixture construction failures.
+    /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn new() -> TestResult<Self> {
         Self::for_resource(RESOURCE.to_owned()).await
     }
 
-    /// Start the fixture with the supplied resource identity and default client policy.
+    /// Start the fixture with the supplied resource identity.
     ///
     /// # Errors
-    /// Propagates client-policy decoding, invalid resource or HTTPS fixture setup failures.
+    /// Propagates invalid resource or HTTPS fixture setup failures.
     pub async fn for_resource(resource: String) -> TestResult<Self> {
-        let clients =
-            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(resource, Some(clients), None, TOKEN, CLIENT_ID, OPEN).await
+        Self::build(resource, None, TOKEN, CLIENT_ID, OPEN).await
     }
 
-    /// Start the fixture with no authorized client policy.
+    /// Start the fixture with an authorization server that confirms the supplied client ID.
     ///
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
-    pub async fn without_clients() -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), None, None, TOKEN, CLIENT_ID, OPEN).await
-    }
-
-    /// Start the fixture with the supplied client allowlist.
-    ///
-    /// # Errors
-    /// Propagates HTTPS fixture construction or startup readiness failures.
-    pub async fn with_clients(clients: ClientAllowlist) -> TestResult<Self> {
-        Self::with_client_id(clients, CLIENT_ID).await
-    }
-
-    /// Start the fixture expecting one exact issuer-confirmed client identity.
-    ///
-    /// # Errors
-    /// Propagates HTTPS fixture construction or startup readiness failures.
-    pub async fn with_client_id(clients: ClientAllowlist, client_id: &str) -> TestResult<Self> {
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            None,
-            TOKEN,
-            client_id,
-            OPEN,
-        )
-        .await
+    pub async fn with_client_id(client_id: &str) -> TestResult<Self> {
+        Self::build(RESOURCE.to_owned(), None, TOKEN, client_id, OPEN).await
     }
 
     /// Start the fixture with the supplied admission limits.
     ///
     /// # Errors
-    /// Propagates client-policy decoding, invalid limits or HTTPS fixture setup failures.
+    /// Propagates invalid limits or HTTPS fixture setup failures.
     pub async fn with_admission(admission: Admission) -> TestResult<Self> {
-        let clients =
-            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            None,
-            TOKEN,
-            CLIENT_ID,
-            admission,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), None, TOKEN, CLIENT_ID, admission).await
     }
 
     /// Start the fixture with the supplied catalog bytes and their computed checksum.
     ///
     /// # Errors
-    /// Propagates catalog rejection, client-policy decoding or HTTPS fixture setup failures.
+    /// Propagates catalog rejection or HTTPS fixture setup failures.
     pub async fn with_catalog(artifact: Vec<u8>) -> TestResult<Self> {
-        let clients =
-            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            Some(artifact),
-            TOKEN,
-            CLIENT_ID,
-            OPEN,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), Some(artifact), TOKEN, CLIENT_ID, OPEN).await
     }
 
     /// Start the fixture expecting the supplied synthetic delegated credential.
     ///
     /// # Errors
-    /// Propagates client-policy decoding or HTTPS fixture construction failures.
+    /// Propagates HTTPS fixture construction failures.
     pub async fn with_token(token: &str) -> TestResult<Self> {
-        let clients =
-            ClientAllowlist::decode(br#"{"version":"1","clients":["synthetic-client"]}"#)?;
-        Self::build(
-            RESOURCE.to_owned(),
-            Some(clients),
-            None,
-            token,
-            CLIENT_ID,
-            OPEN,
-        )
-        .await
+        Self::build(RESOURCE.to_owned(), None, token, CLIENT_ID, OPEN).await
     }
 
     /// Assemble the synthetic backend, fixture certificate trust, catalog and protocol router.
@@ -262,7 +205,6 @@ impl Fixture {
     /// or expiry of the three-second startup wait.
     async fn build(
         resource: String,
-        clients: Option<ClientAllowlist>,
         artifact: Option<Vec<u8>>,
         token: &str,
         client_id: &str,
@@ -298,7 +240,7 @@ impl Fixture {
             .route("/execute", post(execute))
             .with_state(Arc::clone(&state));
         let handle = axum_server::Handle::new();
-        let mut upstream = Upstream::with_certificate(
+        let upstream = Upstream::with_certificate(
             UpstreamOptions {
                 introspection_endpoint: format!("{issuer}/introspect"),
                 execution_endpoint: format!("{issuer}/execute"),
@@ -311,9 +253,6 @@ impl Fixture {
             },
             Some(CertificateDer::from_pem_slice(pem.as_bytes())?),
         )?;
-        if let Some(clients) = clients {
-            upstream = upstream.with_client_allowlist(clients);
-        }
         let artifact = match artifact {
             Some(artifact) => artifact,
             None => serde_json::to_vec(&json!({"format_version":1_i32,"operations":[{

@@ -51,11 +51,6 @@ fn configure(fixture: &Fixture, endpoint: &str) -> TestResult<()> {
             .ok_or_else(|| io::Error::other("missing authority field"))? =
             json!(format!("{endpoint}{suffix}"));
     }
-    drop(fixture.directory.write(
-        "clients.json",
-        br#"{"version":"1","clients":["synthetic-client"]}"#,
-        0o600,
-    )?);
     fs::write(&fixture.config, serde_json::to_vec(&config)?)?;
     Ok(())
 }
@@ -213,9 +208,6 @@ fn decode_response(
         Value::Null
     } else if status == reqwest::StatusCode::GATEWAY_TIMEOUT {
         assert_eq!(bytes, b"request deadline exceeded");
-        Value::Null
-    } else if status == reqwest::StatusCode::FORBIDDEN {
-        assert_eq!(bytes, b"client access denied");
         Value::Null
     } else {
         serde_json::from_slice::<Value>(bytes)?

@@ -3,8 +3,8 @@
 This reference describes the operation catalog shipped in
 `catalog/operations.json`, which the hosted server at
 `https://mcp.logbrew.co/mcp` loads. Most operations read. A connection with
-the `write` scope can also triage issues and create projects and project keys
-(see [Changes](#changes)). The catalog has no operations for billing,
+the `write` scope can also triage issues, create projects and project keys,
+send a test event, and load or remove sample data (see [Changes](#changes)). The catalog has no operations for billing,
 organization members, account settings, or deleting a project.
 
 The server exposes two tools. `search` finds versioned operations and returns
@@ -68,6 +68,7 @@ does not backfill historical events.
 | Operation | What it reads |
 | --- | --- |
 | `projects.list.v2` | The projects this connection can read: each project's ID, name, creation time, setup status, last release and environment, and the signed-in user's access. It takes no input and returns every approved project in one response. Use it to find the `project_id` that other operations take. |
+| `projects.sample_data.v1` | Whether one project holds sample data, with the count of each sample signal: issue events, logs, trace spans and actions. |
 | `issues.list.v1` | Grouped issues through bounded cursor pages. |
 | `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. Unless a user set it, the priority comes from how recent the issue is and how much it harms production. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
 | `issues.list.v3` | The `issues.list.v2` fields plus each issue's assignee: user ID, name, and email, or `null` when nobody is assigned or the assignee can no longer read the project. Filter by `assignee`: `me`, `none`, or a user ID. |
@@ -103,9 +104,12 @@ change with the name of the app that made it.
 | `projects.create.v1` | Creates a project owned by the signed-in user from `name`, `runtime`, `source` (`sdk`, `api`, or `cli`) and an optional `environment`. Returns the project and a setup key that is shown once. The connection can then read and change the new project. |
 | `projects.keys.create.v1` | Creates a key for a project the signed-in user owns, from `label`, `kind` (`sdk`, `browser`, `server`, `cli`, `artifact`, or `read`) and an optional `expires_at`. Returns the secret once. |
 | `projects.keys.revoke.v1` | Revokes one key of a project the signed-in user owns. Anything that uses the key stops working. Asks for confirmation. |
+| `projects.test_event.send.v1` | Sends one test log to a project and reads it back, to check that setup works. With an optional `ingest_key`, that key sends the event, so a pass proves the key works. Returns `result` (`passed` or `failed`), the stored `event_id`, and how long it took. The event is real telemetry and counts as the project's first data. |
+| `projects.sample_data.load.v1` | Loads an example issue, trace, logs and actions into a project that has no events yet, so you can look around before an SDK sends data. Loading twice stores it once. Sample data never counts toward usage. Returns the count of each sample signal. |
+| `projects.sample_data.remove.v1` | Removes a project's sample data. Real events stay. Asks for confirmation, and returns an empty object once the sample data is gone. |
 
-Issue changes need permission to manage the project's issues. Key changes need
-ownership of the project. Without that permission, or on a project the user did
+Issue changes, test events and sample data need permission to manage the
+project's issues. Key changes need ownership of the project. Without that permission, or on a project the user did
 not approve, a call returns `permission_denied` or `not_found` and changes
 nothing. A connection without the `write` scope gets `permission_denied`.
 

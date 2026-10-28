@@ -40,7 +40,8 @@ The operations read issues (investigation, lists, activity, owners and
 ownership rules), logs, traces, spans, metrics, product actions, releases,
 signal volume and product analytics. With the `write` scope, operations also
 resolve, reopen, archive, prioritize, assign and unassign issues, create
-projects, and create and revoke project keys. The
+projects, create and revoke project keys, send a test event, and load and
+remove sample data. The
 [operation reference](docs/operations.md) lists every operation in the shipped
 catalog and its limits.
 

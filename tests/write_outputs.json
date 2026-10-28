@@ -282,5 +282,23 @@
     "confirmation_required": true,
     "expires_at": "2026-10-27T14:17:25Z",
     "next": "Nothing changed yet. To make this change, call issues.archive.v1 again within 5 minutes with the same input and this confirmation."
-  }
+  },
+  "projects.test_event.send.v1": {
+    "project_id": "5c1d6a2e-8b1f-4f7e-9c0a-3e2b7d4f6a10",
+    "result": "passed",
+    "event_id": "7a3e9b1c-2d4f-4e6a-8b0c-1f2e3d4c5b6a",
+    "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+    "credential": "ingest_key",
+    "elapsed_ms": 412,
+    "next": "open the project's logs to see the test event"
+  },
+  "projects.sample_data.load.v1": {
+    "project_id": "5c1d6a2e-8b1f-4f7e-9c0a-3e2b7d4f6a10",
+    "loaded": true,
+    "issue_events": 1,
+    "logs": 3,
+    "trace_spans": 3,
+    "actions": 2
+  },
+  "projects.sample_data.remove.v1": {}
 }

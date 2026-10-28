@@ -272,7 +272,7 @@ fn shipped_query_inputs_match_backend_validation() {
 
 /// Every shipped write operation: identifier, whether it asks for
 /// confirmation first, and whether it takes an idempotency key.
-const WRITES: [(&str, bool, bool); 9] = [
+const WRITES: [(&str, bool, bool); 12] = [
     ("issues.archive.v1", true, false),
     ("issues.assign.v1", false, false),
     ("issues.reopen.v1", false, false),
@@ -282,6 +282,9 @@ const WRITES: [(&str, bool, bool); 9] = [
     ("projects.create.v1", false, true),
     ("projects.keys.create.v1", false, true),
     ("projects.keys.revoke.v1", true, false),
+    ("projects.sample_data.load.v1", false, false),
+    ("projects.sample_data.remove.v1", true, false),
+    ("projects.test_event.send.v1", false, false),
 ];
 
 #[test]
@@ -375,6 +378,16 @@ fn shipped_write_inputs_take_only_their_own_fields() {
         (
             "projects.keys.revoke.v1",
             json!({"project_id":issue,"key_id":issue}),
+        ),
+        (
+            "projects.test_event.send.v1",
+            json!({"project_id":issue,"ingest_key":"lbw_ingest_example"}),
+        ),
+        ("projects.test_event.send.v1", json!({"project_id":issue})),
+        ("projects.sample_data.load.v1", json!({"project_id":issue})),
+        (
+            "projects.sample_data.remove.v1",
+            json!({"project_id":issue,"confirmation":"a.b.c"}),
         ),
     ] {
         catalog

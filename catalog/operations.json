@@ -30231,12 +30231,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -30579,7 +30579,7 @@
               },
               "priority_source": {
                 "$ref": "#/$defs/IssuePrioritySource",
-                "description": "Whether a user set the priority or it follows severity."
+                "description": "Whether a user set the priority or it is derived from the issue."
               },
               "project_id": {
                 "description": "Owning project ID.",
@@ -30909,12 +30909,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -31268,7 +31268,7 @@
               },
               "priority_source": {
                 "$ref": "#/$defs/IssuePrioritySource",
-                "description": "Whether a user set the priority or it follows severity."
+                "description": "Whether a user set the priority or it is derived from the issue."
               },
               "project_id": {
                 "description": "Owning project ID.",
@@ -31632,12 +31632,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -32015,7 +32015,7 @@
               },
               "priority_source": {
                 "$ref": "#/$defs/IssuePrioritySource",
-                "description": "Whether a user set the priority or it follows severity."
+                "description": "Whether a user set the priority or it is derived from the issue."
               },
               "project_id": {
                 "description": "Owning project ID.",
@@ -32441,12 +32441,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -32835,7 +32835,7 @@
               },
               "priority_source": {
                 "$ref": "#/$defs/IssuePrioritySource",
-                "description": "Whether a user set the priority or it follows severity."
+                "description": "Whether a user set the priority or it is derived from the issue."
               },
               "project_id": {
                 "description": "Owning project ID.",
@@ -43970,12 +43970,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -44368,7 +44368,7 @@
           },
           "priority_source": {
             "$ref": "#/$defs/IssuePrioritySource",
-            "description": "Whether a user set the priority or it follows severity."
+            "description": "Whether a user set the priority or it is derived from the issue."
           },
           "project_id": {
             "description": "Owning project ID.",
@@ -44692,12 +44692,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -45090,7 +45090,7 @@
           },
           "priority_source": {
             "$ref": "#/$defs/IssuePrioritySource",
-            "description": "Whether a user set the priority or it follows severity."
+            "description": "Whether a user set the priority or it is derived from the issue."
           },
           "project_id": {
             "description": "Owning project ID.",
@@ -45448,12 +45448,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -45873,7 +45873,7 @@
               },
               "priority_source": {
                 "$ref": "#/$defs/IssuePrioritySource",
-                "description": "Whether a user set the priority or it follows severity."
+                "description": "Whether a user set the priority or it is derived from the issue."
               },
               "project_id": {
                 "description": "Owning project ID.",
@@ -46209,12 +46209,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -46607,7 +46607,7 @@
           },
           "priority_source": {
             "$ref": "#/$defs/IssuePrioritySource",
-            "description": "Whether a user set the priority or it follows severity."
+            "description": "Whether a user set the priority or it is derived from the issue."
           },
           "project_id": {
             "description": "Owning project ID.",
@@ -46936,12 +46936,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -47334,7 +47334,7 @@
           },
           "priority_source": {
             "$ref": "#/$defs/IssuePrioritySource",
-            "description": "Whether a user set the priority or it follows severity."
+            "description": "Whether a user set the priority or it is derived from the issue."
           },
           "project_id": {
             "description": "Owning project ID.",
@@ -47658,12 +47658,12 @@
             "oneOf": [
               {
                 "const": "manual",
-                "description": "A user set it; it no longer follows severity.",
+                "description": "A user set it; it no longer follows the derived rule.",
                 "type": "string"
               },
               {
                 "const": "derived",
-                "description": "Follows the effective severity: `error` and `critical` are high, `warning` is medium,\n`info` is low.",
+                "description": "Derived from the issue. `high`: seen in the last 24 hours and harming production now (a\nfatal or critical error, a repeated server error, a failed backup or restore, or a\ncritical vulnerability). `low`: resolved, routine, test, or non-main CI issues, and\nissues not seen for 72 hours. `medium`: every other issue.",
                 "type": "string"
               }
             ]
@@ -48056,7 +48056,7 @@
           },
           "priority_source": {
             "$ref": "#/$defs/IssuePrioritySource",
-            "description": "Whether a user set the priority or it follows severity."
+            "description": "Whether a user set the priority or it is derived from the issue."
           },
           "project_id": {
             "description": "Owning project ID.",

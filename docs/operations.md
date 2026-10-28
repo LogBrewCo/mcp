@@ -69,7 +69,7 @@ does not backfill historical events.
 | --- | --- |
 | `projects.list.v2` | The projects this connection can read: each project's ID, name, creation time, setup status, last release and environment, and the signed-in user's access. It takes no input and returns every approved project in one response. Use it to find the `project_id` that other operations take. |
 | `issues.list.v1` | Grouped issues through bounded cursor pages. |
-| `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
+| `issues.list.v2` | Grouped issues with their priority (`high`, `medium`, `low`) and whether a user set it. Unless a user set it, the priority comes from how recent the issue is and how much it harms production. An issue someone archived reads as `archived`. Filter by `status` or `priority`. |
 | `issues.list.v3` | The `issues.list.v2` fields plus each issue's assignee: user ID, name, and email, or `null` when nobody is assigned or the assignee can no longer read the project. Filter by `assignee`: `me`, `none`, or a user ID. |
 | `issues.list.v4` | The `issues.list.v2` fields plus each issue's assignee: `{type: user, user_id, name, email}`, `{type: team, team_id, slug, name}`, or `null`. Filter by `assignee`: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams`. |
 | `issues.list.v5` | The `issues.list.v4` fields plus `archive` on archived issues: `until` is `forever`, `escalating`, `time`, `events`, or `users`; `reopen_at` is the reopen time; `count` is the number of new events or users, or the events in 1 hour that count as escalating. Other issues have `archive: null`. |
@@ -97,7 +97,7 @@ change with the name of the app that made it.
 | `issues.resolve.v1` | Marks one issue resolved. Returns the issue as `issues.list.v5` lists it, like every issue change. |
 | `issues.reopen.v1` | Marks one resolved or archived issue unresolved. |
 | `issues.archive.v1` | Archives one issue. The optional `archive` condition says when it reopens: `until` is `forever`, `escalating`, `time` (with `duration` such as `24h`), `events` or `users` (with `count`). Asks for confirmation. |
-| `issues.set_priority.v1` | Sets one issue's priority to `high`, `medium`, or `low`. A priority set this way stays when the captured severity changes. |
+| `issues.set_priority.v1` | Sets one issue's priority to `high`, `medium`, or `low`. A priority set this way stays as set and no longer follows the derived priority. |
 | `issues.assign.v1` | Assigns one issue to `me`, to the user ID of an account that can read the project, or to `team:<team_id>`. |
 | `issues.unassign.v1` | Removes one issue's assignee. |
 | `projects.create.v1` | Creates a project owned by the signed-in user from `name`, `runtime`, `source` (`sdk`, `api`, or `cli`) and an optional `environment`. Returns the project and a setup key that is shown once. The connection can then read and change the new project. |

@@ -43745,6 +43745,79 @@
       }
     },
     {
+      "id": "projects.sample_data.v1",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Show whether one project holds sample data, with the count of each sample signal."
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Sample data stored in one project, by signal.",
+        "properties": {
+          "actions": {
+            "description": "Sample actions.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "issue_events": {
+            "description": "Sample issue occurrences.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "loaded": {
+            "description": "Whether any sample data is stored.",
+            "type": "boolean"
+          },
+          "logs": {
+            "description": "Sample logs.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Project that holds the sample data.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "trace_spans": {
+            "description": "Sample trace spans.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project_id",
+          "loaded",
+          "issue_events",
+          "logs",
+          "trace_spans",
+          "actions"
+        ],
+        "title": "ProjectSampleDataResponse",
+        "type": "object"
+      }
+    },
+    {
       "id": "issues.resolve.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
@@ -45987,7 +46060,7 @@
         "permission": "write",
         "safety": "write",
         "stability": "experimental",
-        "summary": "Set one issue's priority to high, medium or low. It stays when the captured severity changes.",
+        "summary": "Set one issue's priority to high, medium or low. It stays as set and no longer follows the derived priority.",
         "title": "Set Issue Priority"
       },
       "input_schema": {
@@ -49058,6 +49131,275 @@
               "revoked_at"
             ],
             "title": "ProjectIngestKeyMetadataResponse",
+            "type": "object"
+          }
+        ],
+        "type": "object"
+      }
+    },
+    {
+      "id": "projects.test_event.send.v1",
+      "info": {
+        "cost": "One change, recorded with the name of the app that made it.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "hints": {
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "readOnlyHint": false
+        },
+        "permission": "write",
+        "safety": "write",
+        "stability": "experimental",
+        "summary": "Send one test log to a project and read it back, to check that setup works. With ingest_key, that key sends it, so a pass proves the key works. The event counts as the project's first telemetry.",
+        "title": "Send Test Event"
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "ingest_key": {
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "ProjectTestEventCredential": {
+            "description": "Credential that sent a test event.",
+            "oneOf": [
+              {
+                "const": "ingest_key",
+                "description": "The project ingest key from the request.",
+                "type": "string"
+              },
+              {
+                "const": "account",
+                "description": "The caller's account.",
+                "type": "string"
+              }
+            ]
+          },
+          "ProjectTestEventResult": {
+            "description": "Whether a test event was accepted and read back.",
+            "oneOf": [
+              {
+                "const": "passed",
+                "description": "The event was accepted and read back.",
+                "type": "string"
+              },
+              {
+                "const": "failed",
+                "description": "The event was accepted but could not be read back in time.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Outcome of one test event sent through native ingest and read back.",
+        "properties": {
+          "credential": {
+            "$ref": "#/$defs/ProjectTestEventCredential",
+            "description": "Credential that sent the event."
+          },
+          "elapsed_ms": {
+            "description": "Milliseconds from sending the event to reading it back, or to giving up.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "event_id": {
+            "description": "Stored log ID of the event, when it was read back.",
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "next": {
+            "description": "Display-safe next step.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Project that received the event.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/$defs/ProjectTestEventResult",
+            "description": "Whether the event was read back."
+          },
+          "trace_id": {
+            "description": "Trace ID that the event carries.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "result",
+          "event_id",
+          "trace_id",
+          "credential",
+          "elapsed_ms",
+          "next"
+        ],
+        "title": "ProjectTestEventResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "projects.sample_data.load.v1",
+      "info": {
+        "cost": "One change, recorded with the name of the app that made it.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "hints": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "readOnlyHint": false
+        },
+        "permission": "write",
+        "safety": "write",
+        "stability": "experimental",
+        "summary": "Load an example issue, trace, logs and actions into a project that has no events yet, to look around before an SDK sends data. Loading twice stores it once. It never counts toward usage.",
+        "title": "Load Sample Data"
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Sample data stored in one project, by signal.",
+        "properties": {
+          "actions": {
+            "description": "Sample actions.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "issue_events": {
+            "description": "Sample issue occurrences.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "loaded": {
+            "description": "Whether any sample data is stored.",
+            "type": "boolean"
+          },
+          "logs": {
+            "description": "Sample logs.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "project_id": {
+            "description": "Project that holds the sample data.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "trace_spans": {
+            "description": "Sample trace spans.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project_id",
+          "loaded",
+          "issue_events",
+          "logs",
+          "trace_spans",
+          "actions"
+        ],
+        "title": "ProjectSampleDataResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "projects.sample_data.remove.v1",
+      "info": {
+        "cost": "One change, recorded with the name of the app that made it.",
+        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "hints": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "readOnlyHint": false
+        },
+        "permission": "write",
+        "safety": "write",
+        "stability": "experimental",
+        "summary": "Remove a project's sample data; real events stay. Asks for confirmation first, and returns an empty object once it is removed.",
+        "title": "Remove Sample Data"
+      },
+      "input_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation": {
+            "description": "Leave out to get a confirmation. Then send it with the same input within 5 minutes to make the change; it works once.",
+            "maxLength": 256,
+            "minLength": 1,
+            "type": "string"
+          },
+          "project_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "type": "object"
+      },
+      "output_schema": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "confirmation": {
+                "type": "string"
+              },
+              "confirmation_required": {
+                "const": true
+              },
+              "expires_at": {
+                "format": "date-time",
+                "type": "string"
+              },
+              "next": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "confirmation_required",
+              "confirmation",
+              "expires_at",
+              "next"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {},
             "type": "object"
           }
         ],

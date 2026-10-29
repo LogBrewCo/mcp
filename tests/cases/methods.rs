@@ -282,6 +282,108 @@ async fn write_operations_make_execute_a_destructive_tool() -> TestResult<()> {
     Ok(())
 }
 
+/// Each shipped write operation and the words that name it in execute's description.
+const WRITE_WORDS: [(&str, &str); 12] = [
+    ("issues.resolve.v1", "resolve"),
+    ("issues.reopen.v1", "reopen"),
+    ("issues.archive.v1", "archive"),
+    ("issues.set_priority.v1", "prioritize"),
+    ("issues.assign.v1", "assign issues"),
+    ("issues.unassign.v1", "assign issues"),
+    ("projects.create.v1", "create projects"),
+    ("projects.keys.create.v1", "or keys"),
+    ("projects.keys.revoke.v1", "revoke keys"),
+    ("projects.test_event.send.v1", "send a test event"),
+    ("projects.sample_data.load.v1", "load or remove sample data"),
+    (
+        "projects.sample_data.remove.v1",
+        "load or remove sample data",
+    ),
+];
+
+#[tokio::test]
+/// # Errors
+///
+/// Returns a catalog, fixture, request or JSON error.
+///
+/// # Panics
+///
+/// Panics if a tool argument has no description, or if execute's description
+/// leaves out a shipped write operation, its confirmation or its retry rule.
+// Reviewed 2026-10-29; review by 2026-11-29 or on source/toolchain change.
+#[expect(
+    clippy::panic_in_result_fn,
+    reason = "Test assertions must retain their failure and comparison diagnostics."
+)]
+async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResult<()> {
+    let bytes = std::fs::read(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/catalog/operations.json"
+    ))?;
+    let catalog: Value = serde_json::from_slice(&bytes)?;
+    let fixture = Fixture::with_catalog(bytes).await?;
+    let (_, result) = fixture.request("tools/list", json!({}), TOKEN).await?;
+    let text = |pointer: &str| {
+        result
+            .pointer(pointer)
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_owned()
+    };
+    let arguments: Vec<(&String, &Value)> = result
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .ok_or_else(|| io::Error::other("missing tool inventory"))?
+        .iter()
+        .filter_map(|tool| {
+            tool.pointer("/inputSchema/properties")
+                .and_then(Value::as_object)
+        })
+        .flatten()
+        .collect();
+    assert_eq!(arguments.len(), 6);
+    let undescribed: Vec<&String> = arguments
+        .into_iter()
+        .filter(|&(_, schema)| {
+            schema
+                .get("description")
+                .and_then(Value::as_str)
+                .is_none_or(str::is_empty)
+        })
+        .map(|(name, _)| name)
+        .collect();
+    assert!(undescribed.is_empty(), "{undescribed:?}");
+    let search = text("/result/tools/0/description");
+    assert!(search.contains("Use this before execute; it never changes data."));
+    assert!(text("/result/tools/0/inputSchema/properties/limit/description").contains("1 to 10"));
+    let execute = text("/result/tools/1/description");
+    assert!(
+        execute.starts_with("Run one LogBrew operation that search returned. Call search first")
+    );
+    let writes: Vec<&str> = catalog
+        .get("operations")
+        .and_then(Value::as_array)
+        .ok_or_else(|| io::Error::other("missing operations"))?
+        .iter()
+        .filter(|operation| operation.pointer("/info/permission") == Some(&json!("write")))
+        .filter_map(|operation| operation.get("id").and_then(Value::as_str))
+        .collect();
+    assert_eq!(writes, WRITE_WORDS.map(|(id, _)| id));
+    for (id, words) in WRITE_WORDS {
+        assert!(execute.contains(words), "{id}");
+    }
+    for rule in [
+        "need the write scope, which a project read key never has",
+        "Archiving, key revocation and sample-data removal change nothing until a second call",
+        "A create repeats safely only with the same idempotency_key",
+        "each test event call sends a new event",
+        "next_action and retry_after_ms",
+    ] {
+        assert!(execute.contains(rule), "{rule}");
+    }
+    Ok(())
+}
+
 /// # Errors
 ///
 /// Returns an error if the tools/list inventory is absent or is not an array.

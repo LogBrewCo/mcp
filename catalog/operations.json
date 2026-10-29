@@ -5,7 +5,7 @@
       "id": "logs.investigate.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -2291,7 +2291,7 @@
       "id": "traces.investigate.v3",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -4404,7 +4404,7 @@
       "id": "issues.investigate.v13",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -8535,7 +8535,7 @@
       "id": "issues.investigate.v14",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -12666,7 +12666,7 @@
       "id": "issues.investigate.v15",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -16797,7 +16797,7 @@
       "id": "issues.investigate.v16",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -20928,7 +20928,7 @@
       "id": "issues.investigate.v17",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -25059,7 +25059,7 @@
       "id": "actions.investigate.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -27417,7 +27417,7 @@
       "id": "metrics.investigate.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -29512,7 +29512,7 @@
       "id": "spans.investigate.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -32137,7 +32137,7 @@
       "id": "releases.investigate.v5",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -34027,7 +34027,7 @@
       "id": "logs.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -34353,7 +34353,7 @@
       "id": "issues.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -34959,7 +34959,7 @@
       "id": "issues.list.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -35610,7 +35610,7 @@
       "id": "issues.list.v3",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -36300,7 +36300,7 @@
       "id": "issues.list.v4",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -37047,7 +37047,7 @@
       "id": "issues.list.v5",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -37868,7 +37868,7 @@
       "id": "issues.owners.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -38094,7 +38094,7 @@
       "id": "issues.owners.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -38391,7 +38391,7 @@
       "id": "issues.activity.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -38635,7 +38635,7 @@
       "id": "issues.activity.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -38915,7 +38915,7 @@
       "id": "issues.activity.v3",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -39269,7 +39269,7 @@
       "id": "issues.ownership.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -39340,7 +39340,7 @@
       "id": "traces.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -39676,7 +39676,7 @@
       "id": "actions.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -39932,7 +39932,7 @@
       "id": "metrics.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -40161,7 +40161,7 @@
       "id": "releases.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -40529,7 +40529,7 @@
       "id": "metrics.series.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -41072,7 +41072,7 @@
       "id": "summary.volume.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -41619,7 +41619,7 @@
       "id": "analytics.overview.v3",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -42659,7 +42659,7 @@
       "id": "analytics.properties.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -43071,7 +43071,7 @@
       "id": "analytics.funnel.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -43578,7 +43578,7 @@
       "id": "analytics.lifecycle.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -44314,7 +44314,7 @@
       "id": "analytics.lifecycle.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -45050,7 +45050,7 @@
       "id": "analytics.paths.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -45781,7 +45781,7 @@
       "id": "analytics.retention.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -46620,7 +46620,7 @@
       "id": "analytics.retention.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -47459,7 +47459,7 @@
       "id": "analytics.segments.compare.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -48370,7 +48370,7 @@
       "id": "projects.list.v2",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -48627,7 +48627,7 @@
       "id": "projects.sample_data.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
@@ -48700,7 +48700,7 @@
       "id": "issues.resolve.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -49422,7 +49422,7 @@
       "id": "issues.reopen.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -50144,7 +50144,7 @@
       "id": "issues.archive.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": true,
           "idempotentHint": true,
@@ -50930,7 +50930,7 @@
       "id": "issues.set_priority.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -51661,7 +51661,7 @@
       "id": "issues.assign.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -52388,7 +52388,7 @@
       "id": "issues.unassign.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -53110,7 +53110,7 @@
       "id": "projects.create.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": false,
@@ -53684,7 +53684,7 @@
       "id": "projects.keys.create.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": false,
@@ -53867,7 +53867,7 @@
       "id": "projects.keys.revoke.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": true,
           "idempotentHint": true,
@@ -54020,7 +54020,7 @@
       "id": "projects.test_event.send.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": false,
@@ -54139,7 +54139,7 @@
       "id": "projects.sample_data.load.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": false,
           "idempotentHint": true,
@@ -54218,7 +54218,7 @@
       "id": "projects.sample_data.remove.v1",
       "info": {
         "cost": "One change, recorded with the name of the app that made it.",
-        "documentation": "https://github.com/LogBrewCo/mcp/blob/main/docs/operations.md",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
         "hints": {
           "destructiveHint": true,
           "idempotentHint": true,

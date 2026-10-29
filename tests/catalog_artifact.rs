@@ -1,4 +1,4 @@
-//! The shipped operation catalog matches its pinned digest and public reference.
+//! The shipped operation catalog matches its pinned digest and the README operation reference.
 
 extern crate alloc;
 
@@ -101,8 +101,13 @@ fn shipped_catalog_matches_its_pin_and_the_operation_reference() {
         .iter()
         .filter_map(|operation| operation.get("id").and_then(Value::as_str))
         .collect();
-    let reference =
-        String::from_utf8(read("docs/operations.md").expect("reference")).expect("UTF-8");
+    let readme = String::from_utf8(read("README.md").expect("README")).expect("UTF-8");
+    let (_, after) = readme
+        .split_once("\n## Operation reference\n")
+        .expect("operation reference section");
+    let reference = after
+        .split_once("\n## ")
+        .map_or(after, |(section, _)| section);
     let documented: BTreeSet<&str> = reference
         .lines()
         .filter_map(|line| line.strip_prefix("| `")?.split_once('`'))

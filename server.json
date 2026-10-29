@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "co.logbrew/mcp",
   "title": "LogBrew",
-  "description": "Read issues, logs, traces, metrics, releases, and analytics from approved LogBrew projects.",
-  "version": "0.1.0",
+  "description": "Read LogBrew issues, logs, traces, and metrics, and triage issues or manage projects with consent.",
+  "version": "0.2.0",
   "websiteUrl": "https://docs.logbrew.co/guides/mcp",
   "repository": {
     "url": "https://github.com/LogBrewCo/mcp",

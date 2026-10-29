@@ -203,19 +203,32 @@ population total.
 | Operation | What it reads |
 | --- | --- |
 | `analytics.overview.v3` | Classified activity, keeping identified and anonymous populations separate. |
+| `analytics.overview.v4` | Classified activity with sessions per event, the change from the previous period, and example sessions. |
 | `analytics.properties.v2` | Safe property keys and capture coverage, without property values or identities. |
+| `analytics.properties.v3` | Property keys with their top values and sessions per value, such as traffic sources. |
 | `analytics.funnel.v1` | Ordered conversion steps within an explicit subject boundary. |
+| `analytics.funnel.v2` | Ordered conversion steps, optionally split by one property, with the previous period and example units. |
 | `analytics.lifecycle.v1` | User lifecycle for one exact classified event. |
 | `analytics.lifecycle.v2` | User lifecycle across all classified activity, without choosing an event. |
 | `analytics.retention.v1` | Cohorts between explicit starting and returning events. |
 | `analytics.retention.v2` | Cohorts across all classified activity. |
+| `analytics.retention.v3` | Returning and lost users with the previous period and example user IDs. |
 | `analytics.paths.v1` | Bounded session paths around an exact property-filtered anchor. |
+| `analytics.paths.v2` | Session paths with the previous period and example sessions for each path. |
 | `analytics.segments.compare.v2` | An exact outcome across explicit bounded segments. |
+| `analytics.segments.compare.v3` | An exact outcome across segments with the previous period and example units. |
 
 The lifecycle and retention versions have different population definitions.
 Do not substitute one for the other. Keep identity coverage, time windows,
 denominators and missing-property states with the result. Paths describe
 observed sequences, not proven causes.
+
+The newest version of each read returns a `detail` object. Every number in it
+has its value for the previous period of equal length, the sample size, a
+two-proportion test of each rate change, and up to 5 example session or user
+IDs, each with up to 3 action IDs and 3 trace IDs. Read an example session with
+`actions.list.v1` and its `session_id` field, and its page views with
+`traces.investigate.v3`. Page views are trace spans, not actions.
 
 ### Limits, cost and recovery
 

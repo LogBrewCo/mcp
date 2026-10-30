@@ -3,8 +3,15 @@
   "name": "co.logbrew/mcp",
   "title": "LogBrew",
   "description": "Read LogBrew errors, slow traces, logs, and product analytics, and triage issues with consent.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "websiteUrl": "https://docs.logbrew.co/guides/mcp",
+  "icons": [
+    {
+      "src": "https://docs.logbrew.co/favicon-512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/LogBrewCo/mcp",
     "source": "github",

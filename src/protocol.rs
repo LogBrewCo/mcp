@@ -65,18 +65,25 @@ struct OriginalArguments(Value);
 #[derive(Clone)]
 struct ToolCursorSupplied;
 
-struct Shared {
-    catalog: Arc<Catalog>,
-    upstream: Upstream,
-    resource: String,
-    issuer: String,
+/// One protected resource identifier, the host that serves it, and the
+/// challenges that name its own metadata (RFC 9728 sections 3 and 5.1).
+struct Resource {
+    identifier: String,
     authority: authority::HttpsAuthority,
-    path: String,
     challenge: header::HeaderValue,
     invalid_token_challenge: header::HeaderValue,
     invalid_request_challenge: header::HeaderValue,
     insufficient_scope_challenge: header::HeaderValue,
     write_scope_challenge: header::HeaderValue,
+}
+
+struct Shared {
+    catalog: Arc<Catalog>,
+    upstream: Upstream,
+    /// Distinct hosts that share one path; the request's host selects one.
+    resources: Vec<Resource>,
+    issuer: String,
+    path: String,
     slots: Arc<Semaphore>,
     limiter: Limiter,
     telemetry: Telemetry,
@@ -257,70 +264,115 @@ impl Tools {
 const ROBOTS_PATH: &str = "/robots.txt";
 const ROBOTS: &str = "User-agent: *\nDisallow: /\n";
 
+impl Resource {
+    /// Parse one resource identifier into its host, path and challenges.
+    ///
+    /// # Errors
+    /// Rejects invalid resource locations and root and robots.txt resource paths.
+    fn parse(identifier: String) -> Result<(Self, String, String), Failure> {
+        let url = canonical_https(&identifier)?;
+        if url.path() == "/" || url.path() == ROBOTS_PATH {
+            return Err(Kind::Configuration.into());
+        }
+        let host = identifier
+            .strip_prefix("https://")
+            .and_then(|rest| rest.split('/').next())
+            .ok_or(Kind::Configuration)?
+            .to_owned();
+        let path = url.path().to_owned();
+        let authority = authority::HttpsAuthority::parse(&host).ok_or(Kind::Configuration)?;
+        let metadata_url = format!("https://{host}/.well-known/oauth-protected-resource{path}");
+        // Clients start with least privilege: only `read` is requested up front.
+        let challenge =
+            format!("Bearer resource_metadata=\"{metadata_url}\", scope=\"{READ_SCOPE}\"");
+        let value = |text: &str| {
+            header::HeaderValue::from_str(text).map_err(Failure::redact(Kind::Configuration))
+        };
+        let resource = Self {
+            identifier,
+            authority,
+            invalid_token_challenge: value(&format!("{challenge}, error=\"invalid_token\""))?,
+            invalid_request_challenge: value(&format!("{challenge}, error=\"invalid_request\""))?,
+            insufficient_scope_challenge: value(&format!(
+                "{challenge}, error=\"insufficient_scope\""
+            ))?,
+            write_scope_challenge: value(&format!(
+                "Bearer error=\"insufficient_scope\", scope=\"{READ_SCOPE} {WRITE_SCOPE}\", \
+                 resource_metadata=\"{metadata_url}\", \
+                 error_description=\"This operation needs the {WRITE_SCOPE} scope.\""
+            ))?,
+            challenge: value(&challenge)?,
+        };
+        Ok((resource, host, path))
+    }
+}
+
+impl Shared {
+    /// The resource whose host, and origin when present, the request names.
+    fn resource(&self, request: &Request) -> Option<&Resource> {
+        self.resources
+            .iter()
+            .find(|resource| resource.authority.allows(request))
+    }
+}
+
 /// Construct a stateless router without contacting any service or opening a listener.
+/// Each resource is served at its own host; the first is canonical by convention.
 ///
 /// # Errors
-/// Rejects invalid resource locations, root and robots.txt resource paths,
-/// issuers with a trailing slash and admission limits outside their ranges.
+/// Rejects an empty resource list, invalid resource locations, root and
+/// robots.txt resource paths, resources on different paths or on the same
+/// host and port, issuers with a trailing slash and admission limits outside
+/// their ranges.
 pub fn router(
     catalog: Arc<Catalog>,
     upstream: Upstream,
-    resource: String,
+    resources: Vec<String>,
     issuer: String,
     admission: Admission,
 ) -> Result<Router, Failure> {
     let limiter = Limiter::new(admission)?;
     let upstream = upstream.with_rejected_token_ttl(admission.rejected_token_ttl());
-    let url = canonical_https(&resource)?;
     drop(canonical_https(&issuer)?);
     // Introspection compares `iss` byte for byte, and issuers omit the slash.
-    if url.path() == "/" || url.path() == ROBOTS_PATH || issuer.ends_with('/') {
+    if issuer.ends_with('/') {
         return Err(Kind::Configuration.into());
     }
-    let host = resource
-        .strip_prefix("https://")
-        .and_then(|rest| rest.split('/').next())
-        .ok_or(Kind::Configuration)?
-        .to_owned();
-    let path = url.path().to_owned();
-    let authority = authority::HttpsAuthority::parse(&host).ok_or(Kind::Configuration)?;
+    let mut parsed: Vec<Resource> = Vec::with_capacity(resources.len());
+    let mut hosts = Vec::with_capacity(resources.len());
+    let mut shared_path: Option<String> = None;
+    for identifier in resources {
+        let (resource, host, path) = Resource::parse(identifier)?;
+        // One path keeps every request on the authenticated route of the
+        // resource its host selects; a shared host would make selection ambiguous.
+        if shared_path.as_ref().is_some_and(|shared| *shared != path)
+            || parsed
+                .iter()
+                .any(|other| other.authority.same(&resource.authority))
+        {
+            return Err(Kind::Configuration.into());
+        }
+        shared_path = Some(path);
+        hosts.push(host);
+        parsed.push(resource);
+    }
+    let path = shared_path.ok_or(Kind::Configuration)?;
     let metadata_path = format!("/.well-known/oauth-protected-resource{path}");
-    let metadata_url = format!("https://{host}{metadata_path}");
-    // Clients start with least privilege: only `read` is requested up front.
-    let challenge = format!("Bearer resource_metadata=\"{metadata_url}\", scope=\"{READ_SCOPE}\"");
-    let value = |text: &str| {
-        header::HeaderValue::from_str(text).map_err(Failure::redact(Kind::Configuration))
-    };
-    let invalid_token_challenge = value(&format!("{challenge}, error=\"invalid_token\""))?;
-    let invalid_request_challenge = value(&format!("{challenge}, error=\"invalid_request\""))?;
-    let insufficient_scope_challenge =
-        value(&format!("{challenge}, error=\"insufficient_scope\""))?;
-    let write_scope_challenge = value(&format!(
-        "Bearer error=\"insufficient_scope\", scope=\"{READ_SCOPE} {WRITE_SCOPE}\", \
-         resource_metadata=\"{metadata_url}\", \
-         error_description=\"This operation needs the {WRITE_SCOPE} scope.\""
-    ))?;
-    let challenge = value(&challenge)?;
+    let origins: Vec<String> = hosts.iter().map(|host| format!("https://{host}")).collect();
     let config = StreamableHttpServerConfig::default()
         .with_legacy_session_mode(false)
         .with_json_response(true)
         .with_max_request_body_bytes(REQUEST_BYTES)
-        .with_allowed_hosts(vec![host.clone()])
-        .with_allowed_origins(vec![format!("https://{host}")]);
+        .with_allowed_hosts(hosts)
+        .with_allowed_origins(origins);
     let telemetry = upstream.telemetry();
     telemetry.register_catalog(&catalog);
     let shared = Arc::new(Shared {
         catalog,
         upstream,
-        resource,
+        resources: parsed,
         issuer,
-        authority,
         path: path.clone(),
-        challenge,
-        invalid_token_challenge,
-        invalid_request_challenge,
-        insufficient_scope_challenge,
-        write_scope_challenge,
         slots: Arc::new(Semaphore::new(64)),
         limiter,
         telemetry,
@@ -343,7 +395,12 @@ pub fn router(
         .with_state(shared))
 }
 
+/// RFC 9728 section 3.3: `resource` equals the identifier this metadata URL was
+/// formed from, so each host answers with its own resource.
 async fn metadata(State(shared): State<Arc<Shared>>, request: Request) -> Response {
+    let Some(resource) = shared.resource(&request) else {
+        return (StatusCode::FORBIDDEN, "invalid host or origin").into_response();
+    };
     if request.method() != axum::http::Method::GET || request.uri().query().is_some() {
         return (
             StatusCode::METHOD_NOT_ALLOWED,
@@ -353,7 +410,7 @@ async fn metadata(State(shared): State<Arc<Shared>>, request: Request) -> Respon
             .into_response();
     }
     axum::Json(
-        json!({"resource":shared.resource,"authorization_servers":[shared.issuer],
+        json!({"resource":resource.identifier,"authorization_servers":[shared.issuer],
         "bearer_methods_supported":["header"],"scopes_supported":[READ_SCOPE,WRITE_SCOPE]}),
     )
     .into_response()

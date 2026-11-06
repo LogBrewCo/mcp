@@ -11,7 +11,7 @@ use logbrew_mcp::{error::Kind, upstream::Principal};
 use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
-use super::http::{Fixture, TOKEN, request_message};
+use super::http::{Fixture, RESOURCE, TOKEN, request_message};
 use super::raw_upstream::Raw;
 use super::runtime::Running;
 
@@ -269,11 +269,14 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
     };
     for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "\u{e9}"] {
         assert_eq!(
-            tokio::time::timeout(Duration::from_millis(200), raw.upstream().verify(token))
-                .await?
-                .err()
-                .ok_or("unexpected principal")?
-                .kind,
+            tokio::time::timeout(
+                Duration::from_millis(200),
+                raw.upstream().verify(token, RESOURCE)
+            )
+            .await?
+            .err()
+            .ok_or("unexpected principal")?
+            .kind,
             Kind::Unauthorized
         );
         assert_eq!(

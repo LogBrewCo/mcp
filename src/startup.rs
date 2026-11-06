@@ -30,8 +30,9 @@ pub struct Config {
     pub version: String,
     /// Numeric listener IP and port.
     pub listen: String,
-    /// Canonical protected resource URL.
-    pub resource: String,
+    /// Protected resource URLs, the canonical one first. Each is served at its
+    /// own host, and all share one path.
+    pub resources: Vec<String>,
     /// Expected authorization issuer.
     pub issuer: String,
     /// Fixed introspection service URL.
@@ -71,9 +72,9 @@ impl Config {
     ///
     /// # Errors
     /// Rejects unknown, duplicate, missing, empty, or non-string fields other
-    /// than the `admission` object, admission limits outside their ranges, a
-    /// telemetry endpoint without its key file or the reverse, and any version
-    /// other than 5.
+    /// than the `admission` object and the `resources` array of nonempty
+    /// strings, admission limits outside their ranges, a telemetry endpoint
+    /// without its key file or the reverse, and any version other than 6.
     pub fn decode(bytes: &[u8]) -> Result<Self, Failure> {
         let document =
             strict_json::object(bytes, 16 << 10).map_err(Failure::redact(Kind::Configuration))?;
@@ -85,7 +86,7 @@ impl Config {
         }
         let config: Self =
             serde_json::from_value(document).map_err(Failure::redact(Kind::Configuration))?;
-        if config.version != "5"
+        if config.version != "6"
             || config.telemetry_endpoint.is_some() != config.telemetry_key_file.is_some()
         {
             return Err(Kind::Configuration.into());
@@ -118,9 +119,17 @@ impl Config {
     }
 }
 
-/// Every field except the `admission` object is a nonempty string.
+/// `resources` is a nonempty array of nonempty strings; every other field
+/// except the `admission` object is a nonempty string.
 fn invalid_field((name, value): (&String, &serde_json::Value)) -> bool {
-    name != "admission" && value.as_str().is_none_or(str::is_empty)
+    let invalid_text = |text: &serde_json::Value| text.as_str().is_none_or(str::is_empty);
+    match name.as_str() {
+        "admission" => false,
+        "resources" => value
+            .as_array()
+            .is_none_or(|entries| entries.is_empty() || entries.iter().any(invalid_text)),
+        _ => invalid_text(value),
+    }
 }
 
 /// Read an absolute regular file without following its final symlink or waiting on a FIFO.
@@ -202,7 +211,6 @@ impl Service {
             introspection_endpoint: config.introspection_endpoint,
             execution_endpoint: config.execution_endpoint,
             issuer: config.issuer.clone(),
-            resource: config.resource.clone(),
             service_credential,
         })?;
         let telemetry = match (
@@ -219,7 +227,7 @@ impl Service {
         let router = protocol::router(
             catalog,
             upstream,
-            config.resource,
+            config.resources,
             config.issuer,
             config.admission,
         )?;

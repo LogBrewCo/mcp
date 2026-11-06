@@ -5,8 +5,12 @@ LogBrew projects and, if you allow it, triage issues and set up projects. You
 do not install it. Add its URL to your MCP client:
 
 ```text
-https://mcp.logbrew.co/mcp
+https://logbrew.co/mcp
 ```
+
+The earlier URL, `https://mcp.logbrew.co/mcp`, keeps working, so a client
+that already uses it needs no change. Each URL is its own protected resource:
+reconnect with the new URL to move a client to it.
 
 - **Transport:** Streamable HTTP. The server accepts MCP protocol versions
   `2026-07-28`, `2025-11-25` and `2025-06-18`.
@@ -54,7 +58,7 @@ publish a client ID metadata document or register dynamically.
 setup for many clients. For example, in Claude Code:
 
 ```sh
-claude mcp add --transport http logbrew https://mcp.logbrew.co/mcp
+claude mcp add --transport http logbrew https://logbrew.co/mcp
 claude mcp login logbrew
 ```
 
@@ -62,7 +66,7 @@ claude mcp login logbrew
 
 This reference describes the operation catalog shipped in
 `catalog/operations.json`, which the hosted server at
-`https://mcp.logbrew.co/mcp` loads. Most operations read. A connection with
+`https://logbrew.co/mcp` loads. Most operations read. A connection with
 the `write` scope can also triage issues, create projects and project keys,
 send a test event, and load or remove sample data (see [Changes](#changes)). The catalog has no operations for billing,
 organization members, account settings, or deleting a project.
@@ -298,18 +302,21 @@ not count against the limit. A token that the authorization server rejected
 is refused for a short time without asking again. The server keeps token
 digests for this, never tokens.
 
-A token must come from the LogBrew authorization server and name this server
-as its audience. The server accepts any client ID that the authorization server confirms, if it
+A token must come from the LogBrew authorization server and name, as its
+audience, the resource URL that the request reached (RFC 8707). A token for
+`https://logbrew.co/mcp` does not work at `https://mcp.logbrew.co/mcp`, and the
+reverse. The server accepts any client ID that the authorization server confirms, if it
 has 1 to 2048 printable ASCII characters. Every request needs the delegated
 `read` scope. An operation whose permission is `write` also needs the
 separately granted `write` scope. Without it, `execute` answers HTTP 403
 before contacting the API, with an `insufficient_scope` challenge that asks
 for `read write`. Scopes are not configurable. The server publishes RFC 9728
 protected resource metadata at `/.well-known/oauth-protected-resource`
-followed by the resource path. The document names the issuer as the only
+followed by the resource path, on the host of each resource URL. Each document
+names its own resource URL, and the issuer as the only
 authorization server and lists the `read` and `write` scopes. The 401
 challenge asks for `read` only, and every 401 and 403 challenge links to the
-document.
+document on the host that the request reached.
 
 The server starts offline, stops on both shutdown signals, and rejects a
 mismatched certificate and key. The process admits at most 64 connections, including TLS negotiation, and closes
@@ -350,8 +357,9 @@ missing required scopes, invalid identity references, and incomplete or malforme
 introspection responses before execution. Oversized introspection bodies and
 headers and unexpected media types also fail closed.
 
-The request router requires the configured resource host, including its port,
-on every request. A supplied Origin must be the single configured HTTPS origin;
+The request router requires a configured resource host, including its port,
+on every request, and that host selects the resource. A supplied Origin must
+be the HTTPS origin of that same host;
 empty, null, duplicate, foreign, or different-scheme origins are rejected even
 for metadata reads. Forwarded headers do not change either check. Browser cross-site protection remains
 enabled.

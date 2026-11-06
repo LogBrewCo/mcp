@@ -1,8 +1,17 @@
 # Changelog
 
 This file lists the changes in each version of the hosted LogBrew MCP server
-at `https://mcp.logbrew.co/mcp`. Versions follow
+at `https://logbrew.co/mcp`. Versions follow
 [Semantic Versioning](https://semver.org/).
+
+## Unreleased
+
+### Changed
+
+- The server URL is `https://logbrew.co/mcp`. The earlier URL,
+  `https://mcp.logbrew.co/mcp`, keeps working. Each URL publishes its own
+  protected resource metadata, and a token works only at the URL it was
+  issued for.
 
 ## 0.4.0 (2026-10-31)
 

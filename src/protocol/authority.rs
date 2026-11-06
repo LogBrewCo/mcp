@@ -17,6 +17,11 @@ impl HttpsAuthority {
         Some(Self { authority, port })
     }
 
+    /// Whether both name the same host and effective port.
+    pub(super) fn same(&self, other: &Self) -> bool {
+        self.matches(&other.authority)
+    }
+
     pub(super) fn allows(&self, request: &Request) -> bool {
         let mut hosts = request.headers().get_all(header::HOST).iter();
         let host = hosts.next();

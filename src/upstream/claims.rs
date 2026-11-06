@@ -4,9 +4,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde_json::Value;
 
-use super::{
-    CLOCK_SKEW_SECONDS, Principal, READ_SCOPE, TOKEN_BYTES, UpstreamOptions, Verified, WRITE_SCOPE,
-};
+use super::{CLOCK_SKEW_SECONDS, Principal, READ_SCOPE, TOKEN_BYTES, Verified, WRITE_SCOPE};
 use crate::{Failure, error::Kind};
 
 /// Check bounded printable ASCII without normalizing an OAuth client ID.
@@ -31,12 +29,13 @@ fn valid_scope(value: &str) -> bool {
             .all(|byte| (b'!'..=b'~').contains(&byte) && !matches!(byte, b'"' | b'\\'))
 }
 
-/// Validate introspection identity, time, issuer, audience and scope syntax.
+/// Validate introspection identity, time, issuer, scope syntax, and that the
+/// audience names `resource`, the protected resource the request reached.
 ///
 /// # Errors
 /// Returns Unauthorized for inactive or invalid credentials. Returns
 /// Unavailable for malformed claims or an unavailable local time source.
-pub(super) fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verified, Failure> {
+pub(super) fn claims(value: &Value, issuer: &str, resource: &str) -> Result<Verified, Failure> {
     let fields = value.as_object().ok_or(Kind::Unavailable)?;
     if fields.len() > 128 {
         return Err(Kind::Unavailable.into());
@@ -75,18 +74,18 @@ pub(super) fn claims(value: &Value, options: &UpstreamOptions) -> Result<Verifie
     };
     let audience = value.get("aud").ok_or(Kind::Unavailable)?;
     let audience_matches = if let Some(single) = audience.as_str() {
-        single == options.resource
+        single == resource
     } else if let Some(multiple) = audience.as_array() {
         multiple.iter().all(Value::is_string)
             && multiple
                 .iter()
-                .any(|entry| entry.as_str() == Some(&options.resource))
+                .any(|entry| entry.as_str() == Some(resource))
     } else {
         return Err(Kind::Unavailable.into());
     };
     if expires <= now
         || !principal.valid()
-        || text("iss")? != options.issuer
+        || text("iss")? != issuer
         || !audience_matches
         || !text("token_type")?.eq_ignore_ascii_case("Bearer")
         || !scope.split(' ').all(valid_scope)

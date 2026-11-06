@@ -95,6 +95,15 @@ impl Fixture {
     /// Returns an error if directory or address selection, certificate generation,
     /// file writes, catalog/configuration encoding or digest formatting fails.
     fn new() -> TestResult<Self> {
+        Self::with_hosts(&["localhost"])
+    }
+
+    /// Prepare the fixture with one resource at `/mcp` on each host and the
+    /// fixture port. The TLS certificate names `localhost` only.
+    ///
+    /// # Errors
+    /// Same as [`Self::new`].
+    fn with_hosts(hosts: &[&str]) -> TestResult<Self> {
         let directory = Directory::new()?;
         let address = TcpListener::bind("127.0.0.1:0")?.local_addr()?;
         let certificate = rcgen::generate_simple_self_signed(vec!["localhost".to_owned()])?;
@@ -117,10 +126,14 @@ impl Fixture {
         for byte in Sha256::digest(&catalog) {
             write!(digest, "{byte:02x}")?;
         }
+        let resources: Vec<String> = hosts
+            .iter()
+            .map(|host| format!("https://{host}:{}/mcp", address.port()))
+            .collect();
         let config = serde_json::to_vec(&json!({
-            "version":"5","listen":address.to_string(),
+            "version":"6","listen":address.to_string(),
             "admission":{"burst":64_u32,"per_minute":60_000_u32,"tracked_clients":1_024_u32,"rejected_token_seconds":0_u32},
-            "resource":format!("https://localhost:{}/mcp", address.port()),
+            "resources":resources,
             "issuer":"https://issuer.example",
             "introspection_endpoint":"https://127.0.0.1:1/introspect",
             "execution_endpoint":"https://127.0.0.1:1/execute",
@@ -329,6 +342,68 @@ impl Drop for Process {
         let _kill = self.0.kill();
         let _reap = self.0.wait();
     }
+}
+
+/// Serve each configured resource at its own host: RFC 9728 metadata and the
+/// bearer challenge name that host, and a host outside the list is refused.
+///
+/// # Panics
+/// Panics if setup, readiness or a request fails, a host answers with another
+/// host's resource or metadata URL, or an unlisted host is served.
+#[tokio::test]
+async fn each_resource_host_advertises_its_own_metadata_and_challenge() {
+    let fixture =
+        Fixture::with_hosts(&["localhost", "alias.localhost"]).expect("two-resource fixture");
+    let mut process = Process::start(&fixture.config).expect("native executable");
+    fixture.ready(&mut process).await.expect("readiness");
+    let client = fixture.client().expect("client");
+    let port = fixture.address.port();
+    let base = format!("https://localhost:{port}");
+    for host in ["localhost", "alias.localhost"] {
+        let authority = format!("{host}:{port}");
+        let metadata_url = format!("https://{authority}/.well-known/oauth-protected-resource/mcp");
+        let response = client
+            .get(format!("{base}/.well-known/oauth-protected-resource/mcp"))
+            .header("Host", &authority)
+            .send()
+            .await
+            .expect("metadata");
+        assert_eq!(response.status(), reqwest::StatusCode::OK);
+        let metadata: serde_json::Value = response.json().await.expect("metadata JSON");
+        assert_eq!(
+            metadata.get("resource"),
+            Some(&json!(format!("https://{authority}/mcp")))
+        );
+        assert_eq!(
+            metadata.get("authorization_servers"),
+            Some(&json!(["https://issuer.example"]))
+        );
+        let challenge = client
+            .post(format!("{base}/mcp"))
+            .header("Host", &authority)
+            .header("Content-Type", "application/json")
+            .body("{}")
+            .send()
+            .await
+            .expect("unauthenticated request");
+        assert_eq!(challenge.status(), reqwest::StatusCode::UNAUTHORIZED);
+        assert_eq!(
+            challenge
+                .headers()
+                .get("WWW-Authenticate")
+                .and_then(|value| value.to_str().ok()),
+            Some(format!("Bearer resource_metadata=\"{metadata_url}\", scope=\"read\"").as_str())
+        );
+    }
+    let foreign = client
+        .get(format!("{base}/.well-known/oauth-protected-resource/mcp"))
+        .header("Host", format!("foreign.localhost:{port}"))
+        .send()
+        .await
+        .expect("foreign host");
+    assert_eq!(foreign.status(), reqwest::StatusCode::FORBIDDEN);
+    process.signal(Signal::TERM).expect("shutdown signal");
+    assert!(process.wait().await.expect("bounded exit").success());
 }
 
 /// Stop the native HTTPS process with each supported shutdown signal.

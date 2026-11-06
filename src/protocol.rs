@@ -8,7 +8,7 @@ use axum::{
     http::{StatusCode, header},
     middleware,
     response::{IntoResponse as _, Response},
-    routing::any,
+    routing::{any, get},
 };
 use rmcp::{
     ErrorData, RoleServer, ServerHandler,
@@ -252,11 +252,16 @@ impl Tools {
     }
 }
 
+/// The server has no pages to index. RFC 9309 section 2.3.1.3 lets a crawler
+/// fetch every URL when robots.txt answers 4xx, so it is served explicitly.
+const ROBOTS_PATH: &str = "/robots.txt";
+const ROBOTS: &str = "User-agent: *\nDisallow: /\n";
+
 /// Construct a stateless router without contacting any service or opening a listener.
 ///
 /// # Errors
-/// Rejects invalid resource locations, root resource paths, issuers with a
-/// trailing slash and admission limits outside their ranges.
+/// Rejects invalid resource locations, root and robots.txt resource paths,
+/// issuers with a trailing slash and admission limits outside their ranges.
 pub fn router(
     catalog: Arc<Catalog>,
     upstream: Upstream,
@@ -269,7 +274,7 @@ pub fn router(
     let url = canonical_https(&resource)?;
     drop(canonical_https(&issuer)?);
     // Introspection compares `iss` byte for byte, and issuers omit the slash.
-    if url.path() == "/" || issuer.ends_with('/') {
+    if url.path() == "/" || url.path() == ROBOTS_PATH || issuer.ends_with('/') {
         return Err(Kind::Configuration.into());
     }
     let host = resource
@@ -329,6 +334,8 @@ pub fn router(
     Ok(Router::new()
         .route_service(&path, service)
         .route(&metadata_path, any(metadata))
+        .route(ROBOTS_PATH, get(async || ROBOTS))
+        .fallback(async || (StatusCode::NOT_FOUND, "not found"))
         .layer(middleware::from_fn_with_state(
             Arc::clone(&shared),
             boundary,

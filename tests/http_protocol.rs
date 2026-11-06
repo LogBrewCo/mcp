@@ -48,6 +48,8 @@ mod raw_upstream;
 mod request_encoding;
 #[path = "cases/request_json.rs"]
 mod request_json;
+#[path = "cases/resources.rs"]
+mod resources;
 #[path = "support/runtime.rs"]
 mod runtime;
 #[path = "cases/scope_grants.rs"]

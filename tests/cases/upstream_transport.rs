@@ -12,7 +12,11 @@ use logbrew_mcp::{
 use serde_json::json;
 use tokio::time::timeout;
 
-use super::{hpack::literal, http::TOKEN, raw_upstream::Raw};
+use super::{
+    hpack::literal,
+    http::{RESOURCE, TOKEN},
+    raw_upstream::Raw,
+};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_RESPONSE_MARKER";
@@ -50,7 +54,7 @@ pub async fn operation(upstream: &Upstream, execute: bool) -> Result<(), Failure
             .await?;
         assert_eq!(value, json!({"count":3_i32}));
     } else {
-        let principal = upstream.verify(TOKEN).await?;
+        let principal = upstream.verify(TOKEN, RESOURCE).await?;
         assert_eq!(principal.credential_id, "synthetic-credential");
         assert_eq!(principal.client_id, "synthetic-client");
     }

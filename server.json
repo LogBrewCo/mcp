@@ -20,7 +20,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.logbrew.co/mcp"
+      "url": "https://logbrew.co/mcp"
     }
   ]
 }

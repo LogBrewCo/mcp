@@ -143,8 +143,6 @@ pub struct UpstreamOptions {
     pub execution_endpoint: String,
     /// Expected issuer identifier.
     pub issuer: String,
-    /// Expected audience identifier.
-    pub resource: String,
     /// Service login shared by introspection and execution.
     pub service_credential: MachineCredential,
 }
@@ -155,7 +153,7 @@ pub struct Upstream {
     options: UpstreamOptions,
     telemetry: Telemetry,
     rejected_ttl: Duration,
-    /// SHA-256 of recently rejected tokens, never the tokens themselves.
+    /// SHA-256 of each recently rejected resource and token pair, never the token itself.
     rejected: Mutex<BTreeMap<[u8; 32], (Instant, AuthorizationFailure)>>,
 }
 
@@ -181,7 +179,6 @@ impl Upstream {
             &options.introspection_endpoint,
             &options.execution_endpoint,
             &options.issuer,
-            &options.resource,
         ] {
             drop(canonical_https(value)?);
         }
@@ -209,19 +206,21 @@ impl Upstream {
         self.telemetry.clone()
     }
 
-    /// Introspect each request. No positive authorization cache exists;
-    /// recent definite rejections may be answered without introspection.
+    /// Introspect each request for the resource it reached (RFC 8707 audience).
+    /// No positive authorization cache exists; recent definite rejections may
+    /// be answered without introspection.
     ///
     /// # Errors
     /// Distinguishes rejected credentials, insufficient scope, and unavailable authorization.
-    pub async fn verify(&self, token: &str) -> Result<Principal, Failure> {
-        self.verify_request(token)
+    pub async fn verify(&self, token: &str, resource: &str) -> Result<Principal, Failure> {
+        self.verify_request(token, resource)
             .await
             .map_err(AuthorizationFailure::failure)
     }
 
-    /// Measure bounded per-request introspection. A token rejected within the
-    /// configured window is refused again without introspection.
+    /// Measure bounded per-request introspection. A token rejected for this
+    /// resource within the configured window is refused again without
+    /// introspection; a rejection never carries over to another resource.
     ///
     /// # Errors
     /// Preserves credential and scope denials; returns Unavailable for
@@ -229,12 +228,19 @@ impl Upstream {
     pub(crate) async fn verify_request(
         &self,
         token: &str,
+        resource: &str,
     ) -> Result<Principal, AuthorizationFailure> {
-        let key: [u8; 32] = Sha256::digest(token.as_bytes()).into();
+        // The resource is a canonical URL, so it holds no NUL byte to blur the boundary.
+        let key: [u8; 32] = Sha256::new()
+            .chain_update(resource)
+            .chain_update([0])
+            .chain_update(token)
+            .finalize()
+            .into();
         if let Some(failure) = self.recently_rejected(&key) {
             return Err(failure);
         }
-        let result = self.introspect(token).await;
+        let result = self.introspect(token, resource).await;
         if let Err(failure) = result {
             self.remember_rejection(key, failure);
         }
@@ -281,9 +287,13 @@ impl Upstream {
     ///
     /// # Errors
     /// Same as [`Self::verify_request`].
-    async fn introspect(&self, token: &str) -> Result<Principal, AuthorizationFailure> {
+    async fn introspect(
+        &self,
+        token: &str,
+        resource: &str,
+    ) -> Result<Principal, AuthorizationFailure> {
         let measurement = self.telemetry.begin(Stage::Introspection);
-        let result = deadline::within(Duration::from_secs(5), self.verify_inner(token))
+        let result = deadline::within(Duration::from_secs(5), self.verify_inner(token, resource))
             .await
             .unwrap_or_else(|| Err(Kind::Unavailable.into()));
         measurement.finish(result.as_ref().map_or_else(
@@ -299,7 +309,11 @@ impl Upstream {
     /// # Errors
     /// Rejects invalid tokens, claims, client IDs and insufficient scopes; fails
     /// closed on transport, header, body or introspection response errors.
-    async fn verify_inner(&self, token: &str) -> Result<Principal, AuthorizationFailure> {
+    async fn verify_inner(
+        &self,
+        token: &str,
+        resource: &str,
+    ) -> Result<Principal, AuthorizationFailure> {
         if !bearer::valid(token) {
             return Err(Kind::Unauthorized.into());
         }
@@ -323,7 +337,7 @@ impl Upstream {
         let bytes = bounded_response(response, CLAIM_BYTES).await?;
         let value =
             strict_json::object(&bytes, CLAIM_BYTES).map_err(Failure::redact(Kind::Unavailable))?;
-        let verified = claims(&value, &self.options)?;
+        let verified = claims(&value, &self.options.issuer, resource)?;
         if !verified.scope_allowed {
             return Err(AuthorizationFailure::InsufficientScope);
         }

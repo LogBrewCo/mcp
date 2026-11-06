@@ -16,7 +16,7 @@ use tokio::time::timeout;
 use tower::ServiceExt as _;
 
 use super::{
-    http::{Fixture, TOKEN, request_message},
+    http::{Fixture, RESOURCE, TOKEN, request_message},
     raw_upstream::Raw,
 };
 
@@ -273,7 +273,11 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
         let bytes = serde_json::to_vec(&claims)?;
         let headers = format!("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n", bytes.len()).into_bytes();
         let done = raw.queue("/introspect", headers, Some(bytes)).await?;
-        let result = timeout(Duration::from_secs(2), raw.upstream().verify(TOKEN)).await?;
+        let result = timeout(
+            Duration::from_secs(2),
+            raw.upstream().verify(TOKEN, RESOURCE),
+        )
+        .await?;
         assert_verified_scope(scope, result)?;
         timeout(Duration::from_secs(2), done).await???;
     }

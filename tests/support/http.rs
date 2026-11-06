@@ -162,7 +162,16 @@ impl Fixture {
     /// # Errors
     /// Propagates invalid resource or HTTPS fixture setup failures.
     pub async fn for_resource(resource: String) -> TestResult<Self> {
-        Self::build(resource, None, TOKEN, CLIENT_ID, OPEN).await
+        Self::for_resources(vec![resource], OPEN).await
+    }
+
+    /// Start the fixture serving every supplied resource at its own host. The
+    /// synthetic authorization server issues tokens for the first one.
+    ///
+    /// # Errors
+    /// Propagates invalid resource lists, limits or HTTPS fixture setup failures.
+    pub async fn for_resources(resources: Vec<String>, admission: Admission) -> TestResult<Self> {
+        Self::build(resources, None, TOKEN, CLIENT_ID, admission).await
     }
 
     /// Start the fixture with an authorization server that confirms the supplied client ID.
@@ -170,7 +179,7 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction or startup readiness failures.
     pub async fn with_client_id(client_id: &str) -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), None, TOKEN, client_id, OPEN).await
+        Self::build(vec![RESOURCE.to_owned()], None, TOKEN, client_id, OPEN).await
     }
 
     /// Start the fixture with the supplied admission limits.
@@ -178,7 +187,7 @@ impl Fixture {
     /// # Errors
     /// Propagates invalid limits or HTTPS fixture setup failures.
     pub async fn with_admission(admission: Admission) -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), None, TOKEN, CLIENT_ID, admission).await
+        Self::build(vec![RESOURCE.to_owned()], None, TOKEN, CLIENT_ID, admission).await
     }
 
     /// Start the fixture with the supplied catalog bytes and their computed checksum.
@@ -186,7 +195,14 @@ impl Fixture {
     /// # Errors
     /// Propagates catalog rejection or HTTPS fixture setup failures.
     pub async fn with_catalog(artifact: Vec<u8>) -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), Some(artifact), TOKEN, CLIENT_ID, OPEN).await
+        Self::build(
+            vec![RESOURCE.to_owned()],
+            Some(artifact),
+            TOKEN,
+            CLIENT_ID,
+            OPEN,
+        )
+        .await
     }
 
     /// Start the fixture expecting the supplied synthetic delegated credential.
@@ -194,7 +210,7 @@ impl Fixture {
     /// # Errors
     /// Propagates HTTPS fixture construction failures.
     pub async fn with_token(token: &str) -> TestResult<Self> {
-        Self::build(RESOURCE.to_owned(), None, token, CLIENT_ID, OPEN).await
+        Self::build(vec![RESOURCE.to_owned()], None, token, CLIENT_ID, OPEN).await
     }
 
     /// Assemble the synthetic backend, fixture certificate trust, catalog and protocol router.
@@ -204,7 +220,7 @@ impl Fixture {
     /// catalog or router configuration failures. Rejects missing listener readiness
     /// or expiry of the three-second startup wait.
     async fn build(
-        resource: String,
+        resources: Vec<String>,
         artifact: Option<Vec<u8>>,
         token: &str,
         client_id: &str,
@@ -226,7 +242,7 @@ impl Fixture {
             calls: AtomicUsize::new(0),
             verifies: AtomicUsize::new(0),
             issuer: issuer.clone(),
-            resource: resource.clone(),
+            resource: resources.first().cloned().unwrap_or_default(),
             token: token.to_owned(),
             client_id: client_id.to_owned(),
             reply: Mutex::new(None),
@@ -245,7 +261,6 @@ impl Fixture {
                 introspection_endpoint: format!("{issuer}/introspect"),
                 execution_endpoint: format!("{issuer}/execute"),
                 issuer: issuer.clone(),
-                resource: resource.clone(),
                 service_credential: MachineCredential::new(
                     "service+client, one".to_owned(),
                     Zeroizing::new(MACHINE_SECRET.to_owned()),
@@ -266,7 +281,7 @@ impl Fixture {
         };
         let catalog = Catalog::load(&artifact, &Sha256::digest(&artifact).into())?;
         let telemetry = upstream.telemetry();
-        let router = protocol::router(catalog, upstream, resource, issuer, admission)?;
+        let router = protocol::router(catalog, upstream, resources, issuer, admission)?;
         let future = axum_server::from_tcp_rustls(listener, tls)?
             .handle(handle.clone())
             .serve(backend.into_make_service());

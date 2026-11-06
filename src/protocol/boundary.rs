@@ -13,7 +13,7 @@ use axum::{
 use serde_json::{Value, json};
 use zeroize::Zeroizing;
 
-use super::{Authority, OriginalArguments, Shared, ToolCursorSupplied};
+use super::{Authority, OriginalArguments, Resource, Shared, ToolCursorSupplied};
 use crate::{
     REQUEST_BYTES,
     admission::Ticket,
@@ -45,9 +45,9 @@ pub(super) async fn boundary(
 }
 
 async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
-    if !valid_host_origin(shared, &request) {
+    let Some(resource) = valid_host_origin(shared, &request) else {
         return (StatusCode::FORBIDDEN, "invalid host or origin").into_response();
-    }
+    };
     if request.uri().path() != shared.path {
         return next.run(request).await;
     }
@@ -76,20 +76,26 @@ async fn guarded(shared: &Shared, request: Request, next: Next) -> Response {
         .extensions()
         .get::<crate::delivery::Connection>()
         .cloned();
-    let response = authorized(shared, request, next, ticket).await;
+    let response = authorized(shared, resource, request, next, ticket).await;
     responses::hold(response, permit, connection, &shared.telemetry)
 }
 
-async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: Ticket) -> Response {
+async fn authorized(
+    shared: &Shared,
+    resource: &Resource,
+    mut request: Request,
+    next: Next,
+    ticket: Ticket,
+) -> Response {
     let token = match bearer::parse(request.headers()) {
         Ok(token) => Zeroizing::new(token.to_owned()),
-        Err(bearer::Rejection::Missing) => return unauthorized(shared),
+        Err(bearer::Rejection::Missing) => return unauthorized(resource),
         Err(bearer::Rejection::Malformed) => {
             return (
                 StatusCode::BAD_REQUEST,
                 [(
                     header::WWW_AUTHENTICATE,
-                    shared.invalid_request_challenge.clone(),
+                    resource.invalid_request_challenge.clone(),
                 )],
                 "invalid authorization request",
             )
@@ -97,12 +103,16 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
         }
     };
     let work = async {
-        let principal = match shared.upstream.verify_request(&token).await {
+        let principal = match shared
+            .upstream
+            .verify_request(&token, &resource.identifier)
+            .await
+        {
             Ok(principal) if principal.valid() => {
                 shared.limiter.refund(ticket);
                 principal
             }
-            Err(failure) => return authorization_failure(shared, failure),
+            Err(failure) => return authorization_failure(resource, failure),
             _ => {
                 return (StatusCode::SERVICE_UNAVAILABLE, "authorization unavailable")
                     .into_response();
@@ -113,7 +123,7 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
             principal,
             token: Arc::new(token),
         }));
-        prepared_request(shared, write, request, next).await
+        prepared_request(shared, resource, write, request, next).await
     };
     deadline::within(Duration::from_secs(10), work)
         .await
@@ -126,6 +136,7 @@ async fn authorized(shared: &Shared, mut request: Request, next: Next, ticket: T
 /// the verified token carries the `write` scope.
 async fn prepared_request(
     shared: &Shared,
+    resource: &Resource,
     write: bool,
     mut request: Request,
     next: Next,
@@ -167,7 +178,7 @@ async fn prepared_request(
                 StatusCode::FORBIDDEN,
                 [(
                     header::WWW_AUTHENTICATE,
-                    shared.write_scope_challenge.clone(),
+                    resource.write_scope_challenge.clone(),
                 )],
                 "insufficient scope",
             )
@@ -204,7 +215,12 @@ async fn prepared_request(
     transport::fixed_header_error(response).await
 }
 
-fn valid_host_origin(shared: &Shared, request: &Request) -> bool {
+/// The resource the request's host and origin select, unless a cross-site
+/// browser request tries to change state.
+fn valid_host_origin<'shared>(
+    shared: &'shared Shared,
+    request: &Request,
+) -> Option<&'shared Resource> {
     if !matches!(
         *request.method(),
         axum::http::Method::GET | axum::http::Method::HEAD
@@ -214,9 +230,9 @@ fn valid_host_origin(shared: &Shared, request: &Request) -> bool {
         .iter()
         .any(|value| value == "cross-site")
     {
-        return false;
+        return None;
     }
-    shared.authority.allows(request)
+    shared.resource(request)
 }
 
 /// A stable 429 for a client that spent its unauthenticated budget.
@@ -233,22 +249,22 @@ fn throttled(wait: Duration) -> Response {
         .into_response()
 }
 
-fn unauthorized(shared: &Shared) -> Response {
+fn unauthorized(resource: &Resource) -> Response {
     (
         StatusCode::UNAUTHORIZED,
-        [(header::WWW_AUTHENTICATE, shared.challenge.clone())],
+        [(header::WWW_AUTHENTICATE, resource.challenge.clone())],
         "unauthorized",
     )
         .into_response()
 }
 
-fn authorization_failure(shared: &Shared, failure: AuthorizationFailure) -> Response {
+fn authorization_failure(resource: &Resource, failure: AuthorizationFailure) -> Response {
     match failure {
         AuthorizationFailure::InsufficientScope => (
             StatusCode::FORBIDDEN,
             [(
                 header::WWW_AUTHENTICATE,
-                shared.insufficient_scope_challenge.clone(),
+                resource.insufficient_scope_challenge.clone(),
             )],
             "insufficient scope",
         )
@@ -257,7 +273,7 @@ fn authorization_failure(shared: &Shared, failure: AuthorizationFailure) -> Resp
             StatusCode::UNAUTHORIZED,
             [(
                 header::WWW_AUTHENTICATE,
-                shared.invalid_token_challenge.clone(),
+                resource.invalid_token_challenge.clone(),
             )],
             "unauthorized",
         )

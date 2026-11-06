@@ -160,7 +160,6 @@ impl Raw {
                 introspection_endpoint: format!("{endpoint}/introspect"),
                 execution_endpoint: format!("{endpoint}/execute"),
                 issuer: "https://issuer.example".to_owned(),
-                resource: "https://resource.example/mcp".to_owned(),
                 service_credential: credential()?,
             },
             root,

@@ -16,6 +16,8 @@ mod bearer;
 mod clients;
 #[path = "support/count.rs"]
 mod count;
+#[path = "cases/crawlers.rs"]
+mod crawlers;
 #[path = "cases/headers.rs"]
 mod headers;
 #[path = "support/hpack.rs"]

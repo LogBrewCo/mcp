@@ -4,7 +4,7 @@ This file lists the changes in each version of the hosted LogBrew MCP server
 at `https://logbrew.co/mcp`. Versions follow
 [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 0.5.0 (2026-11-07)
 
 ### Changed
 

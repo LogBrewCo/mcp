@@ -280,7 +280,7 @@ APIs; no dependency subtree is excluded. Unused license and source allowances
 fail the check, and every warning fails.
 
 The toolchain file pins rustfmt and Clippy with Rust 1.99.1. The server uses
-the official MCP Rust SDK, rmcp 3.5.1, with Axum and Tokio. Cargo.lock records
+the official MCP Rust SDK, rmcp 3.9.0, with Axum and Tokio. Cargo.lock records
 the resolved dependency graph.
 
 The operation validator accepts object-rooted JSON, rejects duplicate

@@ -4,6 +4,14 @@ This file lists the changes in each version of the hosted LogBrew MCP server
 at `https://logbrew.co/mcp`. Versions follow
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Security
+
+- The server uses release 3.9.0 of rmcp, the MCP Rust SDK. This release fixes
+  3 published advisories: RUSTSEC-2026-0457, RUSTSEC-2026-0461, and
+  RUSTSEC-2026-0462.
+
 ## 0.5.0 (2026-11-07)
 
 ### Changed

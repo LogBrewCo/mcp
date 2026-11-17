@@ -323,7 +323,7 @@ allow = ["__reqwest", "base64", "client", "client-side-sse", "schemars", "server
 reason = "Reviewed features for this exact locked dependency version"
 
 [[bans.features]]
-crate = "rustix@1.1.5"
+crate = "rustix@1.1.6"
 allow = ["alloc", "default", "fs", "process", "std"]
 reason = "Reviewed features for this exact locked dependency version"
 

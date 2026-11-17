@@ -1,6 +1,11 @@
 [graph]
 all-features = true
 
+[advisories]
+ignore = [
+  { id = "RUSTSEC-2026-0543", reason = "rmcp 3.9.0 requires chrono for its model types and schemars chrono04 feature; no rmcp release drops it yet" },
+]
+
 [licenses]
 confidence-threshold = 0.95
 include-dev = true

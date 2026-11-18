@@ -5,6 +5,8 @@ extern crate alloc;
 #[cfg(target_os = "linux")]
 #[path = "process/authenticated.rs"]
 mod authenticated;
+#[path = "support/checks.rs"]
+mod checks;
 #[cfg(target_os = "linux")]
 #[path = "support/count.rs"]
 mod count;
@@ -18,6 +20,9 @@ mod launch;
 mod peer;
 #[path = "process/preflight.rs"]
 mod preflight;
+#[cfg(target_os = "linux")]
+#[path = "support/race.rs"]
+mod race;
 
 use core::{
     fmt::Write as _,

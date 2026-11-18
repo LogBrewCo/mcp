@@ -35,6 +35,7 @@ use serde_json::{Value, json};
 use tokio::time::timeout;
 
 use super::{Fixture, Process, TestResult};
+use crate::checks::{ensure, ensure_eq};
 
 /// # Errors
 ///
@@ -171,29 +172,22 @@ fn message(method: &str, mut params: Value) -> TestResult<Value> {
 ///
 /// Returns a JSON parsing error for a response that requires a JSON body.
 ///
-/// # Panics
-///
-/// Panics if cache policy, session isolation, authentication challenge, rejection
+/// Fails if cache policy, session isolation, authentication challenge, rejection
 /// body or private-field redaction changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn decode_response(
     status: reqwest::StatusCode,
     headers: &reqwest::header::HeaderMap,
     bytes: &[u8],
 ) -> TestResult<Value> {
-    assert_eq!(
+    ensure_eq!(
         headers
             .get("Cache-Control")
             .and_then(|value| value.to_str().ok()),
         Some("no-store")
     );
-    assert!(!headers.contains_key("Mcp-Session-Id"));
+    ensure!(!headers.contains_key("Mcp-Session-Id"));
     if status == reqwest::StatusCode::UNAUTHORIZED {
-        assert!(
+        ensure!(
             headers
                 .get("WWW-Authenticate")
                 .and_then(|value| value.to_str().ok())
@@ -201,18 +195,18 @@ fn decode_response(
         );
     }
     let value = if status == reqwest::StatusCode::UNAUTHORIZED {
-        assert_eq!(bytes, b"unauthorized");
+        ensure_eq!(bytes, b"unauthorized");
         Value::Null
     } else if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
-        assert_eq!(bytes, b"authorization unavailable");
+        ensure_eq!(bytes, b"authorization unavailable");
         Value::Null
     } else if status == reqwest::StatusCode::GATEWAY_TIMEOUT {
-        assert_eq!(bytes, b"request deadline exceeded");
+        ensure_eq!(bytes, b"request deadline exceeded");
         Value::Null
     } else {
         serde_json::from_slice::<Value>(bytes)?
     };
-    assert!(!value.to_string().contains("SYNTHETIC"));
+    ensure!(!value.to_string().contains("SYNTHETIC"));
     Ok(value)
 }
 
@@ -220,20 +214,13 @@ fn decode_response(
 ///
 /// Returns an error if tool result fields are missing or its text has invalid JSON.
 ///
-/// # Panics
-///
-/// Panics if error status, structured content, text or provenance disagrees with
+/// Fails if error status, structured content, text or provenance disagrees with
 /// the tool result contract.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn envelope(reply: &Value, error: Option<&str>) -> TestResult<Value> {
     let result = reply
         .get("result")
         .ok_or_else(|| io::Error::other("missing tool result"))?;
-    assert_eq!(
+    ensure_eq!(
         result
             .get("isError")
             .and_then(Value::as_bool)
@@ -243,13 +230,13 @@ fn envelope(reply: &Value, error: Option<&str>) -> TestResult<Value> {
     let value = result
         .get("structuredContent")
         .ok_or_else(|| io::Error::other("missing structured result"))?;
-    assert_eq!(value.pointer("/error/code").and_then(Value::as_str), error);
+    ensure_eq!(value.pointer("/error/code").and_then(Value::as_str), error);
     let text = result
         .pointer("/content/0/text")
         .and_then(Value::as_str)
         .ok_or_else(|| io::Error::other("missing text result"))?;
-    assert_eq!(&serde_json::from_str::<Value>(text)?, value);
-    assert!(
+    ensure_eq!(&serde_json::from_str::<Value>(text)?, value);
+    ensure!(
         value
             .pointer("/provenance/definition_sha256")
             .and_then(Value::as_str)

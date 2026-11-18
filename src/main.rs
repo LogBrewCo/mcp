@@ -1,5 +1,6 @@
 //! `LogBrew`'s standalone HTTPS MCP process.
 
+use core::task::Poll;
 use std::{io::Write as _, path::PathBuf, process::ExitCode};
 
 use logbrew_mcp::{Failure, error::Kind, runtime, startup::Service};
@@ -22,10 +23,6 @@ async fn main() -> ExitCode {
 /// # Errors
 /// Rejects missing or extra arguments, version-output failure, invalid startup
 /// material and serving or shutdown failures without exposing diagnostic values.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "The command returns fixed public errors without retaining output diagnostics; process tests cover failed output and private startup material. Reviewed 2026-10-05; review by 2026-11-05 or on contract change."
-)]
 async fn run() -> Result<(), Failure> {
     let (path, check_only) = {
         let mut arguments = std::env::args_os().skip(1);
@@ -40,7 +37,7 @@ async fn run() -> Result<(), Failure> {
                 .write_all(
                     concat!("logbrew-mcp ", env!("CARGO_PKG_VERSION"), " development\n").as_bytes(),
                 )
-                .map_err(|_| Kind::Unavailable.into());
+                .map_err(Failure::redact(Kind::Unavailable));
         }
         let check_only = first == "--check-config";
         let path = if check_only {
@@ -61,26 +58,23 @@ async fn run() -> Result<(), Failure> {
     }
 }
 
-/// Wait for SIGINT or SIGTERM with fair signal polling.
+/// Wait for SIGINT or SIGTERM, polling both listeners on every wake.
 ///
 /// # Errors
 /// Returns Unavailable if either signal listener cannot be installed.
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
-)]
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Signal setup returns a fixed public category without retaining OS diagnostics; process regressions cover shutdown through both signals. Reviewed 2026-10-05; review by 2026-11-05 or on contract change."
-)]
 async fn shutdown() -> Result<(), Failure> {
     use tokio::signal::unix::{SignalKind, signal};
     let mut interrupt =
-        signal(SignalKind::interrupt()).map_err(|_| Failure::from(Kind::Unavailable))?;
+        signal(SignalKind::interrupt()).map_err(Failure::redact(Kind::Unavailable))?;
     let mut terminate =
-        signal(SignalKind::terminate()).map_err(|_| Failure::from(Kind::Unavailable))?;
-    tokio::select! {
-        _ = interrupt.recv() => Ok(()),
-        _ = terminate.recv() => Ok(()),
-    }
+        signal(SignalKind::terminate()).map_err(Failure::redact(Kind::Unavailable))?;
+    core::future::poll_fn(|context| {
+        if interrupt.poll_recv(context).is_ready() || terminate.poll_recv(context).is_ready() {
+            Poll::Ready(())
+        } else {
+            Poll::Pending
+        }
+    })
+    .await;
+    Ok(())
 }

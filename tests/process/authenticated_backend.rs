@@ -218,10 +218,6 @@ pub(super) fn machine(headers: &HeaderMap, client: &str, content_type: &str) {
 /// # Panics
 ///
 /// Panics if machine authentication, the introspection body or its call limit fails.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "The synthetic authority returns a status-only clock failure; executable authorization regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -239,10 +235,10 @@ async fn introspect(
     assert_eq!(bytes.as_ref(), expected.as_bytes());
     assert!(observed.verifies.fetch_add(1, Ordering::SeqCst) < 16);
     let _active = observed.enter(PendingStage::Verification).await;
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
-        .as_secs();
+    let Ok(elapsed) = SystemTime::now().duration_since(UNIX_EPOCH) else {
+        return Err(StatusCode::SERVICE_UNAVAILABLE);
+    };
+    let now = elapsed.as_secs();
     Ok(axum::Json(
         json!({"active":observed.active.load(Ordering::SeqCst),
         "iss":observed.issuer,"aud":observed.resource,"exp":now.saturating_add(60),
@@ -259,17 +255,15 @@ async fn introspect(
 ///
 /// Panics if machine authentication, delegated identity, operation, input or
 /// the execution call limit differs from the fixture.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Synthetic invalid JSON returns a status-only response without retaining credential diagnostics; executable privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
     bytes: Bytes,
 ) -> Result<axum::Json<Value>, StatusCode> {
     machine(&headers, "synthetic-service", "application/json");
-    let input: Value = serde_json::from_slice(&bytes).map_err(|_| StatusCode::BAD_REQUEST)?;
+    let Ok(input) = serde_json::from_slice::<Value>(&bytes) else {
+        return Err(StatusCode::BAD_REQUEST);
+    };
     assert_eq!(input.get("token"), Some(&json!(TOKEN)));
     assert_eq!(
         input.get("credential_id"),

@@ -18,6 +18,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 
 use super::{HTTP2_PREFACE, LimitedStream, PrefixDeadline};
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error>>;
 
@@ -80,14 +81,11 @@ fn stream(
 /// # Errors
 /// Returns an error if the controlled admission permit cannot be acquired.
 ///
-/// # Panics
 /// Fails if a late read supplies bytes, selects a protocol or retains capacity.
+///
+/// # Panics
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-08; review by 2026-11-08 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn late_protocol_selection_rejects_bytes_and_releases_capacity() -> TestResult<()> {
     for (bytes, matched) in [
         (b"G".as_slice(), 0),
@@ -105,19 +103,19 @@ async fn late_protocol_selection_rejects_bytes_and_releases_capacity() -> TestRe
         buffer.put_slice(b"old");
         let result =
             poll_fn(|context| Pin::new(&mut connection).poll_read(context, &mut buffer)).await;
-        assert_eq!(
+        ensure_eq!(
             result.map_err(|error| error.kind()),
             Err(io::ErrorKind::TimedOut)
         );
-        assert_eq!(buffer.filled(), b"old");
-        assert_eq!(
+        ensure_eq!(buffer.filled(), b"old");
+        ensure_eq!(
             connection.prefix.as_ref().map(|prefix| prefix.matched),
             Some(matched)
         );
-        assert_eq!(connection.inner.polls.load(Ordering::SeqCst), 1);
-        assert_eq!(slots.available_permits(), 0);
+        ensure_eq!(connection.inner.polls.load(Ordering::SeqCst), 1);
+        ensure_eq!(slots.available_permits(), 0);
         drop(connection);
-        assert_eq!(slots.available_permits(), 1);
+        ensure_eq!(slots.available_permits(), 1);
         let _recovered = slots.try_acquire()?;
     }
     Ok(())
@@ -128,29 +126,26 @@ async fn late_protocol_selection_rejects_bytes_and_releases_capacity() -> TestRe
 /// # Errors
 /// Returns an error if admission or a promptly completed read fails.
 ///
-/// # Panics
 /// Fails if protocol selection changes bytes or continues the prefix timer.
+///
+/// # Panics
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-08; review by 2026-11-08 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn timely_protocol_selection_preserves_bytes_and_later_reads() -> TestResult<()> {
     for bytes in [b"G".as_slice(), HTTP2_PREFACE] {
         let (mut connection, slots) = stream(bytes, Duration::ZERO, Duration::from_secs(1), 0)?;
         let mut storage = [0; 32];
         let mut buffer = ReadBuf::new(&mut storage);
         poll_fn(|context| Pin::new(&mut connection).poll_read(context, &mut buffer)).await?;
-        assert_eq!(buffer.filled(), bytes);
-        assert!(connection.prefix.is_none());
+        ensure_eq!(buffer.filled(), bytes);
+        ensure!(connection.prefix.is_none());
         connection.inner.bytes = b"body";
         connection.inner.delay = Duration::from_millis(20);
         buffer.clear();
         poll_fn(|context| Pin::new(&mut connection).poll_read(context, &mut buffer)).await?;
-        assert_eq!(buffer.filled(), b"body");
+        ensure_eq!(buffer.filled(), b"body");
         drop(connection);
-        assert_eq!(slots.available_permits(), 1);
+        ensure_eq!(slots.available_permits(), 1);
     }
     Ok(())
 }
@@ -160,27 +155,24 @@ async fn timely_protocol_selection_preserves_bytes_and_later_reads() -> TestResu
 /// # Errors
 /// Returns an error if the controlled admission permit cannot be acquired.
 ///
-/// # Panics
 /// Fails if expiration reads data, alters existing bytes or retains capacity.
+///
+/// # Panics
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-08; review by 2026-11-08 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn expired_protocol_detection_does_not_poll_or_change_bytes() -> TestResult<()> {
     let (mut connection, slots) = stream(b"G", Duration::ZERO, Duration::ZERO, 0)?;
     let mut storage = [0; 32];
     let mut buffer = ReadBuf::new(&mut storage);
     buffer.put_slice(b"old");
     let result = poll_fn(|context| Pin::new(&mut connection).poll_read(context, &mut buffer)).await;
-    assert_eq!(
+    ensure_eq!(
         result.map_err(|error| error.kind()),
         Err(io::ErrorKind::TimedOut)
     );
-    assert_eq!(buffer.filled(), b"old");
-    assert_eq!(connection.inner.polls.load(Ordering::SeqCst), 0);
+    ensure_eq!(buffer.filled(), b"old");
+    ensure_eq!(connection.inner.polls.load(Ordering::SeqCst), 0);
     drop(connection);
-    assert_eq!(slots.available_permits(), 1);
+    ensure_eq!(slots.available_permits(), 1);
     Ok(())
 }

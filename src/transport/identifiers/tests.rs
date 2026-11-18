@@ -14,6 +14,7 @@ use http_body::Frame;
 use tokio::time::timeout;
 
 use super::*;
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -30,14 +31,8 @@ fn original() -> TestResult<Value> {
 /// # Errors
 /// Returns an error if identifier parsing, restoration or UTF-8 decoding fails.
 ///
-/// # Panics
-/// Panics if restoring correlation changes the result or error payload.
+/// Fails if restoring correlation changes the result or error payload.
 #[test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn restoration_preserves_result_and_error_json_verbatim() -> TestResult<()> {
     let id = original()?;
     for field in ["result", "error"] {
@@ -45,7 +40,7 @@ fn restoration_preserves_result_and_error_json_verbatim() -> TestResult<()> {
         let reply = format!(r#"{{"jsonrpc":"2.0","id":"{INTERNAL_ID}","{field}":{payload}}}"#);
         let restored = restore(reply.as_bytes(), &id)
             .ok_or_else(|| io::Error::other("valid reply rejected"))?;
-        assert_eq!(
+        ensure_eq!(
             String::from_utf8(restored)?,
             format!(r#"{{"jsonrpc":"2.0","id":{id},"{field}":{payload}}}"#)
         );
@@ -58,14 +53,8 @@ fn restoration_preserves_result_and_error_json_verbatim() -> TestResult<()> {
 /// # Errors
 /// Returns an error if the controlled numeric identifier cannot be parsed.
 ///
-/// # Panics
-/// Panics if any rejected reply is reassigned to the original request.
+/// Fails if any rejected reply is reassigned to the original request.
 #[test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn malformed_or_uncorrelated_replies_cannot_be_reassigned() -> TestResult<()> {
     let id = original()?;
     for fields in [
@@ -85,11 +74,11 @@ fn malformed_or_uncorrelated_replies_cannot_be_reassigned() -> TestResult<()> {
         r#""id":"logbrew-integer-id","result":{},"result":{}"#,
     ] {
         let reply = format!(r#"{{"jsonrpc":"2.0",{fields}}}"#);
-        assert!(restore(reply.as_bytes(), &id).is_none(), "reply {reply}");
+        ensure!(restore(reply.as_bytes(), &id).is_none(), "reply {reply}");
     }
     let wrong_version = format!(r#"{{"jsonrpc":"1.0","id":"{INTERNAL_ID}","result":{{}}}}"#);
-    assert!(restore(wrong_version.as_bytes(), &id).is_none());
-    assert!(restore(b"not JSON SYNTHETIC_PRIVATE_MARKER", &id).is_none());
+    ensure!(restore(wrong_version.as_bytes(), &id).is_none());
+    ensure!(restore(b"not JSON SYNTHETIC_PRIVATE_MARKER", &id).is_none());
     Ok(())
 }
 
@@ -98,14 +87,8 @@ fn malformed_or_uncorrelated_replies_cannot_be_reassigned() -> TestResult<()> {
 /// # Errors
 /// Returns an error if identifier parsing, restoration or response parsing fails.
 ///
-/// # Panics
-/// Panics if the recovered identifier or parse-error code is incorrect.
+/// Fails if the recovered identifier or parse-error code is incorrect.
 #[test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn a_request_scoped_sdk_parse_error_can_recover_its_missing_id() -> TestResult<()> {
     let id = original()?;
     let bytes = restore(
@@ -114,8 +97,8 @@ fn a_request_scoped_sdk_parse_error_can_recover_its_missing_id() -> TestResult<(
     )
     .ok_or_else(|| io::Error::other("SDK error rejected"))?;
     let reply: Value = serde_json::from_slice(&bytes)?;
-    assert_eq!(reply.get("id"), Some(&id));
-    assert_eq!(reply.pointer("/error/code"), Some(&json!(-32_600_i32)));
+    ensure_eq!(reply.get("id"), Some(&id));
+    ensure_eq!(reply.pointer("/error/code"), Some(&json!(-32_600_i32)));
     Ok(())
 }
 
@@ -137,21 +120,18 @@ fn response(body: Body) -> TestResult<Response> {
 /// # Errors
 /// Returns an error if fixture construction, body reading or JSON parsing fails.
 ///
+/// Fails if the status, restored identifier or retained/removed headers are wrong.
+///
 /// # Panics
-/// Panics if the status, restored identifier or retained/removed headers are wrong.
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> TestResult<()> {
     let id = original()?;
     let bytes = format!(r#"{{"jsonrpc":"2.0","id":"{INTERNAL_ID}","result":{{}}}}"#);
     let reply = restore_id(Some(NumericId(id.clone())), response(Body::from(bytes))?).await;
-    assert_eq!(reply.status(), StatusCode::OK);
-    assert!(reply.headers().get(header::CONTENT_LENGTH).is_none());
-    assert_eq!(
+    ensure_eq!(reply.status(), StatusCode::OK);
+    ensure!(reply.headers().get(header::CONTENT_LENGTH).is_none());
+    ensure_eq!(
         reply
             .headers()
             .get("cache-control")
@@ -159,7 +139,7 @@ async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> T
         Some("no-store")
     );
     let body: Value = serde_json::from_slice(&to_bytes(reply.into_body(), 4096).await?)?;
-    assert_eq!(body.get("id"), Some(&id));
+    ensure_eq!(body.get("id"), Some(&id));
     Ok(())
 }
 
@@ -168,30 +148,27 @@ async fn restored_replies_remove_stale_lengths_and_preserve_other_headers() -> T
 /// # Errors
 /// Returns an error if fixture construction, identifier parsing or body reading fails.
 ///
+/// Fails if unchanged replies lose their status, original body or length metadata.
+///
 /// # Panics
-/// Panics if unchanged replies lose their status, original body or length metadata.
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn untouched_ids_and_plain_http_errors_keep_their_original_body() -> TestResult<()> {
     let id = original()?;
     let bytes = "SYNTHETIC_BODY";
     let uncorrelated = restore_id(None, response(Body::from(bytes))?).await;
-    assert_eq!(
+    ensure_eq!(
         uncorrelated
             .headers()
             .get(header::CONTENT_LENGTH)
             .and_then(|v| v.to_str().ok()),
         Some("1")
     );
-    assert_eq!(to_bytes(uncorrelated.into_body(), 4096).await?, bytes);
+    ensure_eq!(to_bytes(uncorrelated.into_body(), 4096).await?, bytes);
     let plain = (StatusCode::SERVICE_UNAVAILABLE, bytes).into_response();
     let unchanged = restore_id(Some(NumericId(id)), plain).await;
-    assert_eq!(unchanged.status(), StatusCode::SERVICE_UNAVAILABLE);
-    assert_eq!(to_bytes(unchanged.into_body(), 4096).await?, bytes);
+    ensure_eq!(unchanged.status(), StatusCode::SERVICE_UNAVAILABLE);
+    ensure_eq!(to_bytes(unchanged.into_body(), 4096).await?, bytes);
     Ok(())
 }
 
@@ -228,15 +205,12 @@ impl http_body::Body for Probe {
 /// # Errors
 /// Returns an error if fixture construction, body reading or JSON parsing fails.
 ///
-/// # Panics
-/// Panics if rejected bytes leak, correlation or the fixed error changes,
+/// Fails if rejected bytes leak, correlation or the fixed error changes,
 /// or a rejected body remains owned.
+///
+/// # Panics
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> TestResult<()> {
     let id = original()?;
     for frame in [
@@ -251,13 +225,13 @@ async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> T
             dropped: Arc::clone(&dropped),
         });
         let reply = restore_id(Some(NumericId(id.clone())), response(body)?).await;
-        assert_eq!(reply.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        ensure_eq!(reply.status(), StatusCode::INTERNAL_SERVER_ERROR);
         let bytes = to_bytes(reply.into_body(), 4096).await?;
-        assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
+        ensure!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_"));
         let envelope: Value = serde_json::from_slice(&bytes)?;
-        assert_eq!(envelope.get("id"), Some(&id));
-        assert_eq!(envelope.pointer("/error/code"), Some(&json!(-32_603_i32)));
-        assert!(dropped.load(Ordering::SeqCst));
+        ensure_eq!(envelope.get("id"), Some(&id));
+        ensure_eq!(envelope.pointer("/error/code"), Some(&json!(-32_603_i32)));
+        ensure!(dropped.load(Ordering::SeqCst));
     }
     Ok(())
 }
@@ -267,14 +241,11 @@ async fn oversized_broken_and_invalid_bodies_drop_and_hide_rejected_bytes() -> T
 /// # Errors
 /// Returns an error if identifier parsing or fixture response construction fails.
 ///
+/// Fails if restoration unexpectedly completes or cancellation retains the body.
+///
 /// # Panics
-/// Panics if restoration unexpectedly completes or cancellation retains the body.
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 async fn cancelling_restoration_drops_the_pending_body() -> TestResult<()> {
     let dropped = Arc::new(AtomicBool::new(false));
     let body = Body::new(Probe {
@@ -288,6 +259,6 @@ async fn cancelling_restoration_drops_the_pending_body() -> TestResult<()> {
     )
     .await
     .unwrap_err();
-    assert!(dropped.load(Ordering::SeqCst));
+    ensure!(dropped.load(Ordering::SeqCst));
     Ok(())
 }

@@ -2,6 +2,10 @@
 
 extern crate alloc;
 
+#[path = "support/checks.rs"]
+mod checks;
+
+use crate::checks::ensure_eq;
 use logbrew_mcp::{Failure, catalog::Catalog, error::Kind};
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
@@ -27,13 +31,8 @@ fn load(schema: &Value) -> Result<alloc::sync::Arc<Catalog>, Failure> {
 /// # Errors
 /// Propagates rejection of the expected valid tuple by either contract.
 ///
-/// # Panics
 /// Fails when an invalid tuple has the wrong input or output rejection category.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
-fn check_tuple(catalog: &Catalog) -> Result<(), Failure> {
+fn check_tuple(catalog: &Catalog) -> Result<(), Box<dyn core::error::Error + Send + Sync>> {
     let allowed = json!({"values":["preserved"]});
     catalog.input("logs.read.v1", &allowed)?;
     catalog.output("logs.read.v1", &allowed)?;
@@ -43,14 +42,14 @@ fn check_tuple(catalog: &Catalog) -> Result<(), Failure> {
         json!({"values":[]}),
         json!({}),
     ] {
-        assert_eq!(
+        ensure_eq!(
             catalog
                 .input("logs.read.v1", &rejected)
                 .err()
                 .map(|error| error.kind),
             Some(Kind::InvalidInput)
         );
-        assert_eq!(
+        ensure_eq!(
             catalog
                 .output("logs.read.v1", &rejected)
                 .err()

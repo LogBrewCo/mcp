@@ -7,6 +7,7 @@ use axum::http::StatusCode;
 use serde_json::{Value, json};
 
 use super::http::{Fixture, TOKEN};
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -87,15 +88,12 @@ async fn search(fixture: &Fixture, arguments: Value, valid: bool) -> TestResult<
 ///
 /// Returns a fixture, advertised schema or search error.
 ///
+/// Fails if Unicode character limits disagree with the schema or search result,
+/// or if authentication and execution totals change.
+///
 /// # Panics
 ///
-/// Panics if Unicode character limits disagree with the schema or search result,
-/// or if authentication and execution totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -106,11 +104,11 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
         "e\u{301}".repeat(128),
     ];
     for query in queries {
-        assert_eq!(query.chars().count(), 256);
+        ensure_eq!(query.chars().count(), 256);
         let arguments = json!({"query":query});
-        assert!(validator.is_valid(&arguments));
+        ensure!(validator.is_valid(&arguments));
         let data = search(&fixture, arguments, true).await?;
-        assert_eq!(data.get("operations"), Some(&json!([])));
+        ensure_eq!(data.get("operations"), Some(&json!([])));
     }
     for query in [
         "a".repeat(257),
@@ -119,11 +117,11 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
         "e\u{301}".repeat(129),
     ] {
         let arguments = json!({"query":query});
-        assert!(!validator.is_valid(&arguments));
+        ensure!(!validator.is_valid(&arguments));
         drop(search(&fixture, arguments, false).await?);
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 9);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 9);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -132,15 +130,12 @@ async fn unicode_queries_use_the_advertised_character_limit() -> TestResult<()> 
 ///
 /// Returns a fixture, advertised schema or search error, or an error if operations are absent.
 ///
+/// Fails if valid whitespace or control characters change their matching meaning,
+/// disagree with the schema, or start execution.
+///
 /// # Panics
 ///
-/// Panics if valid whitespace or control characters change their matching meaning,
-/// disagree with the schema, or start execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
@@ -155,7 +150,7 @@ async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning
         ("logs\0", false),
     ] {
         let arguments = json!({"query":query});
-        assert!(validator.is_valid(&arguments));
+        ensure!(validator.is_valid(&arguments));
         let data = search(&fixture, arguments, true).await?;
         let ids: Vec<_> = data
             .get("operations")
@@ -164,17 +159,11 @@ async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning
             .iter()
             .filter_map(|operation| operation.get("id").and_then(Value::as_str))
             .collect();
-        assert_eq!(
-            ids,
-            if matches {
-                vec!["logs.read.v1"]
-            } else {
-                vec![]
-            }
-        );
+        let expected: Vec<_> = matches.then_some("logs.read.v1").into_iter().collect();
+        ensure_eq!(ids, expected);
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 8);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 8);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -183,15 +172,12 @@ async fn valid_query_whitespace_and_control_characters_keep_their_search_meaning
 ///
 /// Returns a fixture, advertised schema, JSON or search error.
 ///
+/// Fails if exact integral limits disagree with the advertised schema or result count,
+/// or if upstream totals change.
+///
 /// # Panics
 ///
-/// Panics if exact integral limits disagree with the advertised schema or result count,
-/// or if upstream totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn exact_integral_limit_representations_match_the_advertised_schema() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -209,17 +195,17 @@ async fn exact_integral_limit_representations_match_the_advertised_schema() -> T
     ] {
         let limit: Value = serde_json::from_str(raw)?;
         let arguments = json!({"query":"logs","limit":limit});
-        assert!(validator.is_valid(&arguments), "limit {raw}");
+        ensure!(validator.is_valid(&arguments), "limit {raw}");
         let data = search(&fixture, arguments, true).await?;
-        assert_eq!(
+        ensure_eq!(
             data.get("operations")
                 .and_then(Value::as_array)
                 .map(Vec::len),
             Some(1)
         );
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 11);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 11);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -228,15 +214,12 @@ async fn exact_integral_limit_representations_match_the_advertised_schema() -> T
 ///
 /// Returns a fixture, advertised schema, JSON or search error.
 ///
+/// Fails if fractional, out-of-range or nonnumeric limits are accepted by the
+/// schema or search contract, or if upstream totals change.
+///
 /// # Panics
 ///
-/// Panics if fractional, out-of-range or nonnumeric limits are accepted by the
-/// schema or search contract, or if upstream totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let validator = schema(&fixture).await?;
@@ -254,7 +237,7 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
     ] {
         let limit: Value = serde_json::from_str(raw)?;
         let arguments = json!({"query":"logs","limit":limit});
-        assert!(!validator.is_valid(&arguments), "limit {raw}");
+        ensure!(!validator.is_valid(&arguments), "limit {raw}");
         drop(search(&fixture, arguments, false).await?);
     }
     for limit in [
@@ -266,11 +249,11 @@ async fn fractional_and_out_of_range_limits_cannot_round_into_an_accepted_page()
         json!({"$serde_json::private::RawValue":"1"}),
     ] {
         let arguments = json!({"query":"logs","limit":limit});
-        assert!(!validator.is_valid(&arguments));
+        ensure!(!validator.is_valid(&arguments));
         drop(search(&fixture, arguments, false).await?);
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 17);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 17);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -301,15 +284,12 @@ fn catalog() -> TestResult<Vec<u8>> {
 ///
 /// Returns a catalog, fixture, advertised schema, JSON or page collection error.
 ///
+/// Fails if matching contracts are missing, duplicated or reordered, page bounds
+/// and cursors change, or search starts execution.
+///
 /// # Panics
 ///
-/// Panics if matching contracts are missing, duplicated or reordered, page bounds
-/// and cursors change, or search starts execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit() -> TestResult<()>
 {
     let fixture = Fixture::with_catalog(catalog()?).await?;
@@ -328,9 +308,9 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
         };
         let collected =
             collected_pages(&fixture, &validator, &limit, maximum, expected.len()).await?;
-        assert_eq!(collected, expected);
+        ensure_eq!(collected, expected);
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 

@@ -11,6 +11,7 @@ use super::{
     raw_upstream::Raw,
     upstream_transport::{body, operation},
 };
+use crate::checks::ensure;
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_CODING_MARKER";
@@ -260,12 +261,10 @@ async fn execution_http2_coding_rejection_and_recovery() -> TestResult<()> {
 /// # Errors
 /// Returns a fixture, receipt, timeout-observation or shutdown error.
 ///
+/// Fails if a completed fixture failure is lost or exposes private diagnostics.
+///
 /// # Panics
-/// Panics if a completed fixture failure is lost or exposes private diagnostics.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "The regression retains assertion diagnostics for timeout state and privacy. The old behavior fails this test. Reviewed 2026-10-08; review by 2026-11-08 or on fixture change."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn completed_fixture_failure_is_private_on_operation_timeout() -> TestResult<()> {
     let mut raw = Raw::http2()?;
     let (sender, done) = oneshot::channel();
@@ -281,8 +280,8 @@ async fn completed_fixture_failure_is_private_on_operation_timeout() -> TestResu
         .err()
         .ok_or("stalled operation unexpectedly completed")?;
     let description = error.to_string();
-    assert!(description.contains("upstream operation observation timeout"));
-    assert!(description.contains("fixture receipt=failed"));
-    assert!(!description.contains(MARKER));
+    ensure!(description.contains("upstream operation observation timeout"));
+    ensure!(description.contains("fixture receipt=failed"));
+    ensure!(!description.contains(MARKER));
     raw.finish().await
 }

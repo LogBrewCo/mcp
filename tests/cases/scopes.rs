@@ -19,6 +19,7 @@ use super::{
     http::{Fixture, RESOURCE, TOKEN, request_message},
     raw_upstream::Raw,
 };
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const METADATA: &str = "https://resource.example/.well-known/oauth-protected-resource/mcp";
@@ -163,14 +164,7 @@ async fn insufficient_scope_is_forbidden_with_a_complete_challenge_and_recovery(
 ///
 /// Returns a serialization error or an error if required stage and outcome observations are absent.
 ///
-/// # Panics
-///
-/// Panics if stage totals, pending work, scope-denial counts or telemetry privacy changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if stage totals, pending work, scope-denial counts or telemetry privacy changes.
 fn scope_observations(fixture: &Fixture) -> TestResult<()> {
     let snapshot = fixture
         .telemetry()
@@ -182,10 +176,10 @@ fn scope_observations(fixture: &Fixture) -> TestResult<()> {
             .iter()
             .find(|stats| stats.stage == stage)
             .ok_or("missing stage")?;
-        assert_eq!(stats.started, 8);
-        assert_eq!(stats.finished, 8);
-        assert_eq!(stats.pending, Some(0));
-        assert_eq!(
+        ensure_eq!(stats.started, 8);
+        ensure_eq!(stats.finished, 8);
+        ensure_eq!(stats.pending, Some(0));
+        ensure_eq!(
             stats
                 .outcomes
                 .iter()
@@ -196,8 +190,8 @@ fn scope_observations(fixture: &Fixture) -> TestResult<()> {
         );
     }
     let text = serde_json::to_string(&snapshot)?;
-    assert!(!text.contains("SYNTHETIC_PRIVATE_SCOPE"));
-    assert!(!text.contains(TOKEN));
+    ensure!(!text.contains("SYNTHETIC_PRIVATE_SCOPE"));
+    ensure!(!text.contains(TOKEN));
     Ok(())
 }
 
@@ -289,21 +283,14 @@ async fn direct_token_verification_classifies_scope_denial_and_recovers() -> Tes
 ///
 /// Returns an error if the invalid-token challenge is absent or contains invalid header text.
 ///
-/// # Panics
-///
-/// Panics if credential denial advertises insufficient scope or omits `invalid_token`.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if credential denial advertises insufficient scope or omits `invalid_token`.
 fn assert_invalid_token_challenge(headers: &HeaderMap) -> TestResult<()> {
     let challenge = headers
         .get("WWW-Authenticate")
         .ok_or("challenge")?
         .to_str()?;
-    assert!(!challenge.contains("insufficient_scope"));
-    assert!(challenge.contains("error=\"invalid_token\""));
+    ensure!(!challenge.contains("insufficient_scope"));
+    ensure!(challenge.contains("error=\"invalid_token\""));
     Ok(())
 }
 
@@ -311,24 +298,17 @@ fn assert_invalid_token_challenge(headers: &HeaderMap) -> TestResult<()> {
 ///
 /// Returns a verification failure for the allowed scope or an error if a denied scope succeeds.
 ///
-/// # Panics
-///
-/// Panics if allowed client identity, denied scope classification or retry guidance changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if allowed client identity, denied scope classification or retry guidance changes.
 fn assert_verified_scope(
     scope: &str,
     result: Result<logbrew_mcp::upstream::Principal, logbrew_mcp::Failure>,
 ) -> TestResult<()> {
     if scope == "read" {
-        assert_eq!(result?.client_id, "synthetic-client");
+        ensure_eq!(result?.client_id, "synthetic-client");
     } else {
         let failure = result.err().ok_or("insufficient grant accepted")?;
-        assert_eq!(failure.kind, Kind::PermissionDenied);
-        assert_eq!(failure.retry_after_ms, None);
+        ensure_eq!(failure.kind, Kind::PermissionDenied);
+        ensure_eq!(failure.retry_after_ms, None);
     }
     Ok(())
 }

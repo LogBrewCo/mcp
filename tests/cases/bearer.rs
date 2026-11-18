@@ -14,6 +14,7 @@ use tower::ServiceExt as _;
 use super::http::{Fixture, RESOURCE, TOKEN, request_message};
 use super::raw_upstream::Raw;
 use super::runtime::Running;
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -71,15 +72,12 @@ async fn call(fixture: &Fixture, authorization: &[HeaderValue]) -> TestResult<St
 ///
 /// Returns a fixture, header construction or request error.
 ///
+/// Fails if valid scheme case or spacing is rejected, response privacy changes,
+/// or introspection and execution counts differ from three.
+///
 /// # Panics
 ///
-/// Panics if valid scheme case or spacing is rejected, response privacy changes,
-/// or introspection and execution counts differ from three.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for value in [
@@ -87,13 +85,13 @@ async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResul
         format!("bEaReR  {TOKEN}"),
         format!("\t  BEARER    {TOKEN} \t"),
     ] {
-        assert_eq!(
+        ensure_eq!(
             call(&fixture, &[HeaderValue::from_str(&value)?]).await?,
             StatusCode::OK
         );
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 3);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 3);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 3);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 3);
     Ok(())
 }
 
@@ -102,15 +100,12 @@ async fn valid_scheme_case_spacing_and_field_edges_preserve_token() -> TestResul
 ///
 /// Returns a fixture, header construction or request error.
 ///
+/// Fails if an invalid bearer character is accepted, upstream work starts, or
+/// response privacy and authentication challenge contracts change.
+///
 /// # Panics
 ///
-/// Panics if an invalid bearer character is accepted, upstream work starts, or
-/// response privacy and authentication challenge contracts change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn malformed_token_characters_never_reach_introspection_or_execution() -> TestResult<()> {
     for suffix in [
         ":", ";", "!", "@", "#", "$", "%", "&", "'", "(", ")", "*", ",", "?", "[", "]", "\\", "\"",
@@ -118,7 +113,7 @@ async fn malformed_token_characters_never_reach_introspection_or_execution() -> 
     ] {
         let token = format!("SYNTHETIC_PRIVATE_BEARER{suffix}");
         let fixture = Fixture::with_token(&token).await?;
-        assert_eq!(
+        ensure_eq!(
             call(
                 &fixture,
                 &[HeaderValue::from_str(&format!("Bearer {token}"))?]
@@ -126,8 +121,8 @@ async fn malformed_token_characters_never_reach_introspection_or_execution() -> 
             .await?,
             StatusCode::BAD_REQUEST
         );
-        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
-        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+        ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+        ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     }
     Ok(())
 }
@@ -137,15 +132,12 @@ async fn malformed_token_characters_never_reach_introspection_or_execution() -> 
 ///
 /// Returns a fixture, header, request or telemetry snapshot/serialization error.
 ///
+/// Fails if malformed or duplicate credentials start upstream work, recovery
+/// fails, response contracts change, or credentials enter telemetry.
+///
 /// # Panics
 ///
-/// Panics if malformed or duplicate credentials start upstream work, recovery
-/// fails, response contracts change, or credentials enter telemetry.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work() -> TestResult<()>
 {
     let fixture = Fixture::new().await?;
@@ -156,7 +148,7 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
         vec![HeaderValue::from_bytes(b"Bearer synthetic\x80")?],
         vec![HeaderValue::from_static("")],
     ] {
-        assert_eq!(call(&fixture, &values).await?, StatusCode::BAD_REQUEST);
+        ensure_eq!(call(&fixture, &values).await?, StatusCode::BAD_REQUEST);
     }
     for value in [
         "Bearer",
@@ -166,34 +158,34 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
         "Bearer =",
         "Bearer ===",
     ] {
-        assert_eq!(
+        ensure_eq!(
             call(&fixture, &[HeaderValue::from_str(value)?]).await?,
             StatusCode::BAD_REQUEST
         );
     }
     let oversized = format!("Bearer {}", "A".repeat(8193));
-    assert_eq!(
+    ensure_eq!(
         call(&fixture, &[HeaderValue::from_str(&oversized)?]).await?,
         StatusCode::BAD_REQUEST
     );
-    assert_eq!(call(&fixture, &[]).await?, StatusCode::UNAUTHORIZED);
+    ensure_eq!(call(&fixture, &[]).await?, StatusCode::UNAUTHORIZED);
     for value in ["Basic synthetic", "DPoP synthetic", "Unknown"] {
-        assert_eq!(
+        ensure_eq!(
             call(&fixture, &[HeaderValue::from_str(value)?]).await?,
             StatusCode::UNAUTHORIZED
         );
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     let observations = serde_json::to_string(
         &fixture
             .telemetry()
             .snapshot()
             .ok_or("missing observations")?,
     )?;
-    assert!(!observations.contains(TOKEN));
-    assert!(!observations.contains("synthetic"));
-    assert_eq!(
+    ensure!(!observations.contains(TOKEN));
+    ensure!(!observations.contains("synthetic"));
+    ensure_eq!(
         call(
             &fixture,
             &[HeaderValue::from_str(&format!("Bearer {TOKEN}"))?]
@@ -201,8 +193,8 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
         .await?,
         StatusCode::OK
     );
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     Ok(())
 }
 
@@ -211,19 +203,16 @@ async fn malformed_fields_and_duplicate_credentials_reject_without_backend_work(
 ///
 /// Returns a fixture, header construction or request error.
 ///
+/// Fails if a legal opaque token changes or is rejected, upstream work counts
+/// differ from one, or response privacy and challenge contracts change.
+///
 /// # Panics
 ///
-/// Panics if a legal opaque token changes or is rejected, upstream work counts
-/// differ from one, or response privacy and challenge contracts change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> TestResult<()> {
     for token in ["AZaz09-._~+/=", "A", "A===", ".~", &"A".repeat(8192)] {
         let fixture = Fixture::with_token(token).await?;
-        assert_eq!(
+        ensure_eq!(
             call(
                 &fixture,
                 &[HeaderValue::from_str(&format!("bEaReR  {token}"))?]
@@ -231,8 +220,8 @@ async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> Te
             .await?,
             StatusCode::OK
         );
-        assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
-        assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+        ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 1);
+        ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
     }
     Ok(())
 }
@@ -243,15 +232,12 @@ async fn legal_opaque_tokens_preserve_bytes_through_both_fixed_upstreams() -> Te
 /// Returns a fixture, queue, timeout, serialization, missing-claim or request
 /// error, or an error if rejected work unexpectedly returns a result.
 ///
+/// Fails if malformed bearer rejection changes or starts network work, or valid
+/// credential references and client identifiers fail without execution.
+///
 /// # Panics
 ///
-/// Panics if malformed bearer rejection changes or starts network work, or valid
-/// credential references and client identifiers fail without execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_rules()
 -> TestResult<()> {
     let raw = Raw::new()?;
@@ -268,7 +254,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
         write: false,
     };
     for token in ["synthetic:token", "A=Z", "=", "", "A Z", "A\tZ", "\u{e9}"] {
-        assert_eq!(
+        ensure_eq!(
             tokio::time::timeout(
                 Duration::from_millis(200),
                 raw.upstream().verify(token, RESOURCE)
@@ -279,7 +265,7 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
             .kind,
             Kind::Unauthorized
         );
-        assert_eq!(
+        ensure_eq!(
             tokio::time::timeout(
                 Duration::from_millis(200),
                 raw.upstream()
@@ -292,8 +278,8 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
             Kind::Unavailable
         );
     }
-    assert_eq!(raw.handshakes().load(Ordering::SeqCst), 0);
-    assert_eq!(raw.requests().load(Ordering::SeqCst), 0);
+    ensure_eq!(raw.handshakes().load(Ordering::SeqCst), 0);
+    ensure_eq!(raw.requests().load(Ordering::SeqCst), 0);
     let references = Fixture::with_client_id("https://client.example/mcp?key=a:b+c").await?;
     let mut claims = references.authority()?;
     *claims
@@ -304,12 +290,12 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
         claims.to_string(),
         axum::http::HeaderMap::new(),
     )?;
-    assert_eq!(
+    ensure_eq!(
         references.request("tools/list", json!({}), TOKEN).await?.0,
         StatusCode::OK
     );
-    assert_eq!(references.state().verifies().load(Ordering::SeqCst), 1);
-    assert_eq!(references.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(references.state().verifies().load(Ordering::SeqCst), 1);
+    ensure_eq!(references.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -318,15 +304,12 @@ async fn direct_upstream_calls_reject_malformed_bearers_and_preserve_identity_ru
 ///
 /// Returns a listener, fixture, HTTP client, TLS exchange or shutdown error.
 ///
+/// Fails if HTTP/1 or HTTP/2 bearer grammar, revocation or recovery changes,
+/// response privacy fails, or upstream work counts differ from the expected runs.
+///
 /// # Panics
 ///
-/// Panics if HTTP/1 or HTTP/2 bearer grammar, revocation or recovery changes,
-/// response privacy fails, or upstream work counts differ from the expected runs.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery() -> TestResult<()>
 {
     let listener = TcpListener::bind("127.0.0.1:0")?;
@@ -345,8 +328,8 @@ async fn tls_http1_and_http2_preserve_spacing_rejection_revocation_and_recovery(
     ] {
         wire_authorization_cases(&fixture, &client, version, &resource, &body).await?;
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 6);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 6);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
     running.stop().cancel();
     running.wait().await?;
     Ok(())

@@ -1,6 +1,13 @@
 //! Bounded HTTPS serving shared by the standalone process and runtime regressions.
 
-use core::{future::Future, net::SocketAddr, time::Duration};
+use core::{
+    future::{Future, poll_fn},
+    net::SocketAddr,
+    ops::ControlFlow,
+    pin::pin,
+    task::Poll,
+    time::Duration,
+};
 use std::net::TcpListener;
 
 use axum::Router;
@@ -43,10 +50,6 @@ where
 ///
 /// # Errors
 /// Returns the same fixed failures as [`serve`].
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
-)]
 pub async fn serve_listener<Shutdown>(
     listener: TcpListener,
     router: Router,
@@ -83,11 +86,17 @@ where
         .max_header_list_size(16 << 10)
         .max_concurrent_streams(64);
     let future = server.serve(router.into_make_service_with_connect_info::<SocketAddr>());
-    tokio::pin!(future);
-    tokio::select! {
-        result = &mut future => result.map_err(Failure::redact(Kind::Unavailable)),
-        result = shutdown => {
-            result?;
+    let mut future = pin!(future);
+    let mut shutdown = pin!(shutdown);
+    let finished = poll_fn(|context| match future.as_mut().poll(context) {
+        Poll::Ready(stopped) => Poll::Ready(ControlFlow::Break(stopped)),
+        Poll::Pending => shutdown.as_mut().poll(context).map(ControlFlow::Continue),
+    })
+    .await;
+    match finished {
+        ControlFlow::Break(stopped) => stopped.map_err(Failure::redact(Kind::Unavailable)),
+        ControlFlow::Continue(requested) => {
+            requested?;
             handle.graceful_shutdown(Some(Duration::from_secs(12)));
             future.await.map_err(Failure::redact(Kind::Unavailable))?;
             if handle.connection_count() != 0 {

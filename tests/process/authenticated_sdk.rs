@@ -23,6 +23,7 @@ use super::{
     backend::{self, PendingStage},
     client, configure, envelope,
 };
+use crate::checks::ensure;
 
 type Client = RunningService<RoleClient, ClientConfig>;
 
@@ -120,18 +121,11 @@ fn tool(name: &'static str, arguments: Value) -> TestResult<CallToolRequestParam
 ///
 /// Returns an error if the tool envelope lacks required fields or has invalid JSON.
 ///
-/// # Panics
-///
-/// Panics if the result exposes a synthetic private marker or its error, text,
+/// Fails if the result exposes a synthetic private marker or its error, text,
 /// structured content or provenance contract changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn result(reply: &CallToolResult, error: Option<&str>) -> TestResult<Value> {
     let reply = json!({"result":reply});
-    assert!(!reply.to_string().contains("SYNTHETIC"));
+    ensure!(!reply.to_string().contains("SYNTHETIC"));
     envelope(&reply, error)
 }
 

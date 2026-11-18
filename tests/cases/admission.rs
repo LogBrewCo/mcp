@@ -10,6 +10,7 @@ use super::{
     http::{Fixture, OPEN, TOKEN},
     runtime::Running,
 };
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -47,20 +48,17 @@ async fn call(
 }
 
 #[tokio::test]
-/// # Panics
-///
-/// Panics if verified requests spend the budget, a client exceeds its burst of
-/// failed requests, a throttled request reaches introspection, the 429 changes,
-/// or one client's failures throttle another client behind the trusted proxy.
-///
 /// # Errors
 ///
 /// Returns a fixture, runtime, request or response error.
-// Reviewed 2026-10-14; review by 2026-11-14 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+///
+/// Fails if verified requests spend the budget, a client exceeds its burst of
+/// failed requests, a throttled request reaches introspection, the 429 changes,
+/// or one client's failures throttle another client behind the trusted proxy.
+///
+/// # Panics
+///
+/// Panics if the Tokio runtime cannot start.
 async fn failed_requests_are_throttled_per_client_before_introspection() -> TestResult<()> {
     let fixture = Fixture::with_admission(Admission {
         burst: 2,
@@ -72,30 +70,30 @@ async fn failed_requests_are_throttled_per_client_before_introspection() -> Test
     let running = Running::start(fixture.router().clone()).await?;
     for _ in 0_i32..4_i32 {
         let response = call(&running, "203.0.113.1", Some(TOKEN)).await?;
-        assert_eq!(response.status(), StatusCode::OK);
+        ensure_eq!(response.status(), StatusCode::OK);
     }
     fixture.state().active().store(false, Ordering::SeqCst);
     for _ in 0_i32..2_i32 {
         let response = call(&running, "203.0.113.1", Some(TOKEN)).await?;
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+        ensure_eq!(response.status(), StatusCode::UNAUTHORIZED);
     }
     let verifies = fixture.state().verifies().load(Ordering::SeqCst);
     for authorization in [Some(TOKEN), None] {
         let response = call(&running, "203.0.113.1", authorization).await?;
-        assert_eq!(response.status(), StatusCode::TOO_MANY_REQUESTS);
+        ensure_eq!(response.status(), StatusCode::TOO_MANY_REQUESTS);
         let headers: &HeaderMap = response.headers();
         let retry: u64 = headers
             .get("Retry-After")
             .ok_or("missing Retry-After")?
             .to_str()?
             .parse()?;
-        assert!((1..=60).contains(&retry));
-        assert_eq!(response.text().await?, "too many unauthenticated requests");
+        ensure!((1..=60).contains(&retry));
+        ensure_eq!(response.text().await?, "too many unauthenticated requests");
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), verifies);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), verifies);
     let other = call(&running, "203.0.113.2", Some(TOKEN)).await?;
-    assert_eq!(other.status(), StatusCode::UNAUTHORIZED);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
+    ensure_eq!(other.status(), StatusCode::UNAUTHORIZED);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
     Ok(())
 }
 

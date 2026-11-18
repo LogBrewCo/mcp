@@ -14,6 +14,7 @@ use super::{
     http::{Fixture, TOKEN, request_message},
     runtime::Running,
 };
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -83,14 +84,7 @@ async fn incomplete_metadata_packet(field: &str, id: &Value) -> TestResult<Reque
 ///
 /// Returns a JSON error if the response body is invalid.
 ///
-/// # Panics
-///
-/// Panics if error status, exact ID, code, privacy or omitted result and data fields change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if error status, exact ID, code, privacy or omitted result and data fields change.
 fn assert_error(
     status: StatusCode,
     expected: StatusCode,
@@ -98,13 +92,13 @@ fn assert_error(
     id: &Value,
     code: i32,
 ) -> TestResult<()> {
-    assert_eq!(status, expected);
-    assert!(!String::from_utf8_lossy(bytes).contains("SYNTHETIC_PRIVATE_"));
+    ensure_eq!(status, expected);
+    ensure!(!String::from_utf8_lossy(bytes).contains("SYNTHETIC_PRIVATE_"));
     let error: Value = serde_json::from_slice(bytes)?;
-    assert_eq!(error.get("id"), Some(id));
-    assert_eq!(error.pointer("/error/code"), Some(&json!(code)));
-    assert!(error.get("result").is_none());
-    assert!(error.pointer("/error/data").is_none());
+    ensure_eq!(error.get("id"), Some(id));
+    ensure_eq!(error.pointer("/error/code"), Some(&json!(code)));
+    ensure!(error.get("result").is_none());
+    ensure!(error.pointer("/error/data").is_none());
     Ok(())
 }
 
@@ -113,14 +107,11 @@ fn assert_error(
 ///
 /// Returns a fixture, request, router, body-read or error-contract failure.
 ///
+/// Fails if unknown-method errors disclose rejected values, lose exact IDs or start execution.
+///
 /// # Panics
 ///
-/// Panics if unknown-method errors disclose rejected values, lose exact IDs or start execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for id in [
@@ -137,7 +128,7 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
         let bytes = to_bytes(response.into_body(), 4096).await?;
         assert_error(status, StatusCode::NOT_FOUND, &bytes, &id, -32601)?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -146,14 +137,11 @@ async fn unknown_method_errors_do_not_echo_the_method_and_preserve_exact_ids() -
 ///
 /// Returns a fixture, request, router, body-read or error-contract failure.
 ///
+/// Fails if malformed parameters change their private error contract or start execution.
+///
 /// # Panics
 ///
-/// Panics if malformed parameters change their private error contract or start execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (method, params) in malformed() {
@@ -166,7 +154,7 @@ async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResul
         let bytes = to_bytes(response.into_body(), 4096).await?;
         assert_error(status, StatusCode::OK, &bytes, &json!(1_i32), -32602)?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -175,16 +163,13 @@ async fn invalid_method_parameters_stay_in_band_without_execution() -> TestResul
 ///
 /// Returns a fixture, request, router, body-read, JSON or inventory error.
 ///
-/// # Panics
-///
-/// Panics if omitted cursors or discovery extensions are rejected, private fields
+/// Fails if omitted cursors or discovery extensions are rejected, private fields
 /// are echoed, cache hints permit reuse or sharing, response IDs or tool inventory
 /// change, or execution starts.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+///
+/// # Panics
+///
+/// Panics if the Tokio runtime cannot start.
 async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for (method, params) in [
@@ -199,28 +184,28 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
             .clone()
             .oneshot(packet(method, params, &json!(1_i32)).await?)
             .await?;
-        assert_eq!(response.status(), StatusCode::OK);
-        assert_eq!(
+        ensure_eq!(response.status(), StatusCode::OK);
+        ensure_eq!(
             response.headers().get("Cache-Control").expect("no-store"),
             "no-store"
         );
         let bytes = to_bytes(response.into_body(), 0x8000).await?;
-        assert!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_"));
+        ensure!(!String::from_utf8_lossy(&bytes).contains("SYNTHETIC_PRIVATE_"));
         let result: Value = serde_json::from_slice(&bytes)?;
-        assert_eq!(result.get("id"), Some(&json!(1_i32)));
-        assert!(result.get("error").is_none());
-        assert_eq!(
+        ensure_eq!(result.get("id"), Some(&json!(1_i32)));
+        ensure!(result.get("error").is_none());
+        ensure_eq!(
             result.pointer("/result/resultType"),
             Some(&json!("complete"))
         );
-        assert_eq!(result.pointer("/result/ttlMs"), Some(&json!(0_u64)));
-        assert_eq!(
+        ensure_eq!(result.pointer("/result/ttlMs"), Some(&json!(0_u64)));
+        ensure_eq!(
             result.pointer("/result/cacheScope"),
             Some(&json!("private"))
         );
         assert_inventory(method, &result)?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -229,15 +214,12 @@ async fn absent_cursor_and_discovery_extensions_remain_valid() -> TestResult<()>
 ///
 /// Returns a catalog, fixture, request, HTTP or JSON error.
 ///
+/// Fails if a catalog with write operations leaves execute read-only, or
+/// changes search's read-only annotations.
+///
 /// # Panics
 ///
-/// Panics if a catalog with write operations leaves execute read-only, or
-/// changes search's read-only annotations.
-// Reviewed 2026-10-27; review by 2026-11-27 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn write_operations_make_execute_a_destructive_tool() -> TestResult<()> {
     let operation = |id: &str, destructive: bool| {
         json!({"id":id,"info":{"summary":"Change one issue","permission":"write",
@@ -264,14 +246,14 @@ async fn write_operations_make_execute_a_destructive_tool() -> TestResult<()> {
             .oneshot(packet("tools/list", json!({}), &json!(1_i32)).await?)
             .await?;
         let result: Value = serde_json::from_slice(&to_bytes(response.into_body(), 0x8000).await?)?;
-        assert_eq!(
+        ensure_eq!(
             result.pointer("/result/tools/0/annotations"),
             Some(
                 &json!({"title":"Search LogBrew Operations","readOnlyHint":true,
                 "openWorldHint":false})
             )
         );
-        assert_eq!(
+        ensure_eq!(
             result.pointer("/result/tools/1/annotations"),
             Some(
                 &json!({"title":"Run a LogBrew Operation","readOnlyHint":false,
@@ -306,15 +288,12 @@ const WRITE_WORDS: [(&str, &str); 12] = [
 ///
 /// Returns a catalog, fixture, request or JSON error.
 ///
+/// Fails if a tool argument has no description, or if execute's description
+/// leaves out a shipped write operation, its confirmation or its retry rule.
+///
 /// # Panics
 ///
-/// Panics if a tool argument has no description, or if execute's description
-/// leaves out a shipped write operation, its confirmation or its retry rule.
-// Reviewed 2026-10-29; review by 2026-11-29 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResult<()> {
     let bytes = std::fs::read(concat!(
         env!("CARGO_MANIFEST_DIR"),
@@ -341,7 +320,7 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         })
         .flatten()
         .collect();
-    assert_eq!(arguments.len(), 6);
+    ensure_eq!(arguments.len(), 6);
     let undescribed: Vec<&String> = arguments
         .into_iter()
         .filter(|&(_, schema)| {
@@ -352,12 +331,12 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         })
         .map(|(name, _)| name)
         .collect();
-    assert!(undescribed.is_empty(), "{undescribed:?}");
+    ensure!(undescribed.is_empty(), "{undescribed:?}");
     let search = text("/result/tools/0/description");
-    assert!(search.contains("Use this before execute; it never changes data."));
-    assert!(text("/result/tools/0/inputSchema/properties/limit/description").contains("1 to 10"));
+    ensure!(search.contains("Use this before execute; it never changes data."));
+    ensure!(text("/result/tools/0/inputSchema/properties/limit/description").contains("1 to 10"));
     let execute = text("/result/tools/1/description");
-    assert!(
+    ensure!(
         execute.starts_with("Run one LogBrew operation that search returned. Call search first")
     );
     let writes: Vec<&str> = catalog
@@ -368,9 +347,9 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         .filter(|operation| operation.pointer("/info/permission") == Some(&json!("write")))
         .filter_map(|operation| operation.get("id").and_then(Value::as_str))
         .collect();
-    assert_eq!(writes, WRITE_WORDS.map(|(id, _)| id));
+    ensure_eq!(writes, WRITE_WORDS.map(|(id, _)| id));
     for (id, words) in WRITE_WORDS {
-        assert!(execute.contains(words), "{id}");
+        ensure!(execute.contains(words), "{id}");
     }
     for rule in [
         "need the write scope, which a project read key never has",
@@ -379,7 +358,7 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         "each test event call sends a new event",
         "next_action and retry_after_ms",
     ] {
-        assert!(execute.contains(rule), "{rule}");
+        ensure!(execute.contains(rule), "{rule}");
     }
     Ok(())
 }
@@ -388,26 +367,19 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
 ///
 /// Returns an error if the tools/list inventory is absent or is not an array.
 ///
-/// # Panics
-///
-/// Panics if the inventory differs from the ordered search and execute tools.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if the inventory differs from the ordered search and execute tools.
 fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
     if method == "tools/list" {
         let tools = result
             .pointer("/result/tools")
             .and_then(Value::as_array)
             .ok_or_else(|| io::Error::other("missing tool inventory"))?;
-        assert_eq!(tools.len(), 2);
-        assert_eq!(
+        ensure_eq!(tools.len(), 2);
+        ensure_eq!(
             tools.first().and_then(|tool| tool.get("name")),
             Some(&json!("search"))
         );
-        assert_eq!(
+        ensure_eq!(
             tools.get(1).and_then(|tool| tool.get("name")),
             Some(&json!("execute"))
         );
@@ -415,8 +387,8 @@ fn assert_inventory(method: &str, result: &Value) -> TestResult<()> {
             .iter()
             .zip(["Search LogBrew Operations", "Run a LogBrew Operation"])
         {
-            assert_eq!(tool.get("title"), Some(&json!(title)));
-            assert_eq!(
+            ensure_eq!(tool.get("title"), Some(&json!(title)));
+            ensure_eq!(
                 tool.get("annotations"),
                 Some(&json!({"title":title,"readOnlyHint":true,"openWorldHint":false}))
             );

@@ -11,8 +11,11 @@ use logbrew_mcp::telemetry::{CatalogSnapshot, Outcome, Snapshot, Stage, StageSna
 use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
+use crate::checks::{ensure, ensure_eq};
 use crate::http::{Fixture, TOKEN};
 use crate::runtime::Running;
+
+type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
 fn stage(snapshot: &Snapshot, stage: Stage) -> Option<&StageSnapshot> {
     snapshot.stages.iter().find(|entry| entry.stage == stage)
@@ -64,18 +67,11 @@ fn complete(snapshot: &Snapshot) -> bool {
 ///
 /// Returns an error if catalog or unobserved operation records are absent.
 ///
-/// # Panics
-///
-/// Panics if snapshot format, stages, initial timing or operation inventory changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
-fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'static str> {
-    assert_eq!(snapshot.format_version, 3);
-    assert_eq!(snapshot.stages.len(), 6);
-    assert!(
+/// Fails if snapshot format, stages, initial timing or operation inventory changes.
+fn assert_unobserved_catalog(snapshot: &Snapshot) -> TestResult<&CatalogSnapshot> {
+    ensure_eq!(snapshot.format_version, 3);
+    ensure_eq!(snapshot.stages.len(), 6);
+    ensure!(
         snapshot
             .stages
             .iter()
@@ -85,8 +81,8 @@ fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'
         .operations
         .as_ref()
         .ok_or("verified catalog inventory")?;
-    assert_eq!(catalog.executions.len(), 1);
-    assert_eq!(
+    ensure_eq!(catalog.executions.len(), 1);
+    ensure_eq!(
         catalog
             .executions
             .first()
@@ -94,9 +90,9 @@ fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'
         Some("logs.read.v1")
     );
     let execution = operation(snapshot).ok_or("unobserved operation")?;
-    assert_eq!(execution.started, 0);
-    assert_eq!(execution.finished, 0);
-    assert_eq!(execution.p99_upper_ns, None);
+    ensure_eq!(execution.started, 0);
+    ensure_eq!(execution.finished, 0);
+    ensure_eq!(execution.p99_upper_ns, None);
     Ok(catalog)
 }
 
@@ -104,31 +100,24 @@ fn assert_unobserved_catalog(snapshot: &Snapshot) -> Result<&CatalogSnapshot, &'
 ///
 /// Returns an error if catalog or operation observations are absent.
 ///
-/// # Panics
-///
-/// Panics if catalog digest, operation inventory, completed counts, timing or outcomes change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
-fn assert_known_execution(snapshot: &Snapshot, digest: &str) -> Result<(), &'static str> {
+/// Fails if catalog digest, operation inventory, completed counts, timing or outcomes change.
+fn assert_known_execution(snapshot: &Snapshot, digest: &str) -> TestResult<()> {
     let operations = snapshot.operations.as_ref().ok_or("catalog inventory")?;
-    assert_eq!(operations.definition_sha256, digest);
-    assert_eq!(operations.executions.len(), 1);
+    ensure_eq!(operations.definition_sha256, digest);
+    ensure_eq!(operations.executions.len(), 1);
     let execution = operation(snapshot).ok_or("operation observations")?;
-    assert_eq!(execution.started, 2);
-    assert_eq!(execution.finished, 2);
-    assert_eq!(execution.timed, 2);
-    assert_eq!(execution.pending, Some(0));
-    assert_eq!(execution.dropped_updates, 0);
-    assert!(execution.p99_upper_ns.is_some());
+    ensure_eq!(execution.started, 2);
+    ensure_eq!(execution.finished, 2);
+    ensure_eq!(execution.timed, 2);
+    ensure_eq!(execution.pending, Some(0));
+    ensure_eq!(execution.dropped_updates, 0);
+    ensure!(execution.p99_upper_ns.is_some());
     for (outcome, expected) in [
         (Outcome::Completed, 1),
         (Outcome::InvalidInput, 1),
         (Outcome::UnknownOperation, 0),
     ] {
-        assert_eq!(
+        ensure_eq!(
             execution
                 .outcomes
                 .iter()
@@ -144,25 +133,15 @@ fn assert_known_execution(snapshot: &Snapshot, digest: &str) -> Result<(), &'sta
 ///
 /// Returns an error if the cancelled operation observation is absent.
 ///
-/// # Panics
-///
-/// Panics if cancellation increments, pending work, dropped updates or prior success totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
-fn assert_cancelled_operation(
-    snapshot: &Snapshot,
-    before: &StageSnapshot,
-) -> Result<(), &'static str> {
+/// Fails if cancellation increments, pending work, dropped updates or prior success totals change.
+fn assert_cancelled_operation(snapshot: &Snapshot, before: &StageSnapshot) -> TestResult<()> {
     let cancelled = operation(snapshot).ok_or("cancelled operation")?;
-    assert_eq!(Some(cancelled.started), before.started.checked_add(1));
-    assert_eq!(Some(cancelled.finished), before.finished.checked_add(1));
-    assert_eq!(Some(cancelled.timed), before.timed.checked_add(1));
-    assert_eq!(cancelled.pending, Some(0));
-    assert_eq!(cancelled.dropped_updates, 0);
-    assert_eq!(
+    ensure_eq!(Some(cancelled.started), before.started.checked_add(1));
+    ensure_eq!(Some(cancelled.finished), before.finished.checked_add(1));
+    ensure_eq!(Some(cancelled.timed), before.timed.checked_add(1));
+    ensure_eq!(cancelled.pending, Some(0));
+    ensure_eq!(cancelled.dropped_updates, 0);
+    ensure_eq!(
         cancelled
             .outcomes
             .iter()
@@ -170,7 +149,7 @@ fn assert_cancelled_operation(
             .map(|entry| entry.count),
         Some(1)
     );
-    assert_eq!(
+    ensure_eq!(
         cancelled
             .outcomes
             .iter()

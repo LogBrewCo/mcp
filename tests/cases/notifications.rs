@@ -15,6 +15,7 @@ use super::{
     http::{Fixture, TOKEN, request_message},
     runtime::Running,
 };
+use crate::race::{First, first};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 type Connection = Pin<Box<dyn Future<Output = Result<(), hyper::Error>> + Send>>;
@@ -181,11 +182,6 @@ async fn exercise(sender: &mut Sender, fixture: &Fixture) -> TestResult<()> {
 ///
 /// Returns a fixture, runtime, TLS, handshake, timeout, exchange or drain error,
 /// or an error if the connection ends before the exchanges finish.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
-)]
 async fn verify(http2: bool) -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let mut running = Running::start(fixture.router().clone()).await?;
@@ -207,10 +203,9 @@ async fn verify(http2: bool) -> TestResult<()> {
         (Sender::Http1(sender), Box::pin(connection))
     };
     timeout(Duration::from_secs(5), async {
-        tokio::select! {
-            biased;
-            result = exercise(&mut sender, &fixture) => result,
-            result = connection => {
+        match first(exercise(&mut sender, &fixture), connection).await {
+            First::Left(result) => result,
+            First::Right(result) => {
                 result?;
                 Err(io::Error::other("connection ended before exchanges completed").into())
             }

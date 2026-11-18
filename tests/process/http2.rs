@@ -211,10 +211,6 @@ async fn recovered_slots(fixture: &Fixture) -> TestResult<()> {
 /// # Panics
 /// Fails if response stream IDs, flags, uniqueness, PING length or excess-request
 /// status violate the fixture contract.
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "The HTTP/2 fixture checks client stream parity; this is not cryptographic arithmetic."
-)]
 async fn withheld_window(
     peer: &mut Peer,
     client: &reqwest::Client,
@@ -228,7 +224,7 @@ async fn withheld_window(
         };
         let check_excess = match frame.kind {
             1 => {
-                assert!(frame.stream > 0 && frame.stream < 128 && frame.stream % 2 == 1);
+                assert!(frame.stream > 0 && frame.stream < 128 && !frame.stream.is_multiple_of(2));
                 assert_eq!(frame.flags & 5, 4);
                 assert!(headers.insert(frame.stream));
                 headers.len() == 64

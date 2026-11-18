@@ -199,10 +199,6 @@ const fn identities() -> [Identity; 3] {
 /// # Panics
 ///
 /// Panics if machine authentication or the verification call limit fails.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "The synthetic authority returns a status-only clock failure; executable tenant regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn introspect(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -229,10 +225,10 @@ async fn introspect(
         observed.alpha_entered.notify_one();
         observed.alpha_release.notified().await;
     }
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .as_secs();
+    let Ok(elapsed) = SystemTime::now().duration_since(UNIX_EPOCH) else {
+        return Err(StatusCode::INTERNAL_SERVER_ERROR);
+    };
+    let now = elapsed.as_secs();
     Ok(axum::Json(json!({
         "active": identity != Identity::Alpha || observed.alpha_active.load(Ordering::SeqCst),
         "iss": observed.issuer,
@@ -254,10 +250,6 @@ async fn introspect(
 ///
 /// Panics if machine authentication, delegated identity, operation or the
 /// execution call limit differs from the fixture.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Synthetic invalid JSON returns a fixed denial without retaining credential diagnostics; executable tenant regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn execute(
     State(observed): State<Arc<Observations>>,
     headers: HeaderMap,
@@ -265,7 +257,9 @@ async fn execute(
 ) -> Result<axum::Json<Value>, (StatusCode, &'static str)> {
     machine(&headers, "synthetic-service", "application/json");
     let denied = (StatusCode::FORBIDDEN, "SYNTHETIC_FOREIGN_PRIVATE_RESULT");
-    let value: Value = serde_json::from_slice(&bytes).map_err(|_| denied)?;
+    let Ok(value) = serde_json::from_slice::<Value>(&bytes) else {
+        return Err(denied);
+    };
     let identity = identities()
         .into_iter()
         .find(|identity| value.get("token").and_then(Value::as_str) == Some(identity.token()))

@@ -15,20 +15,16 @@ pub enum Rejection {
 /// # Errors
 /// Returns Missing for an absent field or another authentication scheme.
 /// Returns Malformed for duplicate fields, invalid syntax or an invalid token.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Malformed authorization fields return a fixed rejection without retaining credential diagnostics; bearer regressions cover this boundary. Reviewed 2026-10-05; review by 2026-11-05 or on contract change."
-)]
 pub fn parse(headers: &HeaderMap) -> Result<&str, Rejection> {
     let mut values = headers.get_all(header::AUTHORIZATION).iter();
     let value = values.next().ok_or(Rejection::Missing)?;
     if values.next().is_some() {
         return Err(Rejection::Malformed);
     }
-    let value = value
-        .to_str()
-        .map_err(|_| Rejection::Malformed)?
-        .trim_matches([' ', '\t']);
+    let Ok(value) = value.to_str() else {
+        return Err(Rejection::Malformed);
+    };
+    let value = value.trim_matches([' ', '\t']);
     if value.is_empty() {
         return Err(Rejection::Malformed);
     }

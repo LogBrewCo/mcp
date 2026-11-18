@@ -64,10 +64,6 @@ impl Drop for Delivery {
     }
 }
 
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
-)]
 async fn retain_until_finished(
     connection: Connection,
     permit: Arc<OwnedSemaphorePermit>,
@@ -75,18 +71,18 @@ async fn retain_until_finished(
     retained: Arc<AtomicU8>,
     deadline: Instant,
 ) {
-    tokio::select! {
-        () = completion.cancelled() => {},
-        () = tokio::time::sleep_until(deadline) => {
-            // Close the owning connection so Hyper drops its retained
-            // buffers before admission can be reused. PING activity
-            // and stream window changes cannot refresh this deadline.
-            if retained.compare_exchange(
-                RETAINED, EXPIRED, Ordering::AcqRel, Ordering::Acquire
-            ).is_ok() {
-                connection.0.cancel();
-            }
-        }
+    let expired = tokio::time::timeout_at(deadline, completion.cancelled())
+        .await
+        .is_err();
+    // Close the owning connection so Hyper drops its retained buffers before
+    // admission can be reused. PING activity and stream window changes cannot
+    // refresh this deadline.
+    if expired
+        && retained
+            .compare_exchange(RETAINED, EXPIRED, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+    {
+        connection.0.cancel();
     }
     // A timer retains admission until it exits. Completed bodies
     // cannot create an unbounded queue of unpolled timer tasks.

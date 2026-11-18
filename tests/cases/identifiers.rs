@@ -14,6 +14,7 @@ use super::{
     http::{Fixture, TOKEN, request_message},
     runtime::Running,
 };
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -108,14 +109,11 @@ async fn succeeds(fixture: &Fixture, raw: &str, method: &str) -> TestResult<()> 
 ///
 /// Returns a fixture, request construction or exchange error.
 ///
+/// Fails if signed integers or string IDs change type or value, or call totals change.
+///
 /// # Panics
 ///
-/// Panics if signed integers or string IDs change type or value, or call totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -130,7 +128,7 @@ async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestR
     ] {
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
     Ok(())
 }
 
@@ -139,15 +137,12 @@ async fn signed_integers_and_string_ids_preserve_their_type_and_value() -> TestR
 ///
 /// Returns a fixture, request construction or exchange error.
 ///
+/// Fails if large integer IDs fail exact discovery or execution correlation,
+/// or authentication and execution totals change.
+///
 /// # Panics
 ///
-/// Panics if large integer IDs fail exact discovery or execution correlation,
-/// or authentication and execution totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let maximum = format!("1{}", "0".repeat(255));
@@ -163,8 +158,8 @@ async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestR
         succeeds(&fixture, raw, "server/discover").await?;
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 6);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 12);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 6);
     Ok(())
 }
 
@@ -173,14 +168,11 @@ async fn large_integer_ids_round_trip_through_discovery_and_execution() -> TestR
 ///
 /// Returns a fixture, request construction or exchange error.
 ///
+/// Fails if exact integral decimal or exponent IDs change, or execution totals change.
+///
 /// # Panics
 ///
-/// Panics if exact integral decimal or exponent IDs change, or execution totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -195,7 +187,7 @@ async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> 
     ] {
         succeeds(&fixture, raw, "tools/call").await?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 8);
     Ok(())
 }
 
@@ -204,14 +196,11 @@ async fn exact_integral_decimal_and_exponent_ids_round_trip() -> TestResult<()> 
 ///
 /// Returns a fixture, header, request or exchange error, or an error if protocol metadata is absent.
 ///
+/// Fails if protocol errors change status or code, lose exact IDs, or start execution.
+///
 /// # Panics
 ///
-/// Panics if protocol errors change status or code, lose exact IDs, or start execution.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -230,19 +219,19 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
                 .insert("mcp-protocol-version", "1900-01-01".parse()?),
         );
         let (status, response) = reply(&fixture, call).await?;
-        assert_eq!(status, StatusCode::BAD_REQUEST);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
-        assert_eq!(response.get("id"), body.get("id"));
+        ensure_eq!(status, StatusCode::BAD_REQUEST);
+        ensure_eq!(response.pointer("/error/code"), Some(&json!(-32_022_i32)));
+        ensure_eq!(response.get("id"), body.get("id"));
         let unknown_method = payload(raw, "unknown/method")?;
         let (unknown_status, unknown_response) = reply(&fixture, request(&unknown_method)?).await?;
-        assert_eq!(unknown_status, StatusCode::NOT_FOUND);
-        assert_eq!(
+        ensure_eq!(unknown_status, StatusCode::NOT_FOUND);
+        ensure_eq!(
             unknown_response.pointer("/error/code"),
             Some(&json!(-32_601_i32))
         );
-        assert_eq!(unknown_response.get("id"), unknown_method.get("id"));
+        ensure_eq!(unknown_response.get("id"), unknown_method.get("id"));
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -251,14 +240,11 @@ async fn protocol_errors_echo_large_integer_ids_without_changing_their_type() ->
 ///
 /// Returns a fixture, request construction or exchange error.
 ///
+/// Fails if fractional IDs are accepted, rounded or echoed, or upstream counts change.
+///
 /// # Panics
 ///
-/// Panics if fractional IDs are accepted, rounded or echoed, or upstream counts change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     for raw in [
@@ -270,12 +256,12 @@ async fn fractional_ids_are_not_rounded_into_integer_ids_before_execution() -> T
     ] {
         let body = payload(raw, "tools/call")?;
         let (status, response) = reply(&fixture, request(&body)?).await?;
-        assert_eq!(status, StatusCode::BAD_REQUEST);
-        assert_eq!(response.pointer("/error/code"), Some(&json!(-32_600_i32)));
-        assert!(response.get("id").is_none());
+        ensure_eq!(status, StatusCode::BAD_REQUEST);
+        ensure_eq!(response.pointer("/error/code"), Some(&json!(-32_600_i32)));
+        ensure!(response.get("id").is_none());
     }
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 5);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 5);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }
 
@@ -330,15 +316,12 @@ async fn wire_reply(
 ///
 /// Returns a listener, fixture, runtime, HTTP exchange, execution observation or drain error.
 ///
+/// Fails if concurrent HTTP/1 and HTTP/2 responses lose independent exact IDs,
+/// change upstream totals or leave executions active.
+///
 /// # Panics
 ///
-/// Panics if concurrent HTTP/1 and HTTP/2 responses lose independent exact IDs,
-/// change upstream totals or leave executions active.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids() -> TestResult<()>
 {
     let listener = TcpListener::bind("127.0.0.1:0")?;
@@ -382,9 +365,9 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
         ),
         release,
     )?;
-    assert_eq!(fixture.state().verifies().load(Ordering::SeqCst), 4);
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
-    assert_eq!(
+    ensure_eq!(fixture.state().verifies().load(Ordering::SeqCst), 4);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 4);
+    ensure_eq!(
         fixture.state().active_executions().load(Ordering::SeqCst),
         0
     );
@@ -399,15 +382,12 @@ async fn simultaneous_tls_http1_and_http2_requests_keep_independent_numeric_ids(
 /// Returns a fixture, checked size calculation, response setup, request, JSON or
 /// output-budget error, or an error if structured or text output is absent.
 ///
+/// Fails if encoded output length, exact ID correlation, text and structured
+/// equivalence, or execution totals change.
+///
 /// # Panics
 ///
-/// Panics if encoded output length, exact ID correlation, text and structured
-/// equivalence, or execution totals change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() -> TestResult<()> {
     let fixture = Fixture::new().await?;
     let empty = json!({"blob":"","count":3_i32}).to_string();
@@ -420,12 +400,12 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
         let mut blob = "\"".repeat(escaped);
         blob.extend(core::iter::repeat_n('x', unescaped));
         let body = json!({"blob":blob,"count":3_i32}).to_string();
-        assert_eq!(body.len(), size);
+        ensure_eq!(body.len(), size);
         fixture.reply(StatusCode::OK, body, HeaderMap::new())?;
         let call = payload("18446744073709551616", "tools/call")?;
         let (status, response) = reply(&fixture, request(&call)?).await?;
-        assert_eq!(status, StatusCode::OK);
-        assert_eq!(response.get("id"), call.get("id"));
+        ensure_eq!(status, StatusCode::OK);
+        ensure_eq!(response.get("id"), call.get("id"));
         let content = response
             .pointer("/result/structuredContent")
             .ok_or_else(|| std::io::Error::other("missing structured result"))?;
@@ -433,12 +413,12 @@ async fn adapted_ids_preserve_maximum_escaped_output_and_reject_one_more_byte() 
             .pointer("/result/content/0/text")
             .and_then(Value::as_str)
             .ok_or_else(|| std::io::Error::other("missing text result"))?;
-        assert_eq!(
+        ensure_eq!(
             &logbrew_mcp::json::object(text.as_bytes(), logbrew_mcp::ENVELOPE_BYTES)?,
             content
         );
         super::http::assert_output_budget(content, size)?;
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 2);
     Ok(())
 }

@@ -3,18 +3,17 @@
 use std::{ffi::OsStr, io::ErrorKind};
 
 use super::*;
+use crate::checks::{ensure, ensure_eq};
 
 /// Report the compiled package identity without startup files or ambient values.
 ///
 /// # Errors
 /// Propagates temporary-directory, process, bounded-exit and output-read failures.
 ///
+/// Fails if version reporting fails, prints an unexpected identity or emits stderr.
+///
 /// # Panics
-/// Panics if version reporting fails, prints an unexpected identity or emits stderr.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
-)]
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
 async fn version_reports_the_package_without_loading_configuration() -> TestResult<()> {
     let directory = Directory::new()?;
@@ -26,7 +25,7 @@ async fn version_reports_the_package_without_loading_configuration() -> TestResu
             .env("SSL_CERT_FILE", "SYNTHETIC_PRIVATE_VALUE")
             .spawn()?,
     );
-    assert!(process_exit(&mut process.0).await?.success());
+    ensure!(process_exit(&mut process.0).await?.success());
     let mut stdout = Vec::new();
     let mut stderr = Vec::new();
     if let Some(output) = process.0.stdout.take() {
@@ -35,12 +34,12 @@ async fn version_reports_the_package_without_loading_configuration() -> TestResu
     if let Some(output) = process.0.stderr.take() {
         let _: usize = output.take(4096).read_to_end(&mut stderr)?;
     }
-    assert_eq!(
+    ensure_eq!(
         stdout,
         concat!("logbrew-mcp ", env!("CARGO_PKG_VERSION"), " development\n").as_bytes()
     );
     let empty_stderr: [u8; 0] = [];
-    assert_eq!(stderr, empty_stderr);
+    ensure_eq!(stderr, empty_stderr);
     Ok(())
 }
 
@@ -49,12 +48,10 @@ async fn version_reports_the_package_without_loading_configuration() -> TestResu
 /// # Errors
 /// Propagates fixture, process, bounded-exit and listener-bind failures.
 ///
+/// Fails if rejected arguments succeed or expose diagnostics.
+///
 /// # Panics
-/// Panics if rejected arguments succeed or expose diagnostics.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
-)]
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
 async fn version_rejects_extra_arguments_without_disclosing_them() -> TestResult<()> {
     let fixture = Fixture::new()?;
@@ -68,7 +65,7 @@ async fn version_rejects_extra_arguments_without_disclosing_them() -> TestResult
         vec![flag, OsStr::new("--check-config"), path],
     ] {
         let mut process = Process(Process::command()?.args(arguments).spawn()?);
-        assert_eq!(process.wait().await?.code(), Some(1_i32));
+        ensure_eq!(process.wait().await?.code(), Some(1_i32));
         drop(TcpListener::bind(fixture.address)?);
     }
     Ok(())
@@ -79,12 +76,10 @@ async fn version_rejects_extra_arguments_without_disclosing_them() -> TestResult
 /// # Errors
 /// Propagates output-pipe, process and bounded-exit failures.
 ///
+/// Fails if failed output succeeds or the process emits diagnostics.
+///
 /// # Panics
-/// Panics if failed output succeeds or the process emits diagnostics.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Retain test assertions with diagnostic failures; reviewed 2026-10-05, revisit 2026-11-05"
-)]
+/// Panics if the Tokio runtime cannot start.
 #[tokio::test]
 async fn version_output_failure_exits_unsuccessfully_without_diagnostics() -> TestResult<()> {
     let (reader, writer): (std::io::PipeReader, std::io::PipeWriter) = std::io::pipe()?;
@@ -95,7 +90,7 @@ async fn version_output_failure_exits_unsuccessfully_without_diagnostics() -> Te
             .stdout(Stdio::from(writer))
             .spawn()?,
     );
-    assert_eq!(process.wait().await?.code(), Some(1_i32));
+    ensure_eq!(process.wait().await?.code(), Some(1_i32));
     Ok(())
 }
 

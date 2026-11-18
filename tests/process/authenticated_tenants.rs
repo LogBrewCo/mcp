@@ -12,6 +12,8 @@ use super::{
     Fixture, Process, TestResult, client, configure, envelope, multiplexed, request_with_token,
     tenant_backend::{Backend, Identity, Observations},
 };
+use crate::checks::ensure_eq;
+use crate::race::{First, first};
 
 /// # Errors
 ///
@@ -53,15 +55,16 @@ enum Mode {
     SharedHttp2,
 }
 
-enum Transport {
-    Http1(reqwest::Client),
-    Http2(reqwest::Client),
-    SharedHttp2(multiplexed::Connection),
+#[derive(Clone, Copy)]
+enum Transport<'connection> {
+    Http1(&'connection reqwest::Client),
+    Http2(&'connection reqwest::Client),
+    SharedHttp2(&'connection multiplexed::Connection),
 }
 
-struct Execution<'resource> {
-    transport: Transport,
-    resource: &'resource str,
+struct Execution<'fixture> {
+    transport: Transport<'fixture>,
+    resource: &'fixture str,
 }
 
 impl Execution<'_> {
@@ -73,11 +76,6 @@ impl Execution<'_> {
     ///
     /// Panics if the response transport, cache policy, session isolation,
     /// rejection body or private-field redaction changes.
-    // Reviewed 2026-10-07; review by 2026-11-07 or on source/toolchain change.
-    #[expect(
-        clippy::ref_patterns,
-        reason = "Shared enum fields must remain borrowed while concurrent identity requests use the same transport."
-    )]
     async fn run(
         &self,
         identity: Identity,
@@ -92,7 +90,7 @@ impl Execution<'_> {
         let params = json!({"name":"execute","arguments":{"operation":"logs.read.v1",
             "input":{"project":project,"context":context}}});
         match self.transport {
-            Transport::Http1(ref http) | Transport::Http2(ref http) => {
+            Transport::Http1(http) | Transport::Http2(http) => {
                 request_with_token(
                     http,
                     self.resource,
@@ -103,7 +101,7 @@ impl Execution<'_> {
                 )
                 .await
             }
-            Transport::SharedHttp2(ref connection) => {
+            Transport::SharedHttp2(connection) => {
                 connection
                     .execute(self.resource, params, identity.token())
                     .await
@@ -116,17 +114,10 @@ impl Execution<'_> {
 ///
 /// Returns an error if the tool envelope lacks required fields or has invalid JSON.
 ///
-/// # Panics
-///
-/// Panics if the result differs from the selected project or its tool envelope
+/// Fails if the result differs from the selected project or its tool envelope
 /// violates the error, text, structured content or provenance contract.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn result(reply: &Value, project: &str) -> TestResult<()> {
-    assert_eq!(
+    ensure_eq!(
         envelope(reply, None)?.get("data"),
         Some(&json!({"project":project,"record":format!("{project}-result")}))
     );
@@ -142,23 +133,17 @@ fn result(reply: &Value, project: &str) -> TestResult<()> {
 ///
 /// Panics if beta access, cross-project denial, alpha isolation or its eventual
 /// successful response changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
-)]
 async fn overlapping(execution: &Execution<'_>, observed: &Observations) -> TestResult<()> {
     let alpha = execution.run(Identity::Alpha, "alpha");
     tokio::pin!(alpha);
     timeout(Duration::from_secs(2), async {
-        let waiting: TestResult<()> = tokio::select! {
-            reply = &mut alpha => {
+        match first(&mut alpha, observed.alpha_entered().notified()).await {
+            First::Left(reply) => {
                 drop(reply?);
                 Err(io::Error::other("alpha completed before verification was released").into())
             }
-            () = observed.alpha_entered().notified() => Ok(())
-        };
-        waiting
+            First::Right(()) => TestResult::Ok(()),
+        }
     })
     .await??;
     let (beta_status, beta) = execution.run(Identity::Beta, "beta").await?;
@@ -206,12 +191,16 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
     )?;
     let mut process = Process::start_with_roots(&fixture.config, Some(&roots))?;
     fixture.ready(&mut process).await?;
+    let http = client(&fixture, matches!(mode, Mode::Http2))?;
+    let mut shared = None;
     let transport = match mode {
-        Mode::Http1 => Transport::Http1(client(&fixture, false)?),
-        Mode::Http2 => Transport::Http2(client(&fixture, true)?),
-        Mode::SharedHttp2 => Transport::SharedHttp2(multiplexed::Connection::open(&fixture).await?),
+        Mode::Http1 => Transport::Http1(&http),
+        Mode::Http2 => Transport::Http2(&http),
+        Mode::SharedHttp2 => {
+            Transport::SharedHttp2(shared.insert(multiplexed::Connection::open(&fixture).await?))
+        }
     };
-    let mut execution = Execution {
+    let execution = Execution {
         transport,
         resource: &resource,
     };
@@ -257,7 +246,7 @@ async fn isolation_and_recovery(mode: Mode) -> TestResult<()> {
         [2, 3, 1]
     );
     fixture.ready(&mut process).await?;
-    if let Transport::SharedHttp2(ref mut connection) = execution.transport {
+    if let Some(connection) = shared.as_mut() {
         connection.close().await?;
     }
     process.signal(Signal::TERM)?;

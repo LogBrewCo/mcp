@@ -10,6 +10,7 @@ use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
 use super::http::{Fixture, TOKEN};
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 
@@ -136,15 +137,12 @@ async fn missing_mismatched_and_duplicate_routing_headers_fail_before_execution(
 ///
 /// Returns a fixture, JSON, request, header, router or body-read error.
 ///
+/// Fails if header mismatch loses exact correlation, reflects rejected values,
+/// starts execution, or prevents valid-request recovery.
+///
 /// # Panics
 ///
-/// Panics if header mismatch loses exact correlation, reflects rejected values,
-/// starts execution, or prevents valid-request recovery.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Panics if the Tokio runtime cannot start.
 async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fields()
 -> TestResult<()> {
     let fixture = Fixture::new().await?;
@@ -157,15 +155,15 @@ async fn header_mismatch_errors_preserve_correlation_without_echoing_rejected_fi
     ] {
         reflected.extend(reflected_headers(&fixture, &id, marker).await?);
     }
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     let (status, result, _, _) = response(&fixture, request(&body())?).await?;
-    assert_eq!(status, StatusCode::OK);
-    assert_eq!(
+    ensure_eq!(status, StatusCode::OK);
+    ensure_eq!(
         result.pointer("/result/structuredContent/data/count"),
         Some(&json!(3_i32))
     );
-    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
-    assert!(
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 1);
+    ensure!(
         reflected.is_empty(),
         "rejected fields reflected: {reflected:?}"
     );

@@ -12,6 +12,8 @@ mod authority_wire;
 mod authorization;
 #[path = "cases/bearer.rs"]
 mod bearer;
+#[path = "support/checks.rs"]
+mod checks;
 #[path = "cases/clients.rs"]
 mod clients;
 #[path = "support/count.rs"]
@@ -42,6 +44,8 @@ mod notifications;
 mod operation_contract;
 #[path = "support/peer.rs"]
 mod peer;
+#[path = "support/race.rs"]
+mod race;
 #[path = "support/raw_upstream.rs"]
 mod raw_upstream;
 #[path = "cases/request_encoding.rs"]
@@ -83,6 +87,7 @@ use axum::{
 use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
+use crate::checks::{ensure, ensure_eq};
 use http::{Fixture, RESOURCE, TOKEN};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
@@ -531,21 +536,14 @@ fn boundary_request(
 /// Returns an error if the cache policy or required authentication challenge is
 /// missing, or the challenge is not valid header text.
 ///
-/// # Panics
-///
-/// Panics if the status, cache policy or resource metadata challenge differs
+/// Fails if the status, cache policy or resource metadata challenge differs
 /// from the expected authentication rejection.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn assert_auth_boundary(
     response: &axum::response::Response,
     expected: StatusCode,
 ) -> TestResult<()> {
-    assert_eq!(response.status(), expected);
-    assert_eq!(
+    ensure_eq!(response.status(), expected);
+    ensure_eq!(
         response
             .headers()
             .get("Cache-Control")
@@ -553,7 +551,7 @@ fn assert_auth_boundary(
         "no-store"
     );
     if expected == StatusCode::UNAUTHORIZED {
-        assert!(
+        ensure!(
             response
                 .headers()
                 .get("WWW-Authenticate")
@@ -595,30 +593,23 @@ async fn assert_resource_metadata(
 ///
 /// Returns an error if the output schema is missing or cannot be compiled.
 ///
-/// # Panics
-///
-/// Panics if the schema rejects valid envelopes or accepts inconsistent data,
+/// Fails if the schema rejects valid envelopes or accepts inconsistent data,
 /// provenance, errors or retry metadata.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn assert_output_contract(tool: &Value) -> TestResult<()> {
     let schema = tool.get("outputSchema").ok_or("output contract")?;
     let validator = jsonschema::validator_for(schema)?;
     let provenance = json!({"definition_sha256":"a".repeat(64)});
-    assert!(validator.is_valid(&json!({"data":{},"error":null,"provenance":provenance})));
+    ensure!(validator.is_valid(&json!({"data":{},"error":null,"provenance":provenance})));
     let error =
         json!({"code":"invalid_input","next_action":"review_input_contract","retry_after_ms":null});
-    assert!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
+    ensure!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
     for invalid in [
         json!({"data":{},"error":error,"provenance":provenance}),
         json!({"data":null,"error":null,"provenance":provenance}),
         json!({"data":{},"error":null,"provenance":{"definition_sha256":"bad"}}),
         json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1_i32},"provenance":null}),
     ] {
-        assert!(!validator.is_valid(&invalid));
+        ensure!(!validator.is_valid(&invalid));
     }
     Ok(())
 }

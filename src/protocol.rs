@@ -155,10 +155,6 @@ impl ServerHandler for Tools {
         core::future::ready(Err(error))
     }
 
-    #[expect(
-        clippy::integer_division_remainder_used,
-        reason = "Tokio select uses remainder for fair branch polling; this is not cryptographic arithmetic."
-    )]
     async fn call_tool(
         &self,
         request: CallToolRequestParams,
@@ -186,24 +182,17 @@ impl ServerHandler for Tools {
             .get("operation")
             .and_then(Value::as_str)
             .and_then(|id| measurement.operation(id));
-        let mut cancelled = false;
-        let result = match tool {
+        let finished = match tool {
             ToolKind::Execute => {
-                tokio::select! {
-                    result = self.execute(&arguments, &context) => result,
-                    () = context.ct.cancelled() => {
-                        cancelled = true;
-                        Err(Kind::Unavailable.into())
-                    },
-                }
+                let execution = self.execute(&arguments, &context);
+                context.ct.run_until_cancelled(execution).await
             }
-            ToolKind::Search => self.0.catalog.search(&arguments),
+            ToolKind::Search => Some(self.0.catalog.search(&arguments)),
         };
-        let outcome = if cancelled {
-            Outcome::Cancelled
-        } else {
-            Outcome::result(&result)
-        };
+        let outcome = finished
+            .as_ref()
+            .map_or(Outcome::Cancelled, Outcome::result);
+        let result = finished.unwrap_or_else(|| Err(Kind::Unavailable.into()));
         let response = envelope(result, Some(&self.0.catalog.provenance()));
         let outcome = if outcome == Outcome::Completed && response.is_error == Some(true) {
             Outcome::Unavailable

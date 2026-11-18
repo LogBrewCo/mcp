@@ -14,6 +14,7 @@ use super::{
     peer::Peer,
     runtime::Running,
 };
+use crate::checks::{ensure, ensure_eq};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const PRIVATE_BODY: &[u8] = br#"{"SYNTHETIC_PRIVATE_BODY":"#;
@@ -234,14 +235,7 @@ async fn recovery(peer: &mut Peer, block: &[u8], stream: u32) -> TestResult<()> 
 ///
 /// Returns a serialization error or an error if required telemetry is absent.
 ///
-/// # Panics
-///
-/// Panics if request totals, deadline and throttle outcomes, or privacy checks fail.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if request totals, deadline and throttle outcomes, or privacy checks fail.
 fn observations(fixture: &Fixture) -> TestResult<()> {
     let snapshot = fixture
         .telemetry()
@@ -252,11 +246,11 @@ fn observations(fixture: &Fixture) -> TestResult<()> {
         .iter()
         .find(|stage| stage.stage == Stage::RequestPrepared)
         .ok_or("missing request observations")?;
-    assert_eq!(requests.started, 67);
-    assert_eq!(requests.finished, 67);
-    assert_eq!(requests.pending, Some(0));
+    ensure_eq!(requests.started, 67);
+    ensure_eq!(requests.finished, 67);
+    ensure_eq!(requests.pending, Some(0));
     for (outcome, expected) in [(Outcome::Deadline, 64), (Outcome::Throttled, 1)] {
-        assert_eq!(
+        ensure_eq!(
             requests
                 .outcomes
                 .iter()
@@ -267,8 +261,8 @@ fn observations(fixture: &Fixture) -> TestResult<()> {
         );
     }
     let encoded = serde_json::to_string(&snapshot)?;
-    assert!(!encoded.contains("SYNTHETIC_PRIVATE_BODY"));
-    assert!(!encoded.contains(TOKEN));
+    ensure!(!encoded.contains("SYNTHETIC_PRIVATE_BODY"));
+    ensure!(!encoded.contains(TOKEN));
     Ok(())
 }
 

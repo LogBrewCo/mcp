@@ -25,6 +25,7 @@ mod tests {
     use tokio::sync::{OwnedSemaphorePermit, Semaphore};
 
     use super::within;
+    use crate::checks::{ensure, ensure_eq};
 
     fn delayed_ready() -> impl Future<Output = i32> {
         poll_fn(|_| {
@@ -68,23 +69,20 @@ mod tests {
     /// # Errors
     /// Returns an error if the initial or recovered semaphore permit is unavailable.
     ///
+    /// Fails if pending work is not polled or rejected, or timely recovery fails.
+    ///
     /// # Panics
-    /// Panics if pending work is not polled or rejected, or timely recovery fails.
+    /// Panics if the Tokio runtime cannot start.
     #[tokio::test]
-    // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-    #[expect(
-        clippy::panic_in_result_fn,
-        reason = "Test assertions must retain their failure and comparison diagnostics."
-    )]
     async fn expiry_drops_pending_work_and_allows_recovery()
     -> Result<(), Box<dyn core::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
         let polled = AtomicBool::new(false);
         let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);
-        assert_eq!(within(Duration::from_millis(5), work).await, None);
-        assert!(polled.load(Ordering::SeqCst));
+        ensure_eq!(within(Duration::from_millis(5), work).await, None);
+        ensure!(polled.load(Ordering::SeqCst));
         let _recovered = slots.try_acquire()?;
-        assert_eq!(
+        ensure_eq!(
             within(Duration::from_secs(1), ready(7_i32)).await,
             Some(7_i32)
         );
@@ -96,23 +94,20 @@ mod tests {
     /// # Errors
     /// Returns an error if the initial or recovered semaphore permit is unavailable.
     ///
+    /// Fails if invalid-budget work is polled or accepted, or timely recovery fails.
+    ///
     /// # Panics
-    /// Panics if invalid-budget work is polled or accepted, or timely recovery fails.
+    /// Panics if the Tokio runtime cannot start.
     #[tokio::test]
-    // Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-    #[expect(
-        clippy::panic_in_result_fn,
-        reason = "Test assertions must retain their failure and comparison diagnostics."
-    )]
     async fn unrepresentable_deadline_drops_work_without_polling_and_recovers()
     -> Result<(), Box<dyn core::error::Error>> {
         let slots = Arc::new(Semaphore::new(1));
         let polled = AtomicBool::new(false);
         let work = held_pending(Arc::clone(&slots).try_acquire_owned()?, &polled);
-        assert_eq!(within(Duration::MAX, work).await, None);
-        assert!(!polled.load(Ordering::SeqCst));
+        ensure_eq!(within(Duration::MAX, work).await, None);
+        ensure!(!polled.load(Ordering::SeqCst));
         let _recovered = slots.try_acquire()?;
-        assert_eq!(
+        ensure_eq!(
             within(Duration::from_secs(1), ready(7_i32)).await,
             Some(7_i32)
         );

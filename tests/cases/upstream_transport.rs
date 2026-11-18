@@ -17,6 +17,8 @@ use super::{
     http::{RESOURCE, TOKEN},
     raw_upstream::Raw,
 };
+use crate::checks::{ensure, ensure_eq};
+use crate::race::{First, first};
 
 type TestResult<T> = Result<T, Box<dyn core::error::Error + Send + Sync>>;
 const MARKER: &str = "SYNTHETIC_PRIVATE_RESPONSE_MARKER";
@@ -163,15 +165,8 @@ async fn execution_http1_headers_fail_before_body_read_and_recover() {
 /// Returns an HPACK error or an error if decoded size, field overhead, payload
 /// size or repeated-field count is invalid.
 ///
-/// # Panics
-///
-/// Panics if compressed repeated headers fail to exceed the decoded budget or
+/// Fails if compressed repeated headers fail to exceed the decoded budget or
 /// exceed the fixture's compressed-size bound.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> {
     // Static index 8 is :status 200. Field sizes include the RFC 9113 overhead.
     let mut block = vec![0x88];
@@ -205,13 +200,13 @@ fn http2_headers(decoded_bytes: usize, compressed: bool) -> TestResult<Vec<u8>> 
                 .checked_sub(1)
                 .ok_or("invalid fixture repetition count")?,
         ));
-        assert!(
+        ensure!(
             field
                 .checked_mul(repetitions)
                 .and_then(|size| fixed.checked_add(size))
                 .is_some_and(|size| size > 16 << 10_i32)
         );
-        assert!(block.len() < 2048);
+        ensure!(block.len() < 2048);
     }
     Ok(block)
 }
@@ -274,14 +269,7 @@ async fn http2_header_limits(execute: bool) -> TestResult<()> {
 ///
 /// Returns a serialization error or an error if observations are absent or fixture totals are invalid.
 ///
-/// # Panics
-///
-/// Panics if stage totals, pending work, timing, outcomes or telemetry privacy changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if stage totals, pending work, timing, outcomes or telemetry privacy changes.
 fn header_observations(
     upstream: &Upstream,
     execute: bool,
@@ -303,14 +291,14 @@ fn header_observations(
         .iter()
         .find(|stage| stage.stage == selected)
         .ok_or("missing upstream stage")?;
-    assert_eq!(stage.started, total);
-    assert_eq!(stage.finished, total);
-    assert_eq!(stage.pending, Some(0));
+    ensure_eq!(stage.started, total);
+    ensure_eq!(stage.finished, total);
+    ensure_eq!(stage.pending, Some(0));
     if check_timing {
-        assert_eq!(stage.timed, total);
-        assert_eq!(stage.dropped_updates, 0);
-        assert!(!stage.saturated);
-        assert!(!stage.timing_unavailable);
+        ensure_eq!(stage.timed, total);
+        ensure_eq!(stage.dropped_updates, 0);
+        ensure!(!stage.saturated);
+        ensure!(!stage.timing_unavailable);
     }
     let completed = total
         .checked_sub(unavailable)
@@ -319,7 +307,7 @@ fn header_observations(
         (Outcome::Completed, completed),
         (Outcome::Unavailable, unavailable),
     ] {
-        assert_eq!(
+        ensure_eq!(
             stage
                 .outcomes
                 .iter()
@@ -485,25 +473,24 @@ pub async fn healthy_exchange(raw: &Raw, execute: bool) -> TestResult<()> {
 ///
 /// Panics if pending TLS completes without a response, cancellation or connect
 /// expiry fails to retire the socket, or recovery and observations change.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::integer_division_remainder_used,
-    reason = "Tokio select wraps its branch polling index with remainder; this is not cryptographic arithmetic."
-)]
 async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
     let mut raw = Raw::new()?;
     for execute in [false, true] {
         let waiting = raw.stall_handshake().await?;
         let mut request = Box::pin(operation(raw.upstream(), execute));
-        tokio::select! {
-            result = request.as_mut() => {
+        match first(
+            request.as_mut(),
+            timeout(Duration::from_secs(2), waiting.started),
+        )
+        .await
+        {
+            First::Left(result) => {
                 return Err(std::io::Error::other(format!(
                     "operation ended before pending TLS was observed: {result:?}"
-                )).into());
+                ))
+                .into());
             }
-            observed = timeout(Duration::from_secs(2), waiting.started) => {
-                observed??;
-            }
+            First::Right(observed) => observed??,
         }
         // The peer has consumed a real ClientHello and sends no TLS response.
         assert!(
@@ -578,14 +565,7 @@ async fn tls_lifecycle(cancel: bool) -> TestResult<()> {
 ///
 /// Returns a serialization error or an error if the snapshot or outbound stage is absent.
 ///
-/// # Panics
-///
-/// Panics if TLS stage totals, pending work, timing, outcomes or telemetry privacy changes.
-// Reviewed 2026-10-05; review by 2026-11-05 or on source/toolchain change.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
+/// Fails if TLS stage totals, pending work, timing, outcomes or telemetry privacy changes.
 fn tls_observations(
     upstream: &Upstream,
     selected: Stage,
@@ -600,15 +580,15 @@ fn tls_observations(
         .iter()
         .find(|stage| stage.stage == selected)
         .ok_or("outbound stage")?;
-    assert_eq!(stage.started, started);
-    assert_eq!(stage.finished, finished);
-    assert_eq!(stage.pending, Some(pending));
-    assert_eq!(stage.timed, finished);
-    assert_eq!(stage.dropped_updates, 0);
-    assert!(!stage.saturated);
-    assert!(!stage.timing_unavailable);
+    ensure_eq!(stage.started, started);
+    ensure_eq!(stage.finished, finished);
+    ensure_eq!(stage.pending, Some(pending));
+    ensure_eq!(stage.timed, finished);
+    ensure_eq!(stage.dropped_updates, 0);
+    ensure!(!stage.saturated);
+    ensure!(!stage.timing_unavailable);
     if let Some(outcome) = outcome {
-        assert_eq!(
+        ensure_eq!(
             stage
                 .outcomes
                 .iter()
@@ -625,7 +605,7 @@ fn tls_observations(
         "localhost",
         "127.0.0.1",
     ] {
-        assert!(!observations.contains(prohibited));
+        ensure!(!observations.contains(prohibited));
     }
     Ok(())
 }

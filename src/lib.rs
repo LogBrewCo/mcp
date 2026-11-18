@@ -5,6 +5,9 @@ extern crate alloc;
 pub mod admission;
 mod bearer;
 pub mod catalog;
+#[cfg(test)]
+#[path = "../tests/support/checks.rs"]
+mod checks;
 mod connections;
 mod deadline;
 mod delivery;
@@ -44,7 +47,7 @@ impl Failure {
     /// Causes can contain paths, credentials or payloads. This boundary drops
     /// the cause and retains only the selected category, with an unknown retry
     /// delay. `Display`, `Debug` and `Error::source` cannot expose the discarded cause.
-    pub(crate) fn redact<E>(kind: error::Kind) -> impl FnOnce(E) -> Self {
+    pub fn redact<E>(kind: error::Kind) -> impl FnOnce(E) -> Self {
         move |cause| {
             drop(cause);
             Self::from(kind)

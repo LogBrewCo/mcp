@@ -33,6 +33,7 @@ use tower::ServiceExt as _;
 use zeroize::Zeroizing;
 
 use super::count::discard_count;
+use crate::checks::ensure_eq;
 
 pub const RESOURCE: &str = "https://resource.example/mcp";
 pub const TOKEN: &str = "SYNTHETIC_DELEGATED_CREDENTIAL";
@@ -424,14 +425,11 @@ pub fn request_message(
 ///
 /// # Errors
 /// Returns an error if the response slot's mutex is poisoned.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Poisoned fixture reply slots return a fixed error without retaining a guard that may contain sensitive response data; HTTP privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
-    *slot
-        .lock()
-        .map_err(|_| std::io::Error::other("fixture reply unavailable"))? = Some(reply);
+    let Ok(mut current) = slot.lock() else {
+        return Err(std::io::Error::other("fixture reply unavailable").into());
+    };
+    *current = Some(reply);
     Ok(())
 }
 
@@ -444,10 +442,6 @@ fn set_reply(slot: &Mutex<Option<Reply>>, reply: Reply) -> TestResult<()> {
 /// # Panics
 /// Fails if machine authorization, form content type or encoded delegated
 /// credential and token-type hint differ from the expected fixture request.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Synthetic introspection failures return status-only responses; authorization and credential privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn introspect(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,
@@ -471,11 +465,12 @@ async fn introspect(
         .finish();
     assert_eq!(body.as_ref(), expected.as_bytes());
     discard_count(state.verifies.fetch_add(1, Ordering::SeqCst));
-    let reply = state
-        .introspection_reply
-        .lock()
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .clone();
+    let reply = {
+        let Ok(slot) = state.introspection_reply.lock() else {
+            return Err(StatusCode::INTERNAL_SERVER_ERROR);
+        };
+        slot.clone()
+    };
     if let Some(reply) = reply {
         return Ok(reply.into_response());
     }
@@ -486,15 +481,11 @@ async fn introspect(
 ///
 /// # Errors
 /// Returns service unavailable if the system clock precedes the Unix epoch.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "The synthetic authority returns a status-only clock failure; authorization regressions cover fail-closed responses. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 fn claims(state: &StateData) -> Result<Value, StatusCode> {
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .map_err(|_| StatusCode::SERVICE_UNAVAILABLE)?
-        .as_secs();
+    let Ok(elapsed) = SystemTime::now().duration_since(UNIX_EPOCH) else {
+        return Err(StatusCode::SERVICE_UNAVAILABLE);
+    };
+    let now = elapsed.as_secs();
     Ok(
         json!({"active":state.active.load(Ordering::SeqCst),"iss":state.issuer,
         "aud":state.resource,"exp":now.saturating_add(60),"iat":now,"token_type":"Bearer",
@@ -510,10 +501,6 @@ fn claims(state: &StateData) -> Result<Value, StatusCode> {
 /// # Panics
 /// Fails if machine authorization, content type, delegated credential, credential
 /// reference, client identity or supplied context differs from the fixture contract.
-#[expect(
-    clippy::map_err_ignore,
-    reason = "Synthetic execution failures return status-only responses without retaining request or reply diagnostics; HTTP privacy regressions cover the fixture. Reviewed 2026-10-05; review by 2026-11-05 or on fixture change."
-)]
 async fn execute(
     State(state): State<Arc<StateData>>,
     headers: HeaderMap,
@@ -531,7 +518,9 @@ async fn execute(
             .map(axum::http::HeaderValue::as_bytes),
         Some(b"application/json".as_slice())
     );
-    let input = logbrew_mcp::json::object(&bytes, 64 << 10).map_err(|_| StatusCode::BAD_REQUEST)?;
+    let Ok(input) = logbrew_mcp::json::object(&bytes, 64 << 10) else {
+        return Err(StatusCode::BAD_REQUEST);
+    };
     assert_eq!(
         input.get("token").and_then(Value::as_str),
         Some(state.token.as_str())
@@ -557,11 +546,12 @@ async fn execute(
         );
         assert_eq!(context.get("context"), Some(&json!("preserved")));
     }
-    let reply = state
-        .reply
-        .lock()
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .clone();
+    let reply = {
+        let Ok(slot) = state.reply.lock() else {
+            return Err(StatusCode::INTERNAL_SERVER_ERROR);
+        };
+        slot.clone()
+    };
     Ok(reply.map_or_else(
         || axum::Json(json!({"count":3_i32})).into_response(),
         Reply::into_response,
@@ -573,16 +563,11 @@ async fn execute(
 /// # Errors
 /// Returns an error if a maximum-size result omits its data.
 ///
-/// # Panics
 /// Fails if encoded data size, data/error exclusivity or the rejected result's
 /// error category differs from the expected envelope.
-#[expect(
-    clippy::panic_in_result_fn,
-    reason = "Test assertions must retain their failure and comparison diagnostics."
-)]
 pub fn assert_output_budget(content: &Value, size: usize) -> TestResult<()> {
     if size == logbrew_mcp::OUTPUT_BYTES {
-        assert_eq!(
+        ensure_eq!(
             content
                 .get("data")
                 .ok_or("missing output data")?
@@ -590,10 +575,10 @@ pub fn assert_output_budget(content: &Value, size: usize) -> TestResult<()> {
                 .len(),
             size
         );
-        assert_eq!(content.get("error"), Some(&Value::Null));
+        ensure_eq!(content.get("error"), Some(&Value::Null));
     } else {
-        assert_eq!(content.get("data"), Some(&Value::Null));
-        assert_eq!(content.pointer("/error/code"), Some(&json!("unavailable")));
+        ensure_eq!(content.get("data"), Some(&Value::Null));
+        ensure_eq!(content.pointer("/error/code"), Some(&json!("unavailable")));
     }
     Ok(())
 }

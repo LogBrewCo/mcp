@@ -287,6 +287,23 @@ fn shipped_query_inputs_match_backend_validation() {
     catalog
         .input("issues.investigate.v18", &json!({"issue_id":issue}))
         .expect("affected subjects investigation");
+    for id in ["analytics.retention.v4", "analytics.lifecycle.v3"] {
+        for unit in ["identified_user", "anonymous_subject"] {
+            catalog
+                .input(
+                    id,
+                    &json!({"project_id":issue,"since":"30d","analysis_unit":unit}),
+                )
+                .expect("analysis unit");
+        }
+        let failure = catalog
+            .input(
+                id,
+                &json!({"project_id":issue,"since":"30d","analysis_unit":"everyone"}),
+            )
+            .expect_err("unknown analysis unit");
+        assert_eq!(failure.kind, Kind::InvalidInput, "{id}");
+    }
 }
 
 /// Every shipped write operation: identifier, whether it asks for

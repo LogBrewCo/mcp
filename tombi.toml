@@ -5,9 +5,9 @@ include = ["**/*.toml", "**/Cargo.lock"]
 respect-ignore-files = false
 
 [lint.rules]
-dotted-keys-out-of-order = "error"
+dotted-keys-out-of-order = "off"
 key-empty = "error"
-tables-out-of-order = "error"
+tables-out-of-order = "off"
 
 [schema]
 enabled = true

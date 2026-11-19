@@ -216,9 +216,11 @@ population total.
 | `analytics.funnel.v2` | Ordered conversion steps, optionally split by one property, with the previous period and example units. |
 | `analytics.lifecycle.v1` | User lifecycle for one exact classified event. |
 | `analytics.lifecycle.v2` | User lifecycle across all classified activity, without choosing an event. |
+| `analytics.lifecycle.v3` | New, returning, resurrected, and dormant subjects for one event or all activity. `analysis_unit` picks `identified_user` (default) or `anonymous_subject`, so sites without sign-in get a lifecycle too. The two kinds are never merged, and the response names its unit and gives event counts by subject kind. |
 | `analytics.retention.v1` | Cohorts between explicit starting and returning events. |
 | `analytics.retention.v2` | Cohorts across all classified activity. |
 | `analytics.retention.v3` | Returning and lost users with the previous period and example user IDs. |
+| `analytics.retention.v4` | The `analytics.retention.v3` result for identified users or returning anonymous browsers. `analysis_unit` picks `identified_user` (default) or `anonymous_subject`; the two kinds are never merged. The response names its unit and gives event counts by subject kind, so an agent can tell an empty cohort from missing identity. |
 | `analytics.paths.v1` | Bounded session paths around an exact property-filtered anchor. |
 | `analytics.paths.v2` | Session paths with the previous period and example sessions for each path. |
 | `analytics.segments.compare.v2` | An exact outcome across explicit bounded segments. |

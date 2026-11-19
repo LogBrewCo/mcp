@@ -49093,6 +49093,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -50399,6 +50404,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -51094,6 +51104,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -51772,6 +51787,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -51907,6 +51927,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -52549,6 +52574,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -52679,6 +52709,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -53321,6 +53356,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -53463,12 +53503,43 @@
                 "type": "string"
               }
             ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "description": "Bounded lifecycle request for one owned project.",
         "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 3 only: subject kind to classify, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
           "environment": {
             "description": "Optional exact environment filter.",
             "type": [
@@ -53825,6 +53896,17 @@
                   "null"
                 ]
               },
+              "selected_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 selected analysis events by subject kind, whatever the analysis unit."
+              },
               "selected_trace_link_rate": {
                 "description": "Fraction of usable selected analysis events carrying a trace ID.",
                 "format": "double",
@@ -53840,7 +53922,7 @@
                 "type": "integer"
               },
               "usable_selected_events": {
-                "description": "Selected analysis events carrying an explicit subject ID.",
+                "description": "Selected analysis events carrying an ID of the analysis unit.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"
@@ -53888,6 +53970,17 @@
                   }
                 ],
                 "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 subject kind that every subject count in the response counts."
               },
               "environment": {
                 "description": "Optional exact environment filter.",
@@ -54071,6 +54164,77 @@
               "reason"
             ],
             "type": "object"
+          },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -54132,7 +54296,7 @@
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
-        "summary": "Inspect user lifecycle across all classified activity, without choosing an event."
+        "summary": "Inspect user lifecycle across all classified activity; prefer analytics.lifecycle.v3."
       },
       "input_schema": {
         "$defs": {
@@ -54199,12 +54363,43 @@
                 "type": "string"
               }
             ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "description": "Bounded lifecycle request for one owned project.",
         "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 3 only: subject kind to classify, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
           "environment": {
             "description": "Optional exact environment filter.",
             "type": [
@@ -54561,6 +54756,17 @@
                   "null"
                 ]
               },
+              "selected_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 selected analysis events by subject kind, whatever the analysis unit."
+              },
               "selected_trace_link_rate": {
                 "description": "Fraction of usable selected analysis events carrying a trace ID.",
                 "format": "double",
@@ -54576,7 +54782,7 @@
                 "type": "integer"
               },
               "usable_selected_events": {
-                "description": "Selected analysis events carrying an explicit subject ID.",
+                "description": "Selected analysis events carrying an ID of the analysis unit.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"
@@ -54624,6 +54830,17 @@
                   }
                 ],
                 "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 subject kind that every subject count in the response counts."
               },
               "environment": {
                 "description": "Optional exact environment filter.",
@@ -54807,6 +55024,937 @@
               "reason"
             ],
             "type": "object"
+          },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Complete bounded, identity-safe lifecycle response.",
+        "properties": {
+          "buckets": {
+            "description": "Ordered fixed lifecycle buckets.",
+            "items": {
+              "$ref": "#/$defs/SdkProductAnalyticsLifecycleBucketResponse"
+            },
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/$defs/SdkProductAnalyticsLifecycleCoverageResponse",
+            "description": "Capture coverage qualifying the result."
+          },
+          "next_action": {
+            "$ref": "#/$defs/SdkProductAnalyticsNextActionResponse",
+            "description": "Stable recommended follow-up."
+          },
+          "purpose": {
+            "description": "Product-level explanation of what this resource answers.",
+            "type": "string"
+          },
+          "query": {
+            "$ref": "#/$defs/SdkProductAnalyticsLifecycleQueryResponse",
+            "description": "Normalized effective query."
+          },
+          "schema_version": {
+            "description": "Stable response schema for exact machine consumers.",
+            "format": "uint8",
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "summary": {
+            "$ref": "#/$defs/SdkProductAnalyticsLifecycleSummaryResponse",
+            "description": "Aggregate observation and result state."
+          }
+        },
+        "required": [
+          "schema_version",
+          "query",
+          "purpose",
+          "summary",
+          "coverage",
+          "buckets",
+          "next_action"
+        ],
+        "title": "SdkProductAnalyticsLifecycleResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "analytics.lifecycle.v3",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Inspect new, returning, resurrected, and dormant users or anonymous browsers, for one event or all activity, with event counts by subject kind."
+      },
+      "input_schema": {
+        "$defs": {
+          "SdkProductAnalyticsEventKind": {
+            "description": "Supported version-1 classified product-event kind.",
+            "oneOf": [
+              {
+                "const": "page_view",
+                "description": "Browser route view.",
+                "type": "string"
+              },
+              {
+                "const": "screen_view",
+                "description": "Application-owned screen view.",
+                "type": "string"
+              },
+              {
+                "const": "interaction",
+                "description": "Explicit application product action.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsEventRequest": {
+            "additionalProperties": false,
+            "description": "One exact classified product-event selector.",
+            "properties": {
+              "event_name": {
+                "description": "Stable route template, screen name, or bounded action name.",
+                "type": "string"
+              },
+              "kind": {
+                "$ref": "#/$defs/SdkProductAnalyticsEventKind",
+                "description": "Supported classified event kind."
+              }
+            },
+            "required": [
+              "kind",
+              "event_name"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsFixedInterval": {
+            "description": "Fixed product-analytics period width.",
+            "oneOf": [
+              {
+                "const": "hour",
+                "description": "One hour.",
+                "type": "string"
+              },
+              {
+                "const": "day",
+                "description": "One fixed 24-hour day.",
+                "type": "string"
+              },
+              {
+                "const": "week",
+                "description": "One fixed seven-day week.",
+                "type": "string"
+              },
+              {
+                "const": "thirty_day",
+                "description": "One fixed 30-day period; this is not a calendar month.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Bounded lifecycle request for one owned project.",
+        "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 3 only: subject kind to classify, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
+          "environment": {
+            "description": "Optional exact environment filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "event": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact classified event whose subject lifecycle is measured."
+          },
+          "history_period_count": {
+            "description": "Complete fixed periods observed before `since`; defaults to two.",
+            "format": "uint8",
+            "maximum": 255,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsFixedInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed lifecycle period; defaults according to the selected analysis range."
+          },
+          "project_id": {
+            "description": "Required project scope, optional only for actionable validation.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional exact release filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "service_name": {
+            "description": "Optional exact service filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "since": {
+            "description": "Required inclusive lower bound, as a duration or RFC 3339 timestamp.",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive RFC 3339 upper bound; defaults to request time.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "since"
+        ],
+        "title": "SdkProductAnalyticsLifecycleRequest",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "SdkProductAnalyticsActivityScope": {
+            "description": "Automatic product activity population used instead of an exact event selector.",
+            "oneOf": [
+              {
+                "const": "all_classified_activity",
+                "description": "Every supported classified page view, screen view, and interaction in scope.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsEventKind": {
+            "description": "Supported version-1 classified product-event kind.",
+            "oneOf": [
+              {
+                "const": "page_view",
+                "description": "Browser route view.",
+                "type": "string"
+              },
+              {
+                "const": "screen_view",
+                "description": "Application-owned screen view.",
+                "type": "string"
+              },
+              {
+                "const": "interaction",
+                "description": "Explicit application product action.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsEventRequest": {
+            "additionalProperties": false,
+            "description": "One exact classified product-event selector.",
+            "properties": {
+              "event_name": {
+                "description": "Stable route template, screen name, or bounded action name.",
+                "type": "string"
+              },
+              "kind": {
+                "$ref": "#/$defs/SdkProductAnalyticsEventKind",
+                "description": "Supported classified event kind."
+              }
+            },
+            "required": [
+              "kind",
+              "event_name"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsFixedInterval": {
+            "description": "Fixed product-analytics period width.",
+            "oneOf": [
+              {
+                "const": "hour",
+                "description": "One hour.",
+                "type": "string"
+              },
+              {
+                "const": "day",
+                "description": "One fixed 24-hour day.",
+                "type": "string"
+              },
+              {
+                "const": "week",
+                "description": "One fixed seven-day week.",
+                "type": "string"
+              },
+              {
+                "const": "thirty_day",
+                "description": "One fixed 30-day period; this is not a calendar month.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsLifecycleBucketResponse": {
+            "description": "One fixed lifecycle bucket with disjoint active-subject classifications.",
+            "properties": {
+              "active_subjects": {
+                "description": "Identified subjects active in this bucket.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "dormant_share_of_previous_active": {
+                "description": "Fraction of prior active subjects dormant in this period.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "dormant_subjects": {
+                "description": "Prior-period active subjects not active in this bucket.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "ended_at": {
+                "description": "Exclusive observed bucket end, capped by `until`.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "fully_observed": {
+                "description": "Whether the complete fixed bucket is observable by `until`.",
+                "type": "boolean"
+              },
+              "net_active_change": {
+                "description": "Signed active-subject change from the immediately preceding fixed period.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "new_share_of_active": {
+                "description": "Fraction of current active subjects new within observed history.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "new_within_observed_history_subjects": {
+                "description": "Active subjects with no earlier selected event in bounded observed history.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "period": {
+                "description": "Zero-based analysis period.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "previous_active_subjects": {
+                "description": "Identified subjects active in the immediately preceding fixed period.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "resurrected_share_of_active": {
+                "description": "Fraction of current active subjects resurrected after a gap.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "resurrected_subjects": {
+                "description": "Active subjects inactive in the prior period but active earlier in observed history.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "returning_share_of_active": {
+                "description": "Fraction of current active subjects returning from the prior period.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "returning_subjects": {
+                "description": "Active subjects also active in the immediately preceding fixed period.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "started_at": {
+                "description": "Inclusive fixed bucket start.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "period",
+              "started_at",
+              "ended_at",
+              "fully_observed",
+              "active_subjects",
+              "new_within_observed_history_subjects",
+              "returning_subjects",
+              "resurrected_subjects",
+              "dormant_subjects",
+              "previous_active_subjects",
+              "net_active_change"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsLifecycleCoverageResponse": {
+            "description": "Capture coverage that qualifies a lifecycle result.",
+            "properties": {
+              "analysis_classified_events": {
+                "description": "Supported classified events in the analysis range.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "analysis_identified_events": {
+                "description": "Analysis events carrying an explicit opaque subject ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "analysis_named_events": {
+                "description": "Analysis events carrying a stable derived event name.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "analysis_unnamed_events": {
+                "description": "Analysis events unavailable to exact event selection.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "event_name_rate": {
+                "description": "Fraction of analysis classified events carrying a derived event name.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "excluded_history_selected_events": {
+                "description": "Selected history events excluded because subject identity is absent.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "excluded_selected_events": {
+                "description": "Selected analysis events excluded because subject identity is absent.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "history_identity_coverage_rate": {
+                "description": "Fraction of selected history events usable for lifecycle classification.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "history_selected_events": {
+                "description": "Selected events in the bounded history before `since`.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "limitations": {
+                "description": "Material interpretation and capture limitations.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "selected_events": {
+                "description": "Analysis events matching the exact lifecycle selector.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "selected_identity_coverage_rate": {
+                "description": "Fraction of selected analysis events usable for lifecycle classification.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "selected_sessionization_rate": {
+                "description": "Fraction of usable selected analysis events carrying a session ID.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "selected_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 selected analysis events by subject kind, whatever the analysis unit."
+              },
+              "selected_trace_link_rate": {
+                "description": "Fraction of usable selected analysis events carrying a trace ID.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "usable_history_selected_events": {
+                "description": "Selected history events carrying an explicit subject ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "usable_selected_events": {
+                "description": "Selected analysis events carrying an ID of the analysis unit.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "usable_selected_sessionized_events": {
+                "description": "Usable selected analysis events also carrying an explicit session ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "usable_selected_trace_linked_events": {
+                "description": "Usable selected analysis events also carrying an explicit trace ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "analysis_classified_events",
+              "analysis_named_events",
+              "analysis_unnamed_events",
+              "analysis_identified_events",
+              "selected_events",
+              "usable_selected_events",
+              "usable_selected_sessionized_events",
+              "usable_selected_trace_linked_events",
+              "excluded_selected_events",
+              "history_selected_events",
+              "usable_history_selected_events",
+              "excluded_history_selected_events",
+              "limitations"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsLifecycleQueryResponse": {
+            "description": "Normalized lifecycle query echoed in the response.",
+            "properties": {
+              "activity_scope": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsActivityScope"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-3 subject kind that every subject count in the response counts."
+              },
+              "environment": {
+                "description": "Optional exact environment filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "event": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact lifecycle event selector."
+              },
+              "expected_buckets": {
+                "description": "Maximum lifecycle buckets in the selected analysis range.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "history_period_count": {
+                "description": "Complete fixed periods observed before `since`.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "history_since": {
+                "description": "Inclusive UTC observed-history lower bound.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "interval": {
+                "$ref": "#/$defs/SdkProductAnalyticsFixedInterval",
+                "description": "Stable fixed interval token."
+              },
+              "interval_seconds": {
+                "description": "Exact fixed interval width.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "project_id": {
+                "description": "Exact project queried.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Optional exact release filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "service_name": {
+                "description": "Optional exact service filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "since": {
+                "description": "Inclusive UTC lower bound.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "until": {
+                "description": "Exclusive UTC upper bound.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "project_id",
+              "since",
+              "until",
+              "history_since",
+              "interval",
+              "interval_seconds",
+              "history_period_count",
+              "expected_buckets"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsLifecycleSummaryResponse": {
+            "description": "Aggregate lifecycle state for the bounded observation and analysis windows.",
+            "properties": {
+              "analysis_active_subjects": {
+                "description": "Identified subjects active at least once in the analysis range.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "buckets_with_dormancy": {
+                "description": "Buckets containing at least one dormant subject.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "buckets_with_resurrection": {
+                "description": "Buckets containing at least one resurrected subject.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "fully_observed_buckets": {
+                "description": "Returned buckets whose full fixed interval ends by `until`.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "history_only_subjects": {
+                "description": "Observed subjects seen only before the analysis lower bound.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "latest_fully_observed_period": {
+                "description": "Latest fully observed period, if one exists.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "observed_subjects": {
+                "description": "Identified subjects observed for the selected event in history or analysis.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "returned_buckets": {
+                "description": "Lifecycle buckets returned.",
+                "format": "uint16",
+                "maximum": 65535,
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "observed_subjects",
+              "analysis_active_subjects",
+              "history_only_subjects",
+              "returned_buckets",
+              "fully_observed_buckets",
+              "buckets_with_resurrection",
+              "buckets_with_dormancy"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsNextActionResponse": {
+            "description": "Stable follow-up guidance for improving or investigating product analytics.",
+            "properties": {
+              "code": {
+                "description": "Stable action code.",
+                "type": "string"
+              },
+              "reason": {
+                "description": "Why the follow-up is useful.",
+                "type": "string"
+              },
+              "target": {
+                "description": "API or capture resource to use next.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "target",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -55790,6 +56938,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -56788,6 +57941,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -56954,12 +58112,43 @@
                 "type": "string"
               }
             ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "description": "Bounded retention request for one owned project.",
         "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 4 only: subject kind to measure, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
           "cohort_mode": {
             "anyOf": [
               {
@@ -57587,6 +58776,17 @@
                   "null"
                 ]
               },
+              "start_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 start events by subject kind, whatever the analysis unit."
+              },
               "unnamed_events": {
                 "description": "Classified events unavailable to exact event selection.",
                 "format": "uint64",
@@ -57600,7 +58800,7 @@
                 "type": "integer"
               },
               "usable_start_events": {
-                "description": "Start events carrying an explicit opaque subject ID.",
+                "description": "Start events carrying an ID of the analysis unit.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"
@@ -57723,6 +58923,17 @@
                   }
                 ],
                 "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 subject kind that every subject count in the response counts."
               },
               "cohort_mode": {
                 "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortMode",
@@ -57873,6 +59084,57 @@
             ],
             "type": "object"
           },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
           "SdkProductAnalyticsUnit": {
             "description": "Explicit identity boundary used for aggregate analysis.",
             "oneOf": [
@@ -57884,6 +59146,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -57967,7 +59234,7 @@
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
-        "summary": "Measure cohorts across all classified activity; prefer analytics.retention.v3."
+        "summary": "Measure cohorts across all classified activity; prefer analytics.retention.v4."
       },
       "input_schema": {
         "$defs": {
@@ -58059,12 +59326,43 @@
                 "type": "string"
               }
             ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "description": "Bounded retention request for one owned project.",
         "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 4 only: subject kind to measure, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
           "cohort_mode": {
             "anyOf": [
               {
@@ -58692,6 +59990,17 @@
                   "null"
                 ]
               },
+              "start_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 start events by subject kind, whatever the analysis unit."
+              },
               "unnamed_events": {
                 "description": "Classified events unavailable to exact event selection.",
                 "format": "uint64",
@@ -58705,7 +60014,7 @@
                 "type": "integer"
               },
               "usable_start_events": {
-                "description": "Start events carrying an explicit opaque subject ID.",
+                "description": "Start events carrying an ID of the analysis unit.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"
@@ -58828,6 +60137,17 @@
                   }
                 ],
                 "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 subject kind that every subject count in the response counts."
               },
               "cohort_mode": {
                 "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortMode",
@@ -58978,6 +60298,57 @@
             ],
             "type": "object"
           },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
           "SdkProductAnalyticsUnit": {
             "description": "Explicit identity boundary used for aggregate analysis.",
             "oneOf": [
@@ -58989,6 +60360,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -59072,7 +60448,7 @@
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
-        "summary": "Answer whether users come back: cohorts across all activity or between exact events, with returned and not-returned users, the change from the previous period, and example user IDs linked to their actions and traces."
+        "summary": "Measure user cohorts with previous-period change and examples; prefer analytics.retention.v4."
       },
       "input_schema": {
         "$defs": {
@@ -59164,12 +60540,43 @@
                 "type": "string"
               }
             ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
           }
         },
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "additionalProperties": false,
         "description": "Bounded retention request for one owned project.",
         "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 4 only: subject kind to measure, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
           "cohort_mode": {
             "anyOf": [
               {
@@ -59797,6 +61204,17 @@
                   "null"
                 ]
               },
+              "start_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 start events by subject kind, whatever the analysis unit."
+              },
               "unnamed_events": {
                 "description": "Classified events unavailable to exact event selection.",
                 "format": "uint64",
@@ -59810,7 +61228,7 @@
                 "type": "integer"
               },
               "usable_start_events": {
-                "description": "Start events carrying an explicit opaque subject ID.",
+                "description": "Start events carrying an ID of the analysis unit.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"
@@ -59933,6 +61351,17 @@
                   }
                 ],
                 "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 subject kind that every subject count in the response counts."
               },
               "cohort_mode": {
                 "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortMode",
@@ -60083,6 +61512,57 @@
             ],
             "type": "object"
           },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
           "SdkProductAnalyticsUnit": {
             "description": "Explicit identity boundary used for aggregate analysis.",
             "oneOf": [
@@ -60094,6 +61574,1225 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Complete bounded, identity-safe retention response.",
+        "properties": {
+          "cohorts": {
+            "description": "Non-empty query-relative cohort matrix.",
+            "items": {
+              "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortResponse"
+            },
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/$defs/SdkProductAnalyticsRetentionCoverageResponse",
+            "description": "Capture coverage qualifying the result."
+          },
+          "curve": {
+            "description": "Subject-weighted curve plus equal-cohort comparison.",
+            "items": {
+              "$ref": "#/$defs/SdkProductAnalyticsRetentionPeriodResponse"
+            },
+            "type": "array"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsDetailResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 3: previous-period returns and example users that returned or never returned."
+          },
+          "next_action": {
+            "$ref": "#/$defs/SdkProductAnalyticsNextActionResponse",
+            "description": "Stable recommended follow-up."
+          },
+          "purpose": {
+            "description": "Product-level explanation of what this resource answers.",
+            "type": "string"
+          },
+          "query": {
+            "$ref": "#/$defs/SdkProductAnalyticsRetentionQueryResponse",
+            "description": "Normalized effective query."
+          },
+          "schema_version": {
+            "description": "Stable response schema for exact machine consumers.",
+            "format": "uint8",
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "summary": {
+            "$ref": "#/$defs/SdkProductAnalyticsRetentionSummaryResponse",
+            "description": "Aggregate subject return outcome."
+          }
+        },
+        "required": [
+          "schema_version",
+          "query",
+          "purpose",
+          "summary",
+          "coverage",
+          "curve",
+          "cohorts",
+          "next_action"
+        ],
+        "title": "SdkProductAnalyticsRetentionResponse",
+        "type": "object"
+      }
+    },
+    {
+      "id": "analytics.retention.v4",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Answer whether users or anonymous browsers come back: cohorts across all activity or between exact events, the change from the previous period, examples linked to their actions and traces, and event counts by subject kind."
+      },
+      "input_schema": {
+        "$defs": {
+          "SdkProductAnalyticsEventKind": {
+            "description": "Supported version-1 classified product-event kind.",
+            "oneOf": [
+              {
+                "const": "page_view",
+                "description": "Browser route view.",
+                "type": "string"
+              },
+              {
+                "const": "screen_view",
+                "description": "Application-owned screen view.",
+                "type": "string"
+              },
+              {
+                "const": "interaction",
+                "description": "Explicit application product action.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsEventRequest": {
+            "additionalProperties": false,
+            "description": "One exact classified product-event selector.",
+            "properties": {
+              "event_name": {
+                "description": "Stable route template, screen name, or bounded action name.",
+                "type": "string"
+              },
+              "kind": {
+                "$ref": "#/$defs/SdkProductAnalyticsEventKind",
+                "description": "Supported classified event kind."
+              }
+            },
+            "required": [
+              "kind",
+              "event_name"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsFixedInterval": {
+            "description": "Fixed product-analytics period width.",
+            "oneOf": [
+              {
+                "const": "hour",
+                "description": "One hour.",
+                "type": "string"
+              },
+              {
+                "const": "day",
+                "description": "One fixed 24-hour day.",
+                "type": "string"
+              },
+              {
+                "const": "week",
+                "description": "One fixed seven-day week.",
+                "type": "string"
+              },
+              {
+                "const": "thirty_day",
+                "description": "One fixed 30-day period; this is not a calendar month.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsRetentionCohortMode": {
+            "description": "How each subject receives a cohort anchor.",
+            "oneOf": [
+              {
+                "const": "first_in_range",
+                "description": "Use the subject's first matching start event inside the selected query range.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsRetentionMode": {
+            "description": "How a return qualifies for each requested period.",
+            "oneOf": [
+              {
+                "const": "return_on",
+                "description": "Return inside that exact subject-relative period.",
+                "type": "string"
+              },
+              {
+                "const": "return_on_or_after",
+                "description": "Return at or after that period's subject-relative threshold.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Bounded retention request for one owned project.",
+        "properties": {
+          "analysis_unit": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Version 4 only: subject kind to measure, `identified_user` (default) or\n`anonymous_subject`; the two are never merged."
+          },
+          "cohort_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Anchor mode; version 1 supports first-in-range cohorts only."
+          },
+          "environment": {
+            "description": "Optional exact environment filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsFixedInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Fixed retention period width; defaults according to the selected query range."
+          },
+          "interval_count": {
+            "description": "Number of zero-based periods to evaluate; defaults to ten.",
+            "format": "uint8",
+            "maximum": 255,
+            "minimum": 0,
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsRetentionMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact-period or rolling retention; defaults to exact-period retention."
+          },
+          "project_id": {
+            "description": "Required project scope, optional only for actionable validation.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional exact release filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "return_event": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact event that qualifies a return after the anchor."
+          },
+          "service_name": {
+            "description": "Optional exact service filter.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "since": {
+            "description": "Required inclusive lower bound, as a duration or RFC 3339 timestamp.",
+            "type": "string"
+          },
+          "start_event": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exact event that anchors each subject."
+          },
+          "until": {
+            "description": "Optional exclusive RFC 3339 upper bound; defaults to request time.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "since"
+        ],
+        "title": "SdkProductAnalyticsRetentionRequest",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "SdkProductAnalyticsActivityScope": {
+            "description": "Automatic product activity population used instead of an exact event selector.",
+            "oneOf": [
+              {
+                "const": "all_classified_activity",
+                "description": "Every supported classified page view, screen view, and interaction in scope.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsBreakdownValueResponse": {
+            "description": "Exact property value that defines one breakdown group.",
+            "properties": {
+              "property_key": {
+                "description": "Standard-context or `tag.`-prefixed property key.",
+                "type": "string"
+              },
+              "value": {
+                "description": "Exact captured value; absent for units that never carried the key.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "property_key"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsDetailGroupResponse": {
+            "description": "One number of the result with its previous-period value and supporting units.",
+            "properties": {
+              "base_units": {
+                "description": "Denominator of `rate` in the selected period, such as entered or eligible units.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "breakdown": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsBreakdownValueResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Property value that defines this group when the result is broken down by a property."
+              },
+              "change": {
+                "description": "`units` minus `previous_units`.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "change_rate": {
+                "description": "Relative change; absent when the previous value is zero.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "events": {
+                "description": "Matching events behind this number, when events are counted separately from units.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "examples": {
+                "description": "Up to `example_limit` units behind this number.",
+                "items": {
+                  "$ref": "#/$defs/SdkProductAnalyticsExampleUnitResponse"
+                },
+                "type": "array"
+              },
+              "key": {
+                "description": "Stable machine key, unique inside the response.",
+                "type": "string"
+              },
+              "label": {
+                "description": "Short human-readable label.",
+                "type": "string"
+              },
+              "previous_rate": {
+                "description": "The same rate for the previous period.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "previous_units": {
+                "description": "The same number for the previous period of equal length.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "rate": {
+                "description": "`units` divided by `base_units`.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "rate_change_p_value": {
+                "description": "Two-sided p-value of a two-proportion z-test of `rate` against `previous_rate`; absent\nwhen either period has no base units, a rate is above 1, or both rates are 0 or 1.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "rate_change_significant": {
+                "description": "Whether `rate_change_p_value` is below 0.05.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "units": {
+                "description": "Units behind this number in the selected period.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "key",
+              "label",
+              "units",
+              "previous_units",
+              "change",
+              "examples"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsDetailResponse": {
+            "description": "Previous-period comparison, sample size, and supporting units for one result.",
+            "properties": {
+              "evidence_hint": {
+                "description": "How to read the actions, page views, and traces behind an example.",
+                "type": "string"
+              },
+              "example_limit": {
+                "description": "Most examples listed for one group.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "groups": {
+                "description": "One entry for each number in the result.",
+                "items": {
+                  "$ref": "#/$defs/SdkProductAnalyticsDetailGroupResponse"
+                },
+                "type": "array"
+              },
+              "previous_sample_size": {
+                "description": "The same population in the previous period.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "previous_since": {
+                "description": "Inclusive start of the previous period, which has the selected period's length.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "previous_until": {
+                "description": "Exclusive end of the previous period, equal to the selected `since`.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "sample_size": {
+                "description": "Units in the population behind the headline result.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "unit": {
+                "$ref": "#/$defs/SdkProductAnalyticsUnit",
+                "description": "Unit that every group counts and every example names."
+              }
+            },
+            "required": [
+              "unit",
+              "previous_since",
+              "previous_until",
+              "sample_size",
+              "previous_sample_size",
+              "example_limit",
+              "groups",
+              "evidence_hint"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsEventKind": {
+            "description": "Supported version-1 classified product-event kind.",
+            "oneOf": [
+              {
+                "const": "page_view",
+                "description": "Browser route view.",
+                "type": "string"
+              },
+              {
+                "const": "screen_view",
+                "description": "Application-owned screen view.",
+                "type": "string"
+              },
+              {
+                "const": "interaction",
+                "description": "Explicit application product action.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsEventRequest": {
+            "additionalProperties": false,
+            "description": "One exact classified product-event selector.",
+            "properties": {
+              "event_name": {
+                "description": "Stable route template, screen name, or bounded action name.",
+                "type": "string"
+              },
+              "kind": {
+                "$ref": "#/$defs/SdkProductAnalyticsEventKind",
+                "description": "Supported classified event kind."
+              }
+            },
+            "required": [
+              "kind",
+              "event_name"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsExampleUnitResponse": {
+            "description": "One unit behind a number, with links to its own evidence.",
+            "properties": {
+              "action_ids": {
+                "description": "Up to three product action IDs of this unit inside the selected scope.",
+                "items": {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "first_seen_at": {
+                "description": "First classified event of this unit inside the selected scope.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "last_seen_at": {
+                "description": "Last classified event of this unit inside the selected scope.",
+                "format": "date-time",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "trace_ids": {
+                "description": "Up to three trace IDs of this unit inside the selected scope; page views live here.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "unit_id": {
+                "description": "Opaque session ID or user-subject ID exactly as the application captured it.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "unit_id",
+              "action_ids",
+              "trace_ids"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsFixedInterval": {
+            "description": "Fixed product-analytics period width.",
+            "oneOf": [
+              {
+                "const": "hour",
+                "description": "One hour.",
+                "type": "string"
+              },
+              {
+                "const": "day",
+                "description": "One fixed 24-hour day.",
+                "type": "string"
+              },
+              {
+                "const": "week",
+                "description": "One fixed seven-day week.",
+                "type": "string"
+              },
+              {
+                "const": "thirty_day",
+                "description": "One fixed 30-day period; this is not a calendar month.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsNextActionResponse": {
+            "description": "Stable follow-up guidance for improving or investigating product analytics.",
+            "properties": {
+              "code": {
+                "description": "Stable action code.",
+                "type": "string"
+              },
+              "reason": {
+                "description": "Why the follow-up is useful.",
+                "type": "string"
+              },
+              "target": {
+                "description": "API or capture resource to use next.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "target",
+              "reason"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionCellResponse": {
+            "description": "One period cell inside a query-relative cohort row.",
+            "properties": {
+              "all_subjects_eligible": {
+                "description": "Whether this cohort's complete subject set is eligible.",
+                "type": "boolean"
+              },
+              "eligible_subjects": {
+                "description": "Subjects in this cohort eligible for the period.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "period": {
+                "description": "Zero-based subject-relative period.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "retained_subjects": {
+                "description": "Eligible subjects carrying a qualifying return.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "retention_rate": {
+                "description": "Exact retained fraction among eligible cohort subjects.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "period",
+              "eligible_subjects",
+              "retained_subjects",
+              "all_subjects_eligible"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionCohortMode": {
+            "description": "How each subject receives a cohort anchor.",
+            "oneOf": [
+              {
+                "const": "first_in_range",
+                "description": "Use the subject's first matching start event inside the selected query range.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsRetentionCohortResponse": {
+            "description": "One non-empty query-relative cohort and its retention matrix cells.",
+            "properties": {
+              "cohort": {
+                "description": "Zero-based bucket position from the query lower bound.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "ended_at": {
+                "description": "Exclusive cohort bucket end, capped by the query upper bound.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "periods": {
+                "description": "Ordered retention cells for every requested period.",
+                "items": {
+                  "$ref": "#/$defs/SdkProductAnalyticsRetentionCellResponse"
+                },
+                "type": "array"
+              },
+              "started_at": {
+                "description": "Inclusive query-relative cohort bucket start.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "subjects": {
+                "description": "Identified subjects anchored in this cohort bucket.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "subjects_returned_after_start": {
+                "description": "Cohort subjects carrying any strictly post-anchor return in range.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "cohort",
+              "started_at",
+              "ended_at",
+              "subjects",
+              "subjects_returned_after_start",
+              "periods"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionCoverageResponse": {
+            "description": "Capture coverage that qualifies a retention result.",
+            "properties": {
+              "classified_events": {
+                "description": "Supported version-1 classified events in the selected scope.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "event_name_rate": {
+                "description": "Fraction of classified events carrying an exact derived event name.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "excluded_return_events": {
+                "description": "Return events excluded because an explicit subject ID is absent.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "excluded_start_events": {
+                "description": "Start events excluded because an explicit subject ID is absent.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_events": {
+                "description": "Classified events carrying an explicit opaque subject ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "limitations": {
+                "description": "Material interpretation and capture limitations.",
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "named_events": {
+                "description": "Classified events carrying a stable derived event name.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "return_events": {
+                "description": "Events matching the requested return selector.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "return_identity_coverage_rate": {
+                "description": "Fraction of selected return events usable for identified-user retention.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "start_events": {
+                "description": "Events matching the requested start selector.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "start_identity_coverage_rate": {
+                "description": "Fraction of selected start events usable for identified-user retention.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "start_subjects": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsSubjectCoverageResponse"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 start events by subject kind, whatever the analysis unit."
+              },
+              "unnamed_events": {
+                "description": "Classified events unavailable to exact event selection.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "usable_return_events": {
+                "description": "Return events carrying an explicit opaque subject ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "usable_start_events": {
+                "description": "Start events carrying an ID of the analysis unit.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "classified_events",
+              "named_events",
+              "unnamed_events",
+              "identified_events",
+              "start_events",
+              "usable_start_events",
+              "excluded_start_events",
+              "return_events",
+              "usable_return_events",
+              "excluded_return_events",
+              "limitations"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionMode": {
+            "description": "How a return qualifies for each requested period.",
+            "oneOf": [
+              {
+                "const": "return_on",
+                "description": "Return inside that exact subject-relative period.",
+                "type": "string"
+              },
+              {
+                "const": "return_on_or_after",
+                "description": "Return at or after that period's subject-relative threshold.",
+                "type": "string"
+              }
+            ]
+          },
+          "SdkProductAnalyticsRetentionPeriodResponse": {
+            "description": "One maturity-aware aggregate retention period.",
+            "properties": {
+              "all_subjects_eligible": {
+                "description": "Whether every cohort subject is eligible for this period.",
+                "type": "boolean"
+              },
+              "eligible_subjects": {
+                "description": "Cohort subjects eligible for this period under the selected mode.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "fully_observed_cohort_average_rate": {
+                "description": "Equal-weight mean across fully observed non-empty cohort rates.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "fully_observed_cohorts": {
+                "description": "Number of non-empty cohorts whose complete subject set is eligible.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "period": {
+                "description": "Zero-based subject-relative period.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "retained_subjects": {
+                "description": "Eligible subjects carrying a qualifying return.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "threshold_seconds": {
+                "description": "Inclusive threshold from the subject's anchor, in seconds.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "weighted_retention_rate": {
+                "description": "Subject-weighted retention rate across every eligible subject.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "window_end_seconds": {
+                "description": "Exclusive exact-window end, omitted for rolling retention.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "period",
+              "threshold_seconds",
+              "eligible_subjects",
+              "retained_subjects",
+              "fully_observed_cohorts",
+              "all_subjects_eligible"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionQueryResponse": {
+            "description": "Normalized retention query echoed in the response.",
+            "properties": {
+              "activity_scope": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsActivityScope"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-2 automatic activity population, omitted for exact version-1 queries."
+              },
+              "analysis_unit": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsUnit"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Version-4 subject kind that every subject count in the response counts."
+              },
+              "cohort_mode": {
+                "$ref": "#/$defs/SdkProductAnalyticsRetentionCohortMode",
+                "description": "Cohort-anchor semantics."
+              },
+              "environment": {
+                "description": "Optional exact environment filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "interval": {
+                "$ref": "#/$defs/SdkProductAnalyticsFixedInterval",
+                "description": "Stable fixed interval token."
+              },
+              "interval_count": {
+                "description": "Number of zero-based periods evaluated.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "interval_seconds": {
+                "description": "Exact fixed interval width.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "mode": {
+                "$ref": "#/$defs/SdkProductAnalyticsRetentionMode",
+                "description": "Exact-period or rolling retention semantics."
+              },
+              "project_id": {
+                "description": "Exact project queried.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "release": {
+                "description": "Optional exact release filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "return_event": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact post-anchor return event."
+              },
+              "service_name": {
+                "description": "Optional exact service filter.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "since": {
+                "description": "Inclusive UTC lower bound.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "start_event": {
+                "anyOf": [
+                  {
+                    "$ref": "#/$defs/SdkProductAnalyticsEventRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Exact cohort-anchor event."
+              },
+              "until": {
+                "description": "Exclusive UTC upper bound.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "project_id",
+              "since",
+              "until",
+              "interval",
+              "interval_seconds",
+              "interval_count",
+              "mode",
+              "cohort_mode"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsRetentionSummaryResponse": {
+            "description": "Aggregate subject outcome across the selected observation window.",
+            "properties": {
+              "cohort_subjects": {
+                "description": "Identified subjects with a usable first start event in range.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "fully_observed_periods": {
+                "description": "Requested periods for which every cohort subject is eligible.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "non_empty_cohorts": {
+                "description": "Non-empty query-relative cohort buckets returned.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "periods_with_eligible_subjects": {
+                "description": "Requested periods carrying at least one eligible subject.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "return_rate_after_start": {
+                "description": "Fraction of cohort subjects with any strictly post-anchor return.",
+                "format": "double",
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "subjects_returned_after_start": {
+                "description": "Cohort subjects with any strictly post-anchor return before the query upper bound.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "cohort_subjects",
+              "subjects_returned_after_start",
+              "non_empty_cohorts",
+              "periods_with_eligible_subjects",
+              "fully_observed_periods"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsSubjectCoverageResponse": {
+            "description": "Exhaustive subject-kind coverage for one product-analytics event population.",
+            "properties": {
+              "anonymous_subject_events": {
+                "description": "Events with a typed anonymous subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "historical_unindexed_events": {
+                "description": "Historical events captured before subject-kind indexing.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "identified_user_events": {
+                "description": "Events with a typed user subject and usable opaque ID.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "index_version": {
+                "description": "Current subject-kind extraction contract.",
+                "format": "uint8",
+                "maximum": 255,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "legacy_unknown_kind_events": {
+                "description": "Events with a legacy actor ID but no typed subject kind.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "missing_subject_events": {
+                "description": "Current-index events without a usable subject identity.",
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "index_version",
+              "identified_user_events",
+              "anonymous_subject_events",
+              "legacy_unknown_kind_events",
+              "missing_subject_events",
+              "historical_unindexed_events"
+            ],
+            "type": "object"
+          },
+          "SdkProductAnalyticsUnit": {
+            "description": "Explicit identity boundary used for aggregate analysis.",
+            "oneOf": [
+              {
+                "const": "session",
+                "description": "Count explicit application sessions.",
+                "type": "string"
+              },
+              {
+                "const": "identified_user",
+                "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -60298,6 +62997,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -61264,6 +63968,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]
@@ -61460,6 +64169,11 @@
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
                 "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
+                "type": "string"
               }
             ]
           }
@@ -62426,6 +65140,11 @@
               {
                 "const": "identified_user",
                 "description": "Count explicit opaque user-subject IDs without returning them.",
+                "type": "string"
+              },
+              {
+                "const": "anonymous_subject",
+                "description": "Count explicit opaque subject IDs typed as anonymous, such as one browser, apart from users.",
                 "type": "string"
               }
             ]

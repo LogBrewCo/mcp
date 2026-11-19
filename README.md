@@ -259,7 +259,7 @@ permission to access another project or perform another action.
 
 ## Development
 
-Use Rust 1.99.1, cargo-deny 0.20.2 and Tombi 1.7.2. Run every required gate
+Use Rust 1.99.1, cargo-deny 0.20.2 and Tombi 1.11.3. Run every required gate
 from the repository root:
 
 ```sh

@@ -19,7 +19,7 @@ bash scripts/check-suppressions.sh
 bash scripts/test-check-suppressions.sh
 
 require_version cargo-deny "cargo-deny 0.20.2"
-require_version tombi "tombi 1.7.2"
+require_version tombi "tombi 1.11.3"
 
 export TOMBI_CACHE_HOME=tools/quality/schemastore/cache
 tombi lint --offline --quiet --error-on-warnings

@@ -287,19 +287,30 @@ fn shipped_query_inputs_match_backend_validation() {
     catalog
         .input("issues.investigate.v18", &json!({"issue_id":issue}))
         .expect("affected subjects investigation");
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if retention or lifecycle refuses an analysis unit the API
+/// accepts, or accepts one the API refuses.
+fn shipped_analysis_units_match_backend_validation() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    let project = "0b9f7c4e-2f2a-4a8e-9a65-2d2a7e8f1c11";
     for id in ["analytics.retention.v4", "analytics.lifecycle.v3"] {
         for unit in ["identified_user", "anonymous_subject"] {
             catalog
                 .input(
                     id,
-                    &json!({"project_id":issue,"since":"30d","analysis_unit":unit}),
+                    &json!({"project_id":project,"since":"30d","analysis_unit":unit}),
                 )
                 .expect("analysis unit");
         }
         let failure = catalog
             .input(
                 id,
-                &json!({"project_id":issue,"since":"30d","analysis_unit":"everyone"}),
+                &json!({"project_id":project,"since":"30d","analysis_unit":"everyone"}),
             )
             .expect_err("unknown analysis unit");
         assert_eq!(failure.kind, Kind::InvalidInput, "{id}");

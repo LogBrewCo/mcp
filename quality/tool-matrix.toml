@@ -11,7 +11,7 @@
 # workflows hold each pin (a full commit and a version comment).
 
 gates = ["scripts/check-all.sh"]
-utilities = ["[[", "cat", "cd", "curl", "dirname", "echo", "exit", "export", "local", "mkdir", "printf", "set", "sha256sum", "tail", "tar"]
+utilities = ["[[", "cat", "cd", "curl", "dirname", "echo", "exit", "export", "git", "local", "mkdir", "printf", "read", "set", "sha256sum", "tail", "tar"]
 
 [[tool]]
 id = "rust"
@@ -63,19 +63,19 @@ checked = 2026-10-25
 
 [[tool]]
 id = "cargo-deny"
-risk = "dependency licenses, bans, duplicate versions, and sources; advisories, including ones published after the change that locked a dependency merged"
+risk = "dependency advisories, licenses, bans, duplicate versions, and sources, on every change and again each day for advisories published after a change merged"
 tool = "cargo-deny, and scripts/advisory-issue.sh for the daily scan"
 version = "0.20.2"
 pins = ["scripts/check-all.sh::require_version cargo-deny \"cargo-deny @VERSION@\"", ".github/workflows/ci.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz", ".github/workflows/advisories.yml::9f12ed4c49936e09b48bf862b595cde2fe64fcbd9d74dfacac6131ca824c8d5f  cargo-deny-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
 commands = ["cargo deny", "scripts/advisory-issue.sh"]
-runs_in = "CI check job (scripts/check-all.sh); Advisories workflow every day at 05:17 UTC and on manual runs (opens, updates, or closes the issue \"Dependency advisories\")"
-config = "deny.toml; CI: cargo deny --locked check --deny warnings licenses bans sources; Advisories: cargo deny --locked check --deny warnings advisories"
+runs_in = "CI check job (scripts/check-all.sh) on every pull request and push; Advisories workflow every day at 05:17 UTC and on manual runs (opens, updates, or closes the issue \"Dependency advisories\")"
+config = "deny.toml; CI: cargo deny --locked check --deny warnings advisories bans licenses sources; Advisories: cargo deny --locked check --deny warnings advisories"
 conflicts = "none known"
-exceptions = "none; advisories run daily in the Advisories workflow, not in the check job"
+exceptions = "deny.toml ignores RUSTSEC-2026-0543 (chrono through rmcp 3.9.0) until an rmcp release drops chrono; deny.toml lists 5 duplicate-version skips and 1 license exception, each with its reason"
 runtime = "inside the check step (see rust); installing all pinned tools takes at most 2 s (n=31)"
-findings = "seeded 2026-10-25: a throwaway branch pinning base64 0.5.1 failed with RUSTSEC-2017-0004 and opened issue #30 (run 40185029251; branch deleted); before #28 main carried RUSTSEC-2026-0346 to -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2), which the check job never checked"
+findings = "seeded 2026-11-19: with the RUSTSEC-2026-0543 ignore removed, the check job command fails with that advisory; seeded 2026-10-25: a throwaway branch pinning base64 0.5.1 failed with RUSTSEC-2017-0004 and opened issue #30 (run 40185029251; branch deleted); before #28 main carried RUSTSEC-2026-0346 to -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2), which the check job never checked"
 replaces = "none"
-checked = 2026-10-25
+checked = 2026-11-19
 
 [[tool]]
 id = "tombi"
@@ -85,11 +85,11 @@ version = "1.11.3"
 pins = ["scripts/check-all.sh::require_version tombi \"tombi @VERSION@\"", ".github/workflows/ci.yml::36672279d05f093455f01fa5a2799a8cc2162a9195cbbb23f0f8d1107d0de497  tombi-cli-@VERSION@-x86_64-unknown-linux-musl.tar.gz"]
 commands = ["tombi"]
 runs_in = "CI check job (scripts/check-all.sh)"
-config = "tombi.toml; bundled offline schema graph in tools/quality/schemastore; lint --error-on-warnings and format --check"
+config = "tombi.toml; bundled offline schema graph in tools/quality/schemastore; lint --error-on-warnings and format --check; the ordering rules dotted-keys-out-of-order and tables-out-of-order are off because TOML allows either order"
 conflicts = "none known"
 exceptions = "array-order exceptions recorded with the bundled schema graph"
 runtime = "inside the check step (see rust)"
-findings = "seeded 2026-11-19: an unknown key in Cargo.toml fails lint with the bundled schema graph (SchemaStore a59b634, cargo.json updated); 1.7.2 was affected by GHSA-6wm9-v9g6-3gfp (fixed in 1.8.0), which --offline already blocked here"
+findings = "seeded 2026-11-19: tables and dotted keys out of order pass lint, and tombi format, the TOML formatter, still puts them in order (format --check fails until the file is formatted); a misaligned key fails format --check; seeded 2026-11-19: an unknown key in Cargo.toml fails lint with the bundled schema graph (SchemaStore a59b634, cargo.json updated); 1.7.2 was affected by GHSA-6wm9-v9g6-3gfp (fixed in 1.8.0), which --offline already blocked here"
 replaces = "none"
 checked = 2026-11-19
 
@@ -101,11 +101,43 @@ version = "repository"
 unpinned = "repository script, versioned by commit"
 commands = ["scripts/check-all.sh"]
 runs_in = "CI check job; locally before every change"
-config = "checks each tool version before use"
+config = "checks each tool version before use; every diagnostic of every tool fails the script"
 conflicts = "none known"
 exceptions = "none"
 runtime = "push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
 findings = "see the tools it runs"
+replaces = "none"
+checked = 2026-11-19
+
+[[tool]]
+id = "actionlint"
+risk = "GitHub workflow errors: bad syntax, expressions, contexts, action inputs, runner labels, and script injection; ShellCheck findings in run: steps"
+tool = "actionlint"
+version = "1.7.12"
+pins = ["scripts/check-all.sh::require_version actionlint \"@VERSION@\"", ".github/workflows/ci.yml::8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint_@VERSION@_linux_amd64.tar.gz"]
+commands = ["actionlint"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "defaults, no config file; lints every file in .github/workflows; runs the pinned ShellCheck on run: steps; every finding fails"
+conflicts = "none known"
+exceptions = "actionlint itself passes -e SC1091,SC2194,SC2050,SC2153,SC2154,SC2157,SC2043 to ShellCheck for run: steps, because it replaces each ${{ }} expression with a placeholder; scripts/*.sh get the full ShellCheck run"
+runtime = "new; record from CI runs at the next check"
+findings = "0 on 2026-11-19; seeded 2026-11-19: an undefined github context property in a workflow fails the check"
+replaces = "none"
+checked = 2026-11-19
+
+[[tool]]
+id = "shellcheck"
+risk = "shell script defects: quoting, word splitting, unset variables, wrong tests, and portability errors"
+tool = "ShellCheck"
+version = "0.11.0"
+pins = ["scripts/check-all.sh::require_version shellcheck \"version: @VERSION@\"", ".github/workflows/ci.yml::b7af85e41cc99489dcc21d66c6d5f3685138f06d34651e6d34b42ec6d54fe6f6  shellcheck-v@VERSION@.linux.x86_64.tar.gz"]
+commands = ["shellcheck"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "every tracked *.sh file (git ls-files); --external-sources --severity=info, so error, warning, and info findings fail and style suggestions do not run"
+conflicts = "none known"
+exceptions = "none"
+runtime = "new; record from CI runs at the next check"
+findings = "0 on 2026-11-19 in 8 scripts; seeded 2026-11-19: an unquoted variable (SC2086, info) in a tracked script fails the check"
 replaces = "none"
 checked = 2026-11-19
 
@@ -171,7 +203,7 @@ exceptions = "none"
 runtime = "new; record from CI runs at the next check"
 findings = "seeded: each suppression form fails with its path and line; a clean repository passes; a directory outside Git fails"
 replaces = "none"
-checked = 2026-11-18
+checked = 2026-11-19
 
 [[tool]]
 id = "openssf-scorecard"

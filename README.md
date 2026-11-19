@@ -259,8 +259,8 @@ permission to access another project or perform another action.
 
 ## Development
 
-Use Rust 1.99.1, cargo-deny 0.20.2 and Tombi 1.11.3. Run every required gate
-from the repository root:
+Use Rust 1.99.1, cargo-deny 0.20.2, Tombi 1.11.3, actionlint 1.7.12 and
+ShellCheck 0.11.0. Run every required gate from the repository root:
 
 ```sh
 scripts/check-all.sh
@@ -273,11 +273,11 @@ credentials.
 `mcp-publisher validate` after you change it.
 
 The dependency policy in `deny.toml` covers normal, build and test dependencies
-across the resolved graph. It checks license requirements and registry sources,
-rejects wildcard versions, and constrains reviewed features to exact dependency
-versions. Five exact duplicate version exceptions preserve incompatible upstream
-APIs; no dependency subtree is excluded. Unused license and source allowances
-fail the check, and every warning fails.
+across the resolved graph. It checks security advisories, license requirements
+and registry sources, rejects wildcard versions, and constrains reviewed
+features to exact dependency versions. Five exact duplicate version exceptions
+preserve incompatible upstream APIs; no dependency subtree is excluded. Unused
+license and source allowances fail the check, and every warning fails.
 
 The toolchain file pins rustfmt and Clippy with Rust 1.99.1. The server uses
 the official MCP Rust SDK, rmcp 3.9.0, with Axum and Tokio. Cargo.lock records

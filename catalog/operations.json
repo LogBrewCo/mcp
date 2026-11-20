@@ -45584,6 +45584,96 @@
       }
     },
     {
+      "id": "issues.similar_events.v1",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Propose a message pattern for one issue, with each ID, UUID, hash, and number as *, and count the errors and logs of the project that a pattern matched in the last 7 days: what an inbound filter with that pattern drops."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Message pattern to count in place of the proposed one.",
+        "properties": {
+          "issue_id": {
+            "pattern": "^[A-Za-z0-9-]{1,128}$",
+            "type": "string"
+          },
+          "pattern": {
+            "default": null,
+            "description": "Message pattern to count, 1 to 200 characters: `*` matches any text, `?` one character,\nand case does not matter. The proposed pattern when absent.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id"
+        ],
+        "title": "IssueSimilarEventsQuery",
+        "type": "object"
+      },
+      "output_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "The message pattern proposed for one issue, and the stored events that a pattern matched.\n\nTo drop those events at ingest, add `pattern` to `messages` with\n`PUT /api/projects/{project_id}/inbound-filters`.",
+        "properties": {
+          "issue_id": {
+            "description": "Issue ID.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "matched_issue_events": {
+            "description": "Errors of the project since `since` whose title, message, or `type: message` matches\n`pattern`.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "matched_logs": {
+            "description": "Logs of the project since `since` whose message matches `pattern`.",
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "pattern": {
+            "description": "Pattern the counts are for: the requested one, or else the proposed one. Null when there\nis neither.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "project_id": {
+            "description": "Project the issue belongs to.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "since": {
+            "description": "Start of the counted window: 7 days before the request.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "suggested_pattern": {
+            "description": "Pattern proposed from the issue's message, or from its title: each UUID, number, ID, and\nhexadecimal hash is `*`. Null when no fixed word is left.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "issue_id",
+          "project_id",
+          "suggested_pattern",
+          "pattern",
+          "matched_issue_events",
+          "matched_logs",
+          "since"
+        ],
+        "title": "IssueSimilarEventsResponse",
+        "type": "object"
+      }
+    },
+    {
       "id": "traces.list.v1",
       "info": {
         "cost": "One bounded read; counts toward the account's API rate limit.",

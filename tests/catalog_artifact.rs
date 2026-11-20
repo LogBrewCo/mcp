@@ -317,6 +317,36 @@ fn shipped_analysis_units_match_backend_validation() {
     }
 }
 
+#[test]
+/// # Panics
+///
+/// Panics if similar events refuses an issue ID with or without a message
+/// pattern, or accepts a missing or malformed issue ID or a `null` pattern,
+/// which the API cannot read from a query string.
+fn shipped_similar_events_input_matches_backend_validation() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    let issue = "0b9f7c4e-2f2a-4a8e-9a65-2d2a7e8f1c11";
+    for input in [
+        json!({"issue_id":issue}),
+        json!({"issue_id":issue,"pattern":"Order * failed: timeout after ?s"}),
+    ] {
+        catalog
+            .input("issues.similar_events.v1", &input)
+            .expect("similar events");
+    }
+    for input in [
+        json!({}),
+        json!({"issue_id":"../issues"}),
+        json!({"issue_id":issue,"pattern":null}),
+    ] {
+        let failure = catalog
+            .input("issues.similar_events.v1", &input)
+            .expect_err("rejected input");
+        assert_eq!(failure.kind, Kind::InvalidInput, "{input}");
+    }
+}
+
 /// Every shipped write operation: identifier, whether it asks for
 /// confirmation first, and whether it takes an idempotency key.
 const WRITES: [(&str, bool, bool); 12] = [

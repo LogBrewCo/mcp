@@ -35,17 +35,14 @@ async fn receive(State(received): State<Received>, headers: HeaderMap, body: Byt
 }
 
 fn events(received: &Received) -> Vec<Value> {
-    received
-        .lock()
-        .map(|batches| {
-            batches
-                .iter()
-                .filter_map(|entry| entry.1.get("events").and_then(Value::as_array))
-                .flatten()
-                .cloned()
-                .collect()
-        })
-        .unwrap_or_default()
+    received.lock().map_or_default(|batches| {
+        batches
+            .iter()
+            .filter_map(|entry| entry.1.get("events").and_then(Value::as_array))
+            .flatten()
+            .cloned()
+            .collect()
+    })
 }
 
 fn names(events: &[Value], kind: &str, field: &str) -> Vec<String> {

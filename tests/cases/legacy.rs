@@ -99,8 +99,7 @@ async fn legacy_clients_initialize_list_and_execute_without_sessions() {
         let names: Vec<&Value> = tools
             .pointer("/result/tools")
             .and_then(Value::as_array)
-            .map(|items| items.iter().filter_map(|tool| tool.get("name")).collect())
-            .unwrap_or_default();
+            .map_or_default(|items| items.iter().filter_map(|tool| tool.get("name")).collect());
         assert_eq!(names, [&json!("search"), &json!("execute")]);
 
         let (call_status, result, _) = send(&fixture, Some(version), Some(TOKEN), &execute())

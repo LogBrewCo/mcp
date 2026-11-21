@@ -14,54 +14,6 @@ gates = ["scripts/check-all.sh"]
 utilities = ["[[", "cat", "cd", "curl", "dirname", "echo", "exit", "export", "git", "local", "mkdir", "printf", "read", "set", "sha256sum", "tail", "tar"]
 
 [[tool]]
-id = "rust"
-risk = "Rust compile errors, compiler lints, and test failures"
-tool = "rustc, cargo, and libtest"
-version = "1.99.1"
-pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
-commands = ["cargo test", "rustup"]
-runs_in = "CI check job (scripts/check-all.sh)"
-config = "Cargo.toml lints; rust-toolchain.toml (minimal profile with clippy and rustfmt)"
-conflicts = "none known"
-exceptions = "none"
-runtime = "the whole check step: push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
-findings = "unknown: test failures are fixed before merge and not recorded; count them from failed runs at the next check"
-replaces = "none"
-checked = 2026-10-25
-
-[[tool]]
-id = "clippy"
-risk = "Rust correctness, suspicious, complexity, performance, and style lints"
-tool = "Clippy"
-version = "1.99.1"
-pins = ["rust-toolchain.toml::channel = \"@VERSION@\"", "scripts/check-all.sh::cargo clippy --locked --all-targets -- -D warnings"]
-commands = ["cargo clippy"]
-runs_in = "CI check job (scripts/check-all.sh)"
-config = "Cargo.toml [lints], clippy.toml; every warning fails"
-conflicts = "none known"
-exceptions = "none"
-runtime = "inside the check step (see rust); separate timing not yet recorded"
-findings = "unknown: lints are fixed before merge; record them from failed runs at the next check"
-replaces = "none"
-checked = 2026-10-25
-
-[[tool]]
-id = "rustfmt"
-risk = "Rust formatting drift"
-tool = "rustfmt"
-version = "1.99.1"
-pins = ["rust-toolchain.toml::channel = \"@VERSION@\""]
-commands = ["cargo fmt"]
-runs_in = "CI check job (scripts/check-all.sh)"
-config = "defaults; cargo fmt --all -- --check"
-conflicts = "none known"
-exceptions = "none"
-runtime = "inside the check step (see rust)"
-findings = "unknown: formatting is fixed before merge"
-replaces = "none"
-checked = 2026-10-25
-
-[[tool]]
 id = "cargo-deny"
 risk = "dependency advisories, licenses, bans, duplicate versions, and sources, on every change and again each day for advisories published after a change merged"
 tool = "cargo-deny, and scripts/advisory-issue.sh for the daily scan"
@@ -71,11 +23,59 @@ commands = ["cargo deny", "scripts/advisory-issue.sh"]
 runs_in = "CI check job (scripts/check-all.sh) on every pull request and push; Advisories workflow every day at 05:17 UTC and on manual runs (opens, updates, or closes the issue \"Dependency advisories\")"
 config = "deny.toml; CI: cargo deny --locked check --deny warnings advisories bans licenses sources; Advisories: cargo deny --locked check --deny warnings advisories"
 conflicts = "none known"
-exceptions = "deny.toml ignores RUSTSEC-2026-0543 (chrono through rmcp 3.9.0) until an rmcp release drops chrono; deny.toml lists 5 duplicate-version skips and 1 license exception, each with its reason"
+exceptions = "deny.toml ignores RUSTSEC-2026-0543 (chrono through rmcp) until an rmcp release drops chrono; deny.toml lists 5 duplicate-version skips and 1 license exception, each with its reason"
 runtime = "inside the check step (see rust); installing all pinned tools takes at most 2 s (n=31)"
 findings = "seeded 2026-11-19: with the RUSTSEC-2026-0543 ignore removed, the check job command fails with that advisory; seeded 2026-10-25: a throwaway branch pinning base64 0.5.1 failed with RUSTSEC-2017-0004 and opened issue #30 (run 40185029251; branch deleted); before #28 main carried RUSTSEC-2026-0346 to -0349 (rustls 0.23.45) and RUSTSEC-2026-0386 (tokio 1.53.2), which the check job never checked"
 replaces = "none"
 checked = 2026-11-19
+
+[[tool]]
+id = "rust"
+risk = "Rust compile errors, compiler lints, and test failures"
+tool = "rustc, cargo, and libtest"
+version = "the channel in rust-toolchain.toml; Dependabot proposes each new stable release"
+pins = ["rust-toolchain.toml::channel = \"", ".github/dependabot.yml::package-ecosystem: rust-toolchain"]
+commands = ["cargo test", "rustup"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "Cargo.toml lints; rust-toolchain.toml (minimal profile with clippy and rustfmt)"
+conflicts = "none known"
+exceptions = "none"
+runtime = "the whole check step: push n=15, max 209 s; pull request n=16, max 207 s; p99 unsupported"
+findings = "unknown: test failures are fixed before merge and not recorded; count them from failed runs at the next check"
+replaces = "none"
+checked = 2026-11-21
+
+[[tool]]
+id = "clippy"
+risk = "Rust correctness, suspicious, complexity, performance, and style lints"
+tool = "Clippy"
+version = "the channel in rust-toolchain.toml; Dependabot proposes each new stable release"
+pins = ["rust-toolchain.toml::channel = \"", ".github/dependabot.yml::package-ecosystem: rust-toolchain", "scripts/check-all.sh::cargo clippy --locked --all-targets -- -D warnings"]
+commands = ["cargo clippy"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "Cargo.toml [lints], clippy.toml; every warning fails"
+conflicts = "none known"
+exceptions = "none"
+runtime = "inside the check step (see rust); separate timing not yet recorded"
+findings = "unknown: lints are fixed before merge; record them from failed runs at the next check"
+replaces = "none"
+checked = 2026-11-21
+
+[[tool]]
+id = "rustfmt"
+risk = "Rust formatting drift"
+tool = "rustfmt"
+version = "the channel in rust-toolchain.toml; Dependabot proposes each new stable release"
+pins = ["rust-toolchain.toml::channel = \"", ".github/dependabot.yml::package-ecosystem: rust-toolchain"]
+commands = ["cargo fmt"]
+runs_in = "CI check job (scripts/check-all.sh)"
+config = "defaults; cargo fmt --all -- --check"
+conflicts = "none known"
+exceptions = "none"
+runtime = "inside the check step (see rust)"
+findings = "unknown: formatting is fixed before merge"
+replaces = "none"
+checked = 2026-11-21
 
 [[tool]]
 id = "tombi"

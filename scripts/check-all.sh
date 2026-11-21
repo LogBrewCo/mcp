@@ -20,6 +20,8 @@ bash scripts/check-tool-matrix.sh
 bash scripts/test-check-tool-matrix.sh
 bash scripts/check-suppressions.sh
 bash scripts/test-check-suppressions.sh
+bash scripts/check-dependabot.sh
+bash scripts/test-check-dependabot.sh
 
 require_version actionlint "1.7.12"
 require_version shellcheck "version: 0.11.0"

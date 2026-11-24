@@ -117,6 +117,26 @@ async fn legacy_clients_initialize_list_and_execute_without_sessions() {
 #[tokio::test]
 /// # Panics
 ///
+/// Panics if `initialize` names the server differently from the registry entry
+/// in `server.json`: clients show this title and icon for the connection.
+async fn initialize_reports_the_registry_identity() {
+    let registry: Value =
+        serde_json::from_str(include_str!("../../server.json")).expect("server.json");
+    let fixture = Fixture::new().await.expect("fixture");
+    let (status, init, _) = send(&fixture, None, Some(TOKEN), &initialize("2025-11-25"))
+        .await
+        .expect("initialize");
+    assert_eq!(status, StatusCode::OK, "{init}");
+    let info = init.pointer("/result/serverInfo").expect("serverInfo");
+    assert_eq!(info.get("version"), Some(&json!(env!("CARGO_PKG_VERSION"))));
+    for field in ["title", "version", "description", "icons", "websiteUrl"] {
+        assert_eq!(info.get(field), registry.get(field), "serverInfo.{field}");
+    }
+}
+
+#[tokio::test]
+/// # Panics
+///
 /// Panics if a legacy request without a token reaches the handler or is answered
 /// without the OAuth challenge.
 async fn legacy_requests_need_the_same_authorization() {

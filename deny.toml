@@ -3,7 +3,7 @@ all-features = true
 
 [advisories]
 ignore = [
-  { id = "RUSTSEC-2026-0543", reason = "rmcp requires chrono for its model types and schemars chrono04 feature; no rmcp release drops it yet" },
+  { id = "RUSTSEC-2026-0543", reason = "chrono comes only through rmcp 3.11.0, which requires it; the server uses no chrono API and builds rmcp without default features, so it drops out once modelcontextprotocol/rust-sdk#1474 (chrono behind a default feature) ships in a release" },
 ]
 
 [licenses]

@@ -252,3 +252,19 @@ runtime = "not yet recorded; the workflow is new"
 findings = "2026-11-21 before: 6 (3 dangerous-triggers, 3 dependabot-cooldown); after: 0, with the 3 dangerous-triggers ignored; a seeded workflow with template injection and an unpinned action fails the run"
 replaces = "none"
 checked = 2026-11-21
+
+[[tool]]
+id = "fuzzing"
+risk = "a crash, hang, or memory error in the request body JSON parser, the Bearer authorization parser, or request ID handling on unexpected input"
+tool = "ClusterFuzzLite with cargo-fuzz and libFuzzer (AddressSanitizer)"
+version = "1"
+pins = [".github/workflows/fuzz.yml::google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v@VERSION@", ".clusterfuzzlite/Dockerfile::base-builder-rust:v@VERSION@@sha256:"]
+uses = ["google/clusterfuzzlite/actions/build_fuzzers", "google/clusterfuzzlite/actions/run_fuzzers"]
+runs_in = "Fuzz workflow: every pull request (changed code) and push to main (every target), 300 s in all"
+config = ".clusterfuzzlite/ and fuzz/; the image pins its Rust nightly"
+conflicts = "none known"
+exceptions = "none"
+runtime = "not yet recorded; the workflow is new"
+findings = "2026-11-23: each target ran 300 s on a local build before the workflow landed; see the pull request that added it"
+replaces = "none"
+checked = 2026-11-23

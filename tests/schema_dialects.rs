@@ -80,7 +80,7 @@ fn declared_legacy_dialects_preserve_input_and_output_tuple_contracts() {
         let catalog = load(&schema).expect("declared tuple dialect");
         check_tuple(&catalog).expect("legacy tuple validation");
         let found = catalog
-            .search(&json!({"operation":"logs.read.v1"}))
+            .search(&json!({"operation":"logs.read.v1","output_schema":true}))
             .expect("discovered contract");
         assert_eq!(found.get("input_schema"), Some(&schema));
         assert_eq!(found.get("output_schema"), Some(&schema));

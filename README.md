@@ -62,6 +62,9 @@ claude mcp add --transport http logbrew https://logbrew.co/mcp
 claude mcp login logbrew
 ```
 
+The server is also listed as a
+[Glama connector](https://glama.ai/mcp/connectors/co.logbrew/mcp).
+
 ## Operation reference
 
 This reference describes the operation catalog shipped in

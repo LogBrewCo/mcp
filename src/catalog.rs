@@ -12,7 +12,7 @@ use crate::{
 
 mod contracts;
 
-use contracts::{compile_entries, decode_operations, optional_text, validate};
+use contracts::{compile_entries, decode_operations, discovery_order, optional_text, problems, validate};
 
 const CATALOG_BYTES: usize = 8 << 20;
 const SCHEMA_BYTES: usize = 256 << 10;
@@ -68,6 +68,15 @@ pub struct Operation {
     pub output_schema: Value,
 }
 
+/// One input field that fails its operation's contract, named for the caller that sent it.
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct FieldProblem {
+    /// JSON Pointer to the field inside the operation input.
+    pub field: String,
+    /// `unknown_field`, `missing`, `wrong_type` or `invalid_value`.
+    pub problem: &'static str,
+}
+
 struct Entry {
     operation: Operation,
     input: jsonschema::Validator,
@@ -77,6 +86,9 @@ struct Entry {
 /// Catalog definitions and compiled validators cannot change while serving.
 pub struct Catalog {
     entries: BTreeMap<String, Entry>,
+    /// Discovery order: families by name, each newest version first, with
+    /// whether the operation is its family's newest version.
+    order: Vec<(String, bool)>,
     digest: String,
 }
 
@@ -102,7 +114,12 @@ impl Catalog {
             use core::fmt::Write as _;
             write!(digest, "{byte:02x}").map_err(Failure::redact(Kind::Configuration))?;
         }
-        Ok(Arc::new(Self { entries, digest }))
+        let order = discovery_order(entries.keys());
+        Ok(Arc::new(Self {
+            entries,
+            order,
+            digest,
+        }))
     }
 
     /// Definition digest, distinct from artifact integrity and telemetry freshness.
@@ -133,6 +150,8 @@ impl Catalog {
     }
 
     /// Return one exact definition or a small deterministic discovery page.
+    /// A page lists each family's newest version first and hides older versions
+    /// unless `all_versions` is true or a query word names a version, such as `v5`.
     ///
     /// # Errors
     /// Rejects invalid search arguments, cursors, or unknown selected operations.
@@ -152,27 +171,44 @@ impl Catalog {
         }
         if fields
             .keys()
-            .any(|key| !matches!(key.as_str(), "query" | "after" | "limit"))
+            .any(|key| !matches!(key.as_str(), "query" | "after" | "limit" | "all_versions"))
         {
             return Err(Kind::InvalidInput.into());
         }
         let query = optional_text(fields.get("query"))?;
+        let all_versions = match fields.get("all_versions") {
+            None => false,
+            Some(value) => value.as_bool().ok_or(Kind::InvalidInput)?,
+        };
         let after = optional_text(fields.get("after"))?;
         let limit = fields.get("limit").map_or(Ok(10), |value| {
             strict_json::unsigned_integer(value).ok_or(Kind::InvalidInput)
         })?;
-        if query.chars().take(257).count() > 256
-            || !(1..=10).contains(&limit)
-            || (!after.is_empty() && !self.entries.contains_key(after))
-        {
+        if query.chars().take(257).count() > 256 || !(1..=10).contains(&limit) {
             return Err(Kind::InvalidInput.into());
         }
+        let start = if after.is_empty() {
+            0
+        } else {
+            self.order
+                .iter()
+                .position(|(id, _)| id == after)
+                .ok_or(Kind::InvalidInput)?
+                .saturating_add(1)
+        };
         let words: Vec<String> = query.split_whitespace().map(str::to_lowercase).collect();
-        let mut matches = self.entries.values().filter(|entry| {
-            let text =
-                format!("{} {}", entry.operation.id, entry.operation.info.summary).to_lowercase();
-            entry.operation.id.as_str() > after && words.iter().all(|word| text.contains(word))
-        });
+        let every_version = all_versions || words.iter().any(|word| names_version(word));
+        let mut matches = self
+            .order
+            .iter()
+            .skip(start)
+            .filter(|(_, newest)| every_version || *newest)
+            .filter_map(|(id, _)| self.entries.get(id))
+            .filter(|entry| {
+                let text = format!("{} {}", entry.operation.id, entry.operation.info.summary)
+                    .to_lowercase();
+                words.iter().all(|word| text.contains(word))
+            });
         let operations: Vec<Value> = matches
             .by_ref()
             .take(usize::try_from(limit).map_err(Failure::redact(Kind::InvalidInput))?)
@@ -206,6 +242,21 @@ impl Catalog {
         validate(&entry.input, value, INPUT_BYTES).map_err(Failure::redact(Kind::InvalidInput))
     }
 
+    /// Name the input fields of execute `arguments` that fail the selected
+    /// operation's input contract, at most 8. Empty for an unknown operation or
+    /// input that meets its contract.
+    #[must_use]
+    pub fn input_problems(&self, arguments: &Value) -> Vec<FieldProblem> {
+        let entry = arguments
+            .get("operation")
+            .and_then(Value::as_str)
+            .and_then(|id| self.entries.get(id));
+        match (entry, arguments.get("input")) {
+            (Some(entry), Some(input)) => problems(&entry.input, input),
+            _ => Vec::new(),
+        }
+    }
+
     /// Validate output before returning evidence to the caller.
     ///
     /// # Errors
@@ -227,4 +278,12 @@ impl Catalog {
             .get(id)
             .ok_or_else(|| Kind::UnknownOperation.into())
     }
+}
+
+/// Whether a query word names an operation version, such as `v5` or `issues.list.v5`.
+fn names_version(word: &str) -> bool {
+    let last = word.rsplit('.').next().unwrap_or(word);
+    last.strip_prefix('v').is_some_and(|digits| {
+        !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit())
+    })
 }

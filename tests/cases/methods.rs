@@ -320,7 +320,7 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         })
         .flatten()
         .collect();
-    ensure_eq!(arguments.len(), 6);
+    ensure_eq!(arguments.len(), 7);
     let undescribed: Vec<&String> = arguments
         .into_iter()
         .filter(|&(_, schema)| {

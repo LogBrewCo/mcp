@@ -236,3 +236,44 @@ async fn tool_input_schemas_have_no_top_level_combinators() {
     }
     assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
 }
+
+#[tokio::test]
+/// # Panics
+///
+/// Panics if an input error stops naming its failing fields, returns a field
+/// name outside the safe character set, or reaches the upstream API.
+async fn input_errors_name_each_failing_field() {
+    let fixture = Fixture::new().await.expect("fixture");
+    let input = json!({"context":"text","unexpected":1_i32,"bad key/~":2_i32});
+    let response = rejected(
+        &fixture,
+        "execute",
+        json!({"operation":"logs.read.v1","input":input}),
+    )
+    .await
+    .expect("execute");
+    assert_eq!(
+        response.1.pointer("/result/structuredContent/error/code"),
+        Some(&json!("invalid_input"))
+    );
+    assert_eq!(Some(&response.2), response.1.pointer("/result/structuredContent"));
+    assert_eq!(
+        response.1.pointer("/result/structuredContent/error/fields"),
+        Some(&json!([
+            {"field":"/context","problem":"wrong_type"},
+            {"field":"/unexpected","problem":"unknown_field"}
+        ]))
+    );
+    let listed = rejected(
+        &fixture,
+        "execute",
+        json!({"operation":"logs.read.v1","input":[]}),
+    )
+    .await
+    .expect("execute");
+    assert_eq!(
+        listed.1.pointer("/result/structuredContent/error/fields"),
+        Some(&json!([{"field":"","problem":"wrong_type"}]))
+    );
+    assert_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+}

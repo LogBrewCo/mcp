@@ -323,7 +323,7 @@ async fn filtered_pages_preserve_every_matching_contract_once_and_keep_the_limit
         .filter(|version| version.checked_rem(2_i32) == Some(1_i32))
         .map(|version| format!("signals.read.v{version}"))
         .collect();
-    expected.sort_unstable();
+    expected.reverse();
     for raw in ["1", "4", "10", "1.0", "4.000", "1e1"] {
         let limit: Value = serde_json::from_str(raw)?;
         let maximum = match raw {
@@ -357,8 +357,8 @@ async fn collected_pages(
     let mut cursor = String::new();
     let mut collected = Vec::new();
     for _ in 0..=expected {
-        let arguments =
-            json!({"query":" \u{43}\u{41}\u{46}\u{c9}\tselected\n", "limit":limit, "after":cursor});
+        let arguments = json!({"query":" \u{43}\u{41}\u{46}\u{c9}\tselected\n",
+            "limit":limit, "after":cursor, "all_versions":true});
         assert!(validator.is_valid(&arguments));
         let data = search(fixture, arguments, true).await?;
         let page = data
@@ -385,4 +385,51 @@ async fn collected_pages(
     }
     assert_eq!(cursor, "");
     Ok(collected)
+}
+
+#[tokio::test]
+/// # Errors
+///
+/// Returns a catalog, fixture or search error.
+///
+/// Fails if a page lists an older version before the newest one, shows an older
+/// version without being asked, or ranks versions as text.
+///
+/// # Panics
+///
+/// Panics if the Tokio runtime cannot start.
+async fn pages_list_the_newest_version_and_older_ones_only_on_request() -> TestResult<()> {
+    let fixture = Fixture::with_catalog(catalog()?).await?;
+    let ids = |data: &Value| -> Vec<String> {
+        data.get("operations")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|operation| operation.get("id").and_then(Value::as_str))
+            .map(str::to_owned)
+            .collect()
+    };
+    for (arguments, expected) in [
+        (json!({"query":"signals"}), vec!["signals.read.v23"]),
+        (json!({}), vec!["signals.read.v23"]),
+        (
+            json!({"query":"signals","all_versions":true,"limit":3_i32}),
+            vec!["signals.read.v23", "signals.read.v22", "signals.read.v21"],
+        ),
+        (
+            json!({"query":"signals","all_versions":true,"limit":2_i32,"after":"signals.read.v10"}),
+            vec!["signals.read.v9", "signals.read.v8"],
+        ),
+        (json!({"query":"signals.read.v9"}), vec!["signals.read.v9"]),
+        (
+            json!({"query":"v2 traces","limit":3_i32}),
+            vec!["signals.read.v22", "signals.read.v20", "signals.read.v2"],
+        ),
+    ] {
+        let data = search(&fixture, arguments.clone(), true).await?;
+        ensure!(ids(&data) == expected, "{arguments}");
+    }
+    drop(search(&fixture, json!({"query":"signals","all_versions":"true"}), false).await?);
+    ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
+    Ok(())
 }

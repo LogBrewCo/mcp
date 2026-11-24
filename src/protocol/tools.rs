@@ -5,19 +5,29 @@ use alloc::sync::Arc;
 use rmcp::model::{CallToolResult, Tool, ToolAnnotations};
 use serde_json::{Value, json};
 
-use crate::{ENVELOPE_BYTES, Failure, error::Kind};
+use crate::{ENVELOPE_BYTES, Failure, catalog::FieldProblem, error::Kind};
 
+/// `fields` names the input fields that failed their contract; an error lists
+/// them only when there are any.
 pub(super) fn envelope(
     result: Result<Value, Failure>,
+    fields: &[FieldProblem],
     provenance: Option<&Value>,
 ) -> CallToolResult {
     let (data, error) = match result {
         Ok(data) => (data, Value::Null),
-        Err(failure) => (
-            Value::Null,
-            json!({"code":failure.kind.code(),"next_action":failure.kind.next_action(),
-            "message":failure.kind.message(),"retry_after_ms":failure.retry_after_ms}),
-        ),
+        Err(failure) => {
+            let mut error = json!({"code":failure.kind.code(),
+                "next_action":failure.kind.next_action(),
+                "message":failure.kind.message(),"retry_after_ms":failure.retry_after_ms});
+            if !fields.is_empty() {
+                error["fields"] = fields
+                    .iter()
+                    .map(|field| json!({"field":field.field,"problem":field.problem}))
+                    .collect();
+            }
+            (Value::Null, error)
+        }
     };
     let value = json!({"data":data,"error":error,"provenance":provenance});
     if value.to_string().len() > ENVELOPE_BYTES {
@@ -53,7 +63,9 @@ pub(super) fn definition(name: &str, (writes, destroys): (bool, bool)) -> Tool {
                 "after":{"type":"string","maxLength":128_u32,
                     "description":"next_cursor from the previous page. Leave out for the first page; an empty next_cursor means the last page."},
                 "limit":{"type":"integer","minimum":1_u32,"maximum":10_u32,
-                    "description":"Operations per page, from 1 to 10. Defaults to 10."}}}),
+                    "description":"Operations per page, from 1 to 10. Defaults to 10."},
+                "all_versions":{"type":"boolean",
+                    "description":"true lists every version of each operation, newest first. Defaults to false: a page lists only the newest version, unless a query word names a version such as v5."}}}),
         )
     } else {
         (
@@ -130,7 +142,12 @@ fn output_schema() -> Value {
             "additionalProperties":false,"properties":{"code":{"type":"string"},
                 "next_action":{"type":"string"},"message":{"type":"string"},
                 "retry_after_ms":{"type":["integer","null"],
-                        "minimum":0,"maximum":2_147_483_647_000_u64}},"oneOf":errors}
+                        "minimum":0,"maximum":2_147_483_647_000_u64},
+                "fields":{"type":"array","minItems":1,"maxItems":8,"items":{"type":"object",
+                    "required":["field","problem"],"additionalProperties":false,
+                    "properties":{"field":{"type":"string"},"problem":{"enum":
+                        ["unknown_field","missing","wrong_type","invalid_value"]}}}}},
+            "oneOf":errors}
     },
     "oneOf":[
         {"properties":{"data":{"type":"object"},"error":{"type":"null"},

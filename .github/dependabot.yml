@@ -14,6 +14,11 @@ updates:
     groups:
       github-actions:
         patterns: ["*"]
+    ignore:
+      # The v2.6.0 image index points at manifests that ghcr.io no longer
+      # serves, so the job cannot pull it: ossf/scorecard-action#1752.
+      - dependency-name: ossf/scorecard-action
+        versions: ["2.6.0"]
   - package-ecosystem: rust-toolchain
     directories:
       - /

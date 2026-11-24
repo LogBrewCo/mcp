@@ -356,7 +356,10 @@ async fn tool_descriptions_cover_every_argument_and_shipped_write() -> TestResul
         "Archiving, key revocation and sample-data removal change nothing until a second call",
         "A create repeats safely only with the same idempotency_key",
         "each test event call sends a new event",
-        "next_action and retry_after_ms",
+        "a message that says how to fix the call",
+        "reads only the projects approved for it",
+        "leave project_id out to read all of them",
+        "ask the user to reconnect LogBrew and allow changes",
     ] {
         ensure!(execute.contains(rule), "{rule}");
     }

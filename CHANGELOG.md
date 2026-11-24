@@ -6,6 +6,19 @@ at `https://logbrew.co/mcp`. Versions follow
 
 ## Unreleased
 
+### Changed
+
+- Each tool error has a `message` that tells the agent how to fix its next
+  call. A refused project points to the operation that lists the projects the
+  connection can read.
+- The `execute` description tells agents to list the approved projects first
+  and to ask the user to reconnect for write access instead of retrying.
+
+### Fixed
+
+- `search` without `query` lists all operations, as its input schema allows.
+  It returned `invalid_input` before.
+
 ### Security
 
 - The server uses release 3.9.0 of rmcp, the MCP Rust SDK. This release fixes

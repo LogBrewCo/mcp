@@ -253,8 +253,8 @@ do not turn missing cost measurements into zero cost.
 Tool results contain `data`, `error` and `provenance`. An operation error returns
 no data. Its stable code distinguishes invalid input, invalid service output,
 missing resources, permission denial, authentication failure, throttling and
-unavailability. Follow `next_action`; a null retry delay means unknown, not zero.
-The server does not retry an operation automatically.
+unavailability. Follow `next_action` and `message`; a null retry delay means
+unknown, not zero. The server does not retry an operation automatically.
 
 `provenance.definition_sha256` identifies the catalog definitions used for the
 result. It does not prove a deployment revision, data freshness or completeness.
@@ -404,7 +404,9 @@ codes, matching recovery actions, and retry delays. Local tests validate that
 schema and reject inconsistent envelopes.
 
 Errors include `code`,
-`next_action`, and `retry_after_ms`. Invalid input points to the input contract;
+`next_action`, `message`, and `retry_after_ms`. `message` is fixed text for each
+code that tells an agent how to fix its next call. Permission denial points to
+the projects the connection can read; invalid input points to the input contract;
 invalid service output is a separate error and does not return the rejected
 data. An unknown retry delay is `null`, distinct from zero. The server does not
 retry an operation automatically. An unavailable result asks callers to check

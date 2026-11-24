@@ -5,6 +5,7 @@ use core::sync::atomic::Ordering;
 use std::io;
 
 use axum::http::StatusCode;
+use logbrew_mcp::error::Kind;
 use serde_json::{Value, json};
 
 use super::http::{Fixture, TOKEN};
@@ -72,14 +73,15 @@ fn check_rejected(response: &(StatusCode, Value, Value), valid: bool) {
         reply.pointer("/result/structuredContent/data"),
         Some(&Value::Null)
     );
-    let (code, action) = if valid {
-        ("unknown_operation", "search_operations")
+    let kind = if valid {
+        Kind::UnknownOperation
     } else {
-        ("invalid_input", "review_input_contract")
+        Kind::InvalidInput
     };
     assert_eq!(
         reply.pointer("/result/structuredContent/error"),
-        Some(&json!({"code":code,"next_action":action,"retry_after_ms":null}))
+        Some(&json!({"code":kind.code(),"next_action":kind.next_action(),
+            "message":kind.message(),"retry_after_ms":null}))
     );
     assert_eq!(
         Some(&response.2),
@@ -223,8 +225,6 @@ async fn tool_input_schemas_have_no_top_level_combinators() {
         assert!(combinators.is_empty(), "top-level {combinators:?}");
     }
     for arguments in [
-        json!({}),
-        json!({"limit":1_i32}),
         json!({"operation":"logs.read.v1","query":"logs"}),
         json!({"operation":"logs.read.v1","after":"logs.read.v1"}),
         json!({"operation":"logs.read.v1","limit":1_i32}),

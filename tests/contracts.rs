@@ -202,7 +202,7 @@ fn ordinary_property_names_keep_their_schema_contracts_in_catalog_loading() {
                 .is_err()
         );
         let exact = catalog
-            .search(&json!({"operation":"logs.read.v1"}))
+            .search(&json!({"operation":"logs.read.v1","output_schema":true}))
             .expect("contract");
         assert_eq!(exact.get("input_schema"), Some(&schema));
         assert_eq!(exact.get("output_schema"), Some(&schema));
@@ -448,6 +448,13 @@ fn search_is_small_deterministic_and_does_not_grant_access() {
         .search(&json!({"operation":"logs.read.v1"}))
         .expect("selected contract");
     assert!(exact.get("input_schema").is_some());
+    assert!(exact.get("output_schema").is_none());
+    for (flag, has_output) in [(false, false), (true, true)] {
+        let contract = catalog
+            .search(&json!({"operation":"logs.read.v1","output_schema":flag}))
+            .expect("selected contract");
+        assert_eq!(contract.get("output_schema").is_some(), has_output);
+    }
     for input in [
         json!({"operation":"logs.read.v1","query":""}),
         json!({"query":"","limit":0_i32}),

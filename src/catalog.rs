@@ -154,22 +154,32 @@ impl Catalog {
     /// Return one exact definition or a small deterministic discovery page.
     /// A page lists each family's newest version first and hides older versions
     /// unless `all_versions` is true or a query word names a version, such as `v5`.
+    /// A definition carries its output schema only when `output_schema` is true.
     ///
     /// # Errors
     /// Rejects invalid search arguments, cursors, or unknown selected operations.
     pub fn search(&self, arguments: &Value) -> Result<Value, Failure> {
         let fields = arguments.as_object().ok_or(Kind::InvalidInput)?;
-        if fields.contains_key("operation") && fields.len() != 1 {
-            return Err(Kind::InvalidInput.into());
-        }
-        if fields.contains_key("operation") {
-            let id = arguments
-                .get("operation")
-                .and_then(Value::as_str)
-                .ok_or(Kind::InvalidInput)?;
-            let entry = self.selected(id)?;
-            return serde_json::to_value(&entry.operation)
-                .map_err(Failure::redact(Kind::Unavailable));
+        if let Some(id) = fields.get("operation") {
+            if fields
+                .keys()
+                .any(|key| !matches!(key.as_str(), "operation" | "output_schema"))
+            {
+                return Err(Kind::InvalidInput.into());
+            }
+            let with_output = match fields.get("output_schema") {
+                None => false,
+                Some(value) => value.as_bool().ok_or(Kind::InvalidInput)?,
+            };
+            let operation = &self
+                .selected(id.as_str().ok_or(Kind::InvalidInput)?)?
+                .operation;
+            let mut definition = json!({"id":operation.id,"info":operation.info,
+                "input_schema":operation.input_schema});
+            if with_output {
+                definition["output_schema"] = operation.output_schema.clone();
+            }
+            return Ok(definition);
         }
         if fields
             .keys()

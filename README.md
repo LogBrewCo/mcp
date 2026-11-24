@@ -37,7 +37,7 @@ as able to change data, because the catalog has write operations:
 
 | Tool | What it does |
 | --- | --- |
-| `search` | Finds operations and returns the contract of one operation: its input and output schemas, permission, cost, safety and stability. |
+| `search` | Finds operations and returns the contract of one operation: its input schema, permission, cost, safety and stability, and its output schema on request. |
 | `execute` | Runs one operation that `search` found and returns structured data, or an error with a stable code and a next action. |
 
 The operations read issues (investigation, lists, activity, owners and
@@ -74,8 +74,9 @@ the `write` scope can also triage issues, create projects and project keys,
 send a test event, and load or remove sample data (see [Changes](#changes)). The catalog has no operations for billing,
 organization members, account settings, or deleting a project.
 
-The server exposes two tools. `search` finds versioned operations and returns
-their input and output schemas. `execute` runs a selected operation. Every
+The server exposes two tools. `search` finds versioned operations. Send
+`operation` to get one operation's input schema, and add `output_schema: true`
+to get its output schema too. `execute` runs a selected operation. Every
 operation works only on the projects the signed-in user approved, and on
 projects created through the same connection. Discovery does not grant
 permission or establish that data is available for a particular account.
@@ -151,7 +152,8 @@ does not backfill historical events.
 | `issues.list.v3` | The `issues.list.v2` fields plus each issue's assignee: user ID, name, and email, or `null` when nobody is assigned or the assignee can no longer read the project. Filter by `assignee`: `me`, `none`, or a user ID. |
 | `issues.list.v4` | The `issues.list.v2` fields plus each issue's assignee: `{type: user, user_id, name, email}`, `{type: team, team_id, slug, name}`, or `null`. Filter by `assignee`: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams`. |
 | `issues.list.v5` | The `issues.list.v4` fields plus `archive` on archived issues: `until` is `forever`, `escalating`, `time`, `events`, or `users`; `reopen_at` is the reopen time; `count` is the number of new events or users, or the events in 1 hour that count as escalating. Other issues have `archive: null`. |
-| `issues.list.v7` | The `issues.list.v5` fields plus `resolution` on issues resolved in a release, `user_impact` and `evidence` on every issue. `user_impact` has `status` (`complete`, `partial`, `not_captured`, or `unavailable`), `known_affected_users`, `count_method`, `coverage`, and `limitations`, the same as `impact.user_impact` in `issues.investigate.v17`. `evidence` lists the fields of the latest occurrence that were captured, missing, redacted, or truncated, in the field names of the investigation's `evidence`. Each issue's `next_action` is `investigate_issue`; run `issues.investigate.v17` for its ordered trace, logs, and breadcrumbs. |
+| `issues.list.v7` | The `issues.list.v5` fields plus `resolution` on issues resolved in a release, `user_impact` and `evidence` on every issue. `user_impact` has `status` (`complete`, `partial`, `not_captured`, or `unavailable`), `known_affected_users`, `count_method`, `coverage`, and `limitations`, the same as `impact.user_impact` in `issues.investigate.v17`. `evidence` lists the fields of the latest occurrence that were captured, missing, redacted, or truncated, in the field names of the investigation's `evidence`. Each issue's `next_action` is `investigate_issue`; run `issues.investigate.v18` for its ordered trace, logs, and breadcrumbs. |
+| `issues.list.v8` | One compact row for each issue, with the `issues.list.v7` filters: `id`, `project_id`, `title`, `severity` (the effective severity, after a severity rule), `status`, `priority`, `occurrence_count`, `last_seen_at`, and `next_action`, which is `investigate_issue`. A page of 25 issues fits in about 9,000 characters. Run `issues.investigate.v18` for one issue's stack trace, attributes, diagnostics, and affected users. |
 | `logs.list.v1` | Logs through bounded cursor pages. |
 | `traces.list.v1` | Traces with naming-quality coverage and cursor pagination. |
 | `actions.list.v1` | Recorded product actions through bounded cursor pages. |

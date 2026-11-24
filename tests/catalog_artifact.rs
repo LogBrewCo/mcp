@@ -177,6 +177,48 @@ fn shipped_search_lists_newest_versions_and_names_unknown_fields() {
 #[test]
 /// # Panics
 ///
+/// Panics if the default contract of an issue operation no longer fits a small
+/// tool result, or if `issues.list.v8` rows carry more than the triage fields.
+fn shipped_issue_contracts_fit_a_small_tool_result() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    for operation in discovered(&catalog).expect("operations") {
+        let id = operation.get("id").and_then(Value::as_str).expect("id");
+        if !id.starts_with("issues.") {
+            continue;
+        }
+        let contract = catalog.search(&json!({"operation":id})).expect(id);
+        let result = json!({"data":contract,"error":null,"provenance":catalog.provenance()});
+        let length = result.to_string().chars().count();
+        assert!(length < 3_000, "{id} contract has {length} characters");
+    }
+    let list = catalog
+        .search(&json!({"operation":"issues.list.v8","output_schema":true}))
+        .expect("issues.list.v8");
+    let row = list
+        .pointer("/output_schema/$defs/NativeIssueV8Response/properties")
+        .and_then(Value::as_object)
+        .expect("row properties");
+    let fields: BTreeSet<&str> = row.keys().map(String::as_str).collect();
+    assert_eq!(
+        fields,
+        BTreeSet::from([
+            "id",
+            "last_seen_at",
+            "next_action",
+            "occurrence_count",
+            "priority",
+            "project_id",
+            "severity",
+            "status",
+            "title",
+        ])
+    );
+}
+
+#[test]
+/// # Panics
+///
 /// Panics if shipped input contracts accept unknown fields, pinned contract
 /// fields, or path identifiers that could change the selected resource.
 fn shipped_input_contracts_reject_smuggled_fields() {

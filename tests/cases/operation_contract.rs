@@ -228,6 +228,8 @@ async fn tool_input_schemas_have_no_top_level_combinators() {
         json!({"operation":"logs.read.v1","query":"logs"}),
         json!({"operation":"logs.read.v1","after":"logs.read.v1"}),
         json!({"operation":"logs.read.v1","limit":1_i32}),
+        json!({"operation":"logs.read.v1","output_schema":"true"}),
+        json!({"query":"logs","output_schema":true}),
     ] {
         let response = rejected(&fixture, "search", arguments)
             .await

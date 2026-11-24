@@ -42963,7 +42963,7 @@
         "permission": "read",
         "safety": "read_only",
         "stability": "experimental",
-        "summary": "Find grouped issues like issues.list.v5, with the release a resolved issue waits for, how many distinct users each issue reached and what limits that count, and which fields of the latest occurrence were missing, redacted, or truncated. Each issue's next action is issues.investigate.v18 for ordered trace, log, and breadcrumb evidence."
+        "summary": "Find grouped issues with every field of issues.list.v5, the release a resolved issue waits for, affected users, and the evidence limits of the latest occurrence. Rows are large; prefer issues.list.v8 to triage."
       },
       "input_schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -44108,6 +44108,274 @@
           "next_cursor"
         ],
         "title": "NativeIssuePageV7Response",
+        "type": "object"
+      }
+    },
+    {
+      "id": "issues.list.v8",
+      "info": {
+        "cost": "One bounded read; counts toward the account's API rate limit.",
+        "documentation": "https://github.com/LogBrewCo/mcp#operation-reference",
+        "permission": "read",
+        "safety": "read_only",
+        "stability": "experimental",
+        "summary": "Find grouped issues as compact triage rows: ID, project, title, effective severity, status, priority, occurrence count, and last seen time. Read one issue's stack trace, attributes, diagnostics, and affected users with issues.investigate.v18."
+      },
+      "input_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "description": "Query parameters for issue listing.",
+        "properties": {
+          "assignee": {
+            "description": "Optional assignee filter: `me`, `none`, a user ID, `team:<team_id>`, or `my_teams` for\nissues assigned to any team you belong to.",
+            "type": "string"
+          },
+          "cursor_id": {
+            "description": "Exclusive cursor issue ID returned by a prior cursor page.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "cursor_time": {
+            "description": "Exclusive cursor timestamp returned by a prior cursor page.",
+            "type": "string"
+          },
+          "environment": {
+            "description": "Optional environment filter.",
+            "type": "string"
+          },
+          "limit": {
+            "description": "Maximum number of rows to return.",
+            "format": "int64",
+            "maximum": 500,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "priority": {
+            "description": "Optional effective issue priority filter: `high`, `medium`, or `low`.",
+            "type": "string"
+          },
+          "project_id": {
+            "description": "Optional project filter.",
+            "format": "uuid",
+            "type": "string"
+          },
+          "project_ids": {
+            "description": "Optional comma-separated set of two to fifty project IDs.",
+            "type": "string"
+          },
+          "release": {
+            "description": "Optional release filter.",
+            "type": "string"
+          },
+          "service_name": {
+            "description": "Optional logical service-name filter.",
+            "type": "string"
+          },
+          "severity": {
+            "description": "Optional effective issue severity filter.",
+            "type": "string"
+          },
+          "since": {
+            "description": "Optional lower time bound (positive compact duration such as `24h`/`7d`, or RFC3339).",
+            "type": "string"
+          },
+          "status": {
+            "description": "Optional issue status filter: `unresolved`, `resolved`, or `archived` (`ignored` is the\nsame state).",
+            "type": "string"
+          },
+          "until": {
+            "description": "Optional exclusive upper time bound as an RFC3339 timestamp; must be later than `since`.",
+            "type": "string"
+          }
+        },
+        "title": "IssueQueryParams",
+        "type": "object"
+      },
+      "output_schema": {
+        "$defs": {
+          "CorrelatedTelemetryNextActionCode": {
+            "description": "Stable correlation-aware investigation action code.",
+            "oneOf": [
+              {
+                "const": "inspect_trace",
+                "description": "Inspect the correlated distributed trace.",
+                "type": "string"
+              },
+              {
+                "const": "inspect_related_logs",
+                "description": "Inspect logs related by project, release, service, and environment.",
+                "type": "string"
+              },
+              {
+                "const": "investigate_issue",
+                "description": "Read the issue investigation: ordered trace, log, and breadcrumb evidence, cause, fix\nlocation, and impact.",
+                "type": "string"
+              }
+            ]
+          },
+          "CorrelatedTelemetryNextActionResponse": {
+            "description": "Correlation-aware next action shared by issues, logs, and product actions.",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionCode",
+                "description": "Stable action code."
+              },
+              "target": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionTarget",
+                "description": "Stable action target."
+              }
+            },
+            "required": [
+              "code",
+              "target"
+            ],
+            "type": "object"
+          },
+          "CorrelatedTelemetryNextActionTarget": {
+            "description": "Stable correlation-aware investigation target.",
+            "oneOf": [
+              {
+                "const": "trace_summary",
+                "description": "Privacy-safe trace summary endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "telemetry_logs",
+                "description": "Native telemetry logs endpoint.",
+                "type": "string"
+              },
+              {
+                "const": "issue_investigation",
+                "description": "Issue investigation endpoint.",
+                "type": "string"
+              }
+            ]
+          },
+          "IssuePriority": {
+            "description": "Triage priority of a grouped issue.",
+            "oneOf": [
+              {
+                "const": "high",
+                "description": "Needs attention first.",
+                "type": "string"
+              },
+              {
+                "const": "medium",
+                "description": "Needs attention after high-priority issues.",
+                "type": "string"
+              },
+              {
+                "const": "low",
+                "description": "Can wait.",
+                "type": "string"
+              }
+            ]
+          },
+          "NativeIssueCursorResponse": {
+            "description": "Exclusive continuation cursor for a native issue page.",
+            "properties": {
+              "id": {
+                "description": "ID of the final issue in the page.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "time": {
+                "description": "Last-seen timestamp of the final issue in the page.",
+                "format": "date-time",
+                "type": "string"
+              }
+            },
+            "required": [
+              "time",
+              "id"
+            ],
+            "type": "object"
+          },
+          "NativeIssueV8Response": {
+            "description": "A grouped issue in list response version 8: one compact triage row. The issue investigation\nreads its stack trace, attributes, diagnostics, affected users, and evidence.",
+            "properties": {
+              "id": {
+                "description": "Unique issue identifier.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "last_seen_at": {
+                "description": "Most recent time this issue was seen.",
+                "format": "date-time",
+                "type": "string"
+              },
+              "next_action": {
+                "$ref": "#/$defs/CorrelatedTelemetryNextActionResponse",
+                "description": "Machine-readable next action: `investigate_issue` with target `issue_investigation`."
+              },
+              "occurrence_count": {
+                "description": "Number of occurrences in this issue group.",
+                "format": "int64",
+                "type": "integer"
+              },
+              "priority": {
+                "$ref": "#/$defs/IssuePriority",
+                "description": "Effective triage priority."
+              },
+              "project_id": {
+                "description": "Owning project ID.",
+                "format": "uuid",
+                "type": "string"
+              },
+              "severity": {
+                "description": "Effective severity: the captured severity, or the severity a user set for it.",
+                "type": "string"
+              },
+              "status": {
+                "description": "Issue status: `unresolved`, `resolved`, or `archived`.",
+                "type": "string"
+              },
+              "title": {
+                "description": "Short issue title.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "project_id",
+              "title",
+              "severity",
+              "status",
+              "priority",
+              "occurrence_count",
+              "last_seen_at",
+              "next_action"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "description": "Cursor page of grouped issues in list response version 8.",
+        "properties": {
+          "issues": {
+            "description": "Compact issue rows in newest-first order.",
+            "items": {
+              "$ref": "#/$defs/NativeIssueV8Response"
+            },
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/NativeIssueCursorResponse"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Exclusive continuation cursor when another page exists."
+          }
+        },
+        "required": [
+          "issues",
+          "next_cursor"
+        ],
+        "title": "NativeIssuePageV8Response",
         "type": "object"
       }
     },

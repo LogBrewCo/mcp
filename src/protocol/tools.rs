@@ -61,13 +61,15 @@ pub(super) fn definition(name: &str, (writes, destroys): (bool, bool)) -> Tool {
             "Find the LogBrew operations that execute runs. Use this before execute; it never \
              changes data. Send query, with optional after and limit, to list matching \
              operations with their summary, permission, safety, cost and stability; leave \
-             query out to list all of them. Send operation alone to get one operation's full \
-             contract, including its input_schema.",
+             query out to list all of them. Send operation to get one operation's contract with \
+             its input_schema; add output_schema: true to get its output_schema too.",
             // No top-level oneOf, anyOf or allOf: some clients drop tools whose input
             // schema has them. The search handler enforces the two argument forms.
             json!({"type":"object","additionalProperties":false,
             "properties":{"operation":{"type":"string","minLength":1_u32,"maxLength":128_u32,
-                    "description":"Exact operation name. Returns its full contract. Send no other field with it."},
+                    "description":"Exact operation name. Returns its contract with its input_schema. Send no other field with it except output_schema."},
+                "output_schema":{"type":"boolean",
+                    "description":"With operation only: true also returns the operation's output_schema. Defaults to false."},
                 "query":{"type":"string","maxLength":256_u32,
                     "description":"Words to find in operation names and summaries, ignoring case. Every word must match; leave it out or send empty text to list all operations."},
                 "after":{"type":"string","maxLength":128_u32,

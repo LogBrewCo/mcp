@@ -88,6 +88,31 @@ async fn search(fixture: &Fixture, arguments: Value, valid: bool) -> TestResult<
 ///
 /// Returns a fixture, advertised schema or search error.
 ///
+/// Fails if search refuses arguments its advertised schema accepts.
+///
+/// # Panics
+///
+/// Panics if the Tokio runtime cannot start.
+async fn every_argument_set_the_schema_accepts_lists_operations() -> TestResult<()> {
+    let fixture = Fixture::new().await?;
+    let validator = schema(&fixture).await?;
+    for arguments in [json!({}), json!({"limit":1_u8}), json!({"after":""})] {
+        ensure!(validator.is_valid(&arguments), "{arguments}");
+        let data = search(&fixture, arguments, true).await?;
+        ensure!(
+            data.get("operations")
+                .and_then(Value::as_array)
+                .is_some_and(|operations| !operations.is_empty())
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
+/// # Errors
+///
+/// Returns a fixture, advertised schema or search error.
+///
 /// Fails if Unicode character limits disagree with the schema or search result,
 /// or if authentication and execution totals change.
 ///

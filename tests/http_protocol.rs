@@ -84,6 +84,7 @@ use axum::{
     body::{Body, to_bytes},
     http::{HeaderMap, Request, StatusCode, header},
 };
+use logbrew_mcp::error::Kind;
 use serde_json::{Value, json};
 use tower::ServiceExt as _;
 
@@ -484,6 +485,15 @@ async fn upstream_errors_have_stable_retry_advice_and_are_not_retried() {
             response.pointer("/result/structuredContent/error/retry_after_ms"),
             Some(&expected)
         );
+        let message = response
+            .pointer("/result/structuredContent/error/message")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        assert!(!message.is_empty(), "{code} has no recovery text");
+        assert!(
+            code != "permission_denied" || message.contains("projects this connection can read"),
+            "{message}"
+        );
         assert!(!response.to_string().contains("SYNTHETIC_PRIVATE_MARKER"));
         assert_eq!(fixture.state().calls().load(Ordering::SeqCst), before + 1);
     }
@@ -600,14 +610,15 @@ fn assert_output_contract(tool: &Value) -> TestResult<()> {
     let validator = jsonschema::validator_for(schema)?;
     let provenance = json!({"definition_sha256":"a".repeat(64)});
     ensure!(validator.is_valid(&json!({"data":{},"error":null,"provenance":provenance})));
-    let error =
-        json!({"code":"invalid_input","next_action":"review_input_contract","retry_after_ms":null});
+    let error = json!({"code":"invalid_input","next_action":"review_input_contract",
+        "message":Kind::InvalidInput.message(),"retry_after_ms":null});
     ensure!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
     for invalid in [
         json!({"data":{},"error":error,"provenance":provenance}),
         json!({"data":null,"error":null,"provenance":provenance}),
         json!({"data":{},"error":null,"provenance":{"definition_sha256":"bad"}}),
         json!({"data":null,"error":{"code":"invalid_input","next_action":"retry","retry_after_ms":-1_i32},"provenance":null}),
+        json!({"data":null,"error":{"code":"invalid_input","next_action":"review_input_contract","retry_after_ms":null},"provenance":null}),
     ] {
         ensure!(!validator.is_valid(&invalid));
     }

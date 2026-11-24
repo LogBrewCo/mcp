@@ -156,10 +156,7 @@ impl Catalog {
         {
             return Err(Kind::InvalidInput.into());
         }
-        let query = fields
-            .get("query")
-            .and_then(Value::as_str)
-            .ok_or(Kind::InvalidInput)?;
+        let query = optional_text(fields.get("query"))?;
         let after = optional_text(fields.get("after"))?;
         let limit = fields.get("limit").map_or(Ok(10), |value| {
             strict_json::unsigned_integer(value).ok_or(Kind::InvalidInput)

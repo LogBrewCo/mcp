@@ -43963,7 +43963,7 @@
                     "type": "null"
                   }
                 ],
-                "description": "The release a resolved issue was resolved in; null for other statuses and for an issue\nresolved without a release, which no event reopens."
+                "description": "The release a resolved issue was resolved in; null for other statuses and for an issue\nresolved without a release, which its next event reopens."
               },
               "service_name": {
                 "description": "Logical service name.",
@@ -65645,7 +65645,7 @@
         "permission": "write",
         "safety": "write",
         "stability": "experimental",
-        "summary": "Mark one issue resolved. Works on issues of the connected projects that the signed-in account may manage. Returns the issue as issues.list.v5 lists it.",
+        "summary": "Mark one issue resolved. Its next event reopens it as a regression within about a minute. Works on issues of the connected projects that the signed-in account may manage. Returns the issue as issues.list.v5 lists it.",
         "title": "Resolve Issue"
       },
       "input_schema": {

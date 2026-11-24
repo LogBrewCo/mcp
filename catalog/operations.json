@@ -39340,7 +39340,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -39956,7 +39956,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -40617,7 +40617,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -41317,7 +41317,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -42074,7 +42074,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -42905,7 +42905,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -44061,7 +44061,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -66433,7 +66433,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -67165,7 +67165,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -67931,7 +67931,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -68702,7 +68702,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -69439,7 +69439,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {
@@ -70171,7 +70171,7 @@
             "description": "User-owned presentation rule layered over immutable captured telemetry.",
             "properties": {
               "effective_severity": {
-                "description": "Effective presentation severity after applying an optional user override.",
+                "description": "Severity the signal reads: a user rule's severity, else the captured severity. An issue\nwithout a rule reads at most `warning` when it comes from outside production or from a CI\nrun, or is a handled request failure (an HTTP client error type or a 4xx status).",
                 "type": "string"
               },
               "ignored": {

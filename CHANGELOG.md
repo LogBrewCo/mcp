@@ -13,6 +13,9 @@ at `https://logbrew.co/mcp`. Versions follow
   connection can read.
 - The `execute` description tells agents to list the approved projects first
   and to ask the user to reconnect for write access instead of retrying.
+- The `issues.resolve` summary says that the next event of a resolved issue
+  reopens it as a regression within about a minute. Resolving without a
+  release no longer keeps the issue resolved.
 
 ### Fixed
 

@@ -166,10 +166,10 @@ verbose_file_reads = "deny"
 wildcard_enum_match_arm = "deny"
 
 [lints.rust]
-# cargo fuzz builds the fuzzing entry points with --cfg fuzzing.
-unexpected_cfgs = { level = "deny", check-cfg = ["cfg(fuzzing)"] }
 let_underscore_drop = "deny"
 missing_docs = "deny"
+# cargo fuzz builds the fuzzing entry points with --cfg fuzzing.
+unexpected_cfgs = { level = "deny", check-cfg = ["cfg(fuzzing)"] }
 unsafe_code = "forbid"
 unused_results = "deny"
 warnings = "deny"

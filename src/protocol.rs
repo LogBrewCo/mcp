@@ -104,7 +104,17 @@ impl ServerHandler for Tools {
 
     fn get_info(&self) -> ServerConfig {
         ServerConfig::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
-            rmcp::model::Implementation::new("logbrew-mcp", "development"),
+            rmcp::model::Implementation::new("logbrew-mcp", env!("CARGO_PKG_VERSION"))
+                .with_title("LogBrew")
+                .with_description(
+                    "Read LogBrew errors, slow traces, logs, and product analytics, and triage issues with consent.",
+                )
+                .with_icons(vec![
+                    rmcp::model::Icon::new("https://docs.logbrew.co/favicon-512.png")
+                        .with_mime_type("image/png")
+                        .with_sizes(vec!["512x512".to_owned()]),
+                ])
+                .with_website_url("https://docs.logbrew.co/guides/mcp"),
         )
     }
 

@@ -1,0 +1,37 @@
+[package]
+name = "logbrew-mcp-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+license = "Apache-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "=0.4.13"
+logbrew-mcp = { path = ".." }
+
+# A workspace of its own, so the server's own build never compiles the fuzz targets.
+[workspace]
+
+[[bin]]
+name = "json_object"
+path = "fuzz_targets/json_object.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "bearer_header"
+path = "fuzz_targets/bearer_header.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "request_id"
+path = "fuzz_targets/request_id.rs"
+test = false
+doc = false
+bench = false

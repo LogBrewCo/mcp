@@ -12,6 +12,9 @@ mod connections;
 mod deadline;
 mod delivery;
 pub mod error;
+#[cfg(fuzzing)]
+#[doc(hidden)]
+pub mod fuzzing;
 pub mod json;
 mod media;
 mod outbound;

@@ -10,6 +10,8 @@ use serde_json::{Value, json, value::RawValue};
 mod errors;
 pub use errors::fixed_header_error;
 mod identifiers;
+#[cfg(fuzzing)]
+pub use identifiers::round_trip_id;
 pub use identifiers::{prepare_id, restore_id};
 
 pub fn prepare_media(headers: &mut HeaderMap) -> Option<Response> {

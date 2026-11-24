@@ -114,6 +114,19 @@ struct Restored<'reply> {
     error: Option<&'reply RawValue>,
 }
 
+/// Replace a numeric request ID, then restore it into a reply, for the
+/// `request_id` fuzz target. Returns the original and the restored ID.
+#[cfg(fuzzing)]
+pub fn round_trip_id(body: &mut Value) -> Option<(Value, Option<Value>)> {
+    let NumericId(original) = prepare_id(body)?;
+    let reply =
+        serde_json::to_vec(&json!({"jsonrpc": "2.0", "id": INTERNAL_ID, "result": {}})).ok()?;
+    let restored = restore(&reply, &original)
+        .and_then(|bytes| serde_json::from_slice::<Value>(&bytes).ok())
+        .and_then(|mut value| value.get_mut("id").map(Value::take));
+    Some((original, restored))
+}
+
 pub async fn restore_id(original: Option<NumericId>, response: Response) -> Response {
     let Some(NumericId(id)) = original else {
         return response;

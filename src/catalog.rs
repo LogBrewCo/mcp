@@ -79,6 +79,16 @@ pub struct FieldProblem {
     pub problem: &'static str,
 }
 
+/// What `search` returns for one operation.
+#[derive(Serialize)]
+struct Contract<'operation> {
+    id: &'operation str,
+    info: &'operation OperationInfo,
+    input_schema: &'operation Value,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    output_schema: Option<&'operation Value>,
+}
+
 struct Entry {
     operation: Operation,
     input: jsonschema::Validator,
@@ -160,26 +170,8 @@ impl Catalog {
     /// Rejects invalid search arguments, cursors, or unknown selected operations.
     pub fn search(&self, arguments: &Value) -> Result<Value, Failure> {
         let fields = arguments.as_object().ok_or(Kind::InvalidInput)?;
-        if let Some(id) = fields.get("operation") {
-            if fields
-                .keys()
-                .any(|key| !matches!(key.as_str(), "operation" | "output_schema"))
-            {
-                return Err(Kind::InvalidInput.into());
-            }
-            let with_output = match fields.get("output_schema") {
-                None => false,
-                Some(value) => value.as_bool().ok_or(Kind::InvalidInput)?,
-            };
-            let operation = &self
-                .selected(id.as_str().ok_or(Kind::InvalidInput)?)?
-                .operation;
-            let mut definition = json!({"id":operation.id,"info":operation.info,
-                "input_schema":operation.input_schema});
-            if with_output {
-                definition["output_schema"] = operation.output_schema.clone();
-            }
-            return Ok(definition);
+        if fields.contains_key("operation") {
+            return self.contract(fields);
         }
         if fields
             .keys()
@@ -236,6 +228,36 @@ impl Catalog {
             ""
         };
         Ok(json!({"operations":operations,"next_cursor":cursor}))
+    }
+
+    /// One operation's identifier, information and input schema, with its
+    /// output schema only when `output_schema` is true.
+    ///
+    /// # Errors
+    /// Rejects other fields, a non-boolean `output_schema`, or an unknown operation.
+    fn contract(&self, fields: &serde_json::Map<String, Value>) -> Result<Value, Failure> {
+        if fields
+            .keys()
+            .any(|key| !matches!(key.as_str(), "operation" | "output_schema"))
+        {
+            return Err(Kind::InvalidInput.into());
+        }
+        let id = fields
+            .get("operation")
+            .and_then(Value::as_str)
+            .ok_or(Kind::InvalidInput)?;
+        let with_output = fields
+            .get("output_schema")
+            .map_or(Some(false), Value::as_bool)
+            .ok_or(Kind::InvalidInput)?;
+        let operation = &self.selected(id)?.operation;
+        serde_json::to_value(Contract {
+            id: &operation.id,
+            info: &operation.info,
+            input_schema: &operation.input_schema,
+            output_schema: with_output.then_some(&operation.output_schema),
+        })
+        .map_err(Failure::redact(Kind::Unavailable))
     }
 
     /// Whether a known operation needs the `write` scope.

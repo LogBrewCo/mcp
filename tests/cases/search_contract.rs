@@ -429,7 +429,14 @@ async fn pages_list_the_newest_version_and_older_ones_only_on_request() -> TestR
         let data = search(&fixture, arguments.clone(), true).await?;
         ensure!(ids(&data) == expected, "{arguments}");
     }
-    drop(search(&fixture, json!({"query":"signals","all_versions":"true"}), false).await?);
+    drop(
+        search(
+            &fixture,
+            json!({"query":"signals","all_versions":"true"}),
+            false,
+        )
+        .await?,
+    );
     ensure_eq!(fixture.state().calls().load(Ordering::SeqCst), 0);
     Ok(())
 }

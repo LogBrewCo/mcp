@@ -256,7 +256,10 @@ async fn input_errors_name_each_failing_field() {
         response.1.pointer("/result/structuredContent/error/code"),
         Some(&json!("invalid_input"))
     );
-    assert_eq!(Some(&response.2), response.1.pointer("/result/structuredContent"));
+    assert_eq!(
+        Some(&response.2),
+        response.1.pointer("/result/structuredContent")
+    );
     assert_eq!(
         response.1.pointer("/result/structuredContent/error/fields"),
         Some(&json!([

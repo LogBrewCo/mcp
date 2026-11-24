@@ -12,7 +12,9 @@ use crate::{
 
 mod contracts;
 
-use contracts::{compile_entries, decode_operations, discovery_order, optional_text, problems, validate};
+use contracts::{
+    compile_entries, decode_operations, discovery_order, optional_text, problems, validate,
+};
 
 const CATALOG_BYTES: usize = 8 << 20;
 const SCHEMA_BYTES: usize = 256 << 10;
@@ -192,7 +194,7 @@ impl Catalog {
         } else {
             self.order
                 .iter()
-                .position(|(id, _)| id == after)
+                .position(|entry| entry.0 == after)
                 .ok_or(Kind::InvalidInput)?
                 .saturating_add(1)
         };
@@ -202,8 +204,8 @@ impl Catalog {
             .order
             .iter()
             .skip(start)
-            .filter(|(_, newest)| every_version || *newest)
-            .filter_map(|(id, _)| self.entries.get(id))
+            .filter(|entry| every_version || entry.1)
+            .filter_map(|entry| self.entries.get(&entry.0))
             .filter(|entry| {
                 let text = format!("{} {}", entry.operation.id, entry.operation.info.summary)
                     .to_lowercase();
@@ -251,10 +253,9 @@ impl Catalog {
             .get("operation")
             .and_then(Value::as_str)
             .and_then(|id| self.entries.get(id));
-        match (entry, arguments.get("input")) {
-            (Some(entry), Some(input)) => problems(&entry.input, input),
-            _ => Vec::new(),
-        }
+        entry
+            .zip(arguments.get("input"))
+            .map_or_else(Vec::new, |(entry, input)| problems(&entry.input, input))
     }
 
     /// Validate output before returning evidence to the caller.

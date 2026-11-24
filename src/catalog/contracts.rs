@@ -117,8 +117,10 @@ const FIELD_PROBLEMS: usize = 8;
 /// Discovery order of operation identifiers: families by name, each newest
 /// version first, with whether the identifier is its family's newest version.
 /// A family is the identifier without its `.vN` suffix.
-pub(super) fn discovery_order<'a>(ids: impl Iterator<Item = &'a String>) -> Vec<(String, bool)> {
-    let family = |id: &'a str| {
+pub(super) fn discovery_order<'ids>(
+    ids: impl Iterator<Item = &'ids String>,
+) -> Vec<(String, bool)> {
+    let family = |id: &'ids str| {
         id.rsplit_once(".v")
             .and_then(|(family, version)| Some((family, version.parse::<u64>().ok()?)))
             .unwrap_or((id, 0))
@@ -146,36 +148,48 @@ pub(super) fn discovery_order<'a>(ids: impl Iterator<Item = &'a String>) -> Vec<
         .collect()
 }
 
-/// The fields of `value` that fail `schema`, at most [`FIELD_PROBLEMS`], in
-/// field order. A field whose path has a segment outside 1 to 64 ASCII
-/// letters, digits, `_`, `-` and `.` is left out, so no arbitrary input text
-/// returns to the caller.
+/// The fields of `value` that fail `schema`, at most [`FIELD_PROBLEMS`].
+///
+/// Fields come in field order. A field whose path has a segment outside 1 to
+/// 64 ASCII letters, digits, `_`, `-` and `.` is left out, so no arbitrary
+/// input text returns to the caller.
 pub(super) fn problems(schema: &jsonschema::Validator, value: &Value) -> Vec<FieldProblem> {
     let mut found = BTreeSet::new();
     for error in schema.iter_errors(value) {
-        let at = error.instance_path().as_str();
-        let (names, problem): (Vec<Option<&str>>, &'static str) = match error.kind() {
-            ValidationErrorKind::AdditionalProperties { unexpected }
-            | ValidationErrorKind::UnevaluatedProperties { unexpected } => (
-                unexpected.iter().map(|name| Some(name.as_str())).collect(),
-                "unknown_field",
-            ),
-            ValidationErrorKind::Required { property } => (vec![property.as_str()], "missing"),
-            ValidationErrorKind::Type { .. } => (vec![None], "wrong_type"),
-            _ => (vec![None], "invalid_value"),
-        };
+        let parts = error.into_parts();
+        let at = parts.instance_path.as_str();
+        let (names, problem) = field_names(parts.kind);
         let safe_at = at.split('/').skip(1).all(safe_segment);
-        for name in names {
-            if safe_at && name.is_none_or(safe_segment) {
-                let field = name.map_or_else(|| at.to_owned(), |name| format!("{at}/{name}"));
-                let _new: bool = found.insert(FieldProblem { field, problem });
-            }
-        }
+        found.extend(
+            names
+                .into_iter()
+                .filter(|name| safe_at && name.as_deref().is_none_or(safe_segment))
+                .map(|name| FieldProblem {
+                    field: name.map_or_else(|| at.to_owned(), |name| format!("{at}/{name}")),
+                    problem,
+                }),
+        );
         if found.len() >= FIELD_PROBLEMS {
             break;
         }
     }
     found.into_iter().take(FIELD_PROBLEMS).collect()
+}
+
+/// The property names one validation error is about, or `None` for the value
+/// at its location, and the problem to report.
+fn field_names(kind: ValidationErrorKind) -> (Vec<Option<String>>, &'static str) {
+    if let ValidationErrorKind::AdditionalProperties { unexpected }
+    | ValidationErrorKind::UnevaluatedProperties { unexpected } = kind
+    {
+        (unexpected.into_iter().map(Some).collect(), "unknown_field")
+    } else if let ValidationErrorKind::Required { property } = kind {
+        (vec![property.as_str().map(str::to_owned)], "missing")
+    } else if matches!(kind, ValidationErrorKind::Type { kind: _ }) {
+        (vec![None], "wrong_type")
+    } else {
+        (vec![None], "invalid_value")
+    }
 }
 
 fn safe_segment(segment: &str) -> bool {

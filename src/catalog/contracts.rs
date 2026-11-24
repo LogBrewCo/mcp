@@ -1,10 +1,11 @@
 //! Catalog decoding and the operation and schema contracts it must satisfy.
 
-use alloc::collections::BTreeMap;
+use alloc::collections::{BTreeMap, BTreeSet};
 
+use jsonschema::error::ValidationErrorKind;
 use serde_json::Value;
 
-use super::{Entry, Operation, SCHEMA_BYTES};
+use super::{Entry, FieldProblem, Operation, SCHEMA_BYTES};
 use crate::{
     Failure,
     error::Kind,
@@ -108,6 +109,80 @@ pub(super) fn validate(
         return Err(Kind::InvalidInput.into());
     }
     Ok(())
+}
+
+/// Most field problems one error names.
+const FIELD_PROBLEMS: usize = 8;
+
+/// Discovery order of operation identifiers: families by name, each newest
+/// version first, with whether the identifier is its family's newest version.
+/// A family is the identifier without its `.vN` suffix.
+pub(super) fn discovery_order<'a>(ids: impl Iterator<Item = &'a String>) -> Vec<(String, bool)> {
+    let family = |id: &'a str| {
+        id.rsplit_once(".v")
+            .and_then(|(family, version)| Some((family, version.parse::<u64>().ok()?)))
+            .unwrap_or((id, 0))
+    };
+    let mut ordered: Vec<(&str, u64, &String)> = ids
+        .map(|id| {
+            let (name, version) = family(id);
+            (name, version, id)
+        })
+        .collect();
+    ordered.sort_by(|left, right| {
+        left.0
+            .cmp(right.0)
+            .then(right.1.cmp(&left.1))
+            .then(left.2.cmp(right.2))
+    });
+    let mut previous = None;
+    ordered
+        .into_iter()
+        .map(|(name, _, id)| {
+            let newest = previous != Some(name);
+            previous = Some(name);
+            (id.clone(), newest)
+        })
+        .collect()
+}
+
+/// The fields of `value` that fail `schema`, at most [`FIELD_PROBLEMS`], in
+/// field order. A field whose path has a segment outside 1 to 64 ASCII
+/// letters, digits, `_`, `-` and `.` is left out, so no arbitrary input text
+/// returns to the caller.
+pub(super) fn problems(schema: &jsonschema::Validator, value: &Value) -> Vec<FieldProblem> {
+    let mut found = BTreeSet::new();
+    for error in schema.iter_errors(value) {
+        let at = error.instance_path().as_str();
+        let (names, problem): (Vec<Option<&str>>, &'static str) = match error.kind() {
+            ValidationErrorKind::AdditionalProperties { unexpected }
+            | ValidationErrorKind::UnevaluatedProperties { unexpected } => (
+                unexpected.iter().map(|name| Some(name.as_str())).collect(),
+                "unknown_field",
+            ),
+            ValidationErrorKind::Required { property } => (vec![property.as_str()], "missing"),
+            ValidationErrorKind::Type { .. } => (vec![None], "wrong_type"),
+            _ => (vec![None], "invalid_value"),
+        };
+        let safe_at = at.split('/').skip(1).all(safe_segment);
+        for name in names {
+            if safe_at && name.is_none_or(safe_segment) {
+                let field = name.map_or_else(|| at.to_owned(), |name| format!("{at}/{name}"));
+                let _new: bool = found.insert(FieldProblem { field, problem });
+            }
+        }
+        if found.len() >= FIELD_PROBLEMS {
+            break;
+        }
+    }
+    found.into_iter().take(FIELD_PROBLEMS).collect()
+}
+
+fn safe_segment(segment: &str) -> bool {
+    (1..=64).contains(&segment.len())
+        && segment
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-' | b'.'))
 }
 
 /// Compile a bounded schema with format assertions and no external retrieval.

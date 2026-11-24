@@ -42,7 +42,9 @@ fn discovered(catalog: &Catalog) -> TestResult<Vec<Value>> {
     let mut operations = Vec::new();
     let mut after = String::new();
     loop {
-        let page = catalog.search(&json!({"query":"","after":after,"limit":10_u32}))?;
+        let page = catalog.search(
+            &json!({"query":"","after":after,"limit":10_u32,"all_versions":true}),
+        )?;
         operations.extend(
             page.get("operations")
                 .and_then(Value::as_array)
@@ -115,6 +117,54 @@ fn shipped_catalog_matches_its_pin_and_the_operation_reference() {
         .collect();
     assert_eq!(ids.len(), operations.len());
     assert_eq!(ids, documented);
+}
+
+#[test]
+/// # Panics
+///
+/// Panics if a search lists a superseded operation version on its first page,
+/// does not list the newest version first, or if an unknown input field of the
+/// newest issue investigation goes unnamed.
+fn shipped_search_lists_newest_versions_and_names_unknown_fields() {
+    let bytes = read("catalog/operations.json").expect("catalog");
+    let catalog = Catalog::load(&bytes, &pinned().expect("pin")).expect("pinned catalog");
+    let operations = discovered(&catalog).expect("operations");
+    let newest = |family: &str| {
+        operations
+            .iter()
+            .filter_map(|operation| operation.get("id").and_then(Value::as_str))
+            .filter_map(|id| Some((id, id.strip_prefix(family)?.parse::<u64>().ok()?)))
+            .max_by_key(|&(_, version)| version)
+            .map(|(id, _)| id.to_owned())
+            .expect(family)
+    };
+    for (query, family) in [("issues list", "issues.list.v"), ("issues investigate", "issues.investigate.v")] {
+        let page = catalog.search(&json!({"query":query})).expect(query);
+        let ids: Vec<&str> = page
+            .get("operations")
+            .and_then(Value::as_array)
+            .expect("operations")
+            .iter()
+            .filter_map(|operation| operation.get("id").and_then(Value::as_str))
+            .collect();
+        let current = newest(family);
+        let listed: Vec<&str> = ids.iter().copied().filter(|id| id.starts_with(family)).collect();
+        assert_eq!(listed, [current.as_str()], "{query}");
+        if query == "issues list" {
+            assert_eq!(ids.first().copied(), Some(current.as_str()));
+        }
+    }
+    let investigation = newest("issues.investigate.v");
+    let issue = "00000000-0000-4000-8000-000000000001";
+    let arguments = json!({"operation":investigation,"input":{"issue_id":issue,"project_id":issue}});
+    let input = arguments.get("input").expect("input");
+    assert!(catalog.input(&investigation, input).is_err());
+    let problems: Vec<(String, &str)> = catalog
+        .input_problems(&arguments)
+        .into_iter()
+        .map(|problem| (problem.field, problem.problem))
+        .collect();
+    assert_eq!(problems, [("/project_id".to_owned(), "unknown_field")]);
 }
 
 #[test]

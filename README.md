@@ -91,6 +91,13 @@ rather than sending `null`. Preserve the selected project and filters when
 following a cursor. Related evidence may be missing,
 unavailable or truncated; none of those states means zero events.
 
+Each operation name ends in its version, such as `issues.list.v7`. A `search`
+page lists only the newest version of each operation, so the first match is
+the one to run. To see older versions, newest first, send
+`all_versions: true` or put a version in the query, such as `v5` or
+`issues.list.v5`. An older version keeps working and its summary names the
+version that replaces it.
+
 ### Investigations
 
 | Operation | What it reads |
@@ -255,6 +262,10 @@ no data. Its stable code distinguishes invalid input, invalid service output,
 missing resources, permission denial, authentication failure, throttling and
 unavailability. Follow `next_action` and `message`; a null retry delay means
 unknown, not zero. The server does not retry an operation automatically.
+When `execute` input does not match the operation's `input_schema`, the
+`invalid_input` error also has `fields`: up to 8 failing fields, each with
+`field`, a JSON Pointer into `input` such as `/project_id`, and `problem`:
+`unknown_field`, `missing`, `wrong_type`, or `invalid_value`.
 
 `provenance.definition_sha256` identifies the catalog definitions used for the
 result. It does not prove a deployment revision, data freshness or completeness.
@@ -404,7 +415,9 @@ codes, matching recovery actions, and retry delays. Local tests validate that
 schema and reject inconsistent envelopes.
 
 Errors include `code`,
-`next_action`, `message`, and `retry_after_ms`. `message` is fixed text for each
+`next_action`, `message`, and `retry_after_ms`, and an `execute` input error
+also names its failing `fields`. A field name returns only when it is 1 to 64
+letters, digits, `_`, `-` or `.`. `message` is fixed text for each
 code that tells an agent how to fix its next call. Permission denial points to
 the projects the connection can read; invalid input points to the input contract;
 invalid service output is a separate error and does not return the rejected

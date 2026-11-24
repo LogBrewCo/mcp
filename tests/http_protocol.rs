@@ -613,12 +613,16 @@ fn assert_output_contract(tool: &Value) -> TestResult<()> {
     let error = json!({"code":"invalid_input","next_action":"review_input_contract",
         "message":Kind::InvalidInput.message(),"retry_after_ms":null});
     ensure!(validator.is_valid(&json!({"data":null,"error":error,"provenance":null})));
-    let mut named = error.clone();
-    named["fields"] = json!([{"field":"/project_id","problem":"unknown_field"}]);
-    ensure!(validator.is_valid(&json!({"data":null,"error":named,"provenance":null})));
+    let named = |fields: Value| {
+        json!({"data":null,"provenance":null,"error":{"code":"invalid_input",
+            "next_action":"review_input_contract","message":Kind::InvalidInput.message(),
+            "retry_after_ms":null,"fields":fields}})
+    };
+    ensure!(validator.is_valid(&named(json!([
+        {"field":"/project_id","problem":"unknown_field"}
+    ]))));
     for fields in [json!([]), json!([{"field":"/a","problem":"misspelled"}])] {
-        named["fields"] = fields;
-        ensure!(!validator.is_valid(&json!({"data":null,"error":named,"provenance":null})));
+        ensure!(!validator.is_valid(&named(fields)));
     }
     for invalid in [
         json!({"data":{},"error":error,"provenance":provenance}),

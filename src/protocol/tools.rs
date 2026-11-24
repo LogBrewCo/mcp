@@ -16,18 +16,7 @@ pub(super) fn envelope(
 ) -> CallToolResult {
     let (data, error) = match result {
         Ok(data) => (data, Value::Null),
-        Err(failure) => {
-            let mut error = json!({"code":failure.kind.code(),
-                "next_action":failure.kind.next_action(),
-                "message":failure.kind.message(),"retry_after_ms":failure.retry_after_ms});
-            if !fields.is_empty() {
-                error["fields"] = fields
-                    .iter()
-                    .map(|field| json!({"field":field.field,"problem":field.problem}))
-                    .collect();
-            }
-            (Value::Null, error)
-        }
+        Err(failure) => (Value::Null, error(failure, fields)),
     };
     let value = json!({"data":data,"error":error,"provenance":provenance});
     if value.to_string().len() > ENVELOPE_BYTES {
@@ -40,6 +29,27 @@ pub(super) fn envelope(
     } else {
         CallToolResult::structured_error(value)
     }
+}
+
+/// The error object, with `fields` only when there are any.
+fn error(failure: Failure, fields: &[FieldProblem]) -> Value {
+    let mut error = serde_json::Map::new();
+    for (name, value) in [
+        ("code", json!(failure.kind.code())),
+        ("next_action", json!(failure.kind.next_action())),
+        ("message", json!(failure.kind.message())),
+        ("retry_after_ms", json!(failure.retry_after_ms)),
+    ] {
+        let _previous: Option<Value> = error.insert(name.to_owned(), value);
+    }
+    if !fields.is_empty() {
+        let listed = fields
+            .iter()
+            .map(|field| json!({"field":field.field,"problem":field.problem}))
+            .collect();
+        let _previous: Option<Value> = error.insert("fields".to_owned(), listed);
+    }
+    Value::Object(error)
 }
 
 /// One tool definition. `effects` says whether any catalog operation writes,

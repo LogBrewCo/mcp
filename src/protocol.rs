@@ -203,11 +203,13 @@ impl ServerHandler for Tools {
             .as_ref()
             .map_or(Outcome::Cancelled, Outcome::result);
         let result = finished.unwrap_or_else(|| Err(Kind::Unavailable.into()));
-        let fields = match (&tool, &result) {
-            (ToolKind::Execute, Err(failure)) if failure.kind == Kind::InvalidInput => {
-                self.0.catalog.input_problems(&arguments)
-            }
-            _ => Vec::new(),
+        let invalid_input = result
+            .as_ref()
+            .is_err_and(|failure| failure.kind == Kind::InvalidInput);
+        let fields = if invalid_input && matches!(tool, ToolKind::Execute) {
+            self.0.catalog.input_problems(&arguments)
+        } else {
+            Vec::new()
         };
         let response = envelope(result, &fields, Some(&self.0.catalog.provenance()));
         let outcome = if outcome == Outcome::Completed && response.is_error == Some(true) {

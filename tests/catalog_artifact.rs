@@ -42,9 +42,8 @@ fn discovered(catalog: &Catalog) -> TestResult<Vec<Value>> {
     let mut operations = Vec::new();
     let mut after = String::new();
     loop {
-        let page = catalog.search(
-            &json!({"query":"","after":after,"limit":10_u32,"all_versions":true}),
-        )?;
+        let page = catalog
+            .search(&json!({"query":"","after":after,"limit":10_u32,"all_versions":true}))?;
         operations.extend(
             page.get("operations")
                 .and_then(Value::as_array)
@@ -138,7 +137,10 @@ fn shipped_search_lists_newest_versions_and_names_unknown_fields() {
             .map(|(id, _)| id.to_owned())
             .expect(family)
     };
-    for (query, family) in [("issues list", "issues.list.v"), ("issues investigate", "issues.investigate.v")] {
+    for (query, family) in [
+        ("issues list", "issues.list.v"),
+        ("issues investigate", "issues.investigate.v"),
+    ] {
         let page = catalog.search(&json!({"query":query})).expect(query);
         let ids: Vec<&str> = page
             .get("operations")
@@ -148,7 +150,11 @@ fn shipped_search_lists_newest_versions_and_names_unknown_fields() {
             .filter_map(|operation| operation.get("id").and_then(Value::as_str))
             .collect();
         let current = newest(family);
-        let listed: Vec<&str> = ids.iter().copied().filter(|id| id.starts_with(family)).collect();
+        let listed: Vec<&str> = ids
+            .iter()
+            .copied()
+            .filter(|id| id.starts_with(family))
+            .collect();
         assert_eq!(listed, [current.as_str()], "{query}");
         if query == "issues list" {
             assert_eq!(ids.first().copied(), Some(current.as_str()));
@@ -156,7 +162,8 @@ fn shipped_search_lists_newest_versions_and_names_unknown_fields() {
     }
     let investigation = newest("issues.investigate.v");
     let issue = "00000000-0000-4000-8000-000000000001";
-    let arguments = json!({"operation":investigation,"input":{"issue_id":issue,"project_id":issue}});
+    let arguments =
+        json!({"operation":investigation,"input":{"issue_id":issue,"project_id":issue}});
     let input = arguments.get("input").expect("input");
     assert!(catalog.input(&investigation, input).is_err());
     let problems: Vec<(String, &str)> = catalog

@@ -25,8 +25,9 @@ reconnect with the new URL to move a client to it.
   call. The agent cannot change billing, members or account settings. A call
   on a project that you did not approve returns `permission_denied`.
 - **Connection lifetime:** An access token is valid for 1 hour, and the client
-  refreshes it while you use the connection. A connection ends after 30 days
-  without use, or 90 days after you approved it. Revoke a connection in the
+  refreshes it while you use the connection. A connection stays while you use
+  it and ends after 1 year without use. It also ends when you revoke it, sign
+  out of LogBrew everywhere, or delete your account. Revoke a connection in the
   LogBrew dashboard under Settings > MCP connections, or with
   `logbrew mcp revoke`.
 

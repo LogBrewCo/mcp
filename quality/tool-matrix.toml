@@ -232,10 +232,10 @@ runs_in = "scorecard workflow: pushes to main, weekly, and branch protection cha
 config = "publish_results: true; results go to the OpenSSF API and to code scanning"
 conflicts = "none known"
 exceptions = "none"
-runtime = "not yet recorded; the workflow is new"
-findings = "unknown: the first run publishes the baseline; record low checks at the next review"
+runtime = "scorecard job, the last 15 successful runs: max 87 s; p99 unsupported"
+findings = "2026-11-25: score 7.3 of 10 (Scorecard v5.6.0 on main, 2026-11-24). Vulnerabilities 9: RUSTSEC-2026-0543, chrono is unmaintained, through rmcp (#98). Maintained 0: the repository is less than 90 days old. Code-Review 0 and Contributors 0 (one maintainer merges without review); Branch-Protection 4; CII-Best-Practices 0 (no badge); Packaging and Signed-Releases not scored (no packaging workflow, no releases); Fuzzing passes"
 replaces = "none"
-checked = 2026-10-30
+checked = 2026-11-25
 
 [[tool]]
 id = "zizmor"

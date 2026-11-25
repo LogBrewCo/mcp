@@ -62,6 +62,29 @@ claude mcp add --transport http logbrew https://logbrew.co/mcp
 claude mcp login logbrew
 ```
 
+In Cline, add this entry under `mcpServers` in `cline_mcp_settings.json`. To
+open the file in the IDE extension, click **MCP Servers**, open the
+**Configure** tab and click **Configure MCP Servers**. The Cline CLI keeps it
+at `~/.cline/data/settings/cline_mcp_settings.json`.
+
+```json
+{
+  "mcpServers": {
+    "logbrew": {
+      "type": "streamableHttp",
+      "url": "https://logbrew.co/mcp",
+      "disabled": false
+    }
+  }
+}
+```
+
+Keep `"type": "streamableHttp"`. Without it, Cline uses the legacy SSE
+transport. Do not add an `Authorization` header or a key. Save the file and
+click **Authenticate** on the `logbrew` server, or run `cline mcp` and select
+**Authorize OAuth** in the CLI. Sign in to LogBrew in the browser and select
+the projects that Cline can read.
+
 The server is also listed as a
 [Glama connector](https://glama.ai/mcp/connectors/co.logbrew/mcp).
 
